@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/background_shape_red">
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="10dp">
+
+        <ImageView
+            android:id="@+id/iv_scan_wx_avatar_icon"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_centerVertical="true"
+            android:src="@mipmap/wxavatar"
+            android:scaleType="fitXY"/>
+        <TextView
+            android:id="@+id/tv_scan_wx_nickname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:text="三毛"
+            android:maxLength="10"
+            android:ellipsize="end"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/iv_scan_wx_avatar_icon"
+            android:layout_marginLeft="5dp"
+            android:textColor="@color/color_white"
+            android:textSize="20sp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="发了一个电视红包"
+            android:layout_toRightOf="@id/tv_scan_wx_nickname"
+            android:layout_marginLeft="5dp"
+            android:layout_centerVertical="true"
+            android:textColor="@color/color_white"
+            android:textSize="20sp"/>
+        <TextView
+            android:id="@+id/tv_scan_wx_countdown"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:text="70"
+            android:gravity="center"
+            android:textSize="20dp"
+            android:textColor="@color/color_white"
+            android:textStyle="bold"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@drawable/bg_shape_white_line"/>
+    </RelativeLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:lines="1"
+        android:text="红包来啦"
+        android:layout_gravity="center"
+        android:layout_marginTop="10sp"
+        android:textColor="#f6edc4"
+        android:textSize="45sp"/>
+    <ImageView
+        android:id="@+id/iv_scan_qrcode"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
+        android:background="@color/color_white"
+        android:layout_width="300dp"
+        android:layout_height="300dp" />
+</LinearLayout>

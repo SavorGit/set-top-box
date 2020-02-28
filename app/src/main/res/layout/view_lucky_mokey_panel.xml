@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+
+    android:orientation="vertical">
+
+
+    <ImageView
+        android:id="@+id/bg_1"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:padding="80dp"
+        android:src="@drawable/bubble0" />
+
+    <ImageView
+        android:id="@+id/bg_2"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:src="@drawable/bubble1"
+        android:padding="80dp"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="25dp"
+        android:gravity="center"
+        android:layout_centerInParent="true"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <com.savor.ads.customview.PanelItemView
+                android:id="@+id/item1"
+                android:layout_width="124dp"
+                android:layout_height="124dp"
+                android:background="@drawable/bg_lucky_monkey_item1" />
+
+            <com.savor.ads.customview.PanelItemView
+                android:id="@+id/item2"
+                android:layout_width="124dp"
+                android:layout_height="124dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:background="@drawable/bg_lucky_monkey_item2" />
+
+            <com.savor.ads.customview.PanelItemView
+                android:id="@+id/item3"
+                android:layout_width="124dp"
+                android:layout_height="124dp"
+                android:background="@drawable/bg_lucky_monkey_item3" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="30dp"
+            android:orientation="horizontal">
+
+            <com.savor.ads.customview.PanelItemView
+                android:id="@+id/item4"
+                android:layout_width="124dp"
+                android:layout_height="124dp"
+                android:background="@drawable/bg_lucky_monkey_item4" />
+
+            <com.savor.ads.customview.PanelItemView
+                android:id="@+id/item5"
+                android:layout_width="124dp"
+                android:layout_height="124dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:background="@drawable/bg_lucky_monkey_item5" />
+
+            <com.savor.ads.customview.PanelItemView
+                android:id="@+id/item6"
+                android:layout_width="124dp"
+                android:layout_height="124dp"
+                android:background="@drawable/bg_lucky_monkey_item6" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <com.savor.ads.customview.PanelItemView
+                android:id="@+id/item7"
+                android:layout_width="124dp"
+                android:layout_height="124dp"
+                android:background="@drawable/bg_lucky_monkey_item7" />
+
+            <com.savor.ads.customview.PanelItemView
+                android:id="@+id/item8"
+                android:layout_width="124dp"
+                android:layout_height="124dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:background="@drawable/bg_lucky_monkey_item8" />
+
+            <com.savor.ads.customview.PanelItemView
+                android:id="@+id/item9"
+                android:layout_width="124dp"
+                android:layout_height="124dp"
+                android:background="@drawable/bg_lucky_monkey_item9" />
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

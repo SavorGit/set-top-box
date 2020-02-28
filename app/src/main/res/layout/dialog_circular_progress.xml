@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:id="@+id/circular_layout"
+        android:layout_centerVertical="true"
+        android:layout_width="match_parent"
+        android:layout_height="200dp">
+
+        <com.savor.ads.utils.PercentCircle
+            android:id="@+id/percentCircle"
+            android:layout_width="155dp"
+            android:layout_height="155dp"
+            app:radius="250"
+            app:circleBackground="#00000000"
+            app:ringColor="#ffffff"
+            app:textColor="#ffffff"
+            android:layout_marginLeft="34dp"
+            android:layout_marginTop="15dp"
+            />
+
+        <ImageView
+            android:layout_marginLeft="20dp"
+            android:layout_width="185dp"
+            android:layout_height="185dp"
+            android:src="@drawable/ring"/>
+
+
+
+    </RelativeLayout>
+
+    </RelativeLayout>

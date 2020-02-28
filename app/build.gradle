@@ -1,0 +1,132 @@
+apply plugin: 'com.android.application'
+//定义打包时间函数
+def releaseTime() {
+    return new Date().format("yyyyMMddHHmm", TimeZone.getDefault())
+}
+// 将打的包按日期归类
+def releaseDate() {
+    return new Date().format("yyyyMMdd", TimeZone.getDefault())
+}
+
+android {
+    compileSdkVersion COMPILE_SDK_VERSION as int
+    buildToolsVersion BUILD_TOOLS_VERSION
+    defaultConfig {
+        applicationId "com.savor.ads"
+        minSdkVersion MIN_SDK_VERSION as int
+        targetSdkVersion TARGET_SDK_VERSION as int
+
+        versionCode 2020020401
+        versionName "1.3.4.5"
+
+        multiDexEnabled true
+    }
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
+
+    // 签名配置
+    signingConfigs {
+        debug {
+            storeFile file("/savor-box.jks")
+            storePassword "savor123456"
+            keyAlias "savor-box"
+            keyPassword "savor123456"
+        }
+        release {
+            storeFile file("/savor-box.jks")
+            storePassword "savor123456"
+            keyAlias "savor-box"
+            keyPassword "savor123456"
+        }
+    }
+
+    buildTypes {
+        debug {
+            // 是否混淆
+            minifyEnabled false
+            zipAlignEnabled false
+            // 移除无用的resource文件
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
+
+            ndk {
+                abiFilters("armeabi")
+            }
+        }
+        release {
+            // 是否混淆
+            minifyEnabled true
+            zipAlignEnabled true
+            // 移除无用的resource文件
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+
+            ndk {
+                abiFilters("armeabi")
+            }
+        }
+    }
+
+    flavorDimensions "savor"
+    productFlavors {
+        staging {
+            dimension "savor"
+            buildConfigField("String", "BASE_URL", "\"http://dev-mobile.littlehotspot.com/\"")
+            buildConfigField("String", "VIRTUAL_SP_HOST", "\"devp-vsmall.littlehotspot.com\"")
+            buildConfigField("String", "BALANCING_NETTY_BASE", "\"http://dev-api-nzb.littlehotspot.com\"")
+            buildConfigField("String", "BAIDU_AD_BASE_URL", "\"http://jpaccess.baidu.com/api_6\"")
+            buildConfigField("String", "ZMENG_AD_BASE_URL", "\"http://123.56.176.83:8082/erasmus/zmt/api/ad/getAd.do\"")
+            buildConfigField("String", "JDMOMEDIA_AD_BASE_URL", "\"http://testapi.jdmomedia.com/\"")
+            buildConfigField("String", "YISHOU_AD_BASE_URL", "\"http://dev-api6.pingxiaobao.com/rtb/subscribe.shtml\"")
+            buildConfigField("String", "OSS_BUCKET_NAME", "\"redian-development\"")
+            buildConfigField("String", "OSS_ENDPOINT", "\"http://dev-oss.littlehotspot.com/\"")
+            buildConfigField("String", "OSS_NATIVE_ENDPOINT", "\"http://oss-cn-beijing.aliyuncs.com/\"")
+        }
+        production {
+            dimension "savor"
+            buildConfigField("String", "BASE_URL", "\"http://mobile.littlehotspot.com/\"")
+            buildConfigField("String", "VIRTUAL_SP_HOST", "\"vsmall.littlehotspot.com\"")
+            buildConfigField("String", "BALANCING_NETTY_BASE", "\"https://api-nzb.littlehotspot.com\"")
+            buildConfigField("String", "BAIDU_AD_BASE_URL", "\"https://jpad.baidu.com/api_6\"")
+            buildConfigField("String", "ZMENG_AD_BASE_URL", "\"http://ssp.zmeng123.com/zmt/api/ad/getAd.do\"")
+            buildConfigField("String", "JDMOMEDIA_AD_BASE_URL", "\"http://api.jdmomedia.com/\"")
+            buildConfigField("String", "YISHOU_AD_BASE_URL", "\"http://api6.pingxiaobao.com/rtb/subscribe.shtml\"")
+            buildConfigField("String", "OSS_BUCKET_NAME", "\"redian-produce\"")
+            buildConfigField("String", "OSS_ENDPOINT", "\"http://oss.littlehotspot.com/\"")
+            buildConfigField("String", "OSS_NATIVE_ENDPOINT", "\"http://oss-cn-beijing.aliyuncs.com/\"")
+        }
+    }
+
+    android.applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                def fileName = "SavorBox_v${variant.versionName}_${variant.versionCode}_${variant.flavorName}.apk"
+                outputFileName = fileName
+            }
+        }
+    }
+}
+android{useLibrary 'org.apache.http.legacy'}
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    compileOnly fileTree(include: ['*.jar'], dir: 'provided')
+    implementation "com.android.support:appcompat-v7:$SUPPORT_LIB_VERSION"
+    implementation 'com.squareup.okhttp3:okhttp:3.7.0'
+    implementation 'com.aliyun.dpa:oss-android-sdk:+'
+    implementation 'com.squareup.okio:okio:1.9.0'
+    implementation 'com.google.code.gson:gson:2.8.1'
+    implementation 'com.android.support:multidex:1.0.2'
+    implementation project(':tvlibrary')
+    implementation project(':Pushlib')
+    implementation 'com.google.protobuf:protobuf-java:3.2.0'
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.1'
+    implementation 'com.github.bumptech.glide:glide:4.8.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.8.0'
+    implementation 'com.github.ctiao:DanmakuFlameMaster:0.7.3'
+    implementation 'com.github.ctiao:ndkbitmap-armv7a:0.7.3'
+}

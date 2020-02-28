@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/luckybg">
+    <LinearLayout
+        android:id="@+id/winning_prize_layout"
+        android:gravity="center"
+        android:layout_marginLeft="20dp"
+        android:layout_centerVertical="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <ImageView
+            android:id="@+id/winning_weixin_head"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:background="#FFFFFF"/>
+        <TextView
+            android:id="@+id/winning_text"
+            android:textColor="#FFFFFF"
+            android:textSize="40dp"
+            android:text="扫码加入游戏"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ImageView
+            android:id="@+id/winning_img"
+            android:visibility="gone"
+            android:src="@mipmap/drink"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <LinearLayout
+        android:visibility="visible"
+        android:layout_centerInParent="true"
+        android:id="@+id/view_container"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:overScrollMode="never">
+
+
+
+        <RelativeLayout
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <com.savor.ads.customview.LuckyMonkeyPanelView
+                android:id="@+id/lucky_panel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <Button
+                android:visibility="gone"
+                android:id="@+id/btn_action"
+                android:layout_width="82dp"
+                android:layout_height="82dp"
+                android:background="@drawable/bg_lucky_monkey_go"
+                android:text="Go"
+                android:layout_centerInParent="true"
+                android:textColor="#4d1c01"
+                android:textSize="34sp" />
+
+        </RelativeLayout>
+
+
+
+    </LinearLayout>
+</RelativeLayout>

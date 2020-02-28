@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">SetTopBox</string>
+    <string name="mini_program_tip1">扫码投屏</string>
+    <string name="mini_program_tip2">体验照片投屏</string>
+    <string name="mini_program_tip3">扫码体验投屏</string>
+    <string name="mini_program_tip4">手机太小,分享不过瘾</string>
+    <string name="mini_program_tip5">扫码体验内容上电视</string>
+    <string name="mini_program_tip6">扫码下单</string>
+    <string name="mini_program_tip7">限时秒杀</string>
+
+</resources>

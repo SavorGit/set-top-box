@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+          tools:ignore="ProtectedPermissions"
+          package="com.savor.ads">
+
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
+    <uses-permission android:name="android.permission.INSTALL_LOCATION_PROVIDER"/>
+    <uses-permission android:name="android.permission.INSTALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.DELETE_PACKAGES"/>
+    <uses-permission android:name="android.permission.CLEAR_APP_CACHE"/>
+    <uses-permission android:name="android.permission.CLEAR_APP_USER_DATA"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
+    <uses-permission android:name="android.permission.WRITE_MEDIA_STORAGE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.RESTART_PACKAGES"/>
+    <uses-permission android:name="android.permission.GET_TASKS"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
+    <uses-permission android:name="android.permission.GET_TOP_ACTIVITY_INFO"/>
+    <uses-permission android:name="android.permission.REORDER_TASKS"/>
+
+    <uses-permission
+        android:name="android.permission.GLOBAL_SEARCH"
+        tools:ignore="ProtectedPermissions"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_TV_LISTINGS"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.MODIFY_PARENTAL_CONTROLS"/>
+    <uses-permission android:name="com.android.providers.tv.permission.READ_EPG_DATA"/>
+    <uses-permission android:name="com.android.providers.tv.permission.WRITE_EPG_DATA"/>
+    <uses-permission android:name="com.android.providers.tv.permission.ACCESS_ALL_EPG_DATA"/>
+    <uses-permission android:name="com.android.providers.tv.permission.ACCESS_WATCHED_PROGRAMS"/>
+    <uses-permission android:name="droidlogic.permission.SYSTEM_CONTROL"/>
+    <uses-permission android:name="android.permission.HDMI_CEC"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.DEVICE_POWER"/>
+
+    <!-- 系统rom更新 -->
+    <uses-permission android:name="android.permission.DELETE_CACHE_FILES"/>
+    <uses-permission android:name="android.permission.ACCESS_CACHE_FILESYSTEM"/>
+    <uses-permission android:name="android.permission.REBOOT"/>
+    <uses-permission android:name="android.permission.RECOVERY"/>
+    <!-- 系统rom更新 -->
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.INTERNAL_SYSTEM_WINDOW" />
+
+    <!-- Permissions/feature for USB tuner -->
+    <uses-permission android:name="android.permission.DVB_DEVICE"/>
+    <!--svt获取当前信号源通道使用-->
+    <uses-permission android:name="com.mstar.android.permissionn.ACCESS_TV_DATA" />
+
+    <uses-feature
+        android:name="android.hardware.usb.host"
+        android:required="false"/>
+
+    <!-- Limit only for Android TV -->
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="true"/>
+    <uses-feature
+        android:name="android.software.live_tv"
+        android:required="true"/>
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false"/>
+
+    <application
+        android:name=".SavorApplication"
+        android:persistent="true"
+        android:allowBackup="true"
+        android:hardwareAccelerated="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:largeHeap="true"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <meta-data
+            android:name="UMENG_APPKEY"
+            android:value="58576b54677baa3b41000809"/>
+        <meta-data
+            android:name="UMENG_MESSAGE_SECRET"
+            android:value="f0c6648f85f494cf83953ddafaaee305">
+        </meta-data>
+        <meta-data
+            android:name="UMENG_CHANNEL"
+            android:value="official"/>
+        <meta-data
+            android:name="com.savor.ads.core.SavorGlideModule"
+            android:value="GlideModule"/>
+
+        <receiver android:name=".receiver.NetworkBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".receiver.GiecPQReceiver">
+            <intent-filter>
+                <action android:name="com.giec.action.need_close_pq"/>
+            </intent-filter>
+        </receiver>
+
+        <activity
+            android:name=".activity.MainActivity"
+            android:theme="@style/SplashTheme">
+            <intent-filter>
+                <category android:name="android.intent.category.LAUNCHER"/>
+
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.HOME"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activity.MonkeyGameActivity"
+            android:launchMode="singleTask">
+        </activity>
+        <activity
+            android:name=".activity.WebviewGameActivity"
+            android:launchMode="singleTask"/>
+        <!-- 启动Netty服务的Service
+        <service
+            android:name=".service.MessageService"
+            android:exported="false">
+        </service>
+        -->
+        <!-- 启动SSDP的服务 -->
+        <service
+            android:name=".service.ServerDiscoveryService"
+            android:exported="false">
+        </service>
+        <!--启动小程序NETTY服务-->
+        <service android:name=".service.MiniProgramNettyService"
+                 android:exported="false">
+        </service>
+        <!-- 处理媒体文件更新的服务 -->
+        <service
+            android:name=".service.HandleMediaDataService"
+            android:exported="false">
+        </service>
+        <service android:name=".service.ProjectionService"
+            android:exported="false">
+        </service>
+        <!-- 点播类处理和转发指令的Service -->
+        <service android:name="com.jar.savor.box.services.RemoteService">
+            <intent-filter>
+                <action android:name="com.jar.savor.box.REMOTE1"/>
+            </intent-filter>
+        </service>
+
+        <!-- 广告播放页面 -->
+        <activity
+            android:name=".activity.AdsPlayerActivity"
+            android:launchMode="singleTask">
+        </activity>
+        <!-- 电视播放页面 -->
+        <activity
+            android:name=".activity.TvPlayerActivity"
+            android:launchMode="singleTask">
+        </activity>
+        <activity
+            android:name=".activity.TvPlayerGiecActivity"
+            android:launchMode="singleTask">
+        </activity>
+        <!-- 投屏类播放页面 -->
+        <activity android:name=".activity.ScreenProjectionActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:launchMode="singleTask">
+        </activity>
+        <!-- 应用设置页面 -->
+        <activity
+            android:name=".activity.SettingActivity"
+            android:launchMode="singleTask">
+        </activity>
+
+        <service
+            android:name=".service.HeartbeatService"
+            android:exported="false">
+        </service>
+        <activity android:name=".activity.UsbImageViewerActivity">
+        </activity>
+
+        <service
+            android:name=".service.SSDPMulticastService"
+            android:exported="false">
+        </service>
+
+        <activity
+            android:name=".activity.AppBrowserActivity"
+            android:launchMode="singleTask"/>
+
+        <service
+            android:name=".service.UMessageIntentService"
+            android:exported="false">
+        </service>
+        <service
+            android:name=".service.GiecPQService"
+            android:exported="false">
+        </service>
+    </application>
+
+</manifest>

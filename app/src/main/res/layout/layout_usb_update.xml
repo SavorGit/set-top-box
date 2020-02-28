@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:padding="30dp">
+
+    <TextView
+        android:id="@+id/tv_hotel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="当前酒楼ID：7"
+        android:textSize="26sp"/>
+
+
+    <TextView
+        android:id="@+id/tv_action_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_hotel"
+        android:text="将执行以下动作，若确认无误请点击下方【确定】按钮"
+        android:textColor="#333333"
+        android:textSize="40sp"/>
+
+
+    <LinearLayout
+        android:id="@+id/ll_operate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:text="取消"/>
+
+        <Button
+            android:id="@+id/btn_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:text="确定"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_action"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/ll_operate"
+        android:layout_below="@id/tv_action_tips"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="20dp"
+        android:padding="10dp"
+        android:background="@android:color/darker_gray"
+        android:orientation="vertical">
+    </LinearLayout>
+
+</RelativeLayout>

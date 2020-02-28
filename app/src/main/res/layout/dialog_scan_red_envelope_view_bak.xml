@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:background="#E5f05649">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:layout_marginTop="10dp">
+
+        <ImageView
+            android:layout_width="190dp"
+            android:layout_height="150dp"
+            android:layout_marginTop="10dp"
+            android:src="@mipmap/sweep_red_envelopes"
+            android:scaleType="fitXY"/>
+        <ImageView
+            android:id="@+id/iv_wx_avatar_icon"
+            android:layout_marginTop="10dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@mipmap/wxavatar"
+            android:scaleType="fitXY"/>
+        <TextView
+            android:id="@+id/tv_wx_nickname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:maxLength="10"
+            android:layout_marginTop="5dp"
+            android:text="三毛流浪记"
+            android:textColor="@color/color_white"
+            android:textSize="20sp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:layout_marginTop="5dp"
+            android:text="发了一个电视红包"
+            android:textColor="@color/color_white"
+            android:textSize="20sp"/>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/iv_qrcode"
+        android:layout_gravity="center"
+        android:padding="5dp"
+        android:background="@drawable/background_shape_white"
+        android:layout_marginTop="40dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp" />
+    <TextView
+        android:id="@+id/tv_scan_countdown"
+        android:layout_gravity="center"
+        android:text="60"
+        android:gravity="center"
+        android:textSize="50dp"
+        android:textStyle="bold"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/color_white"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:background="@drawable/bg_shape_white_line"/>
+</LinearLayout>

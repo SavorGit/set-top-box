@@ -1,0 +1,580 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@mipmap/ic_box_info_bg"
+                android:orientation="vertical"
+                android:paddingBottom="20dp"
+                android:paddingTop="20dp">
+
+    <TextView
+        android:id="@+id/tv_hotel_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="48dp"
+        android:background="@drawable/bg_round_white"
+        android:drawableLeft="@mipmap/ic_position"
+        android:drawablePadding="16dp"
+        android:gravity="center_vertical"
+        android:paddingBottom="6dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="26dp"
+        android:paddingTop="6dp"
+        android:text="永峰写字楼"
+        android:textColor="#b31e19"
+        android:textSize="20sp"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/tv_hotel_name"
+        android:layout_marginTop="40dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="48dp"
+            android:paddingRight="48dp">
+
+            <!--ROM版本、APK版本、当前节目期号-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="ROM版本号"/>
+
+                    <TextView
+                        android:id="@+id/tv_rom_version"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="APK版本号"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_app_version"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="当前节目期号"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_pro_period"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!--包间类型、包间名称、下载节目期号-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="包间名称"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_room_name"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="机顶盒名称"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_box_name"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="下载节目期号"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_pro_download_period"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!--切换时间、系统时间、当前点播期号-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="电视切换时间"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_switch_tv_time"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="系统时间"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_sys_time"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="当前生日期号"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_birthday_period"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!--有线MAc、无线MAC、下载点播期号-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="有线MAC地址"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_ethernet_mac"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/tv_wlan_mac_label"
+                        style="@style/box_info_item_label"
+                        android:text="无线MAC地址"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_wlan_mac"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="下载生日期号"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_birthday_download_period"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!--有线IP、无线IP、当前广告期号-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="有线IP地址"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_eth_ip"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/tv_wlan_ip_label"
+                        style="@style/box_info_item_label"
+                        android:text="无线IP地址"/>
+
+                    <TextView
+                        android:id="@+id/tv_wlan_ip"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="当前广告期号"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_ads_period"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!--小平台地址、最后开机时间、 下载广告期号-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="小平台地址"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_server_ip"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="最后开机时间"/>
+
+                    <TextView
+                        android:id="@+id/tv_last_power_on_time"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="下载广告期号"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_ads_download_period"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!--loading图期号、信号源、当前酒楼片源-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="Loading图期号"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_loading_version"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="信号源"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_signal_source"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="当前酒楼片源"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_adv_period"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!--轮播音量、点播音量、下载酒楼片源-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="轮播音量"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_volume"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="点播音量"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_vod_volume"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="下载酒楼片源"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_adv_download_period"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!--投屏音量、电视节目期号、酒楼LOGO期号-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="投屏音量"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_project_volume"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="电视节目音量"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_tv_volume"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="酒楼LOGO期号"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_logo_version"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>

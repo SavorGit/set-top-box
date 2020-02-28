@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_tv_player"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.savor.ads.activity.TvPlayerGiecActivity">
+
+    <android.media.tv.TvView
+        android:id="@+id/tvView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <RelativeLayout
+        android:id="@+id/rl_channel_tip"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="30dp"
+        android:background="@mipmap/ic_channel_bg_whole"
+        android:padding="15dp"
+        android:visibility="gone">
+
+
+        <TextView
+            android:id="@+id/tv_channel_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:textColor="#D9D9D9"
+            android:textSize="28sp"/>
+
+        <TextView
+            android:id="@+id/tv_channel_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_channel_number"
+            android:background="@mipmap/ic_channel_bg_name"
+            android:padding="8dp"
+            android:textColor="#323233"
+            android:textSize="28sp"/>
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tv_no_channel_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="无电视节目"
+        android:textColor="@android:color/white"
+        android:textSize="30sp"
+        android:visibility="gone"/>
+</RelativeLayout>

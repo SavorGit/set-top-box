@@ -1,0 +1,17 @@
+<resources>
+    <declare-styleable name="CircleProgressBar">
+        <attr name="indeterminate" format="boolean"/>
+        <attr name="indeterminateDuration" format="integer"/>
+        <attr name="backgroundColor" format="color"/>
+        <attr name="fillColor" format="color"/>
+        <attr name="strokeWidth" format="dimension"/>
+    </declare-styleable>
+
+    <declare-styleable name="PercentageRing">
+        <attr name="radius" format="integer"/>
+        <attr name="circleBackground" format="color"/>
+        <attr name="ringColor" format="color"/>
+        <attr name="textColor" format = "color"/>
+
+    </declare-styleable>
+</resources>
