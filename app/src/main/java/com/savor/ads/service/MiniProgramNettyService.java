@@ -1752,12 +1752,12 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         int rotation = minipp.getRotation();
         String filename = minipp.getFilename();
         String img_url = BuildConfig.OSS_ENDPOINT+minipp.getImg_oss_addr();
-//        int type = minipp.getType();
-//        String waiterName = minipp.getWaiterName();
-//        String waiterIconUrl = minipp.getWaiterIconUrl();
-        int type =2;
-        String waiterName = "刘斌";
-        String waiterIconUrl = "";
+        int type = minipp.getType();
+        String waiterName = minipp.getWaiterName();
+        String waiterIconUrl = minipp.getWaiterIconUrl();
+//        int type =2;
+//        String waiterName = "刘斌";
+//        String waiterIconUrl = "";
         long startTime = System.currentTimeMillis();
         LogUtils.d("-|-|开始下载时间"+startTime);
         HashMap<String, Object> params = new HashMap<>();
