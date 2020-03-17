@@ -18,6 +18,7 @@ import com.google.gson.reflect.TypeToken;
 import com.jar.savor.box.services.RemoteService;
 import com.jar.savor.box.vo.RotateResponseVo;
 import com.savor.ads.BuildConfig;
+import com.savor.ads.R;
 import com.savor.ads.SavorApplication;
 import com.savor.ads.activity.AdsPlayerActivity;
 import com.savor.ads.activity.MainActivity;
@@ -1755,9 +1756,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         int type = minipp.getType();
         String waiterName = minipp.getWaiterName();
         String waiterIconUrl = minipp.getWaiterIconUrl();
-//        int type =2;
-//        String waiterName = "刘斌";
-//        String waiterIconUrl = "";
         long startTime = System.currentTimeMillis();
         LogUtils.d("-|-|开始下载时间"+startTime);
         HashMap<String, Object> params = new HashMap<>();
@@ -1852,12 +1850,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         int rotation = minipp.getRotation();
         String filename = minipp.getFilename();
         String img_url = BuildConfig.OSS_ENDPOINT+minipp.getImg_oss_addr();
-//        int type = minipp.getType();
-//        String waiterName = minipp.getWaiterName();
-//        String waiterIconUrl = minipp.getWaiterIconUrl();
-        int type =2;
-        String waiterName = "刘斌";
-        String waiterIconUrl = "";
+        String waiterName = minipp.getWaiterName();
+        String waiterIconUrl = minipp.getWaiterIconUrl();
+
         long startTime = System.currentTimeMillis();
         LogUtils.d("-|-|开始下载时间"+startTime);
         HashMap<String, Object> params = new HashMap<>();
@@ -1866,22 +1861,22 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         params.put("img_id", img_id);
         params.put("music_id", music_id);
         String basePath = AppUtils.getFilePath(AppUtils.StorageFile.welcome_resource);
-        String imgPath;
+        String resourceId= R.mipmap.luckybg+"";
         String musicPath = null;
         String fontPath = null;
         String selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
         String[] selectionArgs = new String[]{img_id};
         List<WelcomeResourceBean> imgList = dbHelper.findWelcomeResourceList(selection,selectionArgs);
-        if (imgList!=null&&imgList.size()>0){
-            WelcomeResourceBean bean = imgList.get(0);
-            imgPath = basePath+bean.getName();
-            File file = new File(imgPath);
-            if (!file.exists()){
-                imgPath = checkProjectionExitFile(img_url,filename);
-            }
-        }else{
-            imgPath = checkProjectionExitFile(img_url,filename);
-        }
+//        if (imgList!=null&&imgList.size()>0){
+//            WelcomeResourceBean bean = imgList.get(0);
+//            imgPath = basePath+bean.getName();
+//            File file = new File(imgPath);
+//            if (!file.exists()){
+//                imgPath = checkProjectionExitFile(img_url,filename);
+//            }
+//        }else{
+//            imgPath = checkProjectionExitFile(img_url,filename);
+//        }
         if (!TextUtils.isEmpty(music_id)&&!"0".equals(music_id)){
             selectionArgs = new String[]{music_id};
             List<WelcomeResourceBean> musicList = dbHelper.findWelcomeResourceList(selection,selectionArgs);
@@ -1907,12 +1902,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         }
         //记录当前欢迎词投屏ID
         GlobalValues.WELCOME_ID = minipp.getId();
-        if (type==1){
-            ProjectOperationListener.getInstance(context).showRestImage(8,imgPath,rotation,musicPath,forscreen_char,wordsize,wordcolor,fontPath,play_times,GlobalValues.FROM_SERVICE_MINIPROGRAM);
-        }else{
-            ProjectOperationListener.getInstance(context).showRestImage(8,imgPath,rotation,musicPath,forscreen_char,wordsize,wordcolor,fontPath,waiterIconUrl,waiterName,play_times,GlobalValues.FROM_SERVICE_MINIPROGRAM);
-        }
 
+        ProjectOperationListener.getInstance(context).showRestImage(8,resourceId,rotation,musicPath,forscreen_char,wordsize,wordcolor,fontPath,waiterIconUrl,waiterName,play_times,GlobalValues.FROM_SERVICE_MINIPROGRAM);
     }
 
     /**每次投屏开始，设置一下当前投屏动作的状态*/

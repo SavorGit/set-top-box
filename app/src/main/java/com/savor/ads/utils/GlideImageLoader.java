@@ -93,6 +93,19 @@ public class GlideImageLoader {
                 .into(imageView);
     }
 
+    public static void loadLocalImage(Context context, int resourceId, ImageView imageView) {
+        if (context == null) {
+            return;
+        }
+        RequestOptions requestOptions = new RequestOptions()
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.NONE);
+        Glide.with(context)
+                .load(resourceId)
+                .apply(requestOptions)
+                .into(imageView);
+    }
+
     public static void loadImage(Context context, String imgPath, ImageView imageView, int placeholderResId, int failedResId) {
         if (context == null) {
             return;

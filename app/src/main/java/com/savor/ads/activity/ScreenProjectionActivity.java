@@ -106,6 +106,7 @@ public class ScreenProjectionActivity extends BaseActivity{
     //餐厅版投屏轮播时间
     private static final int REST_PROJECT_DURATION = 1000 * 60;
     private static final int WELCOME_PROJECT_DURATION = 1000 * 10;
+    private static final int WELCOME_EVALUATE_DURATION = 1000 * 60;
     /**
      * 文件投屏持续时间
      */
@@ -765,10 +766,14 @@ public class ScreenProjectionActivity extends BaseActivity{
                     }catch (Exception e){
                         e.printStackTrace();
                     }
-                    if (welcomeView.getDrawable()!=null){
-                        GlideImageLoader.loadImageWithDrawable(mContext,mImagePath,welcomeView,welcomeView.getDrawable());
+                    if (mImageType==8){
+                        GlideImageLoader.loadLocalImage(mContext,Integer.valueOf(mImagePath),welcomeView);
                     }else{
-                        GlideImageLoader.loadImage(mContext,mImagePath,welcomeView);
+                        if (welcomeView.getDrawable()!=null){
+                            GlideImageLoader.loadImageWithDrawable(mContext,mImagePath,welcomeView,welcomeView.getDrawable());
+                        }else{
+                            GlideImageLoader.loadImage(mContext,mImagePath,welcomeView);
+                        }
                     }
 
                 }
@@ -1193,16 +1198,20 @@ public class ScreenProjectionActivity extends BaseActivity{
                 if (!TextUtils.isEmpty(delayTime)){
                     duration = Integer.valueOf(delayTime)*1000;
                 }
-            }else if (7==mImageType||8==mImageType){
+            }else if (7==mImageType){
+                if (projectionTime!=0){
+                    duration = projectionTime*1000;
+                }else{
+                    duration = WELCOME_PROJECT_DURATION;
+                }
+            }else if (8==mImageType){
                 if (projectionTime!=0){
                     duration = projectionTime*1000;
                 }else{
                     duration = WELCOME_PROJECT_DURATION;
                 }
             }
-            if (duration==0){
-                duration = PROJECT_DURATION;
-            }
+
             mHandler.postDelayed(mExitProjectionRunnable, duration);
         }
     }
