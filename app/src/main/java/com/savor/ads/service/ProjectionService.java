@@ -51,8 +51,10 @@ public class ProjectionService extends Service {
             String wordcolor = mpprojection.getColor();
             String fontPath = mpprojection.getFont_path();
             int rotation = mpprojection.getRotation();
+            String waiterIconUrl = mpprojection.getWaiterIconUrl();
+            String waiterName = mpprojection.getWaiterName();
             int play_times = 0;
-            ProjectOperationListener.getInstance(context).showRestImage(7,imgPath,rotation,musicPath,forscreen_char,wordsize,wordcolor,fontPath,play_times,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+            ProjectOperationListener.getInstance(context).showRestImage(7,imgPath,rotation,musicPath,forscreen_char,wordsize,wordcolor,fontPath,waiterIconUrl,waiterName,play_times,GlobalValues.FROM_SERVICE_MINIPROGRAM);
         }
 
         mHandler.postDelayed(mProjectionRunnable,1000*60*5+1000 * 10);
