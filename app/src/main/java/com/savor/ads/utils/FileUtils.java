@@ -393,6 +393,9 @@ public class FileUtils {
     public static boolean isCompletePicture(String path){
         boolean flag = true;
         try {
+            if (TextUtils.isEmpty(path)){
+                return false;
+            }
             File tarFile = new File(path);
             if (tarFile.exists()){
                 BitmapFactory.Options options = null;
