@@ -105,7 +105,7 @@ public class ScreenProjectionActivity extends BaseActivity{
     private static final int PROJECT_DURATION = 1000 * 10+2000;
     //餐厅版投屏轮播时间
     private static final int REST_PROJECT_DURATION = 1000 * 60;
-    private static final int WELCOME_PROJECT_DURATION = 1000 * 10;
+    private static final int WELCOME_PROJECT_DURATION = 1000 * 20;
     private static final int WELCOME_EVALUATE_DURATION = 1000 * 60;
     /**
      * 文件投屏持续时间
@@ -204,9 +204,14 @@ public class ScreenProjectionActivity extends BaseActivity{
     private TextView mWelcomeWordsTV;
     private MediaPlayer mMusicPlayer;
     private GifImageView imageGifView;
+    /**评价结束显示服务员信息*/
     private LinearLayout waiterLayout;
     private ImageView waiterIconTipIV;
     private TextView waiterNameTipTV;
+    /**投欢迎词时显示服务员信息*/
+    private LinearLayout waiterWelcomeLayout;
+    private ImageView waiterIconWelcomeTipIV;
+    private TextView waiterNameWelcomeTipTV;
     private RelativeLayout mImageLoadingTip;
     private CircleProgressBar mImageLoadingPb;
     private TextView mImageLoadingTv;
@@ -326,6 +331,9 @@ public class ScreenProjectionActivity extends BaseActivity{
         waiterLayout = findViewById(R.id.waiter_layout);
         waiterIconTipIV = findViewById(R.id.waiter_icon_tip);
         waiterNameTipTV = findViewById(R.id.waiter_name_tip);
+        waiterWelcomeLayout = findViewById(R.id.waiter_welcome_layout);
+        waiterIconWelcomeTipIV = findViewById(R.id.waiter_icon_welcome_tip);
+        waiterNameWelcomeTipTV = findViewById(R.id.waiter_name_welcome_tip);
         mProjectionWordsTV = findViewById(R.id.project_words);
         mWelcomeWordsTV = findViewById(R.id.welcome_words);
         mImageLoadingTip = findViewById(R.id.rl_loading_tip);
@@ -516,6 +524,7 @@ public class ScreenProjectionActivity extends BaseActivity{
         priceLayout.setVisibility(View.GONE);
         storeSaleLayout.setVisibility(View.GONE);
         waiterLayout.setVisibility(View.GONE);
+        waiterWelcomeLayout.setVisibility(View.GONE);
         //有新的投屏进来，如果有正在轮播的欢迎词，就打断播放,并且停止背景音乐 20191212
         GlobalValues.mpprojection = null;
         if (mMusicPlayer!=null&&mMusicPlayer.isPlaying()){
@@ -791,19 +800,29 @@ public class ScreenProjectionActivity extends BaseActivity{
             }else{
                 mWelcomeWordsTV.setVisibility(View.GONE);
             }
-            if (!TextUtils.isEmpty(waiterName)){
-                waiterLayout.setVisibility(View.VISIBLE);
-                waiterNameTipTV.setText(waiterName+"为您服务");
-                if (!TextUtils.isEmpty(waiterIconUrl)){
-                    if (waiterIconTipIV.getDrawable()!=null){
-                        GlideImageLoader.loadImageWithDrawable(mContext,waiterIconUrl,waiterIconTipIV,waiterIconTipIV.getDrawable());
-                    }else{
-                        GlideImageLoader.loadImage(mContext,waiterIconUrl,waiterIconTipIV);
+            if (mImageType==7){
+                if (!TextUtils.isEmpty(waiterName)){
+                    waiterWelcomeLayout.setVisibility(View.VISIBLE);
+                    waiterNameWelcomeTipTV.setText(waiterName+"为您服务");
+                    if (!TextUtils.isEmpty(waiterIconUrl)){
+                        GlideImageLoader.loadRoundImage(mContext,waiterIconUrl,waiterIconWelcomeTipIV,R.mipmap.wxavatar);
                     }
+                }else{
+                    waiterWelcomeLayout.setVisibility(View.GONE);
                 }
             }else{
-                waiterLayout.setVisibility(View.GONE);
+                if (!TextUtils.isEmpty(waiterName)){
+                    waiterLayout.setVisibility(View.VISIBLE);
+                    waiterNameTipTV.setText(waiterName+"为您服务");
+                    if (!TextUtils.isEmpty(waiterIconUrl)){
+                        GlideImageLoader.loadRoundImage(mContext,waiterIconUrl,waiterIconTipIV,R.mipmap.wxavatar);
+
+                    }
+                }else{
+                    waiterLayout.setVisibility(View.GONE);
+                }
             }
+
             mHandler.postDelayed(()->initSounds(),500);
             welcomeView.setRotation(0);
             welcomeView.setScaleX(1);
@@ -821,6 +840,9 @@ public class ScreenProjectionActivity extends BaseActivity{
                 mpp.setColor(mProjectionWordsColor);
                 mpp.setFont_path(mFontPath);
                 mpp.setPlay_times(projectionTime);
+                mpp.setWaiterIconUrl(waiterIconUrl);
+                mpp.setWaiterName(waiterName);
+
                 GlobalValues.mpprojection = mpp;
             }
 
@@ -1208,7 +1230,7 @@ public class ScreenProjectionActivity extends BaseActivity{
                 if (projectionTime!=0){
                     duration = projectionTime*1000;
                 }else{
-                    duration = WELCOME_PROJECT_DURATION;
+                    duration = WELCOME_EVALUATE_DURATION;
                 }
             }
 

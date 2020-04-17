@@ -1,5 +1,6 @@
 package com.savor.ads.adapter;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -72,6 +73,11 @@ public class AppBrowserAdapter extends BaseAdapter {
                 Intent i = new Intent();
                 i.setComponent(component);
                 mContext.startActivity(i);
+                if (pkg.equals("com.dianshijia.newlive")){
+                    Activity activity = (Activity)mContext;
+                    activity.finish();
+                }
+
             }
         });
         return view;

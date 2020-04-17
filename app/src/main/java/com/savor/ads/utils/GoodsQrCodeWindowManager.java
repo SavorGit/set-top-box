@@ -127,8 +127,8 @@ public class GoodsQrCodeWindowManager {
     private void addToWindow(final Context context,final String url,final String path,final ImageView qrCodeIv) {
 
         boolean isCompletePicture = FileUtils.isCompletePicture(path);
-        File localFile = new File(path);
         if (isCompletePicture) {
+            File localFile = new File(path);
             GlideImageLoader.loadLocalImage(context,localFile,qrCodeIv);
             handleWindowLayout();
         }else{

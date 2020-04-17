@@ -1861,7 +1861,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         params.put("img_id", img_id);
         params.put("music_id", music_id);
         String basePath = AppUtils.getFilePath(AppUtils.StorageFile.welcome_resource);
-        String resourceId= R.mipmap.luckybg+"";
+        String resourceId= R.mipmap.eualuate_bg+"";
         String musicPath = null;
         String fontPath = null;
         String selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
