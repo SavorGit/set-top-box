@@ -93,7 +93,7 @@ android {
             buildConfigField("String", "BALANCING_NETTY_BASE", "\"https://api-nzb.littlehotspot.com\"")
             buildConfigField("String", "BAIDU_AD_BASE_URL", "\"https://jpad.baidu.com/api_6\"")
             buildConfigField("String", "ZMENG_AD_BASE_URL", "\"http://ssp.zmeng123.com/zmt/api/ad/getAd.do\"")
-            buildConfigField("String", "JDMOMEDIA_AD_BASE_URL", "\"http://api.jdmomedia.com/\"")
+            buildConfigField("String", "JDMOMEDIA_AD_BASE_URL", "\"https://api.jdmomedia.com/\"")
             buildConfigField("String", "YISHOU_AD_BASE_URL", "\"http://api6.pingxiaobao.com/rtb/subscribe.shtml\"")
             buildConfigField("String", "OSS_BUCKET_NAME", "\"redian-produce\"")
             buildConfigField("String", "OSS_ENDPOINT", "\"http://oss.littlehotspot.com/\"")
