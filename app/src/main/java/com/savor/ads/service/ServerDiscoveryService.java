@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.savor.ads.bean.ServerInfo;

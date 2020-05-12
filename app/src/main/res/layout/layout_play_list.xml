@@ -14,7 +14,6 @@
         android:layout_alignParentRight="true"
         android:layout_marginRight="48dp"
         android:layout_marginTop="20dp"
-        android:layout_toLeftOf="@id/tv_is_ads"
         android:background="@drawable/selector_play_list_item_bg"
         android:focusable="true"
         android:focusableInTouchMode="true"

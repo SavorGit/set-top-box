@@ -1,8 +1,8 @@
 package com.savor.ads.adapter;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
-import android.support.v4.view.PagerAdapter;
+import androidx.annotation.Nullable;
+import androidx.viewpager.widget.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -14,12 +14,8 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.savor.ads.R;
 import com.savor.ads.bean.PptImage;
-import com.savor.ads.customview.CircleProgressBar;
-import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.GlideImageLoader;
-import com.savor.ads.utils.GlobalValues;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 

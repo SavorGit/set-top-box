@@ -3,7 +3,7 @@ package com.savor.ads.activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.view.ViewPager;
+import androidx.viewpager.widget.ViewPager;
 
 import com.savor.ads.R;
 import com.savor.ads.adapter.StringPagerAdapter;

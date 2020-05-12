@@ -1,5 +1,6 @@
 package com.savor.ads.customview;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
@@ -7,13 +8,12 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -38,10 +38,8 @@ import com.bumptech.glide.request.transition.Transition;
 import com.savor.ads.R;
 import com.savor.ads.bean.MediaPlayerError;
 import com.savor.ads.bean.MediaPlayerState;
-import com.savor.ads.core.Session;
 import com.savor.ads.utils.AcFunDanmakuParser;
 import com.savor.ads.utils.AppUtils;
-import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.GlideImageLoader;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
@@ -53,7 +51,6 @@ import java.util.HashMap;
 
 import master.flame.danmaku.controller.IDanmakuView;
 import master.flame.danmaku.danmaku.model.BaseDanmaku;
-import master.flame.danmaku.danmaku.model.Danmaku;
 import master.flame.danmaku.danmaku.model.DanmakuTimer;
 import master.flame.danmaku.danmaku.model.IDanmakus;
 import master.flame.danmaku.danmaku.model.IDisplayer;
@@ -229,6 +226,7 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
 //        changeVideoSize(mediaPlayer,i,i1);
     }
 
+    @SuppressLint("SourceLockedOrientationActivity")
     public void changeVideoSize(MediaPlayer mp, int width, int height){
         if (width == 0 || height == 0) {
             Log.e(TAG, "invalid video width(" + width + ") or height(" + height

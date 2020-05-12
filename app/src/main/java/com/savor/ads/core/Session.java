@@ -25,11 +25,10 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
-import android.support.v4.util.Pair;
+import androidx.core.util.Pair;
 import android.text.TextUtils;
 import android.util.Base64;
 
-import com.savor.ads.bean.PrizeInfo;
 import com.savor.ads.bean.PushRTBItem;
 import com.savor.ads.bean.ServerInfo;
 import com.savor.ads.bean.VersionInfo;
@@ -48,7 +47,6 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.TimeZone;
 
 /**

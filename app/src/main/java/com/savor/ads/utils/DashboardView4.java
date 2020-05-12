@@ -8,8 +8,8 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.SweepGradient;
-import android.support.v4.content.ContextCompat;
-import android.text.TextUtils;
+import androidx.core.content.ContextCompat;
+
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;

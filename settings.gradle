@@ -1,1 +1,1 @@
-include ':app', ':tvlibrary', ':Pushlib'
+include ':app', ':tvlibrary', ':Pushlib', ':gsyVideoPlayer-base', ':gsyVideoPlayer-java', ':gsyVideoPlayer-proxy_cache'

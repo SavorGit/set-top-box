@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@android:color/black"
     tools:context="com.savor.ads.activity.AdsPlayerActivity">
-    <com.savor.ads.customview.SavorVideoView
+    <com.savor.ads.customview.GGVideoView
         android:id="@+id/video_view"
         android:background="@android:color/black"
         android:layout_width="match_parent"

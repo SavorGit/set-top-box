@@ -56,7 +56,7 @@ import com.savor.ads.bean.ZmengAdLocalBean;
 import com.savor.ads.callback.ProjectOperationListener;
 import com.savor.ads.core.ApiRequestListener;
 import com.savor.ads.core.AppApi;
-import com.savor.ads.customview.SavorVideoView;
+import com.savor.ads.customview.GGVideoView;
 import com.savor.ads.database.DBHelper;
 import com.savor.ads.dialog.AtlasDialog;
 import com.savor.ads.dialog.PlayListDialog;
@@ -104,10 +104,10 @@ import static com.savor.ads.utils.ConstantValues.DSP_DOWNLOADING_FILES;
 /**
  * 广告播放页面
  */
-public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity implements SavorVideoView.PlayStateCallback, ApiRequestListener, PlayListDialog.Callback {
+public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity implements GGVideoView.PlayStateCallback, ApiRequestListener, PlayListDialog.Callback {
 
     private static final String TAG = "AdsPlayerActivity";
-    private SavorVideoView mSavorVideoView;
+    private GGVideoView mSavorVideoView;
     private ImageView imgView;
     private RelativeLayout priceLayout;
     private TextView goodsPriceTV;

@@ -10,7 +10,7 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemProperties;
-import android.support.v4.app.ActivityCompat;
+import androidx.core.app.ActivityCompat;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.widget.ImageView;

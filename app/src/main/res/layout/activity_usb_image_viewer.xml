@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context="com.savor.ads.activity.UsbImageViewerActivity">
 
-    <android.support.v4.view.ViewPager
+    <androidx.viewpager.widget.ViewPager
         android:id="@+id/vp_images"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"

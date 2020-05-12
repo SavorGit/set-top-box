@@ -16,9 +16,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v4.view.ViewPager;
+import androidx.viewpager.widget.ViewPager;
 import android.text.TextUtils;
-import android.util.Size;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -29,26 +28,19 @@ import android.widget.TextView;
 
 import com.jar.savor.box.services.RemoteService;
 import com.jar.savor.box.vo.PlayResponseVo;
-import com.jar.savor.box.vo.PptRequestVo;
-import com.jar.savor.box.vo.PptVideoRequestVo;
 import com.jar.savor.box.vo.QueryPosBySessionIdResponseVo;
 import com.jar.savor.box.vo.RotateResponseVo;
 import com.jar.savor.box.vo.SeekResponseVo;
 import com.jar.savor.box.vo.VolumeResponseVo;
 import com.savor.ads.R;
 import com.savor.ads.SavorApplication;
-import com.savor.ads.adapter.PptVpAdapter;
-import com.savor.ads.bean.MediaLibBean;
 import com.savor.ads.bean.MiniProgramProjection;
 import com.savor.ads.core.ApiRequestListener;
 import com.savor.ads.core.AppApi;
 import com.savor.ads.customview.CircleProgressBar;
 import com.savor.ads.customview.MyImageView;
 import com.savor.ads.customview.ProjectVideoView;
-import com.savor.ads.customview.SavorVideoView;
-import com.savor.ads.database.DBHelper;
 import com.savor.ads.log.LogReportUtil;
-import com.savor.ads.projection.ProjectionManager;
 import com.savor.ads.projection.action.ProjectionActionBase;
 import com.savor.ads.projection.action.StopAction;
 import com.savor.ads.service.MiniProgramNettyService;
@@ -64,7 +56,6 @@ import com.savor.ads.utils.ShowMessage;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 import pl.droidsonroids.gif.GifImageView;
 

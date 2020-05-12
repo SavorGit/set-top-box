@@ -2,7 +2,7 @@ package com.savor.ads.customview;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
