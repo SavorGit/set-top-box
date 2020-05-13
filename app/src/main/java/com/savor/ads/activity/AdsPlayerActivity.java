@@ -80,6 +80,7 @@ import com.savor.ads.utils.ShowMessage;
 import com.savor.ads.utils.ZmengAdsResponseCode;
 import com.savor.tvlibrary.OutputResolution;
 import com.savor.tvlibrary.TVOperatorFactory;
+import com.shuyu.gsyvideoplayer.utils.GSYVideoType;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.json.JSONObject;
@@ -189,7 +190,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         wxProjectionTipLayout = findViewById(R.id.wx_projection_tip_layout);
         wxProjectionIconTipIV = findViewById(R.id.wx_projection_icon_tip);
         wxProjectionTxtTipTV = findViewById(R.id.wx_projection_nickname_tip);
-
+        GSYVideoType.setRenderType(GSYVideoType.SUFRACE);
         registerDownloadReceiver();
         // 启动投屏类操作处理的Service
 
@@ -290,7 +291,9 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             }
             for (int i = 0; i < mPlayList.size(); i++) {
                 MediaLibBean bean = mPlayList.get(i);
-                urls.add(bean.getMediaPath());
+                if (!TextUtils.isEmpty(bean.getMediaPath())){
+                    urls.add("file://"+bean.getMediaPath());
+                }
             }
             mSavorVideoView.setMediaFiles(urls, index, 0);
         }

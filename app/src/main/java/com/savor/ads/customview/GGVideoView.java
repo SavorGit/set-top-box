@@ -482,6 +482,16 @@ public class GGVideoView extends StandardGSYVideoPlayer {
         extractCompletion();
     }
 
+    @Override
+    public void onAutoCompletion() {
+        super.onAutoCompletion();
+
+        LogUtils.w(TAG + "MediaPlayer onAutoCompletion" + " " + GGVideoView.this.hashCode());
+        LogFileUtil.write(TAG + " MediaPlayer onAutoCompletion" + " " + GGVideoView.this.hashCode());
+        extractCompletion();
+
+    }
+
     private void initMediaPlayer() {
         LogUtils.w(TAG + "initMediaPlayer " + GGVideoView.this.hashCode());
         LogFileUtil.write(TAG + " initMediaPlayer " + GGVideoView.this.hashCode());
