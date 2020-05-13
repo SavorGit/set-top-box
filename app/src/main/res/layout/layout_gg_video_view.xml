@@ -34,7 +34,7 @@
         android:layout_height="match_parent" />
 
     <com.savor.ads.customview.CircleProgressBar
-        android:id="@+id/loading"
+        android:id="@+id/circle_loading"
         android:layout_width="160dp"
         android:layout_height="160dp"
         app:strokeWidth="16dp"

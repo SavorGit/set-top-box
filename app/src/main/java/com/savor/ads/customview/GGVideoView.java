@@ -79,6 +79,7 @@ public class GGVideoView extends StandardGSYVideoPlayer {
     /******************************/
     private ViewPager atlasViewPager;
     private ImageView mPlayVideoIv;
+    private CircleProgressBar mLoadingProgressBar;
 
     private ArrayList<String> mMediaFiles;
     private StringPagerAdapter imageAdapter;
@@ -177,6 +178,7 @@ public class GGVideoView extends StandardGSYVideoPlayer {
 //        mSurfaceTv = findViewById(R.id.texture_view);
 //        mImgView = findViewById(R.id.img_view);
         atlasViewPager = findViewById(R.id.atlas);
+        mLoadingProgressBar = findViewById(R.id.circle_loading);
         mPlayVideoIv = findViewById(R.id.iv_video_play);
 
         ViewPagerScroller pagerScroller = new ViewPagerScroller(mContext);
@@ -398,7 +400,7 @@ public class GGVideoView extends StandardGSYVideoPlayer {
 
         if (!beenAborted) {
             if (mIfShowLoading) {
-                mProgressBar.setVisibility(GONE);
+                mLoadingProgressBar.setVisibility(GONE);
             }
 
             // 如果Surface创建完毕且没被外部强行停止时，开始播放
@@ -478,6 +480,12 @@ public class GGVideoView extends StandardGSYVideoPlayer {
         } else if (super.getCurrentState() == GSYVideoView.CURRENT_STATE_PAUSE) {
             super.onVideoResume();
         }
+    }
+
+    @Override
+    public void onBufferingUpdate(int percent) {
+        super.onBufferingUpdate(percent);
+
     }
 
     @Override
@@ -765,7 +773,7 @@ public class GGVideoView extends StandardGSYVideoPlayer {
 //        mPlayState = MediaPlayerState.PREPARING;
 
         if (mIfShowLoading) {
-            mProgressBar.setVisibility(VISIBLE);
+            mLoadingProgressBar.setVisibility(VISIBLE);
         }
 
         if (mIfHandlePrepareTimeout) {
