@@ -40,7 +40,9 @@ import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
+import com.shuyu.gsyvideoplayer.utils.GSYVideoType;
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
+import com.shuyu.gsyvideoplayer.video.base.GSYVideoView;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -78,7 +80,6 @@ public class GGVideoView extends StandardGSYVideoPlayer {
     private ViewPager atlasViewPager;
     private ImageView mPlayVideoIv;
 
-    private MediaPlayer mMediaPlayer;
     private ArrayList<String> mMediaFiles;
     private StringPagerAdapter imageAdapter;
     /**
@@ -471,6 +472,12 @@ public class GGVideoView extends StandardGSYVideoPlayer {
     @Override
     public void onSeekComplete() {
         super.onSeekComplete();
+
+        if (super.getCurrentState() == GSYVideoView.CURRENT_STATE_NORMAL) {
+            super.startAfterPrepared();
+        } else if (super.getCurrentState() == GSYVideoView.CURRENT_STATE_PAUSE) {
+            super.onVideoResume();
+        }
     }
 
     @Override
@@ -479,7 +486,7 @@ public class GGVideoView extends StandardGSYVideoPlayer {
 
         LogUtils.w(TAG + "MediaPlayer onCompletion" + " " + GGVideoView.this.hashCode());
         LogFileUtil.write(TAG + " MediaPlayer onCompletion" + " " + GGVideoView.this.hashCode());
-        extractCompletion();
+//        extractCompletion();
     }
 
     @Override
@@ -669,7 +676,7 @@ public class GGVideoView extends StandardGSYVideoPlayer {
             }
 
             super.setStartAfterPrepared(false);
-            super.setUp(url, false, "");
+            super.setUp(url, false, null, "", false);
 //            mPlayState = MediaPlayerState.INITIALIZED;
         } else {
             isVideoAds = false;
@@ -944,7 +951,7 @@ public class GGVideoView extends StandardGSYVideoPlayer {
         LogUtils.w(TAG + " stopInner " + GGVideoView.this.hashCode());
         LogFileUtil.write(TAG + " stopInner " + GGVideoView.this.hashCode());
         if (isInPlaybackState()) {
-            getCurrentPlayer().onVideoPause();
+            onVideoPause();
 //            mPlayState = MediaPlayerState.STOPPED;
         }
     }
@@ -954,17 +961,16 @@ public class GGVideoView extends StandardGSYVideoPlayer {
      */
     public void onPause() {
         LogFileUtil.write(TAG + " onPause mPlayState: " + GGVideoView.this.hashCode());
-        if (mMediaPlayer != null) {
-            try {
-                // 记录播放进度
-                mAssignedPlayPosition = mMediaPlayer.getCurrentPosition();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            mHandler.removeCallbacksAndMessages(null);
-            removeCallbacks(mPlayCompletionRunnable);
-            release();
+        try {
+            // 记录播放进度
+            mAssignedPlayPosition = getCurrentPosition();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        mHandler.removeCallbacksAndMessages(null);
+        removeCallbacks(mPlayCompletionRunnable);
+        release();
+
         if (mDanmakuView != null && mDanmakuView.isPrepared()) {
             mDanmakuView.pause();
         }
@@ -989,12 +995,10 @@ public class GGVideoView extends StandardGSYVideoPlayer {
     public void onResume() {
         LogUtils.w(TAG + " onResume " + GGVideoView.this.hashCode());
         LogFileUtil.write(TAG + " onResume " + GGVideoView.this.hashCode());
-        if (mMediaPlayer == null) {
-            initMediaPlayer();
-        }
+        initMediaPlayer();
 
         mIsPauseByOut = false;
-        if (/*mPlayState == MediaPlayerState.IDLE && */mMediaFiles != null && mMediaFiles.size() > 0) {
+        if (getCurrentState()== GSYVideoView.CURRENT_STATE_NORMAL && /*mPlayState == MediaPlayerState.IDLE && */mMediaFiles != null && mMediaFiles.size() > 0) {
             setAndPrepare();
         }
 
@@ -1009,7 +1013,7 @@ public class GGVideoView extends StandardGSYVideoPlayer {
      */
     public void release() {
         LogUtils.w(TAG + " release mPlayState: " + GGVideoView.this.hashCode());
-        getCurrentPlayer().release();
+        super.release();
 //        mPlayState = MediaPlayerState.END;
 
         if (mIfShowPauseBtn) {
@@ -1081,7 +1085,7 @@ public class GGVideoView extends StandardGSYVideoPlayer {
     public void togglePlay() {
         LogUtils.w(TAG + "togglePlay " + GGVideoView.this.hashCode());
         LogFileUtil.write(TAG + " togglePlay  " + GGVideoView.this.hashCode());
-        if (!isInPlaybackState()) {
+        if (super.getCurrentState() == GSYVideoView.CURRENT_STATE_PAUSE) {
             tryPlay();
         } else {
             tryPause();
