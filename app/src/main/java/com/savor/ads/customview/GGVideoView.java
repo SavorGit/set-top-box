@@ -475,11 +475,13 @@ public class GGVideoView extends StandardGSYVideoPlayer {
     public void onSeekComplete() {
         super.onSeekComplete();
 
-        if (super.getCurrentState() == GSYVideoView.CURRENT_STATE_NORMAL) {
-            super.startAfterPrepared();
-        } else if (super.getCurrentState() == GSYVideoView.CURRENT_STATE_PAUSE) {
-            super.onVideoResume();
-        }
+        super.startAfterPrepared();
+
+//        if (super.getCurrentState() == GSYVideoView.CURRENT_STATE_NORMAL) {
+//            super.startAfterPrepared();
+//        } else if (super.getCurrentState() == GSYVideoView.CURRENT_STATE_PAUSE) {
+//            super.onVideoResume();
+//        }
     }
 
     @Override
