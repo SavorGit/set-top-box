@@ -10,10 +10,12 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Looper;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
+
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -38,6 +40,10 @@ import com.bumptech.glide.request.transition.Transition;
 import com.savor.ads.R;
 import com.savor.ads.bean.MediaPlayerError;
 import com.savor.ads.bean.MediaPlayerState;
+import com.savor.ads.player.IVideoPlayer;
+import com.savor.ads.player.PlayStateCallback;
+import com.savor.ads.player.PlayerType;
+import com.savor.ads.player.SavorPlayerFactory;
 import com.savor.ads.utils.AcFunDanmakuParser;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.GlideImageLoader;
@@ -64,7 +70,7 @@ import master.flame.danmaku.ui.widget.DanmakuView;
  * 公用的播放器类
  * Created by zhanghq on 2016/12/8.
  */
-public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVideoSizeChangedListener {
+public class ProjectVideoView extends RelativeLayout implements PlayStateCallback {
     private static final String TAG = "ProjectVideoView";
 
     /**
@@ -72,21 +78,22 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
      */
     private static final int MAX_PREPARE_TIME = 1000 * 20;
     private Context mContext;
-    private SurfaceView mSurfaceTv;
-    private SurfaceHolder mSurfaceHolder;
+    //    private SurfaceView mSurfaceTv;
+//    private SurfaceHolder mSurfaceHolder;
     private RelativeLayout mRootRl;
     /******************************/
     private DanmakuView mDanmakuView;
     private DanmakuContext context;
     private AcFunDanmakuParser mParser;
     /******************************/
+    private IVideoPlayer mVideoPlayer;
     private ImageView mImgView;
     private ImageView mLoadingIv;
     private CircleProgressBar mProgressBar;
     private ImageView mPlayVideoIv;
 
-    private MediaPlayer mMediaPlayer;
-    private MediaPlayerState mPlayState;
+    //    private MediaPlayer mMediaPlayer;
+//    private MediaPlayerState mPlayState;
     private ArrayList<String> mMediaFiles;
 
     /**
@@ -119,12 +126,10 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
      * 是否处理MediaPlayer的Prepare超时
      */
     private boolean mIfHandlePrepareTimeout;
-    /**
-     * Surface是否创建好了
-     */
-    private boolean mIsSurfaceCreated;
 
-    /**最大缓冲加载时间*/
+    /**
+     * 最大缓冲加载时间
+     */
     private static final int MAX_BUFFER_TIME = 1000 * 10;
     private Runnable mBufferTimeoutRunnable = new Runnable() {
         @Override
@@ -142,11 +147,14 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
 
     private PlayStateCallback mPlayStateCallback;
     private Handler mHandler = new Handler();
-    /**当前播放的是图片还是视频:视频true,图片false**/
-    private boolean isVideoAds=true;
-    private int duration=0;
+    /**
+     * 当前播放的是图片还是视频:视频true,图片false
+     **/
+    private boolean isVideoAds = true;
+    private int duration = 0;
     private int mSurfaceViewWidth;
     private int mSurfaceViewHeight;
+
     public ProjectVideoView(Context context) {
         this(context, null);
     }
@@ -160,127 +168,26 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
 
     private void initView() {
         View rootView = View.inflate(getContext(), R.layout.layout_savor_video_view, this);
-        mRootRl = (RelativeLayout)  rootView;
-        mSurfaceTv = rootView.findViewById(R.id.texture_view);
+        mRootRl = (RelativeLayout) rootView;
+        ViewGroup vp = rootView.findViewById(R.id.player_container);
+        mVideoPlayer = SavorPlayerFactory.getPlayer(PlayerType.GGPlayer, vp);
         mImgView = rootView.findViewById(R.id.img_view);
         mLoadingIv = findViewById(R.id.iv_loading);
         mProgressBar = rootView.findViewById(R.id.progress_bar);
         mPlayVideoIv = findViewById(R.id.iv_video_play);
 
-        mSurfaceHolder = mSurfaceTv.getHolder();
-        mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        mSurfaceHolder.addCallback(new SurfaceHolder.Callback() {
-            @Override
-            public void surfaceCreated(SurfaceHolder holder) {
-                LogUtils.w(TAG + "surfaceCreated mPlayState:" + mPlayState + " mMediaPlayer == null?" +(mMediaPlayer == null) + "  " + ProjectVideoView.this.hashCode());
-                LogFileUtil.write(TAG + " surfaceCreated mPlayState:" + mPlayState + " mMediaPlayer == null?" +(mMediaPlayer == null) + "  " + ProjectVideoView.this.hashCode());
-                mIsSurfaceCreated = true;
-                if (mMediaPlayer != null /*&&
-                        (mPlayState != MediaPlayerState.ERROR &&
-                                mPlayState != MediaPlayerState.IDLE &&
-                                mPlayState != MediaPlayerState.END)*/) {
-
-                    try {
-                        LogUtils.w("Will setDisplay Current state:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-                        LogFileUtil.write("Will setDisplay Current state:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-                        mMediaPlayer.setDisplay(mSurfaceHolder);
-                        mMediaPlayer.setScreenOnWhilePlaying(true);
-                    } catch (Exception e) {
-                        LogUtils.e("setDisplay Exception, Current state:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-                        LogFileUtil.write("setDisplay Exception, Current state:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-                        e.printStackTrace();
-                    }
-                    if (mPlayState == MediaPlayerState.INITIALIZED) {
-                        prepareMediaPlayer();
-                    } else if (mPlayState == MediaPlayerState.PREPARED) {
-                        playInner();
-                    }
-                }
-            }
-
-            @Override
-            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-                LogUtils.w(TAG + "surfaceChanged width = " + width + " height = " + height + " " + ProjectVideoView.this.hashCode());
-                LogFileUtil.write(TAG + " surfaceChanged width = " + width + " height = " + height + " " + ProjectVideoView.this.hashCode());
-            }
-
-            @Override
-            public void surfaceDestroyed(SurfaceHolder holder) {
-                LogUtils.w(TAG + "surfaceDestroyed" + " " + ProjectVideoView.this.hashCode());
-                LogFileUtil.write(TAG + " surfaceDestroyed" + " " + ProjectVideoView.this.hashCode());
-                mIsSurfaceCreated = false;
-
-                release();
-            }
-
-
-        });
+        if (mVideoPlayer == null) {
+            LogUtils.e(TAG + " Player init error!");
+        }
 
         context = DanmakuContext.create();
         mParser = new AcFunDanmakuParser();
         initDanmakuView(rootView);
     }
 
-    @Override
-    public void onVideoSizeChanged(MediaPlayer mediaPlayer, int i, int i1) {
-//        changeVideoSize(mediaPlayer,i,i1);
-    }
-
-    @SuppressLint("SourceLockedOrientationActivity")
-    public void changeVideoSize(MediaPlayer mp, int width, int height){
-        if (width == 0 || height == 0) {
-            Log.e(TAG, "invalid video width(" + width + ") or height(" + height
-                    + ")");
-            return;
-        }
-        Log.d(TAG, "onVideoSizeChanged width:" + width + " height:" + height);
-//        mIsVideoSizeKnown = true;
-//        mVideoHeight = height;
-//        mVideoWidth = width;
-        int wid = mMediaPlayer.getVideoWidth();
-        int hig = mMediaPlayer.getVideoHeight();
-        // 根据视频的属性调整其显示的模式
-        Activity activity = (Activity)mContext;
-        if (wid > hig) {
-            if (activity.getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
-                activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            }
-        } else {
-            if (activity.getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-                activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            }
-        }
-        DisplayMetrics dm = new DisplayMetrics();
-        WindowManager windowManager = (WindowManager) mContext.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-        windowManager.getDefaultDisplay().getMetrics(dm);
-        mSurfaceViewWidth = dm.widthPixels;
-        mSurfaceViewHeight = dm.heightPixels;
-        if (width > height) {
-            // 竖屏录制的视频，调节其上下的空余
-
-            int w = mSurfaceViewHeight * width / height;
-            int margin = (mSurfaceViewWidth - w) / 2;
-            Log.d(TAG, "margin:" + margin);
-            RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
-                    RelativeLayout.LayoutParams.MATCH_PARENT,
-                    RelativeLayout.LayoutParams.MATCH_PARENT);
-            lp.setMargins(margin, 0, margin, 0);
-            mSurfaceTv.setLayoutParams(lp);
-        } else {
-            // 横屏录制的视频，调节其左右的空余
-
-            int h = mSurfaceViewWidth * height / width;
-            int margin = (mSurfaceViewHeight - h) / 2;
-            Log.d(TAG, "margin:" + margin);
-            RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
-                    RelativeLayout.LayoutParams.MATCH_PARENT,
-                    RelativeLayout.LayoutParams.MATCH_PARENT);
-            lp.setMargins(0, margin, 0, margin);
-            mSurfaceTv.setLayoutParams(lp);
-        }
-    }
-
-    /**弹幕相关开始---------------**/
+    /**
+     * 弹幕相关开始---------------
+     **/
     private void initDanmakuView(View rootView) {
         // 设置最大显示行数
         HashMap<Integer, Integer> maxLinesPair = new HashMap<>();
@@ -346,7 +253,7 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
         }
     }
 
-    public void addItems(final String url,final String text) {
+    public void addItems(final String url, final String text) {
         Glide.with(mContext).load(url).into(new SimpleTarget<Drawable>() {
             @Override
             public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
@@ -354,7 +261,7 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
                 try {
                     Bitmap bitmap = AppUtils.drawable2Bitmap(resource);
                     addDanmaKuShowTextAndImage(bitmap, text, Color.WHITE, Color.RED, false);
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -372,15 +279,15 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
         RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
         drawable.setCircular(true);
         drawable.setAntiAlias(true);
-        drawable.setCornerRadius(Math.max(bitmap.getWidth()/2, bitmap.getHeight()/2));
-        drawable.setBounds(0, 0, bitmap.getWidth()/2, bitmap.getHeight()/2);
+        drawable.setCornerRadius(Math.max(bitmap.getWidth() / 2, bitmap.getHeight() / 2));
+        drawable.setBounds(0, 0, bitmap.getWidth() / 2, bitmap.getHeight() / 2);
 
         SpannableStringBuilder spannable = createSpannable(drawable, msg, bgColor);
         danmaku.text = spannable;
         danmaku.padding = 10;
         danmaku.priority = 1; // 一定会显示, 一般用于本机发送的弹幕
         danmaku.isLive = islive;
-        danmaku.paintHeight=50f * (mParser.getDisplayer().getDensity() - 0.6f);
+        danmaku.paintHeight = 50f * (mParser.getDisplayer().getDensity() - 0.6f);
         danmaku.setTime(mDanmakuView.getCurrentTime() + 1200);
         danmaku.textSize = 50f * (mParser.getDisplayer().getDensity() - 0.6f);
         danmaku.textColor = textColor;
@@ -414,220 +321,23 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
 
         }
     };
-    /**弹幕相关结束---------------**/
+
+    /**
+     * 弹幕相关结束---------------
+     **/
 
     private void initMediaPlayer() {
-        LogUtils.w(TAG + "initMediaPlayer mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " initMediaPlayer mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        if (mMediaPlayer == null) {
-            mMediaPlayer = new MediaPlayer();
-            mPlayState = MediaPlayerState.IDLE;
-            mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    LogUtils.w(TAG + "MediaPlayer onCompletion" + " " + ProjectVideoView.this.hashCode());
-                    LogFileUtil.write(TAG + " MediaPlayer onCompletion" + " " + ProjectVideoView.this.hashCode());
-                    extractCompletion();
-                }
-            });
-            mMediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
-                @Override
-                public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                    LogUtils.v(TAG + "onBufferingUpdate percent = " + percent + " " + ProjectVideoView.this.hashCode());
-                    LogFileUtil.write(TAG + " onBufferingUpdate percent = " + percent + " " + ProjectVideoView.this.hashCode());
+        LogUtils.w(TAG + "initMediaPlayer " + ProjectVideoView.this.hashCode());
+        LogFileUtil.write(TAG + " initMediaPlayer " + ProjectVideoView.this.hashCode());
 
-                    // 播放器状态不对时getDuration报错，也没必要处理播放、暂停了，这里直接return
-                    if (mPlayState == MediaPlayerState.IDLE || mPlayState == MediaPlayerState.INITIALIZED ||
-                            mPlayState == MediaPlayerState.PREPARING || mPlayState == MediaPlayerState.ERROR)
-                        return;
+        mVideoPlayer.setPlayStateCallback(this);
 
-                    int currentPercent = mp.getCurrentPosition() * 100 / mp.getDuration();
-                    LogUtils.v(TAG + "onBufferingUpdate currentPercent = " + currentPercent + " position = " + mp.getCurrentPosition() + " duration = " + mp.getDuration() + " " + ProjectVideoView.this.hashCode());
-                    LogFileUtil.write(TAG + " onBufferingUpdate currentPercent = " + currentPercent + " position = " + mp.getCurrentPosition() + " duration = " + mp.getDuration() + " " + ProjectVideoView.this.hashCode());
-//                    if (mp.getCurrentPosition() + 400 < mp.getDuration()) {
-                        if (percent < 99 && currentPercent >= percent - 1) {
-                            // 缓冲部分不足时，暂停播放并显示进度圈
-                            if (mIfShowLoading) {
-                                mProgressBar.setVisibility(VISIBLE);
-                            }
-                            if (mPlayState == MediaPlayerState.STARTED) {
-                                pauseInner();
-                            }
-                        } else {
-                            // 缓冲好时，继续播放并隐藏进度圈
-                            if (mIfShowLoading) {
-                                mProgressBar.setVisibility(GONE);
-                            }
-                            if (mPlayState == MediaPlayerState.PAUSED && !mIsPauseByOut) {
-                                playInner();
-                            }
-                        }
-//                    } else {
-//                        // 缓冲好时，继续播放并隐藏进度圈
-//                        if (mIfShowLoading) {
-//                            mProgressBar.setVisibility(GONE);
-//                        }
-//                        if (mPlayState == MediaPlayerState.PAUSED && !mIsPauseByOut) {
-//                            playInner();
-//                        }
-//                    }
-                }
-            });
-            mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    LogUtils.w(TAG + "MediaPlayer onMediaPrepared " +  " mIsSurfaceCreated:" + mIsSurfaceCreated +
-                            " mIsPauseByOut:" + mIsPauseByOut +" mAssignedPlayPosition:" + mAssignedPlayPosition
-                            + " " + ProjectVideoView.this.hashCode());
-                    LogFileUtil.write(TAG + " MediaPlayer onMediaPrepared " +  " mIsSurfaceCreated:" + mIsSurfaceCreated +
-                            " mIsPauseByOut:" + mIsPauseByOut +" mAssignedPlayPosition:" + mAssignedPlayPosition
-                            + " " + ProjectVideoView.this.hashCode());
-                    mPlayState = MediaPlayerState.PREPARED;
-
-                    if (mIfHandlePrepareTimeout) {
-                        // 准备开始播放移除Runnable
-                        removeCallbacks(mPrepareTimeoutRunnable);
-                    }
-
-                    boolean beenAborted = false;
-                    // 回调准备完毕
-                    if (mPlayStateCallback != null) {
-                        beenAborted = mPlayStateCallback.onMediaPrepared(mCurrentFileIndex);
-                    }
-
-                    if (!beenAborted) {
-                        if (mIfShowLoading) {
-                            mLoadingIv.setVisibility(GONE);
-                            mProgressBar.setVisibility(GONE);
-                        }
-
-                        // 如果Surface创建完毕且没被外部强行停止时，开始播放
-                        if (mIsSurfaceCreated && !mIsPauseByOut) {
-                            LogUtils.d("Will setDisplay in onPrepared() when surface is created");
-                            mp.setDisplay(mSurfaceHolder);
-
-                            if (mAssignedPlayPosition > 0 && mAssignedPlayPosition < mp.getDuration()) {
-                                mp.seekTo(mAssignedPlayPosition);
-                                mAssignedPlayPosition = -1;
-                            } else {
-                                playInner();
-                            }
-                        }
-                    }
-                }
-            });
-            mMediaPlayer.setOnVideoSizeChangedListener(new MediaPlayer.OnVideoSizeChangedListener() {
-                @Override
-                public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
-                    ViewGroup.LayoutParams layoutParams = mSurfaceTv.getLayoutParams();
-                    int viewWidth = getWidth();
-                    int viewHeight = getHeight();
-                    LogUtils.w(TAG + "MediaPlayer onVideoSizeChanged width = " + width + " height = " + height +
-                            " viewWidth = " + viewWidth + " viewHeight = " + viewHeight + " " + ProjectVideoView.this.hashCode());
-                    LogFileUtil.write(TAG + " MediaPlayer onVideoSizeChanged width = " + width + " height = " + height +
-                            " viewWidth = " + viewWidth + " viewHeight = " + viewHeight + " " + ProjectVideoView.this.hashCode());
-                    if (((double) viewWidth / width) * height > viewHeight) {
-                        layoutParams.width = (int) (((double) viewHeight / height) * width);
-                        layoutParams.height = viewHeight;
-                    } else {
-                        layoutParams.width = viewWidth;
-                        layoutParams.height = (int) (((double) viewWidth / width) * height);
-                    }
-//                    adjustAspectRatio(width, height);
-                }
-            });
-            mMediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
-                @Override
-                public void onSeekComplete(MediaPlayer mp) {
-                    LogUtils.w(TAG + "MediaPlayer onSeekComplete" + " " + ProjectVideoView.this.hashCode());
-                    LogFileUtil.write(TAG + " MediaPlayer onSeekComplete" + " " + ProjectVideoView.this.hashCode());
-                    if (mMediaPlayer != null && mPlayState == MediaPlayerState.PREPARED) {
-                        playInner();
-                    }
-                }
-            });
-            mMediaPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
-                @Override
-                public boolean onInfo(MediaPlayer mp, int what, int extra) {
-                    LogUtils.w(TAG + "MediaPlayer setOnInfoListener" + " what=" + what + " extra=" + extra + " " + ProjectVideoView.this.hashCode());
-                    LogFileUtil.write(TAG + " MediaPlayer setOnInfoListener" + " what=" + what + " extra=" + extra + " " + ProjectVideoView.this.hashCode());
-                    if (MediaPlayer.MEDIA_INFO_BUFFERING_START == what) {
-                        mRootRl.removeCallbacks(mBufferTimeoutRunnable);
-                        mRootRl.postDelayed(mBufferTimeoutRunnable, MAX_BUFFER_TIME);
-                    } else if (MediaPlayer.MEDIA_INFO_BUFFERING_END == what) {
-                        mRootRl.removeCallbacks(mBufferTimeoutRunnable);
-                    }
-                    return false;
-                }
-            });
-            mMediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-                @Override
-                public boolean onError(MediaPlayer mp, int what, int extra) {
-                    LogUtils.e(TAG + "MediaPlayer onError what = " + what + " extra = " + extra + " " + ProjectVideoView.this.hashCode());
-                    LogFileUtil.write(TAG + " MediaPlayer onError what = " + what + " extra = " + extra + " " + ProjectVideoView.this.hashCode());
-                    if (!mp.equals(mMediaPlayer)) {
-                        return true;
-                    }
-                    mPlayState = MediaPlayerState.ERROR;
-
-                    int position = mp.getCurrentPosition();
-
-                    // 根据出错类型，判断是否可继续尝试播放此视频源
-                    if (extra == MediaPlayerError.ERROR_NOT_CONNECTED) {
-                        // 网络连接错误的时候会进到ERROR_NOT_CONNECTED这个错误类型，这时reset MediaPlayer并记录播放进度
-                        LogFileUtil.write(TAG + " will resetAndPreparePlayer at method onErrorNet" + " " + ProjectVideoView.this.hashCode());
-                        resetAndPreparePlayer(position);
-                    } else {
-                        boolean beenResetSource = false;
-                        if (mPlayStateCallback != null) {
-                            boolean isLast = false;
-                            if (mMediaFiles != null && mMediaFiles.size() > 0) {
-                                isLast = mCurrentFileIndex == mMediaFiles.size() - 1;
-                            }
-                            // 回调某个视频播放出错
-                            beenResetSource = mPlayStateCallback.onMediaError(mCurrentFileIndex, isLast);
-                        }
-
-                        if (!beenResetSource) {
-                            if (mForcePlayFromStart) {
-                                // 强制从头播放
-                                mForcePlayFromStart = false;
-                                mCurrentFileIndex = 0;
-                                mAssignedPlayPosition = 0;
-                            } else /*if (position == mMediaPlayer.getDuration()) */{
-                                // 播放下一个
-                                if (mMediaFiles != null && mMediaFiles.size() > 0){
-                                    mCurrentFileIndex = (mCurrentFileIndex + 1) % mMediaFiles.size();
-                                    mAssignedPlayPosition = 0;
-                                }
-                            }
-                            if (mIsLooping) {
-                                LogFileUtil.write(TAG + " will resetAndPreparePlayer at method onError" + " " + ProjectVideoView.this.hashCode());
-                                resetAndPreparePlayer();
-                            }
-                        }
-                    }
-                    return true;
-                }
-            });
-
-            try {
-                if (mIsSurfaceCreated) {
-                    LogUtils.d("Will setDisplay in initMediaPlayer() when surface is created");
-                    LogFileUtil.write("Will setDisplay in initMediaPlayer() when surface is created");
-                    mMediaPlayer.setDisplay(mSurfaceHolder);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     /**
-     *抽取播放完成方法
+     * 抽取播放完成方法
      */
-    private void extractCompletion(){
-        mPlayState = MediaPlayerState.COMPLETED;
+    private void extractCompletion() {
 
         boolean beenResetSource = false;
         if (mPlayStateCallback != null) {
@@ -663,49 +373,38 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
      * 设置播放数据源
      */
     private boolean setMediaPlayerSource() {
-        LogUtils.w(TAG + " setMediaPlayerSource mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " setMediaPlayerSource mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        if (mMediaPlayer == null) {
-            LogUtils.e(TAG + " setMediaPlayerSource mMediaPlayer == null " + " " + ProjectVideoView.this.hashCode());
-            LogFileUtil.write(TAG + " setMediaPlayerSource mMediaPlayer == null " + " " + ProjectVideoView.this.hashCode());
-            return false;
-        }
-        if (mPlayState != MediaPlayerState.IDLE) {
-            LogUtils.e(TAG + " setMediaPlayerSource in illegal state: " + mPlayState + " " + ProjectVideoView.this.hashCode());
-            LogFileUtil.write(TAG + " setMediaPlayerSource in illegal state: " + mPlayState + " " + ProjectVideoView.this.hashCode());
-            return false;
-        }
+        LogUtils.w(TAG + " setMediaPlayerSource " + ProjectVideoView.this.hashCode());
+        LogFileUtil.write(TAG + " setMediaPlayerSource " + ProjectVideoView.this.hashCode());
         if (mMediaFiles == null || mMediaFiles.isEmpty() || mCurrentFileIndex >= mMediaFiles.size() || TextUtils.isEmpty(mMediaFiles.get(mCurrentFileIndex))) {
             LogUtils.e(TAG + " setMediaPlayerSource in garbled source, mCurrentFileIndex =  " + mCurrentFileIndex + " " + ProjectVideoView.this.hashCode());
             LogFileUtil.write(TAG + " setMediaPlayerSource in garbled source, mCurrentFileIndex =  " + mCurrentFileIndex + " " + ProjectVideoView.this.hashCode());
             return false;
         }
-        try {
-            LogUtils.w("开始播放：" + mMediaFiles.get(mCurrentFileIndex) + " " + ProjectVideoView.this.hashCode());
-//            mMediaPlayer.setDataSource(mMediaFiles.get(mCurrentFileIndex));
-            String url = mMediaFiles.get(mCurrentFileIndex);
-                if (url.endsWith("mp4")||url.endsWith("MP4")){
+
+        LogUtils.w("开始播放：" + mMediaFiles.get(mCurrentFileIndex) + " " + ProjectVideoView.this.hashCode());
+
+        String url = mMediaFiles.get(mCurrentFileIndex);
+        if (url.endsWith("mp4") || url.endsWith("MP4")) {
 //                    if (!isVideoAds){
 //                        projectTipAnimateOut();
 //                    }
-                    isVideoAds = true;
-                    if (Looper.myLooper() == Looper.getMainLooper()) {
+            isVideoAds = true;
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                mImgView.setVisibility(View.GONE);
+            } else {
+                post(new Runnable() {
+                    @Override
+                    public void run() {
                         mImgView.setVisibility(View.GONE);
-                    } else {
-                        post(new Runnable() {
-                            @Override
-                            public void run() {
-                                mImgView.setVisibility(View.GONE);
-                            }
-                        });
                     }
-                    mMediaPlayer.setDataSource(url);
-                    mPlayState = MediaPlayerState.INITIALIZED;
-                }else {
-                    isVideoAds = false;
-                    if (mPlayStateCallback!=null){
-                        mPlayStateCallback.onMediaPrepared(mCurrentFileIndex);
-                    }
+                });
+            }
+            mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex));
+        } else {
+            isVideoAds = false;
+            if (mPlayStateCallback != null) {
+                mPlayStateCallback.onMediaPrepared(mCurrentFileIndex);
+            }
 //                    if (Looper.myLooper() == Looper.getMainLooper()) {
 //                        mImgView.setVisibility(View.VISIBLE);
 //                    } else {
@@ -716,42 +415,38 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
 //                            }
 //                        });
 //                    }
-                    File file = new File(url);
-                    if (Looper.myLooper() == Looper.getMainLooper()) {
-                        GlideImageLoader.loadLocalImage(mContext,file,mImgView);
-                    }else {
-                        post(new Runnable() {
-                            @Override
-                            public void run() {
-                                GlideImageLoader.loadLocalImage(mContext,file,mImgView);
-                            }
-                        });
+            File file = new File(url);
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                GlideImageLoader.loadLocalImage(mContext, file, mImgView);
+            } else {
+                post(new Runnable() {
+                    @Override
+                    public void run() {
+                        GlideImageLoader.loadLocalImage(mContext, file, mImgView);
                     }
+                });
+            }
 
-                    projectTipAnimateIn();
-                    postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            projectTipAnimateOut();
-                            mImgView.setVisibility(View.GONE);
-                            try {
-                                Thread.sleep(500);
-                            }catch (Exception e){
-                                e.printStackTrace();
-                            }
-                            extractCompletion();
-                        }
-                    },duration>0?duration*1000:15*1000);
+            projectTipAnimateIn();
+            postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    projectTipAnimateOut();
+                    mImgView.setVisibility(View.GONE);
+                    try {
+                        Thread.sleep(500);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    extractCompletion();
                 }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+            }, duration > 0 ? duration * 1000 : 15 * 1000);
         }
+
         return true;
     }
 
-        public void projectTipAnimateIn() {
+    public void projectTipAnimateIn() {
 
         if (Looper.myLooper() == Looper.getMainLooper()) {
             doAnimationIn();
@@ -786,30 +481,29 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
      * 准备播放
      */
     private void prepareMediaPlayer() {
-        LogUtils.w(TAG + " prepareMediaPlayer mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " prepareMediaPlayer mPlayState:" + mPlayState + " mIsSurfaceCreated:" +
-                mIsSurfaceCreated + " " + ProjectVideoView.this.hashCode());
-        if (mIsSurfaceCreated) {
-            if (mPlayState != MediaPlayerState.INITIALIZED) {
-                LogUtils.e(TAG + " prepareMediaPlayer in illegal state: " + mPlayState + " " + ProjectVideoView.this.hashCode());
-                LogFileUtil.write(TAG + " prepareMediaPlayer in illegal state: " + mPlayState + " " + ProjectVideoView.this.hashCode());
-                return;
-            }
-            mMediaPlayer.prepareAsync();
-            mPlayState = MediaPlayerState.PREPARING;
+        LogUtils.w(TAG + " prepareMediaPlayer " + ProjectVideoView.this.hashCode());
+        LogFileUtil.write(TAG + " prepareMediaPlayer " + ProjectVideoView.this.hashCode());
+//        if (mIsSurfaceCreated) {
+//            if (mPlayState != MediaPlayerState.INITIALIZED) {
+//                LogUtils.e(TAG + " prepareMediaPlayer in illegal state: " + mPlayState + " " + ProjectVideoView.this.hashCode());
+//                LogFileUtil.write(TAG + " prepareMediaPlayer in illegal state: " + mPlayState + " " + ProjectVideoView.this.hashCode());
+//                return;
+//            }
+//            mMediaPlayer.prepareAsync();
+//            mPlayState = MediaPlayerState.PREPARING;
 
-            if (mIfShowLoading) {
+        if (mIfShowLoading) {
 //                GlideImageLoader.loadImage(getContext(), Environment.getExternalStorageDirectory().getAbsolutePath() +
 //                        Session.get(getContext()).getLoadingPath(), mLoadingIv, 0, R.mipmap.ads);
 //                mLoadingIv.setVisibility(VISIBLE);
-                mProgressBar.setVisibility(VISIBLE);
-            }
-
-            if (mIfHandlePrepareTimeout) {
-                removeCallbacks(mPrepareTimeoutRunnable);
-                postDelayed(mPrepareTimeoutRunnable, MAX_PREPARE_TIME);
-            }
+            mProgressBar.setVisibility(VISIBLE);
         }
+
+        if (mIfHandlePrepareTimeout) {
+            removeCallbacks(mPrepareTimeoutRunnable);
+            postDelayed(mPrepareTimeoutRunnable, MAX_PREPARE_TIME);
+        }
+//        }
     }
 
     /**
@@ -848,10 +542,10 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
     private void resetAndPreparePlayer(int assignedPlayPosition) {
         LogUtils.w(TAG + " resetAndPreparePlayer assignedPlayPosition = " + assignedPlayPosition + " " + ProjectVideoView.this.hashCode());
         LogFileUtil.write(TAG + " resetAndPreparePlayer assignedPlayPosition = " + assignedPlayPosition + " " + ProjectVideoView.this.hashCode());
-        if (mMediaPlayer!=null){
-            mMediaPlayer.reset();
-        }
-        mPlayState = MediaPlayerState.IDLE;
+//        if (mMediaPlayer != null) {
+//            mMediaPlayer.reset();
+//        }
+//        mPlayState = MediaPlayerState.IDLE;
 
         mAssignedPlayPosition = assignedPlayPosition;
 
@@ -862,7 +556,7 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
 
     private void setAndPrepare() {
         if (setMediaPlayerSource()) {
-            if (isVideoAds){
+            if (isVideoAds) {
                 prepareMediaPlayer();
             }
         } else {
@@ -886,99 +580,69 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
     }
 
     public boolean tryPlay() {
-        LogUtils.w(TAG + " tryPlay mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " tryPlay mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        if (MediaPlayerState.PAUSED == mPlayState) {
-            mIsPauseByOut = false;
-            playInner();
+        LogUtils.w(TAG + " tryPlay " + ProjectVideoView.this.hashCode());
+        LogFileUtil.write(TAG + " tryPlay " + ProjectVideoView.this.hashCode());
 
-            if (mIfShowPauseBtn) {
-                if (Looper.myLooper() == Looper.getMainLooper()) {
-                    mPlayVideoIv.setVisibility(GONE);
-                } else {
-                    post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mPlayVideoIv.setVisibility(GONE);
-                        }
-                    });
-                }
+        mIsPauseByOut = false;
+        mVideoPlayer.resume();
+
+        if (mIfShowPauseBtn) {
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                mPlayVideoIv.setVisibility(GONE);
+            } else {
+                post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPlayVideoIv.setVisibility(GONE);
+                    }
+                });
             }
-
-            // 回调某个视频播放恢复播放
-            if (mPlayStateCallback != null) {
-                mPlayStateCallback.onMediaResume(mCurrentFileIndex);
-            }
-
-            return true;
-        } else if (MediaPlayerState.STARTED == mPlayState)  {
-            return true;
-        } else {
-            return false;
         }
-    }
 
-    private void playInner() {
-        LogUtils.w(TAG + " playInner mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " playInner mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        try {
-            mMediaPlayer.start();
-            mPlayState = MediaPlayerState.STARTED;
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-            LogUtils.e(TAG + " Exception when playInner");
-            LogFileUtil.write(TAG + " Exception when playInner");
+        // 回调某个视频播放恢复播放
+        if (mPlayStateCallback != null) {
+            mPlayStateCallback.onMediaResume(mCurrentFileIndex);
         }
+
+        return true;
     }
 
     /**
      * 暂停播放
      */
     public boolean tryPause() {
-        LogUtils.w(TAG + " tryPause mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " tryPause mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        if (MediaPlayerState.STARTED == mPlayState) {
-            mIsPauseByOut = true;
-            pauseInner();
+        LogUtils.w(TAG + " tryPause " + ProjectVideoView.this.hashCode());
+        LogFileUtil.write(TAG + " tryPause " + ProjectVideoView.this.hashCode());
 
-            if (mIfShowPauseBtn) {
-                if (Looper.myLooper() == Looper.getMainLooper()) {
-                    mPlayVideoIv.setVisibility(VISIBLE);
-                } else {
-                    post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mPlayVideoIv.setVisibility(VISIBLE);
-                        }
-                    });
-                }
-            }
+        mIsPauseByOut = true;
+        mVideoPlayer.pause();
 
-            // 回调某个视频暂停
-            if (mPlayStateCallback != null) {
-                mPlayStateCallback.onMediaPause(mCurrentFileIndex);
+        if (mIfShowPauseBtn) {
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                mPlayVideoIv.setVisibility(VISIBLE);
+            } else {
+                post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPlayVideoIv.setVisibility(VISIBLE);
+                    }
+                });
             }
-            return true;
-        } else if (MediaPlayerState.PAUSED == mPlayState)  {
-            return true;
-        } else {
-            return false;
         }
-    }
 
-    private void pauseInner() {
-        LogUtils.w(TAG + " pauseInner mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " pauseInner mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        mMediaPlayer.pause();
-        mPlayState = MediaPlayerState.PAUSED;
+        // 回调某个视频暂停
+        if (mPlayStateCallback != null) {
+            mPlayStateCallback.onMediaPause(mCurrentFileIndex);
+        }
+        return true;
     }
 
     /**
      * 停止播放
      */
     public void stop() {
-        LogUtils.w(TAG + " stop mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " stop mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
+        LogUtils.w(TAG + " stop " + ProjectVideoView.this.hashCode());
+        LogFileUtil.write(TAG + " stop " + ProjectVideoView.this.hashCode());
         stopInner();
 
         mIsPauseByOut = true;
@@ -988,11 +652,10 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
      * 停止播放
      */
     private void stopInner() {
-        LogUtils.w(TAG + " stopInner mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " stopInner mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        if (isInPlaybackState() && mMediaPlayer != null) {
-            mMediaPlayer.stop();
-            mPlayState = MediaPlayerState.STOPPED;
+        LogUtils.w(TAG + " stopInner " + ProjectVideoView.this.hashCode());
+        LogFileUtil.write(TAG + " stopInner " + ProjectVideoView.this.hashCode());
+        if (mVideoPlayer != null) {
+            mVideoPlayer.pause();
         }
     }
 
@@ -1000,10 +663,10 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
      * 所在页面onPause时请调用此方法处理，类似的还有{@link #onResume()}
      */
     public void onPause() {
-        if (mMediaPlayer != null) {
+        if (mVideoPlayer != null) {
             try {
                 // 记录播放进度
-                mAssignedPlayPosition = mMediaPlayer.getCurrentPosition();
+                mAssignedPlayPosition = mVideoPlayer.getCurrentPosition();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -1015,8 +678,8 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
     }
 
     public void onStop() {
-        LogUtils.w(TAG + " onPause mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " onPause mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
+        LogUtils.w(TAG + " onPause " + ProjectVideoView.this.hashCode());
+        LogFileUtil.write(TAG + " onPause " + ProjectVideoView.this.hashCode());
 
         removeCallbacks(mPrepareTimeoutRunnable);
 
@@ -1031,14 +694,11 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
      * 所在页面onResume时请调用此方法处理，类似的还有{@link #onPause()}
      */
     public void onResume() {
-        LogUtils.w(TAG + " onResume mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " onResume mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        if (mMediaPlayer == null) {
-            initMediaPlayer();
-        }
+        LogUtils.w(TAG + " onResume " + ProjectVideoView.this.hashCode());
+        LogFileUtil.write(TAG + " onResume " + ProjectVideoView.this.hashCode());
 
         mIsPauseByOut = false;
-        if (mPlayState == MediaPlayerState.IDLE && mMediaFiles != null && mMediaFiles.size() > 0) {
+        if (mMediaFiles != null && mMediaFiles.size() > 0) {
             setAndPrepare();
         }
 
@@ -1052,15 +712,9 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
      * 停止播放并释放MediaPlayer
      */
     public void release() {
-        LogUtils.w(TAG + " release mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        if (mMediaPlayer != null) {
-            stopInner();
-
-            if (mMediaPlayer != null) {
-                mMediaPlayer.release();
-            }
-            mPlayState = MediaPlayerState.END;
-            mMediaPlayer = null;
+        LogUtils.w(TAG + " release " + ProjectVideoView.this.hashCode());
+        if (mVideoPlayer != null) {
+            mVideoPlayer.release();
         }
 
         if (mIfShowPauseBtn) {
@@ -1094,8 +748,8 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
      * @param playPosition     文件播放进度
      */
     public void setMediaFiles(ArrayList<String> mediaFiles, int currentFileIndex, int playPosition) {
-        LogUtils.w(TAG + "setMediaFiles mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " setMediaFiles mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
+        LogUtils.w(TAG + "setMediaFiles " + ProjectVideoView.this.hashCode());
+        LogFileUtil.write(TAG + " setMediaFiles " + ProjectVideoView.this.hashCode());
         mIsPauseByOut = false;
         if (mediaFiles != null && !mediaFiles.isEmpty()) {
             mCurrentFileIndex = currentFileIndex;
@@ -1107,19 +761,7 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
 //                mForcePlayFromStart = true;
 //            }
 
-            if (mMediaPlayer == null) {
-                initMediaPlayer();
-                if (mIsSurfaceCreated) {
-                    LogUtils.d("Will setDisplay in setMediaFiles() when surface is created");
-                    mMediaPlayer.setDisplay(mSurfaceHolder);
-                }
-            }
 
-            // 非IDLE状态时先重置再设置
-            if (mPlayState != MediaPlayerState.IDLE) {
-                mMediaPlayer.reset();
-                mPlayState = MediaPlayerState.IDLE;
-            }
             mPlayVideoIv.setVisibility(GONE);
 
             setAndPrepare();
@@ -1130,11 +772,11 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
      * 继续、暂停 播放
      */
     public void togglePlay() {
-        LogUtils.w(TAG + "togglePlay mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " togglePlay mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        if (MediaPlayerState.PAUSED == mPlayState) {
+        LogUtils.w(TAG + "togglePlay " + ProjectVideoView.this.hashCode());
+        LogFileUtil.write(TAG + " togglePlay " + ProjectVideoView.this.hashCode());
+        if (mVideoPlayer.isPaused()) {
             tryPlay();
-        } else if (MediaPlayerState.STARTED == mPlayState) {
+        } else {
             tryPause();
         }
     }
@@ -1143,8 +785,8 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
      * 播放下一条
      */
     public void playNext() {
-        LogUtils.w(TAG + " playNext mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " playNext mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
+        LogUtils.w(TAG + " playNext " + ProjectVideoView.this.hashCode());
+        LogFileUtil.write(TAG + " playNext " + ProjectVideoView.this.hashCode());
         stopInner();
 
         mIsPauseByOut = false;
@@ -1158,13 +800,13 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
      * 播放上一条
      */
     public void playPrevious() {
-        LogUtils.w(TAG + " playPrevious mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " playPrevious mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
+        LogUtils.w(TAG + " playPrevious " + ProjectVideoView.this.hashCode());
+        LogFileUtil.write(TAG + " playPrevious " + ProjectVideoView.this.hashCode());
         stopInner();
 
         mIsPauseByOut = false;
         mAssignedPlayPosition = 0;
-        mCurrentFileIndex =(mCurrentFileIndex - 1 + mMediaFiles.size()) % mMediaFiles.size();
+        mCurrentFileIndex = (mCurrentFileIndex - 1 + mMediaFiles.size()) % mMediaFiles.size();
         LogUtils.w(TAG + " mCurrentFileIndex:" + mCurrentFileIndex + " size = " + mMediaFiles.size() + " " + ProjectVideoView.this.hashCode());
         resetAndPreparePlayer();
     }
@@ -1175,13 +817,9 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
      * @param position
      */
     public void seekTo(int position) {
-        LogUtils.w(TAG + " seek mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " seek mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        if (isInPlaybackState()) {
-            mMediaPlayer.seekTo(position);
-        } else {
-            mAssignedPlayPosition = position;
-        }
+        LogUtils.w(TAG + " seek " + ProjectVideoView.this.hashCode());
+        LogFileUtil.write(TAG + " seek " + ProjectVideoView.this.hashCode());
+        mVideoPlayer.seekTo(position);
     }
 
     /**
@@ -1190,10 +828,7 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
      * @return
      */
     public boolean isInPlaybackState() {
-        return mPlayState == MediaPlayerState.PAUSED ||
-                mPlayState == MediaPlayerState.STARTED ||
-                mPlayState == MediaPlayerState.COMPLETED ||
-                mPlayState == MediaPlayerState.PREPARED;
+        return mVideoPlayer != null && mVideoPlayer.isInPlaybackState();
     }
 
     /**
@@ -1211,10 +846,10 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
      * @return
      */
     public int getCurrentPosition() {
-        LogUtils.w(TAG + " getCurrentPosition mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " getCurrentPosition mPlayState:" + mPlayState + " " + ProjectVideoView.this.hashCode());
+        LogUtils.w(TAG + " getCurrentPosition " + ProjectVideoView.this.hashCode());
+        LogFileUtil.write(TAG + " getCurrentPosition " + ProjectVideoView.this.hashCode());
         if (isInPlaybackState())
-            return mMediaPlayer.getCurrentPosition();
+            return mVideoPlayer.getCurrentPosition();
         else
             return -1;
     }
@@ -1235,11 +870,13 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
      */
     public void setIfHandlePrepareTimeout(boolean ifHandlePrepareTimeout) {
         mIfHandlePrepareTimeout = ifHandlePrepareTimeout;
+        mVideoPlayer.setIfHandlePrepareTimeout(mIfHandlePrepareTimeout);
     }
 
     /**
      * 是否自动播放下一个
      * 默认是自动播放
+     *
      * @param looping
      */
     public void setLooping(boolean looping) {
@@ -1250,28 +887,136 @@ public class ProjectVideoView extends RelativeLayout implements MediaPlayer.OnVi
         mIfShowLoading = ifShowLoading;
     }
 
-    public void setAdsDuration(int duration){
+    public void setAdsDuration(int duration) {
         this.duration = duration;
+    }
+
+    @Override
+    public void onMediaComplete(String mediaTag) {
+        extractCompletion();
+    }
+
+    @Override
+    public void onMediaError(String mediaTag) {
+        boolean beenResetSource = false;
+        if (mPlayStateCallback != null) {
+            boolean isLast = false;
+            if (mMediaFiles != null && mMediaFiles.size() > 0) {
+                isLast = mCurrentFileIndex == mMediaFiles.size() - 1;
+            }
+            // 回调某个视频播放出错
+            beenResetSource = mPlayStateCallback.onMediaError(mCurrentFileIndex, isLast);
+        }
+
+        if (!beenResetSource) {
+            if (mForcePlayFromStart) {
+                // 强制从头播放
+                mForcePlayFromStart = false;
+                mCurrentFileIndex = 0;
+                mAssignedPlayPosition = 0;
+            } else /*if (position == mMediaPlayer.getDuration()) */ {
+                // 播放下一个
+                if (mMediaFiles != null && mMediaFiles.size() > 0) {
+                    mCurrentFileIndex = (mCurrentFileIndex + 1) % mMediaFiles.size();
+                    mAssignedPlayPosition = 0;
+                }
+            }
+            if (mIsLooping) {
+                LogFileUtil.write(TAG + " will resetAndPreparePlayer at method onError" + " " + ProjectVideoView.this.hashCode());
+                resetAndPreparePlayer();
+            }
+        }
+    }
+
+    @Override
+    public boolean onMediaPrepared(String mediaTag) {
+        if (mIfHandlePrepareTimeout) {
+            // 准备开始播放移除Runnable
+            removeCallbacks(mPrepareTimeoutRunnable);
+        }
+
+        boolean beenAborted = false;
+        // 回调准备完毕
+        if (mPlayStateCallback != null) {
+            beenAborted = mPlayStateCallback.onMediaPrepared(mCurrentFileIndex);
+        }
+
+        if (!beenAborted) {
+            if (mIfShowLoading) {
+                mLoadingIv.setVisibility(GONE);
+                mProgressBar.setVisibility(GONE);
+            }
+        }
+        return beenAborted;
+    }
+
+    @Override
+    public void onMediaPause(String mediaTag) {
+
+    }
+
+    @Override
+    public void onMediaResume(String mediaTag) {
+
+    }
+
+    @Override
+    public void onMediaBufferUpdate(String mediaTag, int percent) {
+        int currentPercent = mVideoPlayer.getCurrentPosition() * 100 / mVideoPlayer.getDuration();
+        LogUtils.v(TAG + "onBufferingUpdate currentPercent = " + currentPercent + " position = " +
+                mVideoPlayer.getCurrentPosition() + " duration = " + mVideoPlayer.getDuration() + " "
+                + this.hashCode());
+        LogFileUtil.write(TAG + " onBufferingUpdate currentPercent = " + currentPercent +
+                " position = " + mVideoPlayer.getCurrentPosition() + " duration = " +
+                mVideoPlayer.getDuration() + " " + this.hashCode());
+//                    if (mp.getCurrentPosition() + 400 < mp.getDuration()) {
+        if (percent < 99 && currentPercent >= percent - 1) {
+            // 缓冲部分不足时，暂停播放并显示进度圈
+            if (mIfShowLoading) {
+                mProgressBar.setVisibility(VISIBLE);
+            }
+            if (!mVideoPlayer.isPaused()) {
+                mVideoPlayer.pause();
+            }
+        } else {
+            // 缓冲好时，继续播放并隐藏进度圈
+            if (mIfShowLoading) {
+                mProgressBar.setVisibility(GONE);
+            }
+            if (mVideoPlayer.isPaused() && !mIsPauseByOut) {
+                mVideoPlayer.resume();
+            }
+        }
+    }
+
+    @Override
+    public void onMediaBufferTimeout(String mediaTag) {
+        post(mBufferTimeoutRunnable);
     }
 
 
     public interface PlayStateCallback {
         /**
          * 某个视频播放完毕
-         * @param index 当前视频序号
+         *
+         * @param index  当前视频序号
          * @param isLast 是否是最后一个
          * @return true: 播放源被设置新的； false: otherwise
          */
         boolean onMediaComplete(int index, boolean isLast);
+
         /**
          * 某个视频播放出错
-         * @param index 当前视频序号
+         *
+         * @param index  当前视频序号
          * @param isLast 是否是最后一个
          * @return true: 播放源被设置新的； false: otherwise
          */
         boolean onMediaError(int index, boolean isLast);
+
         /**
          * 视频准备完毕
+         *
          * @param index 当前视频序号
          * @return true: 播放被中止； false: otherwise
          */

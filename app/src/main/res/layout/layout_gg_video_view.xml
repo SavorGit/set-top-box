@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rl_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -14,42 +13,4 @@
 
     </FrameLayout>
 
-    <ImageView
-        android:id="@+id/img_view"
-        android:scaleType="fitXY"
-        android:visibility="gone"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"/>
-
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/atlas"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_centerInParent="true" />
-
-    <master.flame.danmaku.ui.widget.DanmakuView
-        android:id="@+id/view_danmaku"
-        android:layout_gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <com.savor.ads.customview.CircleProgressBar
-        android:id="@+id/circle_loading"
-        android:layout_width="160dp"
-        android:layout_height="160dp"
-        app:strokeWidth="16dp"
-        app:indeterminate="true"
-        app:indeterminateDuration="1000"
-        app:backgroundColor="#33ffffff"
-        app:fillColor="#ffffff"
-        android:layout_centerInParent="true"
-        android:visibility="gone"/>
-
-    <ImageView
-        android:id="@+id/iv_video_play"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:background="@mipmap/play"
-        android:visibility="gone"/>
 </RelativeLayout>
