@@ -40,6 +40,7 @@ import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
+import com.shuyu.gsyvideoplayer.utils.Debuger;
 import com.shuyu.gsyvideoplayer.utils.GSYVideoType;
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
 import com.shuyu.gsyvideoplayer.video.base.GSYVideoView;
@@ -888,18 +889,6 @@ public class GGVideoView extends StandardGSYVideoPlayer {
 //        }
     }
 
-//    private void playInner() {
-//        LogUtils.w(TAG + " playInner mPlayState:" + mPlayState + " " + GGVideoView.this.hashCode());
-//        LogFileUtil.write(TAG + " playInner mPlayState:" + mPlayState + " " + GGVideoView.this.hashCode());
-//        try {
-//            mMediaPlayer.start();
-//            mPlayState = MediaPlayerState.STARTED;
-//        } catch (IllegalStateException e) {
-//            e.printStackTrace();
-//            LogUtils.e(TAG + " Exception when playInner");
-//            LogFileUtil.write(TAG + " Exception when playInner");
-//        }
-//    }
 
     /**
      * 暂停播放
@@ -935,13 +924,6 @@ public class GGVideoView extends StandardGSYVideoPlayer {
 //            return false;
 //        }
     }
-
-//    private void pauseInner() {
-//        LogUtils.w(TAG + " pauseInner mPlayState:" + mPlayState + " " + GGVideoView.this.hashCode());
-//        LogFileUtil.write(TAG + " pauseInner mPlayState:" + mPlayState + " " + GGVideoView.this.hashCode());
-//        mMediaPlayer.pause();
-//        mPlayState = MediaPlayerState.PAUSED;
-//    }
 
     /**
      * 停止播放
@@ -1095,11 +1077,8 @@ public class GGVideoView extends StandardGSYVideoPlayer {
     public void togglePlay() {
         LogUtils.w(TAG + "togglePlay " + GGVideoView.this.hashCode());
         LogFileUtil.write(TAG + " togglePlay  " + GGVideoView.this.hashCode());
-        if (super.getCurrentState() == GSYVideoView.CURRENT_STATE_PAUSE) {
-            tryPlay();
-        } else {
-            tryPause();
-        }
+
+        clickStartIcon();
     }
 
     /**
