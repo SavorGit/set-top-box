@@ -80,6 +80,8 @@ import com.savor.ads.utils.ShowMessage;
 import com.savor.ads.utils.ZmengAdsResponseCode;
 import com.savor.tvlibrary.OutputResolution;
 import com.savor.tvlibrary.TVOperatorFactory;
+import com.shuyu.gsyvideoplayer.player.PlayerFactory;
+import com.shuyu.gsyvideoplayer.player.SystemPlayerManager;
 import com.shuyu.gsyvideoplayer.utils.GSYVideoType;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -192,6 +194,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         wxProjectionTxtTipTV = findViewById(R.id.wx_projection_nickname_tip);
         GSYVideoType.setRenderType(GSYVideoType.SUFRACE);
         GSYVideoType.enableMediaCodec();
+//        PlayerFactory.setPlayManager(SystemPlayerManager.class);
         registerDownloadReceiver();
         // 启动投屏类操作处理的Service
 
