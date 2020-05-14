@@ -78,14 +78,6 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
      */
     private static final int MAX_PREPARE_TIME = 1000 * 20;
     private Context mContext;
-    //    private SurfaceView mSurfaceTv;
-//    private SurfaceHolder mSurfaceHolder;
-    private RelativeLayout mRootRl;
-    /******************************/
-    private DanmakuView mDanmakuView;
-    private DanmakuContext context;
-    private AcFunDanmakuParser mParser;
-    /******************************/
     private IVideoPlayer mVideoPlayer;
     private ImageView mImgView;
     private ImageView mLoadingIv;
@@ -168,7 +160,6 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
 
     private void initView() {
         View rootView = View.inflate(getContext(), R.layout.layout_savor_video_view, this);
-        mRootRl = (RelativeLayout) rootView;
         ViewGroup vp = rootView.findViewById(R.id.player_container);
         mVideoPlayer = SavorPlayerFactory.getPlayer(PlayerType.GGPlayer, vp);
         mImgView = rootView.findViewById(R.id.img_view);
@@ -179,152 +170,7 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
         if (mVideoPlayer == null) {
             LogUtils.e(TAG + " Player init error!");
         }
-
-        context = DanmakuContext.create();
-        mParser = new AcFunDanmakuParser();
-        initDanmakuView(rootView);
     }
-
-    /**
-     * 弹幕相关开始---------------
-     **/
-    private void initDanmakuView(View rootView) {
-        // 设置最大显示行数
-        HashMap<Integer, Integer> maxLinesPair = new HashMap<>();
-        maxLinesPair.put(BaseDanmaku.TYPE_SCROLL_RL, 10); // 滚动弹幕最大显示10行
-        // 设置是否禁止重叠
-        HashMap<Integer, Boolean> overlappingEnablePair = new HashMap<>();
-        overlappingEnablePair.put(BaseDanmaku.TYPE_SCROLL_RL, true);
-        overlappingEnablePair.put(BaseDanmaku.TYPE_FIX_TOP, true);
-        mDanmakuView = rootView.findViewById(R.id.view_danmaku);
-
-        context.setDanmakuStyle(IDisplayer.DANMAKU_STYLE_STROKEN, 3)
-                .setDuplicateMergingEnabled(false)//是否合并重复弹幕
-                .setScrollSpeedFactor(1.2f)//弹幕滚动速度
-                .setScaleTextSize(1.2f)//文字大小
-                .setCacheStuffer(new SpannedCacheStuffer(), mCacheStufferAdapter) // 图文混排使用SpannedCacheStuffer
-                // .setCacheStuffer(new BackgroundCacheStuffer()) //
-                // 绘制背景使用BackgroundCacheStuffer
-                .setMaximumLines(maxLinesPair)
-                .preventOverlapping(overlappingEnablePair);
-
-        if (mDanmakuView != null) {
-            mDanmakuView.setCallback(new master.flame.danmaku.controller.DrawHandler.Callback() {
-                @Override
-                public void updateTimer(DanmakuTimer timer) {
-                }
-
-                @Override
-                public void drawingFinished() {
-
-                }
-
-                @Override
-                public void danmakuShown(BaseDanmaku danmaku) {
-
-                }
-
-                @Override
-                public void prepared() {
-                    mDanmakuView.start();
-                }
-            });
-
-            mDanmakuView.setOnDanmakuClickListener(new IDanmakuView.OnDanmakuClickListener() {
-
-                @Override
-                public boolean onDanmakuClick(IDanmakus danmakus) {
-                    BaseDanmaku latest = danmakus.last();
-                    if (null != latest) {
-                        return true;
-                    }
-                    return false;
-                }
-
-                @Override
-                public boolean onViewClick(IDanmakuView view) {
-                    return false;
-                }
-            });
-
-            mDanmakuView.prepare(mParser, context);
-            // mDanmakuView.showFPS(true);
-            mDanmakuView.enableDanmakuDrawingCache(true);
-        }
-    }
-
-    public void addItems(final String url, final String text) {
-        Glide.with(mContext).load(url).into(new SimpleTarget<Drawable>() {
-            @Override
-            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-
-                try {
-                    Bitmap bitmap = AppUtils.drawable2Bitmap(resource);
-                    addDanmaKuShowTextAndImage(bitmap, text, Color.WHITE, Color.RED, false);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-    }
-
-    private void addDanmaKuShowTextAndImage(Bitmap bitmap, String msg, int textColor, int bgColor, boolean islive) {
-        BaseDanmaku danmaku = context.mDanmakuFactory.createDanmaku(BaseDanmaku.TYPE_SCROLL_RL);
-        if (danmaku == null) {
-            Log.e(TAG, "BaseDanmaku空");
-        }
-
-        //最里面的图像
-        RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
-        drawable.setCircular(true);
-        drawable.setAntiAlias(true);
-        drawable.setCornerRadius(Math.max(bitmap.getWidth() / 2, bitmap.getHeight() / 2));
-        drawable.setBounds(0, 0, bitmap.getWidth() / 2, bitmap.getHeight() / 2);
-
-        SpannableStringBuilder spannable = createSpannable(drawable, msg, bgColor);
-        danmaku.text = spannable;
-        danmaku.padding = 10;
-        danmaku.priority = 1; // 一定会显示, 一般用于本机发送的弹幕
-        danmaku.isLive = islive;
-        danmaku.paintHeight = 50f * (mParser.getDisplayer().getDensity() - 0.6f);
-        danmaku.setTime(mDanmakuView.getCurrentTime() + 1200);
-        danmaku.textSize = 50f * (mParser.getDisplayer().getDensity() - 0.6f);
-        danmaku.textColor = textColor;
-        danmaku.textShadowColor = 0; // 重要：如果有图文混排，最好不要设置描边(设textShadowColor=0)，否则会进行两次复杂的绘制导致运行效率降低
-        //danmaku.underlineColor = Color.GREEN;
-
-        mDanmakuView.addDanmaku(danmaku);
-    }
-
-    private SpannableStringBuilder createSpannable(Drawable drawable, String msg, int color) {
-        String text = "image";
-        SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(text);
-        spannableStringBuilder.append(msg);
-
-        ImageSpan span = new ImageSpan(drawable);// ImageSpan.ALIGN_BOTTOM);
-        spannableStringBuilder.setSpan(span, 0, text.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-        spannableStringBuilder.setSpan(new BackgroundColorSpan(color), 0, spannableStringBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        return spannableStringBuilder;
-    }
-
-    private BaseCacheStuffer.Proxy mCacheStufferAdapter = new BaseCacheStuffer.Proxy() {
-        @Override
-        public void prepareDrawing(final BaseDanmaku danmaku, boolean fromWorkerThread) {
-
-        }
-
-        @Override
-        public void releaseResource(BaseDanmaku danmaku) {
-            // TODO 重要:清理含有ImageSpan的text中的一些占用内存的资源 例如drawable
-
-        }
-    };
-
-    /**
-     * 弹幕相关结束---------------
-     **/
 
     private void initMediaPlayer() {
         LogUtils.w(TAG + "initMediaPlayer " + ProjectVideoView.this.hashCode());
@@ -385,96 +231,16 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
 
         String url = mMediaFiles.get(mCurrentFileIndex);
         if (url.endsWith("mp4") || url.endsWith("MP4")) {
-//                    if (!isVideoAds){
-//                        projectTipAnimateOut();
-//                    }
             isVideoAds = true;
             if (Looper.myLooper() == Looper.getMainLooper()) {
                 mImgView.setVisibility(View.GONE);
             } else {
-                post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mImgView.setVisibility(View.GONE);
-                    }
-                });
+                post(()->mImgView.setVisibility(View.GONE));
             }
             mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex));
-        } else {
-            isVideoAds = false;
-            if (mPlayStateCallback != null) {
-                mPlayStateCallback.onMediaPrepared(mCurrentFileIndex);
-            }
-//                    if (Looper.myLooper() == Looper.getMainLooper()) {
-//                        mImgView.setVisibility(View.VISIBLE);
-//                    } else {
-//                        post(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                mImgView.setVisibility(View.VISIBLE);
-//                            }
-//                        });
-//                    }
-            File file = new File(url);
-            if (Looper.myLooper() == Looper.getMainLooper()) {
-                GlideImageLoader.loadLocalImage(mContext, file, mImgView);
-            } else {
-                post(new Runnable() {
-                    @Override
-                    public void run() {
-                        GlideImageLoader.loadLocalImage(mContext, file, mImgView);
-                    }
-                });
-            }
-
-            projectTipAnimateIn();
-            postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    projectTipAnimateOut();
-                    mImgView.setVisibility(View.GONE);
-                    try {
-                        Thread.sleep(500);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    extractCompletion();
-                }
-            }, duration > 0 ? duration * 1000 : 15 * 1000);
         }
 
         return true;
-    }
-
-    public void projectTipAnimateIn() {
-
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            doAnimationIn();
-        } else {
-            mImgView.post(new Runnable() {
-                @Override
-                public void run() {
-                    doAnimationIn();
-                }
-            });
-        }
-    }
-
-    private void doAnimationIn() {
-        TranslateAnimation animation = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, -1, Animation.RELATIVE_TO_SELF, 0,
-                Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0);
-        animation.setDuration(1000);
-        animation.setFillAfter(true);
-        mImgView.setVisibility(View.VISIBLE);
-        mImgView.startAnimation(animation);
-    }
-
-    private void projectTipAnimateOut() {
-        TranslateAnimation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_PARENT, 1,
-                Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0);
-        animation.setDuration(1000);
-        animation.setFillAfter(true);
-        mImgView.startAnimation(animation);
     }
 
     /**
@@ -483,27 +249,13 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
     private void prepareMediaPlayer() {
         LogUtils.w(TAG + " prepareMediaPlayer " + ProjectVideoView.this.hashCode());
         LogFileUtil.write(TAG + " prepareMediaPlayer " + ProjectVideoView.this.hashCode());
-//        if (mIsSurfaceCreated) {
-//            if (mPlayState != MediaPlayerState.INITIALIZED) {
-//                LogUtils.e(TAG + " prepareMediaPlayer in illegal state: " + mPlayState + " " + ProjectVideoView.this.hashCode());
-//                LogFileUtil.write(TAG + " prepareMediaPlayer in illegal state: " + mPlayState + " " + ProjectVideoView.this.hashCode());
-//                return;
-//            }
-//            mMediaPlayer.prepareAsync();
-//            mPlayState = MediaPlayerState.PREPARING;
-
         if (mIfShowLoading) {
-//                GlideImageLoader.loadImage(getContext(), Environment.getExternalStorageDirectory().getAbsolutePath() +
-//                        Session.get(getContext()).getLoadingPath(), mLoadingIv, 0, R.mipmap.ads);
-//                mLoadingIv.setVisibility(VISIBLE);
             mProgressBar.setVisibility(VISIBLE);
         }
-
         if (mIfHandlePrepareTimeout) {
             removeCallbacks(mPrepareTimeoutRunnable);
             postDelayed(mPrepareTimeoutRunnable, MAX_PREPARE_TIME);
         }
-//        }
     }
 
     /**
@@ -578,65 +330,6 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
             }
         }
     }
-
-    public boolean tryPlay() {
-        LogUtils.w(TAG + " tryPlay " + ProjectVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " tryPlay " + ProjectVideoView.this.hashCode());
-
-        mIsPauseByOut = false;
-        mVideoPlayer.resume();
-
-        if (mIfShowPauseBtn) {
-            if (Looper.myLooper() == Looper.getMainLooper()) {
-                mPlayVideoIv.setVisibility(GONE);
-            } else {
-                post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mPlayVideoIv.setVisibility(GONE);
-                    }
-                });
-            }
-        }
-
-        // 回调某个视频播放恢复播放
-        if (mPlayStateCallback != null) {
-            mPlayStateCallback.onMediaResume(mCurrentFileIndex);
-        }
-
-        return true;
-    }
-
-    /**
-     * 暂停播放
-     */
-    public boolean tryPause() {
-        LogUtils.w(TAG + " tryPause " + ProjectVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " tryPause " + ProjectVideoView.this.hashCode());
-
-        mIsPauseByOut = true;
-        mVideoPlayer.pause();
-
-        if (mIfShowPauseBtn) {
-            if (Looper.myLooper() == Looper.getMainLooper()) {
-                mPlayVideoIv.setVisibility(VISIBLE);
-            } else {
-                post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mPlayVideoIv.setVisibility(VISIBLE);
-                    }
-                });
-            }
-        }
-
-        // 回调某个视频暂停
-        if (mPlayStateCallback != null) {
-            mPlayStateCallback.onMediaPause(mCurrentFileIndex);
-        }
-        return true;
-    }
-
     /**
      * 停止播放
      */
@@ -672,9 +365,6 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
             }
             release();
         }
-        if (mDanmakuView != null && mDanmakuView.isPrepared()) {
-            mDanmakuView.pause();
-        }
     }
 
     public void onStop() {
@@ -686,8 +376,6 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
         if (mPlayStateCallback != null) {
             mPlayStateCallback.onMediaPause(mCurrentFileIndex);
         }
-//        mMediaPlayer.reset();
-//        mPlayState = MediaPlayerState.IDLE;
     }
 
     /**
@@ -700,10 +388,6 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
         mIsPauseByOut = false;
         if (mMediaFiles != null && mMediaFiles.size() > 0) {
             setAndPrepare();
-        }
-
-        if (mDanmakuView != null && mDanmakuView.isPrepared() && mDanmakuView.isPaused()) {
-            mDanmakuView.resume();
         }
     }
 
@@ -721,23 +405,9 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
             if (Looper.myLooper() == Looper.getMainLooper()) {
                 mPlayVideoIv.setVisibility(GONE);
             } else {
-                post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mPlayVideoIv.setVisibility(GONE);
-                    }
-                });
+                post(()->mPlayVideoIv.setVisibility(GONE));
             }
         }
-    }
-
-    /**
-     * 设置播放源
-     *
-     * @param mediaFiles
-     */
-    public void setMediaFiles(ArrayList<String> mediaFiles) {
-        setMediaFiles(mediaFiles, 0, 0);
     }
 
     /**
@@ -755,29 +425,9 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
             mCurrentFileIndex = currentFileIndex;
             mAssignedPlayPosition = playPosition;
             mMediaFiles = mediaFiles;
-
-//            if (mPlayState == MediaPlayerState.STARTED || mPlayState == MediaPlayerState.PAUSED) {
-//                // 重设播放源集合后，将 mForcePlayFromStart置true强制从头播放
-//                mForcePlayFromStart = true;
-//            }
-
-
             mPlayVideoIv.setVisibility(GONE);
 
             setAndPrepare();
-        }
-    }
-
-    /**
-     * 继续、暂停 播放
-     */
-    public void togglePlay() {
-        LogUtils.w(TAG + "togglePlay " + ProjectVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " togglePlay " + ProjectVideoView.this.hashCode());
-        if (mVideoPlayer.isPaused()) {
-            tryPlay();
-        } else {
-            tryPause();
         }
     }
 
@@ -885,10 +535,6 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
 
     public void setIfShowLoading(boolean ifShowLoading) {
         mIfShowLoading = ifShowLoading;
-    }
-
-    public void setAdsDuration(int duration) {
-        this.duration = duration;
     }
 
     @Override

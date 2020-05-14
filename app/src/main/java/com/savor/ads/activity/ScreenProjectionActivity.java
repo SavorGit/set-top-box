@@ -1027,23 +1027,7 @@ public class ScreenProjectionActivity extends BaseActivity{
             responseVo.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
             responseVo.setMsg("失败");
         } else {
-            if (0 == action) {
-                // 暂停
-                if (mSavorVideoView.tryPause()) {
-                    responseVo.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
-                    responseVo.setMsg("暂停");
 
-                    rescheduleToExit(true);
-                }
-            } else if (1 == action) {
-                // 播放
-                if (mSavorVideoView.tryPlay()) {
-                    responseVo.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
-                    responseVo.setMsg("播放");
-
-                    rescheduleToExit(false);
-                }
-            }
         }
         return responseVo;
     }

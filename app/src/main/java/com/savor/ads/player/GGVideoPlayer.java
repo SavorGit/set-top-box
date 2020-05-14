@@ -410,11 +410,7 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
     public void togglePlay() {
         LogUtils.w(TAG + "togglePlay " + GGVideoPlayer.this.hashCode());
         LogFileUtil.write(TAG + " togglePlay  " + GGVideoPlayer.this.hashCode());
-        if (super.getCurrentState() == GSYVideoView.CURRENT_STATE_PAUSE) {
-            resume();
-        } else {
-            pause();
-        }
+        clickStartIcon();
     }
 
     /**

@@ -779,11 +779,7 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
     public void togglePlay() {
         LogUtils.w(TAG + "togglePlay " + SavorVideoView.this.hashCode());
         LogFileUtil.write(TAG + " togglePlay " + SavorVideoView.this.hashCode());
-        if (mVideoPlayer.isPaused()) {
-            tryPlay();
-        } else {
-            tryPause();
-        }
+        mVideoPlayer.togglePlay();
     }
 
     /**

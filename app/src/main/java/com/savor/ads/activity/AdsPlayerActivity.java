@@ -194,7 +194,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         wxProjectionTxtTipTV = findViewById(R.id.wx_projection_nickname_tip);
         GSYVideoType.setRenderType(GSYVideoType.SUFRACE);
         GSYVideoType.enableMediaCodec();
-//        PlayerFactory.setPlayManager(SystemPlayerManager.class);
+        PlayerFactory.setPlayManager(SystemPlayerManager.class);
         registerDownloadReceiver();
         // 启动投屏类操作处理的Service
 
@@ -1662,24 +1662,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             }
         }
     }
-    /**
-    private void handleAdmaster() {
-        if (adMasterResult == null) {
-            return;
-        }
-        int admaster_update_time = mSession.getAdmaster_update_time();
-        if (admaster_update_time != 0 && admaster_update_time != adMasterResult.getUpdate_time()) {
-            String path = AppUtils.getFilePath(mContext, AppUtils.StorageFile.cache) + "admaster_sdkconfig.xml";
-            File tarFile = new File(path);
-            if (tarFile.exists()) {
-                tarFile.delete();
-            }
-            if (!TextUtils.isEmpty(adMasterResult.getFile())) {
-                AppApi.downloadImg(adMasterResult.getFile(), mContext, this, path);
-            }
-        }
-
-    }**/
     private void handleMeiSSPVideoAdsData(List<AdsMeiSSPResult> results){
         ArrayList<MeiAdLocalBean> adsMeiSSPBeanList = new ArrayList<>();
         if (results!=null){
