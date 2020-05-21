@@ -53,6 +53,9 @@ import com.savor.ads.utils.KeyCode;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
 import com.savor.ads.utils.ShowMessage;
+import com.shuyu.gsyvideoplayer.player.PlayerFactory;
+import com.shuyu.gsyvideoplayer.player.SystemPlayerManager;
+import com.shuyu.gsyvideoplayer.utils.GSYVideoType;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -260,6 +263,7 @@ public class ScreenProjectionActivity extends BaseActivity{
 
         findView();
         setView();
+        initPlayer();
         isNewProjection = true;
         handleIntent();
         bindMiniprogramNettyService();
@@ -353,6 +357,12 @@ public class ScreenProjectionActivity extends BaseActivity{
         mSavorVideoView.setIfHandlePrepareTimeout(true);
         mSavorVideoView.setPlayStateCallback(mPlayStateCallback);
 
+    }
+
+    private void initPlayer(){
+        PlayerFactory.setPlayManager(SystemPlayerManager.class);
+        GSYVideoType.setRenderType(GSYVideoType.SUFRACE);
+        GSYVideoType.enableMediaCodec();
     }
 
     private void initSounds(){

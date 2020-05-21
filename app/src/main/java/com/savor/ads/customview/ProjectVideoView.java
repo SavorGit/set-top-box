@@ -40,6 +40,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.savor.ads.R;
 import com.savor.ads.bean.MediaPlayerError;
 import com.savor.ads.bean.MediaPlayerState;
+import com.savor.ads.player.GGVideoPlayer;
 import com.savor.ads.player.IVideoPlayer;
 import com.savor.ads.player.PlayStateCallback;
 import com.savor.ads.player.PlayerType;
@@ -49,6 +50,7 @@ import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.GlideImageLoader;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
+import com.shuyu.gsyvideoplayer.utils.OrientationUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,6 +81,7 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
     private static final int MAX_PREPARE_TIME = 1000 * 20;
     private Context mContext;
     private IVideoPlayer mVideoPlayer;
+    OrientationUtils orientationUtils;
     private ImageView mImgView;
     private ImageView mLoadingIv;
     private CircleProgressBar mProgressBar;
@@ -170,6 +173,7 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
         if (mVideoPlayer == null) {
             LogUtils.e(TAG + " Player init error!");
         }
+
     }
 
     private void initMediaPlayer() {
@@ -238,6 +242,7 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
                 post(()->mImgView.setVisibility(View.GONE));
             }
             mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex));
+            orientationUtils = new OrientationUtils((Activity) mContext,(GGVideoPlayer)mVideoPlayer);
         }
 
         return true;
@@ -608,6 +613,9 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
 
     @Override
     public void onMediaBufferUpdate(String mediaTag, int percent) {
+        if (mVideoPlayer.getDuration()==0){
+            return;
+        }
         int currentPercent = mVideoPlayer.getCurrentPosition() * 100 / mVideoPlayer.getDuration();
         LogUtils.v(TAG + "onBufferingUpdate currentPercent = " + currentPercent + " position = " +
                 mVideoPlayer.getCurrentPosition() + " duration = " + mVideoPlayer.getDuration() + " "

@@ -17,6 +17,7 @@ import com.shuyu.gsyvideoplayer.video.base.GSYVideoView;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Map;
 
 
 /**
@@ -220,13 +221,13 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
     private boolean setMediaPlayerSource() {
         LogUtils.w(TAG + " setMediaPlayerSource " + GGVideoPlayer.this.hashCode());
         LogFileUtil.write(TAG + " setMediaPlayerSource " + GGVideoPlayer.this.hashCode());
-
+        Map<String, String> mapHeadData =null;
         LogUtils.w("开始播放：" + mMediaPath + " " + GGVideoPlayer.this.hashCode());
 
         mHandler.removeCallbacksAndMessages(null);
 
         super.setStartAfterPrepared(false);
-        super.setUp(mMediaPath, false, null, "", false);
+        super.setUp(mMediaPath, false, null, mapHeadData, "");
 
         return true;
     }
@@ -328,74 +329,6 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
         }
     }
 
-//    /**
-//     * 停止播放
-//     */
-//    public void stop() {
-//        LogUtils.w(TAG + " stop " + GGVideoPlayer.this.hashCode());
-//        LogFileUtil.write(TAG + " stop " + GGVideoPlayer.this.hashCode());
-//
-//        super.onVideoPause();
-//
-//        mIsPauseByOut = true;
-//    }
-//
-//    /**
-//     * 停止播放
-//     */
-//    private void stopInner() {
-//        LogUtils.w(TAG + " stopInner " + GGVideoPlayer.this.hashCode());
-//        LogFileUtil.write(TAG + " stopInner " + GGVideoPlayer.this.hashCode());
-//        if (isInPlaybackState()) {
-//            onVideoPause();
-////            mPlayState = MediaPlayerState.STOPPED;
-//        }
-//    }
-
-
-//    /**
-//     * 所在页面onPause时请调用此方法处理，类似的还有{@link #onResume()}
-//     */
-//    public void onPause() {
-//        LogFileUtil.write(TAG + " onPause mPlayState: " + GGVideoPlayer.this.hashCode());
-//        try {
-//            // 记录播放进度
-//            mAssignedPlayPosition = getCurrentPosition();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        mHandler.removeCallbacksAndMessages(null);
-//        release();
-//    }
-//
-//    public void onStop() {
-//        LogUtils.w(TAG + " onPause mPlayState: " + GGVideoPlayer.this.hashCode());
-//        LogFileUtil.write(TAG + " onPause mPlayState: " + GGVideoPlayer.this.hashCode());
-//
-//        removeCallbacks(mPrepareTimeoutRunnable);
-//
-//        if (mPlayStateCallback != null) {
-//            mPlayStateCallback.onMediaPause(mMediaTag);
-//        }
-////        mMediaPlayer.reset();
-////        mPlayState = MediaPlayerState.IDLE;
-//    }
-//
-//    /**
-//     * 所在页面onResume时请调用此方法处理，类似的还有{@link #onPause()}
-//     */
-//    public void onResume() {
-//        LogUtils.w(TAG + " onResume " + GGVideoPlayer.this.hashCode());
-//        LogFileUtil.write(TAG + " onResume " + GGVideoPlayer.this.hashCode());
-//        initPlayer();
-//
-//        mIsPauseByOut = false;
-//        if (getCurrentState() == GSYVideoView.CURRENT_STATE_NORMAL && !TextUtils.isEmpty(mMediaPath)) {
-//            setAndPrepare();
-//        }
-//    }
-
-
     /**
      * 停止播放并释放MediaPlayer
      */
@@ -493,6 +426,7 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
             initPlayer();
 
             setAndPrepare();
+            changeRotate();
         }
     }
 
@@ -505,4 +439,11 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
 
         return ret;
     }
+
+    private void changeRotate(){
+//        float rotate =super.mTextureView.getRotation();
+//        mTextureView.setRotation(rotate);
+//        mTextureView.requestLayout();
+    }
+
 }

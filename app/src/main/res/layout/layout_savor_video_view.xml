@@ -9,7 +9,11 @@
     <FrameLayout
         android:id="@+id/player_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:gravity="center">
+
+    </FrameLayout>
+
     <ImageView
         android:id="@+id/img_view"
         android:scaleType="fitXY"

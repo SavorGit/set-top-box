@@ -170,7 +170,7 @@ public abstract class GSYBaseVideoPlayer extends GSYVideoControlView {
 
     @Override
     public void onInfo(int what, int extra) {
-        super.onInfo(what, extra);
+         super.onInfo(what, extra);
         if (what == getGSYVideoManager().getRotateInfoFlag()) {
             checkAutoFullSizeWhenFull();
         }

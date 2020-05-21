@@ -192,9 +192,9 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         wxProjectionTipLayout = findViewById(R.id.wx_projection_tip_layout);
         wxProjectionIconTipIV = findViewById(R.id.wx_projection_icon_tip);
         wxProjectionTxtTipTV = findViewById(R.id.wx_projection_nickname_tip);
+        PlayerFactory.setPlayManager(SystemPlayerManager.class);
         GSYVideoType.setRenderType(GSYVideoType.SUFRACE);
         GSYVideoType.enableMediaCodec();
-        PlayerFactory.setPlayManager(SystemPlayerManager.class);
         registerDownloadReceiver();
         // 启动投屏类操作处理的Service
 

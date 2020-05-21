@@ -941,6 +941,9 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
 
     @Override
     public void onMediaBufferUpdate(String mediaTag, int percent) {
+        if (mVideoPlayer.getDuration()==0){
+            return;
+        }
         int currentPercent = mVideoPlayer.getCurrentPosition() * 100 / mVideoPlayer.getDuration();
         LogUtils.v(TAG + "onBufferingUpdate currentPercent = " + currentPercent + " position = " +
                 mVideoPlayer.getCurrentPosition() + " duration = " + mVideoPlayer.getDuration() + " "
