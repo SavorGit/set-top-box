@@ -10,6 +10,8 @@ public class ProjectionImg {
     private int order;
     /**投图片ID*/
     private String img_id;
+    /**投视频ID*/
+    private String video_id;
 
     public String getUrl() {
         return url;
@@ -41,5 +43,13 @@ public class ProjectionImg {
 
     public void setImg_id(String img_id) {
         this.img_id = img_id;
+    }
+
+    public String getVideo_id() {
+        return video_id;
+    }
+
+    public void setVideo_id(String video_id) {
+        this.video_id = video_id;
     }
 }

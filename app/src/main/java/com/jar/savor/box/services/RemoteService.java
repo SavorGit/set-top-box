@@ -45,6 +45,7 @@ import com.savor.ads.bean.MediaLibBean;
 import com.savor.ads.bean.MiniProgramProjection;
 import com.savor.ads.bean.PptImage;
 import com.savor.ads.bean.PptVideo;
+import com.savor.ads.bean.ProjectionImg;
 import com.savor.ads.bean.ProjectionLogBean;
 import com.savor.ads.bean.SimpleRequestBean;
 import com.savor.ads.callback.ProjectOperationListener;
@@ -647,8 +648,10 @@ public class RemoteService extends Service {
                             projectionImgListDialog.show();
                             projectionImgListDialog.setProjectionPersonInfo(avatarUrl,nickName);
 
-                            ArrayList<MiniProgramProjection> list = new ArrayList<>();
-                            list.add(minipp);
+                            ArrayList<ProjectionImg> list = new ArrayList<>();
+                            ProjectionImg img = new ProjectionImg();
+                            img.setVideo_id(minipp.getVideo_id());
+                            list.add(img);
                             projectionImgListDialog.setContent(list,TYPE_VIDEO);
                         }
                     }
@@ -1113,11 +1116,9 @@ public class RemoteService extends Service {
                 String resource_type = request.getParameter("resource_type");
                 String duration = request.getParameter("duration");
                 final String img_id = System.currentTimeMillis()+"";
-                final MiniProgramProjection minipp = new MiniProgramProjection();
-                minipp.setImg_id(img_id);
-                ArrayList<MiniProgramProjection> list = new ArrayList<>();
-                list.add(minipp);
-                GlobalValues.PROJECT_STREAM_IMAGE_NUMS.add(minipp);
+                ProjectionImg img = new ProjectionImg();
+                img.setImg_id(img_id);
+                GlobalValues.PROJECT_STREAM_IMAGE_NUMS.add(img);
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -2141,9 +2142,9 @@ public class RemoteService extends Service {
          */
         private String updateProjectionDialogNum(int projectionType){
             final String img_id = System.currentTimeMillis()+"";
-            final MiniProgramProjection minipp = new MiniProgramProjection();
-            minipp.setImg_id(img_id);
-            GlobalValues.PROJECT_STREAM_IMAGE_NUMS.add(minipp);
+            ProjectionImg img = new ProjectionImg();
+            img.setImg_id(img_id);
+            GlobalValues.PROJECT_STREAM_IMAGE_NUMS.add(img);
             handler.post(new Runnable() {
                 @Override
                 public void run() {
