@@ -360,8 +360,8 @@ public class ScreenProjectionActivity extends BaseActivity{
     }
 
     private void initPlayer(){
-        PlayerFactory.setPlayManager(SystemPlayerManager.class);
-        GSYVideoType.setRenderType(GSYVideoType.SUFRACE);
+//        PlayerFactory.setPlayManager(SystemPlayerManager.class);
+//        GSYVideoType.setRenderType(GSYVideoType.SUFRACE);
         GSYVideoType.enableMediaCodec();
     }
 
