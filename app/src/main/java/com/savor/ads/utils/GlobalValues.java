@@ -101,7 +101,7 @@ public class GlobalValues <T extends MediaLibBean> {
     /**当前netty接收到的图片投屏人投的但是下载失败的照片集合**/
     public static ArrayList<String> PROJECT_FAIL_IMAGES=new ArrayList<>();
     /**当前netty接收到的图片投屏请求的集合**/
-    public static ArrayList<ProjectionImg> PROJECT_LIST = new ArrayList<>();
+//    public static ArrayList<ProjectionImg> PROJECT_LIST = new ArrayList<>();
     /**当前netty接收到的视频投屏请求的集合**/
     public static String PROJECTION_VIDEO_PATH;
     /**极简版投图片下载成功集合**/

@@ -209,10 +209,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 40:小程序点播商品广告
          * 42:小程序餐厅端视频投屏
          * 44:小程序餐厅端图片投屏(含单张)
-         * 120:支付红包二维码
+         * 120:支付红包二维码(---废弃---)
          * 121:抢红包小程序码
          * 122:接收到弹幕
-         *
          * 130:欢迎词推送
          * 131|132:退出欢迎词播放
          * 140:对服务人员评价完成通知盒子
@@ -272,7 +271,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             &&action!=44
                             &&action!=31
                             &&action!=32
-                            &&action!=120
                             &&action!=121
                             &&action!=122
                             &&GlobalValues.INTERACTION_ADS_PLAY!=0){
@@ -352,43 +350,22 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         case 111:
                             exitWebviewGame();
                             break;
-                        case 120:
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    String payRedEnvelopeUrl = miniProgramProjection.getCodeUrl();
-                                    if (payRedEnvelopeQrCodeDialog!=null){
-                                        payRedEnvelopeQrCodeDialog.dismiss();
-                                        payRedEnvelopeQrCodeDialog = new PayRedEnvelopeQrCodeDialog(context);
-                                        payRedEnvelopeQrCodeDialog.show();
-                                        payRedEnvelopeQrCodeDialog.setRedEnvelopeInfo(avatarUrl,nickName,payRedEnvelopeUrl);
-                                    }
-                                    if (scanRedEnvelopeQrCodeDialog!=null&&scanRedEnvelopeQrCodeDialog.isShowing()){
-                                        scanRedEnvelopeQrCodeDialog.dismiss();
-                                    }
-                                }
-                            });
-
-                            break;
                         case 121:
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
                                     Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
                                     if (activity instanceof AdsPlayerActivity){
-                                        String scanRedEnvelopeUrl = miniProgramProjection.getCodeUrl();
-                                        if (scanRedEnvelopeQrCodeDialog !=null){
-                                            scanRedEnvelopeQrCodeDialog.dismiss();
-                                            scanRedEnvelopeQrCodeDialog = new ScanRedEnvelopeQrCodeDialog(context);
-                                            scanRedEnvelopeQrCodeDialog.show();
-                                            scanRedEnvelopeQrCodeDialog.setRedEnvelopeInfo(avatarUrl,nickName,scanRedEnvelopeUrl);
-                                            ((AdsPlayerActivity) activity).setScanRedEnvelopeQrCodeDialogListener(scanRedEnvelopeQrCodeDialog);
-                                        }
-                                        if (payRedEnvelopeQrCodeDialog!=null&&payRedEnvelopeQrCodeDialog.isShowing()){
-                                            payRedEnvelopeQrCodeDialog.dismiss();
-                                        }
+                                        ((AdsPlayerActivity) activity).setScanRedEnvelopeQrCodeDialogListener(scanRedEnvelopeQrCodeDialog);
                                     }
+                                    String scanRedEnvelopeUrl = miniProgramProjection.getCodeUrl();
+                                    if (scanRedEnvelopeQrCodeDialog !=null){
+                                        scanRedEnvelopeQrCodeDialog.dismiss();
+                                        scanRedEnvelopeQrCodeDialog = new ScanRedEnvelopeQrCodeDialog(context);
+                                        scanRedEnvelopeQrCodeDialog.show();
+                                        scanRedEnvelopeQrCodeDialog.setRedEnvelopeInfo(avatarUrl,nickName,scanRedEnvelopeUrl);
 
+                                    }
                                 }
                             });
                             break;
@@ -761,7 +738,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
 
             GlobalValues.PROJECT_IMAGES.clear();
             GlobalValues.PROJECT_FAIL_IMAGES.clear();
-            GlobalValues.PROJECT_LIST.clear();
             handler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -937,7 +913,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             MobclickAgent.onEvent(context, "screenProjctionDownloadSuccess" + file.getName());
             GlobalValues.PROJECT_IMAGES.clear();
             GlobalValues.PROJECT_FAIL_IMAGES.clear();
-            GlobalValues.PROJECT_LIST.clear();
             handler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -1027,7 +1002,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         GlobalValues.PROJECTION_VIDEO_PATH = null;
         GlobalValues.PROJECT_IMAGES.clear();
         GlobalValues.PROJECT_FAIL_IMAGES.clear();
-        GlobalValues.PROJECT_LIST.clear();
         GlobalValues.CURRENT_OPEN_ID = openid;
         GlobalValues.CURRRNT_PROJECT_ID = forscreen_id;
 
@@ -1048,8 +1022,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         LogUtils.d("当前PROJECT_IMAGES=" + GlobalValues.PROJECT_IMAGES.size());
 
         //----------------------------------------------------//
-        GlobalValues.PROJECT_LIST.addAll(mpp.getImg_list());
-        ProjectionImg img = GlobalValues.PROJECT_LIST.get(0);
+        ArrayList<ProjectionImg> imgList = new ArrayList<>();
+        imgList.addAll(mpp.getImg_list());
+        ProjectionImg img = imgList.get(0);
         String url = BuildConfig.OSS_ENDPOINT+img.getUrl()+ConstantValues.PROJECTION_IMG_THUMBNAIL_PARAM;
         if (action==44){
             playTimes =mpp.getPlay_times();
@@ -1064,6 +1039,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         String fileName = img.getFilename();
         String imgpath = basePath + fileName;
         if (img_nums>1||(img_nums==1&&!new File(imgpath).exists())){
+
             handler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -1072,7 +1048,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             pImgListDialog.show();
                             pImgListDialog.setProjectionPersonInfo(avatarUrl,nickName);
                         }
-                        pImgListDialog.setContent(GlobalValues.PROJECT_LIST,TYPE_IMG);
+                        pImgListDialog.setContent(imgList,TYPE_IMG);
                     }
                 }
             });
@@ -1265,11 +1241,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         String req_id = program.getReq_id();
         words = program.getForscreen_char();
         img_nums = program.getImg_nums();
-        List<ProjectionImg> imgList = program.getImg_list();
         GlobalValues.PROJECTION_VIDEO_PATH = null;
         GlobalValues.PROJECT_IMAGES.clear();
         GlobalValues.PROJECT_FAIL_IMAGES.clear();
-        GlobalValues.PROJECT_LIST.clear();
         GlobalValues.CURRENT_OPEN_ID = openid;
         GlobalValues.CURRRNT_PROJECT_ID = forscreen_id;
 
@@ -1277,26 +1251,30 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
 
         isDownloadRunnable = false;
         isPPTRunnable = false;
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (pImgListDialog!=null){
-                    if (pImgListDialog.isShowing()){
-                        pImgListDialog.clearContent();
-                        pImgListDialog.dismiss();
-                    }
-                    pImgListDialog.show();
-                    pImgListDialog.setProjectionPersonInfo(avatarUrl,nickName);
-                }
-            }
-        });
-        if (imgList!=null&&imgList.size()>0){
-            handler.post(()->pImgListDialog.setContent(imgList));
+        ArrayList<ProjectionImg> imgList = new ArrayList<>();
+        imgList.addAll(program.getImg_list());
+        ProjectionImg img = imgList.get(0);
+        String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+        String fileName = img.getFilename();
+        String imgpath = basePath + fileName;
+        if (img_nums>1||(img_nums==1&&!new File(imgpath).exists())){
 
-            for (ProjectionImg img:imgList){
-                downloadFile(forscreen_id,words,img,req_id);
-            }
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (pImgListDialog!=null){
+                        if (!pImgListDialog.isShowing()){
+                            pImgListDialog.show();
+                            pImgListDialog.setProjectionPersonInfo(avatarUrl,nickName);
+                        }
+                        pImgListDialog.setContent(imgList,TYPE_IMG);
+                    }
+                }
+            });
         }
+        handler.removeCallbacks(downloadFileRunnable);
+        downloadIndex =0;
+        new Thread(()->downloadFile(downloadIndex)).start();
 
     }
 
@@ -1492,8 +1470,10 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             if (isDownloaded) {
                 if (!GlobalValues.PROJECT_IMAGES.contains(path)) {
                     GlobalValues.PROJECT_IMAGES.add(path);
-                    LogUtils.d("PROJECT_IMAGES:="+GlobalValues.PROJECT_IMAGES);
                 }
+                LogUtils.d("img_nums:="+img_nums
+                        +"|||PROJECT_IMAGES:="+GlobalValues.PROJECT_IMAGES
+                        +"|||PROJECT_FAIL_IMAGES:="+GlobalValues.PROJECT_FAIL_IMAGES);
                 if (!isPPTRunnable&&GlobalValues.INTERACTION_ADS_PLAY==0){
                     handler.removeCallbacks(mProjectShowImageRunnable);
                     currentIndex =0;
@@ -1513,6 +1493,12 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
 
                 postProjectionResourceLog(params);
             } else {
+                if (!GlobalValues.PROJECT_FAIL_IMAGES.contains(path)) {
+                    GlobalValues.PROJECT_FAIL_IMAGES.add(path);
+                }
+                LogUtils.d("img_nums:="+img_nums
+                        +"|||PROJECT_IMAGES:="+GlobalValues.PROJECT_IMAGES
+                        +"|||PROJECT_FAIL_IMAGES:="+GlobalValues.PROJECT_FAIL_IMAGES);
                 params.put("is_exist", 2);
                 if (projectionIdMap != null && projectionIdMap.containsKey(projection.getForscreen_id())) {
                     params.put("is_break", projectionIdMap.get(projection.getForscreen_id()));
@@ -1525,9 +1511,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         postProjectionResourceLog(params);
                     }
                 });
-                if (!GlobalValues.PROJECT_FAIL_IMAGES.contains(path)) {
-                    GlobalValues.PROJECT_FAIL_IMAGES.add(path);
-                }
             }
             if (GlobalValues.PROJECT_IMAGES.size()+GlobalValues.PROJECT_FAIL_IMAGES.size()==img_nums){
                 handler.removeCallbacks(downloadFileRunnable);
@@ -1542,79 +1525,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 },1000);
             }else{
                 handler.postDelayed(downloadFileRunnable,500);
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    private void downloadFile(String forscreen_id,String words,ProjectionImg img,String req_id){
-        boolean isDownloaded;
-        try{
-            final HashMap params = new HashMap<>();
-            params.put("req_id",req_id);
-            params.put("receive_nettytime",receive_nettytime);
-            params.put("box_mac", session.getEthernetMac());
-            params.put("forscreen_id", forscreen_id);
-            params.put("openid", openid);
-            params.put("resource_id", img.getImg_id());
-            long startTime = System.currentTimeMillis();
-            String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-            String fileName = img.getFilename();
-            String path = basePath + fileName;
-            File file = new File(path);
-            if (file.exists()) {
-                params.put("is_exist", 1);
-                isDownloaded = true;
-                handler.post(()->pImgListDialog.setImgDownloadProgress(img.getImg_id(), "100%"));
-            } else {
-                params.put("is_exist", 0);
-                String oss_url = BuildConfig.OSS_ENDPOINT+img.getUrl();
-                isDownloaded = new ProgressDownloader(oss_url, basePath,fileName).downloadByRange();
-                if (isDownloaded){
-                    handler.post(()->pImgListDialog.setImgDownloadProgress(img.getImg_id(),"100%"));
-
-                }
-            }
-            if (isDownloaded) {
-                if (!GlobalValues.PROJECT_IMAGES.contains(path)) {
-                    GlobalValues.PROJECT_IMAGES.add(path);
-                    LogUtils.d("PROJECT_IMAGES:="+GlobalValues.PROJECT_IMAGES);
-                }
-                if (!isPPTRunnable&&GlobalValues.INTERACTION_ADS_PLAY==0){
-                    handler.removeCallbacks(mProjectShowImageRunnable);
-                    currentIndex =0;
-                    new Thread(()->projectShowImage(currentIndex, words, avatarUrl, nickName)).start();
-                }
-                long endTime = System.currentTimeMillis() - startTime;
-                params.put("used_time", endTime);
-                if (projectionIdMap != null && projectionIdMap.containsKey(forscreen_id)&&!TextUtils.isEmpty(forscreen_id)) {
-                    params.put("is_break", projectionIdMap.get(forscreen_id));
-                }
-
-                postProjectionResourceLog(params);
-            } else {
-                params.put("is_exist", 2);
-                if (projectionIdMap != null && projectionIdMap.containsKey(forscreen_id)&&!TextUtils.isEmpty(forscreen_id)) {
-                    params.put("is_break", projectionIdMap.get(forscreen_id));
-                }
-                long endTime = System.currentTimeMillis() - startTime;
-                params.put("used_time", endTime);
-                handler.post(()->postProjectionResourceLog(params));
-                if (!GlobalValues.PROJECT_FAIL_IMAGES.contains(path)) {
-                    GlobalValues.PROJECT_FAIL_IMAGES.add(path);
-                }
-            }
-            if ((GlobalValues.PROJECT_IMAGES.size()+GlobalValues.PROJECT_FAIL_IMAGES.size())==img_nums){
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (pImgListDialog!=null&&pImgListDialog.isShowing()){
-                            pImgListDialog.clearContent();
-                            pImgListDialog.dismiss();
-                        }
-                    }
-                },1000);
             }
         }catch (Exception e){
             e.printStackTrace();
