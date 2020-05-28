@@ -363,6 +363,7 @@ public class ScreenProjectionActivity extends BaseActivity{
 //        PlayerFactory.setPlayManager(SystemPlayerManager.class);
 //        GSYVideoType.setRenderType(GSYVideoType.SUFRACE);
         GSYVideoType.enableMediaCodec();
+        GSYVideoType.enableMediaCodecTexture();
     }
 
     private void initSounds(){
