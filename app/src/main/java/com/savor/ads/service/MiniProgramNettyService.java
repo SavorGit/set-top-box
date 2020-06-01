@@ -456,7 +456,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         LogUtils.d("PROJECT_IMAGES:flag=false|currentIndex="+currentIndex);
                         handler.postDelayed(mProjectShowImageRunnable,INTERVAL_TIME);
                     }else{
-                        handler.removeCallbacks(mProjectShowImageRunnable);
                         //进此逻辑证明下载完成或者下载过慢退出投屏状态
                         handler.post(mProjectExitDownloadRunnable);
                     }
