@@ -624,23 +624,23 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
                 " position = " + mVideoPlayer.getCurrentPosition() + " duration = " +
                 mVideoPlayer.getDuration() + " " + this.hashCode());
 //                    if (mp.getCurrentPosition() + 400 < mp.getDuration()) {
-        if (percent < 99 && currentPercent >= percent - 1) {
-            // 缓冲部分不足时，暂停播放并显示进度圈
-            if (mIfShowLoading) {
-                mProgressBar.setVisibility(VISIBLE);
-            }
-            if (!mVideoPlayer.isPaused()) {
-                mVideoPlayer.pause();
-            }
-        } else {
-            // 缓冲好时，继续播放并隐藏进度圈
-            if (mIfShowLoading) {
-                mProgressBar.setVisibility(GONE);
-            }
-            if (mVideoPlayer.isPaused() && !mIsPauseByOut) {
-                mVideoPlayer.resume();
-            }
-        }
+//        if (percent < 99 && currentPercent >= percent - 1) {
+//            // 缓冲部分不足时，暂停播放并显示进度圈
+//            if (mIfShowLoading) {
+//                mProgressBar.setVisibility(VISIBLE);
+//            }
+//            if (!mVideoPlayer.isPaused()) {
+//                mVideoPlayer.pause();
+//            }
+//        } else {
+//            // 缓冲好时，继续播放并隐藏进度圈
+//            if (mIfShowLoading) {
+//                mProgressBar.setVisibility(GONE);
+//            }
+//            if (mVideoPlayer.isPaused() && !mIsPauseByOut) {
+//                mVideoPlayer.resume();
+//            }
+//        }
     }
 
     @Override

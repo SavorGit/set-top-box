@@ -400,7 +400,7 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
                 mHandler.removeCallbacksAndMessages(null);
                 post(() -> atlasViewPager.setVisibility(View.GONE));
             }
-            mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex));
+            mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex), mAssignedPlayPosition);
         } else {
             isVideoAds = false;
             if (mPlayStateCallback != null) {
@@ -673,6 +673,9 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
         if (mVideoPlayer != null) {
             mVideoPlayer.pause();
 
+            // 记录播放进度
+            mAssignedPlayPosition = mVideoPlayer.getCurrentPosition();
+
             mHandler.removeCallbacksAndMessages(null);
             removeCallbacks(mPlayCompletionRunnable);
             removeCallbacks(mPrepareTimeoutRunnable);
@@ -941,34 +944,34 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
 
     @Override
     public void onMediaBufferUpdate(String mediaTag, int percent) {
-        if (mVideoPlayer.getDuration()==0){
+        if (mVideoPlayer.getDuration() == 0) {
             return;
         }
         int currentPercent = mVideoPlayer.getCurrentPosition() * 100 / mVideoPlayer.getDuration();
-        LogUtils.v(TAG + "onBufferingUpdate currentPercent = " + currentPercent + " position = " +
-                mVideoPlayer.getCurrentPosition() + " duration = " + mVideoPlayer.getDuration() + " "
+        LogUtils.v(TAG + "onBufferingUpdate currentPercent=" + currentPercent + " BufferedPercent=" +
+                percent + " duration = " + mVideoPlayer.getDuration() + " "
                 + SavorVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " onBufferingUpdate currentPercent = " + currentPercent +
-                " position = " + mVideoPlayer.getCurrentPosition() + " duration = " +
+        LogFileUtil.write(TAG + " onBufferingUpdate currentPercent=" + currentPercent +
+                " BufferedPercent=" + percent + " duration = " +
                 mVideoPlayer.getDuration() + " " + SavorVideoView.this.hashCode());
 //                    if (mp.getCurrentPosition() + 400 < mp.getDuration()) {
-        if (percent < 99 && currentPercent >= percent - 1) {
-            // 缓冲部分不足时，暂停播放并显示进度圈
-            if (mIfShowLoading) {
-                mProgressBar.setVisibility(VISIBLE);
-            }
-            if (!mVideoPlayer.isPaused()) {
-                mVideoPlayer.pause();
-            }
-        } else {
-            // 缓冲好时，继续播放并隐藏进度圈
-            if (mIfShowLoading) {
-                mProgressBar.setVisibility(GONE);
-            }
-            if (mVideoPlayer.isPaused() && !mIsPauseByOut) {
-                mVideoPlayer.resume();
-            }
-        }
+//        if (percent < 99 && currentPercent >= percent - 1) {
+//            // 缓冲部分不足时，暂停播放并显示进度圈
+//            if (mIfShowLoading) {
+//                mProgressBar.setVisibility(VISIBLE);
+//            }
+//            if (!mVideoPlayer.isPaused()) {
+//                mVideoPlayer.pause();
+//            }
+//        } else {
+//            // 缓冲好时，继续播放并隐藏进度圈
+//            if (mIfShowLoading) {
+//                mProgressBar.setVisibility(GONE);
+//            }
+//            if (mVideoPlayer.isPaused() && !mIsPauseByOut) {
+//                mVideoPlayer.resume();
+//            }
+//        }
     }
 
     @Override

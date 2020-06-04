@@ -2,6 +2,7 @@ package com.savor.ads.player;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -9,6 +10,7 @@ import android.util.AttributeSet;
 
 import com.savor.ads.R;
 import com.savor.ads.bean.MediaPlayerError;
+import com.savor.ads.player.mediacodec.MediaCodecRenderView;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
@@ -18,6 +20,8 @@ import com.shuyu.gsyvideoplayer.video.base.GSYVideoView;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
+
+import androidx.annotation.RequiresApi;
 
 
 /**
@@ -232,6 +236,13 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
         return true;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    @Override
+    protected void addTextureView() {
+        mTextureView = new MediaCodecRenderView();
+        mTextureView.addView(getContext(), mTextureViewContainer, mRotate, this, this, mEffectFilter, mMatrixGL, mRenderer, mMode);
+    }
+
     /**
      * 准备播放
      */
@@ -361,14 +372,18 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
         }
     }
 
+    @Override
+    public void onInfo(int what, int extra) {
+        super.onInfo(what, extra);
+        LogUtils.w(TAG + " onInfo " + GGVideoPlayer.this.hashCode()+ " what:"+what+" extra:"+extra);
+    }
+
     /**
      * 获取播放进度，非播放状态调用时返回-1
      *
      * @return
      */
     public int getCurrentPosition() {
-        LogUtils.w(TAG + " " + GGVideoPlayer.this.hashCode());
-        LogFileUtil.write(TAG + " " + GGVideoPlayer.this.hashCode());
         if (isInPlayingState())
             return getCurrentPositionWhenPlaying();
         else
@@ -410,7 +425,7 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
 
     @Override
     public void setSource(String mediaPath, String mediaTag, int seekPosition) {
-        LogUtils.w(TAG + "setSource " + GGVideoPlayer.this.hashCode());
+        LogUtils.w(TAG + " setSource " + GGVideoPlayer.this.hashCode());
         LogFileUtil.write(TAG + " setSource " + GGVideoPlayer.this.hashCode());
         mIsPauseByOut = false;
         if (!TextUtils.isEmpty(mediaPath)) {

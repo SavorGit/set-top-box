@@ -63,7 +63,6 @@ import com.savor.ads.dialog.PlayListDialog;
 import com.savor.ads.dialog.ScanRedEnvelopeQrCodeDialog;
 import com.savor.ads.log.LogReportUtil;
 import com.savor.ads.okhttp.coreProgress.download.ProgressDownloader;
-import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.BaiduAdsResponseCode;
 import com.savor.ads.utils.ConstantValues;
@@ -102,6 +101,7 @@ import java.util.UUID;
 import tianshu.ui.api.TsUiApiV20171122;
 import tianshu.ui.api.ZmtAPI;
 import tianshu.ui.api.ZmtAdRequestUtil;
+import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
 import static com.savor.ads.utils.ConstantValues.DSP_DOWNLOADING_FILES;
 
@@ -193,10 +193,13 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         wxProjectionTipLayout = findViewById(R.id.wx_projection_tip_layout);
         wxProjectionIconTipIV = findViewById(R.id.wx_projection_icon_tip);
         wxProjectionTxtTipTV = findViewById(R.id.wx_projection_nickname_tip);
-//        PlayerFactory.setPlayManager(IjkPlayerManager.class);
+        PlayerFactory.setPlayManager(SystemPlayerManager.class);
 //        GSYVideoType.setRenderType(GSYVideoType.TEXTURE);
         GSYVideoType.enableMediaCodec();
         GSYVideoType.enableMediaCodecTexture();
+//        //ijk关闭log
+//        IjkPlayerManager.setLogLevel(IjkMediaPlayer.IJK_LOG_SILENT);
+
         registerDownloadReceiver();
         // 启动投屏类操作处理的Service
 
