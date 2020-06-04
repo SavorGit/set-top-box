@@ -167,7 +167,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "dbsavor.db";
 
 
-    private static final int DB_VERSION = 31;
+    private static final int DB_VERSION = 32;
 
     private Context mContext;
 
