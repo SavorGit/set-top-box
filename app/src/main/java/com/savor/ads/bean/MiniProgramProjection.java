@@ -50,7 +50,8 @@ public class MiniProgramProjection implements Serializable{
     private String video_id;
 
     /**微信头像*/
-    private String avatarUrl;
+//    private String avatarUrl;
+    private String headPic;
     /**微信昵称*/
     private String nickName;
     /**二维码地址*/
@@ -185,12 +186,12 @@ public class MiniProgramProjection implements Serializable{
         this.video_id = video_id;
     }
 
-    public String getAvatarUrl() {
-        return avatarUrl;
+    public String getHeadPic() {
+        return headPic;
     }
 
-    public void setAvatarUrl(String avatarUrl) {
-        this.avatarUrl = avatarUrl;
+    public void setHeadPic(String headPic) {
+        this.headPic = headPic;
     }
 
     public String getNickName() {

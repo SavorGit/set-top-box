@@ -89,6 +89,7 @@ public class AppApi {
         CP_GET_BIRTHDAY_ONDEMADN_FROM_JSON,
         CP_POST_FORSCREEN_ADSLIST_FROM_JSON,
         CP_GET_GOODS_PROGRAMLIST_FROM_JSON,
+        CP_GET_SHOP_GOODS_LIST_FROM_JSON,
         CP_POST_SELECT_CONTENT_FROM_JSON,
         CP_GET_DISCOVER_CONTENT_FROM_JSON,
         CP_GET_WELCOMERESOURCE_FROM_JSON,
@@ -168,6 +169,7 @@ public class AppApi {
             put(Action.CP_GET_BIRTHDAY_ONDEMADN_FROM_JSON,BuildConfig.BASE_URL+"Smallappsimple/birthdaydemand/demandList");
             put(Action.CP_POST_FORSCREEN_ADSLIST_FROM_JSON,BuildConfig.BASE_URL+"Box/ForscreenAds/getAdsList");
             put(Action.CP_GET_GOODS_PROGRAMLIST_FROM_JSON,BuildConfig.BASE_URL+"box/program/getGoodsProgramList");
+            put(Action.CP_GET_SHOP_GOODS_LIST_FROM_JSON,BuildConfig.BASE_URL+"box/program/getShopgoodsProgramList");
             put(Action.CP_POST_SELECT_CONTENT_FROM_JSON,BuildConfig.BASE_URL+"box/program/getSelectcontentProgramList");
             put(Action.CP_GET_DISCOVER_CONTENT_FROM_JSON,BuildConfig.BASE_URL+"box/program/getFindcontentProgramList");
             put(Action.CP_GET_WELCOMERESOURCE_FROM_JSON,BuildConfig.BASE_URL+"box/program/getWelcomeResource");
@@ -279,6 +281,20 @@ public class AppApi {
         return new AppServiceOk(context, Action.CP_GET_GOODS_PROGRAMLIST_FROM_JSON, handler, params).syncGet();
     }
 
+    /**
+     * GET
+     * 获取商城商品节目单列表
+     * @param context
+     * @param handler
+     * @param boxMac
+     * @return
+     * @throws IOException
+     */
+    public static JsonBean getShopGoodsListFromCloudfrom(Context context,ApiRequestListener handler,String boxMac) throws IOException{
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("box_mac",boxMac);
+        return new AppServiceOk(context, Action.CP_GET_SHOP_GOODS_LIST_FROM_JSON, handler, params).syncGet();
+    }
     /**
      * 获取用户精选上电视
      * @param context

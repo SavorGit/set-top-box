@@ -57,9 +57,6 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        if (miniCallback != null) {
-            miniCallback.onMiniConnected();
-        }
         LogUtils.i("miniProgram--channelActive ");
     }
 
@@ -74,6 +71,11 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
                 List<String> contentMsgH = msg.getContent();
                 for (String tmp : contentMsgH) {
                     LogUtils.v("miniProgram--SERVER_HEART_RESP： 收到来自服务端的...心跳回应." + tmp + "===>>接收到内容:" + msg.getContent());
+                }
+                if (!session.isHeartbeatMiniNetty()){
+                    if (miniCallback != null) {
+                        miniCallback.onMiniConnected();
+                    }
                 }
                 break;
             case SERVER_ORDER_REQ:

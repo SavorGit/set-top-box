@@ -1182,12 +1182,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                     if (Looper.myLooper() == Looper.getMainLooper()) {
                         goodsTitleLayout.setVisibility(View.GONE);
                     }else {
-                        mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                goodsTitleLayout.setVisibility(View.GONE);
-                            }
-                        });
+                        mHandler.post(()->goodsTitleLayout.setVisibility(View.GONE));
                     }
                 }
                 if (libBean.getIs_storebuy()==1){
@@ -1202,6 +1197,14 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 goodsTitleLayout.setVisibility(View.GONE);
                 storeSaleLayout.setVisibility(View.GONE);
                 mHandler.removeCallbacks(mCountDownRunnable);
+            }
+
+            if (libBean.getType().equals(ConstantValues.SHOP_GOODS_ADS)){
+                String qrcode_url=libBean.getQrcode_url();
+                String qrcode_path=libBean.getQrcode_path();
+                ((SavorApplication) getApplication()).showGoodsQrCodeWindow(qrcode_url,qrcode_path);
+            }else{
+                ((SavorApplication) getApplication()).hideGoodsQrCodeWindow();
             }
 
             if(libBean.getType().equals(ConstantValues.SELECT_CONTENT)

@@ -133,8 +133,8 @@ public class ConstantValues {
     public static final String ADV = "adv";
     /**节目单-广告*/
     public static final String ADS = "ads";
-    /**节目单-RTB广告*/
-    public static final String RTB_ADS = "rtbads";
+    /**节目单-商城商品广告*/
+    public static final String SHOP_GOODS_ADS = "shopgoods";
     /**节目单-poly预下载广告*/
     public static final String POLY_ADS = "poly";
     public static final String POLY_ADS_ONLINE = "poly_online";

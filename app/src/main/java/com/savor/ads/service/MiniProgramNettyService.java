@@ -46,6 +46,7 @@ import com.savor.ads.projection.ProjectionManager;
 import com.savor.ads.projection.action.VodAction;
 import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
+import com.savor.ads.utils.Base64Utils;
 import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.LogFileUtil;
@@ -59,6 +60,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -91,7 +93,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private int currentIndex;
     private MiniProgramProjection miniProgramProjection;
 
-    private String avatarUrl;
+    private String headPic;
     private String nickName;
     private String openid;
     private String lastOpenid;
@@ -241,7 +243,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     }.getType());
                     if (miniProgramProjection!=null){
                         this.miniProgramProjection = miniProgramProjection;
-                        avatarUrl = miniProgramProjection.getAvatarUrl();
+                        headPic = Base64Utils.getFromBase64(miniProgramProjection.getHeadPic());
                         nickName = miniProgramProjection.getNickName();
                         lastOpenid = openid;
                         openid = miniProgramProjection.getOpenid();
@@ -291,8 +293,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             break;
                         case 4:
                         case 44:
-                            projectionMoreImg(miniProgramProjection,action);
-
+                            new Thread(()->projectionMoreImg(miniProgramProjection,action)).start();
                             break;
                         case 5:
                             onDemandSetTopBoxVideo(miniProgramProjection);
@@ -363,7 +364,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                                         scanRedEnvelopeQrCodeDialog.dismiss();
                                         scanRedEnvelopeQrCodeDialog = new ScanRedEnvelopeQrCodeDialog(context);
                                         scanRedEnvelopeQrCodeDialog.show();
-                                        scanRedEnvelopeQrCodeDialog.setRedEnvelopeInfo(avatarUrl,nickName,scanRedEnvelopeUrl);
+                                        scanRedEnvelopeQrCodeDialog.setRedEnvelopeInfo(headPic,nickName,scanRedEnvelopeUrl);
 
                                     }
                                 }
@@ -502,7 +503,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             if (isPPTRunnable){
                 currentIndex ++;
                 LogUtils.d("projectShowImage:forscreen_id="+forscreen_id);
-                projectShowImage(currentIndex,words,avatarUrl,nickName);
+                projectShowImage(currentIndex,words,headPic,nickName);
             }
         }
     };
@@ -642,7 +643,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 if (pImgListDialog!=null){
                     if (!pImgListDialog.isShowing()){
                         pImgListDialog.show();
-                        pImgListDialog.setProjectionPersonInfo(avatarUrl,nickName);
+                        pImgListDialog.setProjectionPersonInfo(headPic,nickName);
                     }
                     pImgListDialog.clearContent();
                     ArrayList<ProjectionImg> list = new ArrayList<>();
@@ -746,7 +747,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     }
                 }
             });
-            ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,"", avatarUrl, nickName,"",currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+            ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,"", headPic, nickName,"",currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
         } else {
             params.put("is_exist", 2);
             long endTime = System.currentTimeMillis();
@@ -814,7 +815,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 if (pImgListDialog!=null){
                     if (!pImgListDialog.isShowing()){
                         pImgListDialog.show();
-                        pImgListDialog.setProjectionPersonInfo(avatarUrl,nickName);
+                        pImgListDialog.setProjectionPersonInfo(headPic,nickName);
                     }
                     pImgListDialog.clearContent();
                     ArrayList<ProjectionImg> list = new ArrayList<>();
@@ -924,7 +925,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
 
             if (currentAction==42){
                 if (GlobalValues.INTERACTION_ADS_PLAY==0){
-                    ProjectOperationListener.getInstance(context).showRestVideo(path, 0, true, avatarUrl, nickName,minipp.getPlay_times());
+                    ProjectOperationListener.getInstance(context).showRestVideo(path, 0, true, headPic, nickName,minipp.getPlay_times());
                 }
             }else {
                 if (GlobalValues.INTERACTION_ADS_PLAY!=0){
@@ -939,21 +940,21 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             String adspath = preOrNextAdsBean.getMediaPath();
                             String duration = preOrNextAdsBean.getDuration();
                             if (preOrNextAdsBean.getMedia_type()==1){
-                                ProjectOperationListener.getInstance(context).showVideo(adspath, 0, true,forscreen_id, avatarUrl, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                                ProjectOperationListener.getInstance(context).showVideo(adspath, 0, true,forscreen_id, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                             }else{
-                                ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, words, avatarUrl, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                                ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, words, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                             }
                             preOrNextAdsBean = null;
                             GlobalValues.PROJECTION_VIDEO_PATH = path;
                         }else if (preOrNextAdsBean.getPlay_position()==2){
                             GlobalValues.PROJECTION_VIDEO_PATH = null;
-                            ProjectOperationListener.getInstance(context).showVideo(path, 0, true,forscreen_id, avatarUrl, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showVideo(path, 0, true,forscreen_id, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                         }
                     }else{
                         GlobalValues.INTERACTION_ADS_PLAY = 0;
                         preOrNextAdsBean = null;
                         GlobalValues.PROJECTION_VIDEO_PATH = null;
-                        ProjectOperationListener.getInstance(context).showVideo(path, 0, true,forscreen_id, avatarUrl, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                        ProjectOperationListener.getInstance(context).showVideo(path, 0, true,forscreen_id, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                     }
                 }
             }
@@ -1028,10 +1029,10 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         if (action==44){
             playTimes =mpp.getPlay_times();
             LogUtils.d("playTimes=="+playTimes+"|缩略图");
-            ProjectOperationListener.getInstance(context).showRestImage(4,url,0,true,words,avatarUrl,nickName,playTimes,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+            ProjectOperationListener.getInstance(context).showRestImage(4,url,0,true,words,headPic,nickName,playTimes,GlobalValues.FROM_SERVICE_MINIPROGRAM);
         }else{
             if (!session.isOpenInteractscreenad()){
-                ProjectOperationListener.getInstance(context).showImage(1, url, true,forscreen_id, words, avatarUrl, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                ProjectOperationListener.getInstance(context).showImage(1, url, true,forscreen_id, words, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
             }
         }
         String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
@@ -1045,7 +1046,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     if (pImgListDialog!=null){
                         if (!pImgListDialog.isShowing()){
                             pImgListDialog.show();
-                            pImgListDialog.setProjectionPersonInfo(avatarUrl,nickName);
+                            pImgListDialog.setProjectionPersonInfo(headPic,nickName);
                         }
                         pImgListDialog.setContent(imgList,TYPE_IMG);
                     }
@@ -1063,9 +1064,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     String path = preOrNextAdsBean.getMediaPath();
                     String duration = preOrNextAdsBean.getDuration();
                     if (preOrNextAdsBean.getMedia_type()==1){
-                        ProjectOperationListener.getInstance(context).showVideo(path, 0, true,forscreen_id, avatarUrl, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                        ProjectOperationListener.getInstance(context).showVideo(path, 0, true,forscreen_id, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                     }else{
-                        ProjectOperationListener.getInstance(context).showImage(5, path, true,forscreen_id, words, avatarUrl, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                        ProjectOperationListener.getInstance(context).showImage(5, path, true,forscreen_id, words, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                     }
                     preOrNextAdsBean = null;
                 }
@@ -1264,7 +1265,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     if (pImgListDialog!=null){
                         if (!pImgListDialog.isShowing()){
                             pImgListDialog.show();
-                            pImgListDialog.setProjectionPersonInfo(avatarUrl,nickName);
+                            pImgListDialog.setProjectionPersonInfo(headPic,nickName);
                         }
                         pImgListDialog.setContent(imgList,TYPE_IMG);
                     }
@@ -1480,7 +1481,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         @Override
                         public void run() {
                             LogUtils.d("projectShowImage:第一张forscreen_id="+projection.getForscreen_id());
-                            projectShowImage(currentIndex, words, avatarUrl, nickName);
+                            projectShowImage(currentIndex, words, headPic, nickName);
                         }
                     }).start();
                 }
@@ -1823,7 +1824,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            projectShowImage(currentIndex, words, avatarUrl, nickName);
+                            projectShowImage(currentIndex, words, headPic, nickName);
                         }
                     }).start();
                 }
@@ -1836,9 +1837,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     if (miniProgramProjection!=null){
                         time =miniProgramProjection.getPlay_times();
                     }
-                    ProjectOperationListener.getInstance(context).showRestVideo(GlobalValues.PROJECTION_VIDEO_PATH, 0, true, avatarUrl, nickName,time);
+                    ProjectOperationListener.getInstance(context).showRestVideo(GlobalValues.PROJECTION_VIDEO_PATH, 0, true, headPic, nickName,time);
                 }else {
-                    ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH, 0, true,forscreenId, avatarUrl, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                    ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH, 0, true,forscreenId, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                 }
             }
             GlobalValues.INTERACTION_ADS_PLAY=0;
@@ -1857,7 +1858,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             @Override
                             public void run() {
                                 projectionIdMap.put(forscreenId,PROJECTION_STATE_PLAY);
-                                projectShowImage(currentIndex, words, avatarUrl, nickName);
+                                projectShowImage(currentIndex, words, headPic, nickName);
                             }
                         }).start();
                     }
@@ -1870,9 +1871,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         if (miniProgramProjection!=null){
                             time =miniProgramProjection.getPlay_times();
                         }
-                        ProjectOperationListener.getInstance(context).showRestVideo(GlobalValues.PROJECTION_VIDEO_PATH, 0, true, avatarUrl, nickName,time);
+                        ProjectOperationListener.getInstance(context).showRestVideo(GlobalValues.PROJECTION_VIDEO_PATH, 0, true, headPic, nickName,time);
                     }else {
-                        ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH, 0, true,forscreenId, avatarUrl, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                        ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH, 0, true,forscreenId, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                     }
                 }
             }
@@ -1883,9 +1884,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 String path = preOrNextAdsBean.getMediaPath();
                 String duration = preOrNextAdsBean.getDuration();
                 if (preOrNextAdsBean.getMedia_type()==1){
-                    ProjectOperationListener.getInstance(context).showVideo(path, 0, true,forscreenId, avatarUrl, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                    ProjectOperationListener.getInstance(context).showVideo(path, 0, true,forscreenId, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                 }else{
-                    ProjectOperationListener.getInstance(context).showImage(5, path, true,forscreenId, words, avatarUrl, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                    ProjectOperationListener.getInstance(context).showImage(5, path, true,forscreenId, words, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                 }
                 GlobalValues.INTERACTION_ADS_PLAY=2;
                 preOrNextAdsBean = null;
