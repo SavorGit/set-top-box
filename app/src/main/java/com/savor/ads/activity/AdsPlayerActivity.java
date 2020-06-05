@@ -101,6 +101,7 @@ import java.util.UUID;
 import tianshu.ui.api.TsUiApiV20171122;
 import tianshu.ui.api.ZmtAPI;
 import tianshu.ui.api.ZmtAdRequestUtil;
+import tv.danmaku.ijk.media.exo2.Exo2PlayerManager;
 
 import static com.savor.ads.utils.ConstantValues.DSP_DOWNLOADING_FILES;
 
@@ -192,7 +193,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         wxProjectionTipLayout = findViewById(R.id.wx_projection_tip_layout);
         wxProjectionIconTipIV = findViewById(R.id.wx_projection_icon_tip);
         wxProjectionTxtTipTV = findViewById(R.id.wx_projection_nickname_tip);
-        PlayerFactory.setPlayManager(SystemPlayerManager.class);
+        PlayerFactory.setPlayManager(Exo2PlayerManager.class);
 //        GSYVideoType.setRenderType(GSYVideoType.TEXTURE);
         GSYVideoType.enableMediaCodec();
         GSYVideoType.enableMediaCodecTexture();
