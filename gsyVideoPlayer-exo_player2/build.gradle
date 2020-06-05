@@ -1,0 +1,39 @@
+apply plugin: 'com.android.library'
+
+android {
+
+    compileSdkVersion COMPILE_SDK_VERSION as int
+    buildToolsVersion BUILD_TOOLS_VERSION
+
+    defaultConfig {
+
+        minSdkVersion MIN_SDK_VERSION as int
+        targetSdkVersion TARGET_SDK_VERSION as int
+
+        versionCode 1
+        versionName "1.0"
+
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+//    def viewDependencies = rootProject.ext.viewDependencies
+    api "com.google.android.exoplayer:exoplayer:2.11.3"
+    api "com.google.android.exoplayer:extension-rtmp:2.11.3"
+    api project(':gsyVideoPlayer-base')
+//    api "com.shuyu:gsyVideoPlayer-base:$gsyVideoVersion"
+
+}
+

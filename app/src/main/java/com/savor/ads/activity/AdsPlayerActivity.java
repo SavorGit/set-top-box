@@ -101,7 +101,6 @@ import java.util.UUID;
 import tianshu.ui.api.TsUiApiV20171122;
 import tianshu.ui.api.ZmtAPI;
 import tianshu.ui.api.ZmtAdRequestUtil;
-import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
 import static com.savor.ads.utils.ConstantValues.DSP_DOWNLOADING_FILES;
 
