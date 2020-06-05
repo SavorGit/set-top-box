@@ -1010,7 +1010,8 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                     && !libBean.getType().equals(ConstantValues.ACTGOODS_OPTI)
                     && !libBean.getType().equals(ConstantValues.ACTGOODS_ACTIVITY)
                     && !libBean.getType().equals(ConstantValues.ACTGOODS_COUNTDOWN)
-                    && !libBean.getType().equals(ConstantValues.SELECT_CONTENT)) {
+                    && !libBean.getType().equals(ConstantValues.SELECT_CONTENT)
+                    && !libBean.getType().equals(ConstantValues.SHOP_GOODS_ADS)) {
                     if (mSession.isShowMiniProgramIcon()&& mSession.isShowSimpleMiniProgramIcon()){
                         if (AppUtils.isNetworkAvailable(mContext) && mSession.isHeartbeatMiniNetty()) {
                             if (ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())){

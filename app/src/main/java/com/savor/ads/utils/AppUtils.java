@@ -2458,8 +2458,6 @@ public class AppUtils {
                                 bean.setQrcode_path(goods.getQrcode_path());
                                 bean.setQrcode_url(goods.getQrcode_url());
                                 bean.setCreateTime(goods.getCreateTime());
-                            }else{
-                                bean.setVid("");
                             }
                         }
                     }

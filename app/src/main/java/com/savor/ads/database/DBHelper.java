@@ -167,7 +167,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "dbsavor.db";
 
 
-    private static final int DB_VERSION = 32;
+    private static final int DB_VERSION = 33;
 
     private Context mContext;
 
@@ -338,6 +338,13 @@ public class DBHelper extends SQLiteOpenHelper {
             try{
                 String alterActivityAds = "ALTER TABLE " + TableName.ACTIVITY_ADS + " ADD " + TYPE + " INTEGER;";
                 sqLiteDatabase.execSQL(alterActivityAds);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        if(oldVersion<33){
+            try{
+                createTable_shopgoodsAds(sqLiteDatabase);
             }catch (Exception e){
                 e.printStackTrace();
             }
