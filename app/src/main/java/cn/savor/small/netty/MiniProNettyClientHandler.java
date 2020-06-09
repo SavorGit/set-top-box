@@ -169,6 +169,7 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
             miniCallback.onMiniCloseIcon();
         }
         Session.get(mContext).setHeartbeatMiniNetty(false);
+        LogFileUtil.writeException(cause);
         LogUtils.i("miniProgram--exceptionCaught客户端出现异常，退出........" + session.getNettyUrl() + ':' + session.getNettyPort());
         close(ctx);
     }
