@@ -9,6 +9,7 @@ import com.savor.ads.bean.MediaLibBean;
 import com.savor.ads.bean.MeiAdLocalBean;
 import com.savor.ads.bean.MiniProgramProjection;
 import com.savor.ads.bean.OOHLinkAdLocalBean;
+import com.savor.ads.bean.ProjectionImg;
 import com.savor.ads.bean.SimpleRequestBean;
 import com.savor.ads.bean.YishouAdLocalBean;
 import com.savor.ads.bean.ZmengAdLocalBean;
@@ -100,7 +101,7 @@ public class GlobalValues <T extends MediaLibBean> {
     /**当前netty接收到的图片投屏人投的但是下载失败的照片集合**/
     public static ArrayList<String> PROJECT_FAIL_IMAGES=new ArrayList<>();
     /**当前netty接收到的图片投屏请求的集合**/
-    public static ArrayList<MiniProgramProjection> PROJECT_LIST = new ArrayList<>();
+//    public static ArrayList<ProjectionImg> PROJECT_LIST = new ArrayList<>();
     /**当前netty接收到的视频投屏请求的集合**/
     public static String PROJECTION_VIDEO_PATH;
     /**极简版投图片下载成功集合**/
@@ -108,7 +109,7 @@ public class GlobalValues <T extends MediaLibBean> {
     /**极简版投图片下载失败集合**/
     public static ArrayList<String> PROJECT_STREAM_FAIL_IMAGE = new ArrayList<>();
     /**极简版dialog显示下载列表个数使用**/
-    public static ArrayList<MiniProgramProjection> PROJECT_STREAM_IMAGE_NUMS = new ArrayList<>();
+    public static ArrayList<ProjectionImg> PROJECT_STREAM_IMAGE_NUMS = new ArrayList<>();
 
     //间隔几次展示一次互动投屏片头片尾广告
     public static int INTERVAL_INTERACTION_ADS_NUM = 1;

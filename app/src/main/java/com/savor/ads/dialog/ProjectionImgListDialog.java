@@ -109,13 +109,13 @@ public class ProjectionImgListDialog extends Dialog{
             projectionPersonnelLayout.setVisibility(View.VISIBLE);
         }
     }
-    public void setContent(ArrayList<MiniProgramProjection> list,int type){
+    public void setContent(ArrayList<ProjectionImg> list,int type){
         synchronized(ProjectionImgListDialog.class){
             for (int i =0;i<list.size();i++){
                 int childCount = projectionImgLayout.getChildCount();
                 if (childCount<=i){
-                    MiniProgramProjection projection = list.get(i);
-                    String url = projection.getUrl();
+                    ProjectionImg img = list.get(i);
+                    String url = img.getUrl();
                     if (!TextUtils.isEmpty(url)){
                         if (type==1){
                             url = BuildConfig.OSS_ENDPOINT+url+ ConstantValues.PROJECTION_IMG_THUMBNAIL_PARAM;
@@ -125,11 +125,11 @@ public class ProjectionImgListDialog extends Dialog{
 
                     }
                     View view = View.inflate(mContext, R.layout.item_projection_img,null);
-                    view.setTag(projection.getImg_id());
+                    view.setTag(img.getImg_id());
                     if (type==1){
-                        imgMap.put(projection.getImg_id(),view);
+                        imgMap.put(img.getImg_id(),view);
                     }else{
-                        imgMap.put(projection.getVideo_id(),view);
+                        imgMap.put(img.getVideo_id(),view);
                     }
                     TextView projection_progress = view.findViewById(R.id.projection_progress);
                     projection_progress.setText("未下载");

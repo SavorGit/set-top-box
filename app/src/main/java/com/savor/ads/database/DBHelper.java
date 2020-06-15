@@ -14,6 +14,7 @@ import com.savor.ads.bean.MediaItemBean;
 import com.savor.ads.bean.MediaLibBean;
 import com.savor.ads.bean.ProjectionLogBean;
 import com.savor.ads.bean.SelectContentBean;
+import com.savor.ads.bean.ShopGoodsBean;
 import com.savor.ads.bean.WelcomeOrderBean;
 import com.savor.ads.bean.WelcomeResourceBean;
 import com.savor.ads.core.Session;
@@ -43,6 +44,7 @@ import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.ID;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.IMG_ID;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.IMG_OSS_ADDR;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.IS_STOREBUY;
+import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.LOCATION_ID;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.MD5;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.MEDIAID;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.MEDIANAME;
@@ -152,10 +154,10 @@ public class DBHelper extends SQLiteOpenHelper {
             public static final String INTERACTION_ADS = "interaction_ads_table";
             public static final String PROJECTION_LOG = "projection_log_table";
             public static final String ACTIVITY_ADS = "activity_ads_table";
+            public static final String SHOP_GOODS_ADS = "goods_ads_table";
             public static final String SELECT_CONTENT = "select_content_table";
             public static final String MEDIA_ITEM = "media_item_table";
             public static final String WELCOME_RESOURCE = "welcome_resource_table";
-            public static final String WELCOME_ORDER = "welcome_order_table";
         }
     }
 
@@ -165,7 +167,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "dbsavor.db";
 
 
-    private static final int DB_VERSION = 31;
+    private static final int DB_VERSION = 33;
 
     private Context mContext;
 
@@ -218,6 +220,8 @@ public class DBHelper extends SQLiteOpenHelper {
         createTable_mediaItem(db);
 
         createTable_welcomeResource(db);
+
+        createTable_shopgoodsAds(db);
     }
 
     @Override
@@ -334,6 +338,13 @@ public class DBHelper extends SQLiteOpenHelper {
             try{
                 String alterActivityAds = "ALTER TABLE " + TableName.ACTIVITY_ADS + " ADD " + TYPE + " INTEGER;";
                 sqLiteDatabase.execSQL(alterActivityAds);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        if(oldVersion<33){
+            try{
+                createTable_shopgoodsAds(sqLiteDatabase);
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -613,27 +624,28 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(DATABASE_CREATE);
     }
 
-    /**
-     * 创建欢迎词指令存储表
-     * @param db
-     */
-    private void createTable_welcomeOrder(SQLiteDatabase db){
+    private void createTable_shopgoodsAds(SQLiteDatabase db){
         String DATABASE_CREATE = "create table "
-                + TableName.WELCOME_ORDER
-                + " (" + FieldName.ID + " TEXT, "
-                + FORSCREEN_CHAR + " TEXT, "
-                + ROTATION + " INTEGER, "
-                + WORDSIZE + " TEXT, "
-                + COLOR + " TEXT, "
-                + IMG_ID + " TEXT, "
-                + IMG_OSS_ADDR + " TEXT, "
-                + MUSIC_ID + " TEXT, "
-                + MUSIC_OSS_ADDR + " TEXT, "
-                + PLAY_TIMES + " INTEGER, "
-                + CREATETIME+ " TEXT "
-                + ");";
+                + TableName.SHOP_GOODS_ADS
+                + " (" + FieldName.ID + " INTEGER PRIMARY KEY, "
+                + GOODS_ID + " INTEGER, "
+                + VID + " TEXT, "
+                + MEDIANAME + " TEXT, "
+                + CHINESE_NAME + " TEXT, "
+                + RESOURCE_TYPE + " INTEGER, "
+                + MD5 + " TEXT, "
+                + DURATION + " TEXT, "
+                + TYPE + " INTEGER, "
+                + LOCATION_ID + " TEXT, "
+                + MEDIA_PATH + " TEXT, "
+                + QRCODE_PATH + " TEXT, "
+                + QRCODE_URL + " TEXT, "
+                + PERIOD + " TEXT, "
+                + CREATETIME + " TEXT " + ");";
         db.execSQL(DATABASE_CREATE);
+
     }
+
     /**
      * 打开数据库
      *
@@ -1779,25 +1791,28 @@ public class DBHelper extends SQLiteOpenHelper {
         return list;
     }
 
-    public boolean insertWelcomeOrder(WelcomeOrderBean bean){
+    public boolean insertShopGoodsAds(ShopGoodsBean bean){
         if (bean == null) {
             return false;
         }
         boolean flag = false;
         try {
             ContentValues initialValues = new ContentValues();
-            initialValues.put(ID, bean.getId());
-            initialValues.put(FORSCREEN_CHAR, bean.getForscreen_char());
-            initialValues.put(ROTATION,bean.getRotation());
-            initialValues.put(WORDSIZE,bean.getWordsize());
-            initialValues.put(COLOR,bean.getColor());
-            initialValues.put(IMG_ID,bean.getImg_id());
-            initialValues.put(IMG_OSS_ADDR,bean.getImg_id());
-            initialValues.put(MUSIC_ID,bean.getMusic_id());
-            initialValues.put(MUSIC_OSS_ADDR,bean.getMusic_oss_addr());
-            initialValues.put(PLAY_TIMES,bean.getPlay_times());
+            initialValues.put(GOODS_ID, bean.getGoods_id());
+            initialValues.put(VID, bean.getGoods_id());
+            initialValues.put(MEDIANAME,bean.getName());
+            initialValues.put(CHINESE_NAME, bean.getChinese_name());
+            initialValues.put(RESOURCE_TYPE,bean.getMedia_type());
+            initialValues.put(MD5,bean.getMd5());
+            initialValues.put(DURATION,bean.getDuration());
+            initialValues.put(TYPE,bean.getType());
+            initialValues.put(LOCATION_ID,bean.getLocation_id());
+            initialValues.put(MEDIA_PATH,bean.getMediaPath());
+            initialValues.put(QRCODE_PATH,bean.getQrcode_path());
+            initialValues.put(QRCODE_URL,bean.getQrcode_url());
+            initialValues.put(PERIOD,bean.getPeriod());
             initialValues.put(CREATETIME,bean.getCreateTime());
-            long success = db.insert(TableName.WELCOME_ORDER,null,initialValues);
+            long success = db.insert(TableName.SHOP_GOODS_ADS,null,initialValues);
             if (success>0){
                 flag = true;
             }
@@ -1807,39 +1822,48 @@ public class DBHelper extends SQLiteOpenHelper {
         return flag;
     }
 
-    public WelcomeOrderBean findWelcomeOrder(String selection, String[] selectionArgs){
-        Cursor cursor = null;
-        WelcomeOrderBean bean = null;
-        try {
-            cursor = db.query(TableName.WELCOME_ORDER, null,
-                    selection, selectionArgs, null, null, null, null);
-            if (cursor != null&&cursor.moveToFirst()) {
-
-                    bean = new WelcomeOrderBean();
-                    bean.setId(cursor.getString(cursor.getColumnIndex(ID)));
-                    bean.setForscreen_char(cursor.getString(cursor.getColumnIndex(FORSCREEN_CHAR)));
-                    bean.setRotation(cursor.getInt(cursor.getColumnIndex(ROTATION)));
-                    bean.setWordsize(cursor.getString(cursor.getColumnIndex(WORDSIZE)));
-                    bean.setColor(cursor.getString(cursor.getColumnIndex(COLOR)));
-                    bean.setImg_id(cursor.getString(cursor.getColumnIndex(IMG_ID)));
-                    bean.setImg_oss_addr(cursor.getString(cursor.getColumnIndex(IMG_OSS_ADDR)));
-                    bean.setMusic_id(cursor.getString(cursor.getColumnIndex(MUSIC_ID)));
-                    bean.setMusic_oss_addr(cursor.getString(cursor.getColumnIndex(MUSIC_OSS_ADDR)));
-                    bean.setPlay_times(cursor.getInt(cursor.getColumnIndex(PLAY_TIMES)));
-                    bean.setCreateTime(cursor.getString(cursor.getColumnIndex(CREATETIME)));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
+    public List<MediaLibBean> findShopGoodsAdsByWhere(String selection, String[] selectionArgs){
+        List<MediaLibBean> list = null;
+        synchronized (dbHelper) {
+            Cursor cursor = null;
             try {
-                if (cursor != null && !cursor.isClosed()) {
-                    cursor.close();
+                cursor = db.query(TableName.SHOP_GOODS_ADS, null,
+                        selection, selectionArgs, null, null, null, null);
+                if (cursor != null) {
+                    if (cursor.moveToFirst()) {
+                        list = new ArrayList<>();
+                        do {
+                            MediaLibBean bean = new MediaLibBean();
+                            bean.setGoods_id(cursor.getInt(cursor.getColumnIndex(GOODS_ID)));
+                            bean.setVid(cursor.getString(cursor.getColumnIndex(VID)));
+                            bean.setName(cursor.getString(cursor.getColumnIndex(MEDIANAME)));
+                            bean.setChinese_name(cursor.getString(cursor.getColumnIndex(CHINESE_NAME)));
+                            bean.setMedia_type(cursor.getInt(cursor.getColumnIndex(RESOURCE_TYPE)));
+                            bean.setType(cursor.getString(cursor.getColumnIndex(TYPE)));
+                            bean.setLocation_id(cursor.getString(cursor.getColumnIndex(LOCATION_ID)));
+                            bean.setMd5(cursor.getString(cursor.getColumnIndex(MD5)));
+                            bean.setMediaPath(cursor.getString(cursor.getColumnIndex(MEDIA_PATH)));
+                            bean.setDuration(cursor.getString(cursor.getColumnIndex(DURATION)));
+                            bean.setQrcode_path(cursor.getString(cursor.getColumnIndex(QRCODE_PATH)));
+                            bean.setQrcode_url(cursor.getString(cursor.getColumnIndex(QRCODE_URL)));
+                            bean.setPeriod(cursor.getString(cursor.getColumnIndex(PERIOD)));
+                            bean.setCreateTime(cursor.getString(cursor.getColumnIndex(CREATETIME)));
+                            list.add(bean);
+                        } while (cursor.moveToNext());
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                try {
+                    if (cursor != null && !cursor.isClosed()) {
+                        cursor.close();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
-
-        return bean;
+        return list;
     }
 }

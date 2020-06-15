@@ -43,6 +43,7 @@ import com.savor.ads.bean.MeiAdLocalBean;
 import com.savor.ads.bean.OOHLinkAdLocalBean;
 import com.savor.ads.bean.ProjectionLogBean;
 import com.savor.ads.bean.PushRTBItem;
+import com.savor.ads.bean.ShopGoodsBean;
 import com.savor.ads.bean.VersionInfo;
 import com.savor.ads.bean.WelcomeResourceBean;
 import com.savor.ads.bean.YishouAdLocalBean;
@@ -125,6 +126,7 @@ public class AppUtils {
     public static final String BoxBirthdayOndemandDir = "birthday_ondemand";
     public static final String BoxInteractionAdsDir = "interaction_ads";
     public static final String ActivityAds = "activity_ads";
+    public static final String GoodsAds = "goods_ads";
     public static final String OptimizeAds = "optimize_ads";//已删除
     public static final String BoxProjectionDir = "projection";
     public static final String BoxSelectContentDir = "select_content";
@@ -195,6 +197,8 @@ public class AppUtils {
          * 商家活动广告
          */
         activity_ads,
+        /**商城商品广告*/
+        goods_ads,
         /**
          * 投屏文件存储目录(视频，图片)
          */
@@ -370,6 +374,10 @@ public class AppUtils {
         if (!actFile.exists()){
             actFile.mkdir();
         }
+        File goodsFile = new File(path+File.separator,GoodsAds);
+        if (!goodsFile.exists()){
+            goodsFile.mkdir();
+        }
         File projectionFile = new File(path+File.separator,BoxProjectionDir);
         if (!projectionFile.exists()){
             projectionFile.mkdir();
@@ -404,6 +412,8 @@ public class AppUtils {
             path = iAdsFile.getAbsolutePath()+File.separator;
         } else if (mode == StorageFile.activity_ads){
             path = actFile.getAbsolutePath()+File.separator;
+        }else if (mode == StorageFile.goods_ads){
+            path = goodsFile.getAbsolutePath()+File.separator;
         } else if (mode == StorageFile.projection){
             path = projectionFile.getAbsolutePath()+File.separator;
         } else if (mode == StorageFile.select_content){
@@ -931,6 +941,7 @@ public class AppUtils {
             }
         }).start();
     }
+    /**清除活动商品广告数据*/
     public static void deleteActivityAdsMedia(final Context context) {
         new Thread(new Runnable() {
             @Override
@@ -953,6 +964,35 @@ public class AppUtils {
                             +DBHelper.MediaDBInfo.FieldName.PLAY_TYPE + "=? ";
                     String[] selectionArgs = new String[]{"1","2"};
                     DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.ACTIVITY_ADS,selection,selectionArgs);
+                }catch (Exception e){
+                    LogUtils.e("删除视频失败",e);
+                }
+
+            }
+        }).start();
+    }
+
+    public static void deleteShopGoodsAdsMedia(final Context context) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    LogUtils.d("删除活动广告视频");
+
+                    //内存不足情况下删除点播视频
+                    String goods = AppUtils.getFilePath(StorageFile.goods_ads);
+                    File[] goodsFiles = new File(goods).listFiles();
+                    for (File file : goodsFiles) {
+                        if (file.isFile()) {
+                            file.delete();
+                            LogUtils.d("删除文件===================" + file.getName());
+                        } else {
+                            com.savor.ads.utils.FileUtils.deleteFile(file);
+                        }
+                    }
+                    String selection = "";
+                    String[] selectionArgs = new String[]{};
+                    DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.SHOP_GOODS_ADS,selection,selectionArgs);
                 }catch (Exception e){
                     LogUtils.e("删除视频失败",e);
                 }
@@ -2267,19 +2307,19 @@ public class AppUtils {
         DBHelper dbHelper = DBHelper.get(context);
         ArrayList<MediaLibBean> playList = dbHelper.getOrderedPlayList();
 
-        ArrayList<MediaLibBean> rtbMedias = new ArrayList<>();
-        ArrayList<Long> rtbEndTimes = new ArrayList<>();
-        if (Session.get(context).getRTBPushItems() != null) {
-            for (PushRTBItem item : Session.get(context).getRTBPushItems()) {
-                String selection = DBHelper.MediaDBInfo.FieldName.VID + "=? ";
-                String[] selectionArgs = new String[]{item.getId()};
-                List<MediaLibBean> list = dbHelper.findRtbadsMediaLibByWhere(selection, selectionArgs);
-                if (list != null) {
-                    rtbMedias.add(list.get(0));
-                    rtbEndTimes.add(item.getRemain_time());
-                }
-            }
-        }
+//        ArrayList<MediaLibBean> rtbMedias = new ArrayList<>();
+//        ArrayList<Long> rtbEndTimes = new ArrayList<>();
+//        if (Session.get(context).getRTBPushItems() != null) {
+//            for (PushRTBItem item : Session.get(context).getRTBPushItems()) {
+//                String selection = DBHelper.MediaDBInfo.FieldName.VID + "=? ";
+//                String[] selectionArgs = new String[]{item.getId()};
+//                List<MediaLibBean> list = dbHelper.findRtbadsMediaLibByWhere(selection, selectionArgs);
+//                if (list != null) {
+//                    rtbMedias.add(list.get(0));
+//                    rtbEndTimes.add(item.getRemain_time());
+//                }
+//            }
+//        }
         String selection = DBHelper.MediaDBInfo.FieldName.PLAY_TYPE + "=? ";
         //1为插入节目单，2为没有插入节目单
         String[] selectionArgs = new String[]{"1"};
@@ -2288,6 +2328,7 @@ public class AppUtils {
         //type:类型 1热播内容(上大屏内容) 2发现内容
         selectionArgs = new String[]{"1"};
         List<MediaLibBean> selectContentList = dbHelper.findSelectContentList(selection,selectionArgs);
+        List<MediaLibBean> shopGoodsAdsList = dbHelper.findShopGoodsAdsByWhere(new String(),new String[]{});
         if (playList != null && !playList.isEmpty()) {
             int rtbIndex = 0;
             int polyIndex = 0;
@@ -2334,27 +2375,27 @@ public class AppUtils {
                         }
                     }
                 }
-
-                if (ConstantValues.RTB_ADS.equals(bean.getType())) {
-                    if (!rtbMedias.isEmpty()) {
-                        if (rtbIndex < rtbEndTimes.size() &&
-                                rtbEndTimes.get(rtbIndex) > System.currentTimeMillis()) {
-                            MediaLibBean rtbItem = rtbMedias.get(rtbIndex);
-                            bean.setName(rtbItem.getName());
-                            bean.setMediaPath(rtbItem.getMediaPath());
-                            bean.setAdmaster_sin(rtbItem.getAdmaster_sin());
-                            bean.setChinese_name(rtbItem.getChinese_name());
-                            bean.setDuration(rtbItem.getDuration());
-                            bean.setVid(rtbItem.getVid());
-                            bean.setMd5(rtbItem.getMd5());
-                            bean.setPeriod(rtbItem.getPeriod());
-                            bean.setEnd_date(format.format(new Date(rtbEndTimes.get(rtbIndex))));
-                        }
-
-                        rtbIndex = (++rtbIndex) % rtbMedias.size();
-                    }
-                }
+//                if (ConstantValues.RTB_ADS.equals(bean.getType())) {
+//                    if (!rtbMedias.isEmpty()) {
+//                        if (rtbIndex < rtbEndTimes.size() &&
+//                                rtbEndTimes.get(rtbIndex) > System.currentTimeMillis()) {
+//                            MediaLibBean rtbItem = rtbMedias.get(rtbIndex);
+//                            bean.setName(rtbItem.getName());
+//                            bean.setMediaPath(rtbItem.getMediaPath());
+//                            bean.setAdmaster_sin(rtbItem.getAdmaster_sin());
+//                            bean.setChinese_name(rtbItem.getChinese_name());
+//                            bean.setDuration(rtbItem.getDuration());
+//                            bean.setVid(rtbItem.getVid());
+//                            bean.setMd5(rtbItem.getMd5());
+//                            bean.setPeriod(rtbItem.getPeriod());
+//                            bean.setEnd_date(format.format(new Date(rtbEndTimes.get(rtbIndex))));
+//                        }
+//
+//                        rtbIndex = (++rtbIndex) % rtbMedias.size();
+//                    }
+//                }
                 //活动广告数据
+                //活动商品上大屏
                 if (ConstantValues.ACTGOODS.equals(bean.getType())){
                     if (activityAdsList!=null&&!activityAdsList.isEmpty()){
                         if (actIndex>=activityAdsList.size()){
@@ -2395,6 +2436,30 @@ public class AppUtils {
                             e.printStackTrace();
                         }
 
+                    }
+                }
+                //商城商品上大屏
+                if (ConstantValues.SHOP_GOODS_ADS.equals(bean.getType())){
+                    String location_id = bean.getLocation_id();
+                    if (shopGoodsAdsList==null||shopGoodsAdsList.isEmpty()){
+                        bean.setVid("");
+                    }else{
+                        for (MediaLibBean goods:shopGoodsAdsList){
+                            String lid = goods.getLocation_id();
+                            if (lid.equals(location_id)){
+                                bean.setVid(goods.getVid());
+                                bean.setGoods_id(goods.getGoods_id());
+                                bean.setName(goods.getName());
+                                bean.setChinese_name(goods.getChinese_name());
+                                bean.setMedia_type(goods.getMedia_type());
+                                bean.setMd5(goods.getMd5());
+                                bean.setDuration(goods.getDuration());
+                                bean.setMediaPath(goods.getMediaPath());
+                                bean.setQrcode_path(goods.getQrcode_path());
+                                bean.setQrcode_url(goods.getQrcode_url());
+                                bean.setCreateTime(goods.getCreateTime());
+                            }
+                        }
                     }
                 }
                 //精选内容上大屏数据
@@ -2482,7 +2547,6 @@ public class AppUtils {
                     }
 
                 }
-
 
                 if (fileCheck) {
                     if (!TextUtils.isEmpty(bean.getVid())) {

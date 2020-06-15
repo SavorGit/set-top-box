@@ -1316,7 +1316,9 @@ public class ScreenProjectionActivity extends BaseActivity{
         if (mIsFirstResume) {
             mIsFirstResume = false;
         } else {
-            if (ConstantValues.PROJECT_TYPE_VIDEO_VOD.equals(mProjectType) || ConstantValues.PROJECT_TYPE_VIDEO.equals(mProjectType)) {
+            if (ConstantValues.PROJECT_TYPE_VIDEO_VOD.equals(mProjectType)
+                    || ConstantValues.PROJECT_TYPE_VIDEO.equals(mProjectType)
+                    || ConstantValues.PROJECT_TYPE_VIDEO_BIRTHDAY.equals(mProjectType)) {
                 mSavorVideoView.onResume();
             }
         }

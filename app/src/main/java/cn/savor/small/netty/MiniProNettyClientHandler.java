@@ -47,7 +47,6 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
     private Context mContext;
     private MiniProNettyClient client;
 
-
     public MiniProNettyClientHandler(MiniProNettyClient client,MiniProNettyClient.MiniNettyMsgCallback m, Context context) {
         this.miniCallback = m;
         this.client = client;
@@ -57,14 +56,37 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        if (miniCallback != null) {
-            miniCallback.onMiniConnected();
-        }
         LogUtils.i("miniProgram--channelActive ");
+        LogFileUtil.write("miniProgram--channelActive ");
+        String channelId = ctx.channel().id().toString();
+        try{
+            // 发送数据给服务端,建立连接
+            MessageBean message = new MessageBean();
+            message.setCmd(MessageBean.Action.HEART_CLENT_TO_SERVER);
+            String number = channelId + System.currentTimeMillis();
+            message.setSerialnumber(number);
+            message.setIp(AppUtils.getLocalIPAddress());
+            message.setMac(session.getEthernetMac());
+            InnerBean bean = new InnerBean();
+            bean.setHotelId(session.getBoiteId());
+            bean.setRoomId(session.getRoomId());
+            bean.setSsid(AppUtils.getShowingSSID(mContext));
+            bean.setBoxId(session.getBoxId());
+            ArrayList<String> contList = new ArrayList<>();
+            contList.add("I am a mini Heart Pakage...");
+            contList.add(new Gson().toJson(bean));
+            message.setContent(contList);
+            ChannelFuture future = ctx.writeAndFlush(message);
+            if (!future.isSuccess()) {
+                close(ctx);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, MessageBean msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, MessageBean msg){
         LogUtils.i(("mini Client received: " + msg.getCmd()));
         if (msg == null) return;
         /**来自服务端的数据包请求*/
@@ -74,6 +96,12 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
                 List<String> contentMsgH = msg.getContent();
                 for (String tmp : contentMsgH) {
                     LogUtils.v("miniProgram--SERVER_HEART_RESP： 收到来自服务端的...心跳回应." + tmp + "===>>接收到内容:" + msg.getContent());
+                    LogFileUtil.write("miniProgram--SERVER_HEART_RESP： 收到来自服务端的...心跳回应." + tmp + "===>>接收到内容:" + msg.getContent());
+                }
+                if (!session.isHeartbeatMiniNetty()){
+                    if (miniCallback != null) {
+                        miniCallback.onMiniConnected();
+                    }
                 }
                 break;
             case SERVER_ORDER_REQ:
@@ -82,7 +110,9 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
                 MessageBean response = new MessageBean();
                 response.setCmd(MessageBean.Action.CLIENT_ORDER_RESP);
                 response.setSerialnumber(msg.getSerialnumber());
-                response.setContent(new ArrayList<String>());
+                response.setIp(AppUtils.getLocalIPAddress());
+                response.setMac(session.getEthernetMac());
+                response.setContent(new ArrayList<>());
 
                 if (contentMsg != null && contentMsg.size() > 1) {
                     String order = contentMsg.get(0);
@@ -116,7 +146,7 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
 
             if (event.state().equals(IdleState.READER_IDLE)) {
                 //未进行读操作
-                LogUtils.i("READER_IDLE");
+                LogUtils.v("miniProgram--READER_IDLE");
                 LogFileUtil.write("MiniNettyClientHandler READER_IDLE");
 
 
@@ -125,13 +155,11 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
                 LogUtils.i("WRITER_IDLE");
                 LogFileUtil.write("MiniNettyClientHandler WRITER_IDLE");
                 try {
-                    // 发送心跳消息
+                    // 发送心跳消息 去掉IP和mac
                     MessageBean message = new MessageBean();
                     message.setCmd(MessageBean.Action.HEART_CLENT_TO_SERVER);
                     String number = channelId + System.currentTimeMillis();
                     message.setSerialnumber(number);
-                    message.setIp(AppUtils.getLocalIPAddress());
-                    message.setMac(session.getEthernetMac());
                     InnerBean bean = new InnerBean();
                     bean.setHotelId(session.getBoiteId());
                     bean.setRoomId(session.getRoomId());
@@ -153,7 +181,7 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
             } else if (event.state().equals(IdleState.ALL_IDLE)) {
                 //未进行读写
                 //客户端发起REQ心跳查询==========
-                LogUtils.i("ALL_IDLE");
+                LogUtils.v("miniProgram--ALL_IDLE");
                 close(ctx);
             }
 
@@ -167,7 +195,9 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
             miniCallback.onMiniCloseIcon();
         }
         Session.get(mContext).setHeartbeatMiniNetty(false);
+        LogFileUtil.writeException(cause);
         LogUtils.i("miniProgram--exceptionCaught客户端出现异常，退出........" + session.getNettyUrl() + ':' + session.getNettyPort());
+        LogFileUtil.write("miniProgram--exceptionCaught客户端出现异常，退出........" + session.getNettyUrl() + ':' + session.getNettyPort());
         close(ctx);
     }
 
@@ -189,18 +219,21 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
         super.channelUnregistered(ctx);
         LogUtils.i("miniProgram--channelUnregistered......." + session.getNettyUrl() + ':' + session.getNettyPort());
+        LogFileUtil.write("miniProgram--channelUnregistered......." + session.getNettyUrl() + ':' + session.getNettyPort());
 
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         LogUtils.i("miniProgram--channelInactive......." + session.getNettyUrl() + ':' + session.getNettyPort());Session.get(mContext).setHeartbeatMiniNetty(false);
+        LogFileUtil.write("miniProgram--channelInactive......." + session.getNettyUrl() + ':' + session.getNettyPort());Session.get(mContext).setHeartbeatMiniNetty(false);
         if (miniCallback!=null){
             miniCallback.onMiniCloseIcon();
         }
         Session.get(mContext).setHeartbeatMiniNetty(false);
         close(ctx);
         reconnect(ctx);
+
         super.channelInactive(ctx);
     }
 
@@ -208,12 +241,9 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
         try {
 
             final EventLoop loop = ctx.channel().eventLoop();
-            loop.schedule(new Runnable() {
-                @Override
-                public void run() {
-                    LogUtils.i("Reconnecting to: " + session.getNettyUrl() + ':' + session.getNettyPort());
-                    client.start();
-                }
+            loop.schedule(() -> {
+                LogUtils.i("Reconnecting to: " + session.getNettyUrl() + ':' + session.getNettyPort());
+                client.start();
             }, 60L, TimeUnit.SECONDS);
         } catch (Exception ex) {
             ex.toString();

@@ -131,6 +131,8 @@ public class Session {
     private String interactionAdsPeriod;
     /**活动商品广告期号*/
     private String activityAdsPeriod;
+    /**商城商品广告期号*/
+    private String shopGoodsAdsPeriod;
     /**用户精选内容期号*/
     private String selectContentPeriod;
     private String discoverContentPeriod;
@@ -288,6 +290,7 @@ public class Session {
         birthdayOndemandPeriod = mPreference.loadStringKey(P_APP_BIRTHDAY_ONDEMAND_PERIOD,"");
         interactionAdsPeriod = mPreference.loadStringKey(P_APP_FORSCREEN_ADS_PERIOD,"");
         activityAdsPeriod = mPreference.loadStringKey(P_APP_ACTIVITY_ADS_PERIOD,"");
+        shopGoodsAdsPeriod = mPreference.loadStringKey(P_APP_SHOP_GOODS_ADS_PERIOD,"");
         selectContentPeriod = mPreference.loadStringKey(P_APP_SELECT_CONTENT_PERIOD,"");
         discoverContentPeriod = mPreference.loadStringKey(P_APP_DISCOVER_CONTENT_PERIOD,"");
         welcomeResourcePeriod = mPreference.loadStringKey(P_APP_WELCOME_RESOURCE_PERIOD,"");
@@ -410,7 +413,8 @@ public class Session {
                 || P_APP_ACTIVITY_ADS_PERIOD.equals(key)
                 || P_APP_SELECT_CONTENT_PERIOD.equals(key)
                 || P_APP_DISCOVER_CONTENT_PERIOD.equals(key)
-                || P_APP_WELCOME_RESOURCE_PERIOD.equals(key)) {
+                || P_APP_WELCOME_RESOURCE_PERIOD.equals(key)
+                || P_APP_SHOP_GOODS_ADS_PERIOD.equals(key)) {
 
             mPreference.saveStringKey(key, (String) updateItem.second);
 
@@ -1112,6 +1116,15 @@ public class Session {
         writePreference(new Pair<>(P_APP_ACTIVITY_ADS_PERIOD,activityAdsPeriod));
     }
 
+    public String getShopGoodsAdsPeriod() {
+        return shopGoodsAdsPeriod;
+    }
+
+    public void setShopGoodsAdsPeriod(String shopGoodsAdsPeriod) {
+        this.shopGoodsAdsPeriod = shopGoodsAdsPeriod;
+        writePreference(new Pair<>(P_APP_SHOP_GOODS_ADS_PERIOD,shopGoodsAdsPeriod));
+    }
+
     public String getSelectContentPeriod() {
         return selectContentPeriod;
     }
@@ -1309,6 +1322,8 @@ public class Session {
     public static final String P_APP_FORSCREEN_ADS_PERIOD = "com.savor.ads.forsrceen_ads_period";
     /**活动商品广告期号KEY*/
     public static final String P_APP_ACTIVITY_ADS_PERIOD = "com.savor.ads.activity_ads_period";
+    /**商城商品广告期号KEY*/
+    public static final String P_APP_SHOP_GOODS_ADS_PERIOD = "com.savor.ads.shop_goods_ads_period";
     /**用户精选内容期号KEY*/
     public static final String P_APP_SELECT_CONTENT_PERIOD = "com.savor.ads.select_content_period";
     /**用户发现内容期号KEY*/

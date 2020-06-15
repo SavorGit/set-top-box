@@ -83,7 +83,7 @@ public class MiniProNettyClient {
                             System.out.println("client SocketChannel.....................................");
                             ch.pipeline().addLast("ping", new IdleStateHandler(60, 60, 80, TimeUnit.SECONDS));
                             //添加POJO对象解码器 禁止缓存类加载器
-                            ch.pipeline().addLast(new ObjectDecoder(1024*5, ClassResolvers.cacheDisabled(this.getClass().getClassLoader())));
+                            ch.pipeline().addLast(new ObjectDecoder(1024*1024, ClassResolvers.cacheDisabled(this.getClass().getClassLoader())));
                             //设置发送消息编码器
                             ch.pipeline().addLast(new ObjectEncoder());
 

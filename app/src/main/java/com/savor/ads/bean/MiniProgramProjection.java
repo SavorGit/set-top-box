@@ -50,7 +50,8 @@ public class MiniProgramProjection implements Serializable{
     private String video_id;
 
     /**微信头像*/
-    private String avatarUrl;
+//    private String avatarUrl;
+    private String headPic;
     /**微信昵称*/
     private String nickName;
     /**二维码地址*/
@@ -58,6 +59,8 @@ public class MiniProgramProjection implements Serializable{
     /**小程序餐厅端投屏时长,单位为秒,如果为0就是单次**/
     private int play_times;
     private int resource_type;
+    /**文件大小*/
+    private long resource_size;
     private String resource_id;
     private List<UserBarrage> userBarrages;
     /**欢迎词指令ID*/
@@ -185,12 +188,12 @@ public class MiniProgramProjection implements Serializable{
         this.video_id = video_id;
     }
 
-    public String getAvatarUrl() {
-        return avatarUrl;
+    public String getHeadPic() {
+        return headPic;
     }
 
-    public void setAvatarUrl(String avatarUrl) {
-        this.avatarUrl = avatarUrl;
+    public void setHeadPic(String headPic) {
+        this.headPic = headPic;
     }
 
     public String getNickName() {
@@ -223,6 +226,14 @@ public class MiniProgramProjection implements Serializable{
 
     public void setResource_type(int resource_type) {
         this.resource_type = resource_type;
+    }
+
+    public long getResource_size() {
+        return resource_size;
+    }
+
+    public void setResource_size(long resource_size) {
+        this.resource_size = resource_size;
     }
 
     public String getResource_id() {

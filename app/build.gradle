@@ -19,7 +19,6 @@ android {
 
         versionCode 2020060501
         versionName "2.0.0"
-
         multiDexEnabled true
     }
     compileOptions {

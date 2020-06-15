@@ -34,6 +34,8 @@ import com.savor.ads.bean.SelectContentResult;
 import com.savor.ads.bean.ServerInfo;
 import com.savor.ads.bean.SetBoxTopResult;
 import com.savor.ads.bean.SetTopBoxBean;
+import com.savor.ads.bean.ShopGoodsBean;
+import com.savor.ads.bean.ShopGoodsResult;
 import com.savor.ads.bean.Television;
 import com.savor.ads.bean.TvProgramGiecResponse;
 import com.savor.ads.bean.TvProgramResponse;
@@ -253,6 +255,8 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                             getInteractionAdsFromCloudPlatform();
                             //同步获取活动商品数据（主干版本是优选，销售端是活动商品）
                             getGoodsProgramListFromCloudPlatform();
+                            //同步获取商城商品数据
+                            getShopGoodsListFromCloudPlatform();
                             //同步获取用户精选内容上大屏数据
                             getSelectContentFromCloudPlatform();
                             //同步获取用户发现内容数据
@@ -589,7 +593,6 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             if (!isFirstRun&&result.getPeriod().equals(session.getBirthdayOndemandPeriod())){
                 return;
             }
-//            test();
             handleBirthdayOndemandData(result);
 
 
@@ -597,17 +600,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             e.printStackTrace();
         }
     }
-    //测试
-    private void test(){
-        String url = "http://oss.littlehotspot.com/forscreen/resource/1547814210813.mp4";
-        String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-        String path = AppUtils.getFilePath(AppUtils.StorageFile.projection) + "1547814045046.mp4";
-        boolean isDownloaded = new ProgressDownloader(url,basePath, "1547814045046.mp4").downloadByRange();
-        if (isDownloaded){
-            String realMd5 = AppUtils.getEasyMd5(new File(path));
-            LogUtils.d("realMd5=========="+realMd5);
-        }
-    }
+
     private void handleBirthdayOndemandData(BirthdayOndemandResult result){
         List<BirthdayOndemandBean> list = result.getDatalist();
         if (list!=null&&list.size()>0){
@@ -761,6 +754,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             if (result.getDatalist()==null||result.getDatalist().size()==0){
                 AppUtils.deleteActivityAdsMedia(context);
                 notifyToPlay();
+                return;
             }
             handleGoodsProgramListData(result);
         }catch (Exception e){
@@ -841,6 +835,94 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         }
     }
 
+    /**获取商城商品广告数据*/
+    private void getShopGoodsListFromCloudPlatform(){
+        try{
+            JsonBean jsonBean = AppApi.getShopGoodsListFromCloudfrom(context,this,session.getEthernetMac());
+            JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
+            if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
+                return;
+            }
+            ShopGoodsResult result = gson.fromJson(jsonObject.get("result").toString(), new TypeToken<ShopGoodsResult>() {
+            }.getType());
+            if (!isFirstRun&&result.getPeriod().equals(session.getShopGoodsAdsPeriod())){
+                return;
+            }
+            if (result.getDatalist()==null||result.getDatalist().size()==0){
+                AppUtils.deleteShopGoodsAdsMedia(context);
+                notifyToPlay();
+                return;
+            }
+            handleShopGoodsListData(result);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    private void handleShopGoodsListData(ShopGoodsResult result){
+        List<ShopGoodsBean> list = result.getDatalist();
+        if (list!=null&&list.size()>0){
+            List<String> fileNames = new ArrayList<>();
+            dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.SHOP_GOODS_ADS,null,null);
+            String basePath = AppUtils.getFilePath(AppUtils.StorageFile.goods_ads);
+            for (ShopGoodsBean bean:list){
+                boolean isDownloaded = false;
+                String fileName = bean.getName();
+                String path = basePath + bean.getName();
+                String qrcodeName = bean.getName()+"_qrcode.png";
+                String qrcodePath = basePath + qrcodeName;
+                if (bean.getMedia_type()==1){
+                    isDownloaded = AppUtils.isDownloadEasyCompleted(path, bean.getMd5());
+                }else if (bean.getMedia_type()==2){
+                    isDownloaded = AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase());
+                }
+                if (!isDownloaded){
+                    String url = BuildConfig.OSS_ENDPOINT+bean.getOss_path();
+                    isDownloaded = new ProgressDownloader(url,basePath,fileName).downloadByRange();
+                    if (isDownloaded
+                            && (AppUtils.isDownloadEasyCompleted(path, bean.getMd5())
+                            ||AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase()))) {
+                        isDownloaded = true;
+                    }else{
+                        isDownloaded = false;
+                    }
+                }
+
+                if (isDownloaded){
+                    if (!TextUtils.isEmpty(bean.getQrcode_url())){
+                        String qrcodeUrl = bean.getQrcode_url();
+                        boolean downloadImg = new ProgressDownloader(qrcodeUrl,basePath,qrcodeName).downloadByRange();
+                        if (downloadImg){
+                            bean.setQrcode_path(qrcodePath);
+                        }
+                    }
+                    //下载成功以后将本地路径set到bean里，入库时使用
+                    bean.setMediaPath(path);
+                    bean.setPeriod(result.getPeriod());
+                    bean.setCreateTime(System.currentTimeMillis()+"");
+                    if (dbHelper.insertShopGoodsAds(bean)){
+                        fileNames.add(bean.getName());
+                        fileNames.add(qrcodeName);
+                    }
+
+                }
+            }
+            if (fileNames.size()/2==list.size()){
+                //互动广告下载完成
+                session.setActivityAdsPeriod(result.getPeriod());
+
+                String activityAds = AppUtils.getFilePath(AppUtils.StorageFile.goods_ads);
+                File[] activityFiles = new File(activityAds).listFiles();
+                for (File file : activityFiles) {
+                    String fileName = file.getName();
+                    if (!fileNames.contains(fileName)) {
+                        file.delete();
+                        LogUtils.d("删除文件===================" + file.getName());
+                    }
+                }
+                notifyToPlay();
+            }
+        }
+    }
     /**
      * 获取用户精选内容(热播内容)数据
      */
