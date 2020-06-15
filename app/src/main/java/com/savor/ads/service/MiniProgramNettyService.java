@@ -116,7 +116,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     Handler handler=new Handler(Looper.getMainLooper());
     public static ConcurrentHashMap<String,String> projectionIdMap = new ConcurrentHashMap<>();
     private int currentAction;
-    private String receive_nettytime;
     private PayRedEnvelopeQrCodeDialog payRedEnvelopeQrCodeDialog = null;
     private ScanRedEnvelopeQrCodeDialog scanRedEnvelopeQrCodeDialog =null;
     private AdsBinder adsBinder = new AdsBinder();
@@ -230,10 +229,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         String req_id = jsonObject.getString("req_id");
                         JsonBean jsonBean = AppApi.getProjectionNettyTime(context,apiRequestListener,req_id);
                         JSONObject json = new JSONObject(jsonBean.getConfigJson());
-                        if (json.getInt("code")==AppApi.HTTP_RESPONSE_STATE_SUCCESS){
-                            receive_nettytime = json.getJSONObject("result").get("nowtime").toString();
-                        }
-
+                        if (json.getInt("code")==AppApi.HTTP_RESPONSE_STATE_SUCCESS){}
                     }
                     LogUtils.d("收到请求，action="+action);
                     LogUtils.d("收到请求，content="+content);
@@ -602,6 +598,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
 
     public interface DownloadProgressListener{
         void getDownloadProgress(long currentSize, long totalSize);
+        void getDownloadProgress(String progress);
     }
 
     /**
@@ -633,7 +630,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         HashMap<String, Object> params = new HashMap<>();
         params.put("box_mac", session.getEthernetMac());
         params.put("req_id",minipp.getReq_id());
-        params.put("receive_nettytime",receive_nettytime);
         params.put("forscreen_id", forscreen_id);
         params.put("resource_id", minipp.getImg_id());
         params.put("openid", openid);
@@ -663,12 +659,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             isDownloaded = true;
             LogUtils.d("MiniProgramNettyService:投屏视频已存在");
             params.put("is_exist", 1);
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    pImgListDialog.setImgDownloadProgress(minipp.getVideo_id(),"100%");
-                }
-            });
+            handler.post(()->pImgListDialog.setImgDownloadProgress(minipp.getVideo_id(),"100%"));
 
         } else {
             LogUtils.d("MiniProgramNettyService:需要下载视频的url=="+url);
@@ -696,6 +687,12 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         file,true);
 
                 ossUtils.setDownloadProgressListener(new DownloadProgressListener() {
+
+                    @Override
+                    public void getDownloadProgress(String progress) {
+
+                    }
+
                     @Override
                     public void getDownloadProgress(final long currentSize, final long totalSize) {
 
@@ -798,6 +795,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         LogUtils.d("12345+miniProgramProjection="+minipp);
         LogUtils.d("12345+downloadVideoIdMap="+projectionIdMap);
         String fileName = minipp.getFilename();
+        long resourceSize = minipp.getResource_size();
         String url = minipp.getUrl();
         String openid = minipp.getOpenid();
         String req_id = minipp.getReq_id();
@@ -806,9 +804,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         HashMap<String, Object> params = new HashMap<>();
         params.put("box_mac", session.getEthernetMac());
         params.put("req_id",req_id);
-        params.put("receive_nettytime",receive_nettytime);
         params.put("forscreen_id", forscreen_id);
         params.put("resource_id", minipp.getVideo_id());
+        params.put("openid", openid);
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -828,7 +826,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             }
         });
 
-        params.put("openid", openid);
         String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
         String path = basePath + fileName;
         File file = new File(path);
@@ -836,65 +833,27 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             isDownloaded = true;
             LogUtils.d("MiniProgramNettyService:投屏视频已存在");
             params.put("is_exist", 1);
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    pImgListDialog.setImgDownloadProgress(minipp.getVideo_id(),"100%");
-                }
-            });
+            handler.post(()->pImgListDialog.setImgDownloadProgress(minipp.getVideo_id(),"100%"));
 
         } else {
             LogUtils.d("MiniProgramNettyService:需要下载视频的url=="+url);
             LogUtils.d("MiniProgramNettyService:file=="+file.getAbsolutePath());
             params.put("is_exist", 0);
-            if (session.isWhether4gNetwork()){
-                try {
-                    String oss_url = BuildConfig.OSS_ENDPOINT+url;
-                    isDownloaded = new ProgressDownloader(oss_url, basePath,fileName).downloadByRange();
-                    if (isDownloaded){
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                pImgListDialog.setImgDownloadProgress(minipp.getVideo_id(),"100%");
-                            }
-                        });
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }else{
-                OSSUtils ossUtils = new OSSUtils(context,
-                        BuildConfig.OSS_BUCKET_NAME,
-                        url,
-                        file,true);
-                LogUtils.d("MiniProgramNettyService11:bucketName="+BuildConfig.OSS_BUCKET_NAME);
-                LogUtils.d("MiniProgramNettyService11:objectKey="+url);
-
-                ossUtils.setDownloadProgressListener(new DownloadProgressListener() {
+            try {
+                String oss_url = BuildConfig.OSS_ENDPOINT+url;
+                ProgressDownloader downloader = new ProgressDownloader(oss_url, basePath,fileName,resourceSize);
+                downloader.setDownloadProgressListener(new DownloadProgressListener() {
                     @Override
-                    public void getDownloadProgress(final long currentSize, final long totalSize) {
-
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-
-                                BigDecimal b = new BigDecimal(currentSize * 1.0 / totalSize);
-                                Log.d("circularProgress", "原始除法得到的值" + currentSize * 1.0 / totalSize);
-                                float f1 = b.setScale(2, BigDecimal.ROUND_HALF_UP).floatValue();
-                                Log.d("circularProgress", "保留两位小数得到的值" + f1);
-                                if (f1 >= 0.01f) {
-                                    String value = String.valueOf(f1 * 100);
-                                    int progress = Integer.valueOf(value.split("\\.")[0]);
-                                    Log.d("circularProgress", "乘以100并且转成整数得到的值" + progress);
-                                    pImgListDialog.setImgDownloadProgress(minipp.getVideo_id(),progress+"%");
-                                }
-
-                            }
-                        });
+                    public void getDownloadProgress(long currentSize, long totalSize) {
+                    }
+                    @Override
+                    public void getDownloadProgress(String progress) {
+                        handler.post(()->pImgListDialog.setImgDownloadProgress(minipp.getVideo_id(),progress));
                     }
                 });
-                LogUtils.d("12345+:开始下载投屏视频的url="+url);
-                isDownloaded = ossUtils.syncNativeOSSDownload();
+                isDownloaded = downloader.downloadByRange();
+            }catch (Exception e){
+                e.printStackTrace();
             }
         }
         if (isDownloaded) {
@@ -1111,7 +1070,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         params.put("box_mac", session.getEthernetMac());
         params.put("forscreen_id", forscreen_id);
         params.put("req_id",miniProgramProjection.getReq_id());
-        params.put("receive_nettytime",receive_nettytime);
         params.put("openid",openid);
         params.put("resource_id",miniProgramProjection.getResource_id());
         params.put("is_break",projectionIdMap.get(forscreen_id));
@@ -1141,9 +1099,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             params.put("is_exist",0);
             ProjectOperationListener.getInstance(context).showVideo(url, 0, true,currentAction);
         }
-        long endTime = System.currentTimeMillis();
-        long downloadTime =  endTime- startTime;
-        params.put("used_time",downloadTime);
         postProjectionResourceLog(params);
     }
 
@@ -1159,7 +1114,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         params.put("box_mac", session.getEthernetMac());
         params.put("forscreen_id", forscreen_id);
         params.put("req_id",miniProgramProjection.getReq_id());
-        params.put("receive_nettytime",receive_nettytime);
         params.put("openid",openid);
         params.put("is_break",projectionIdMap.get(forscreen_id));
         String fileName = miniProgramProjection.getFilename();
@@ -1178,9 +1132,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             params.put("is_exist","0");
             ProjectOperationListener.getInstance(context).showVideoBirthday(url, 0, forscreen_id, currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
         }
-        long endTime = System.currentTimeMillis();
-        long downloadTime =  endTime- startTime;
-        params.put("used_time",downloadTime);
         postProjectionResourceLog(params);
     }
 
@@ -1195,7 +1146,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         params.put("box_mac", session.getEthernetMac());
         params.put("forscreen_id", forscreen_id);
         params.put("req_id",program.getReq_id());
-        params.put("receive_nettytime",receive_nettytime);
         params.put("openid",openid);
         params.put("resource_id",ConstantValues.QRCODE_CALL_VIDEO_ID);
         if (!TextUtils.isEmpty(forscreen_id)){
@@ -1367,7 +1317,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         HashMap params = new HashMap<>();
         params.put("box_mac", session.getEthernetMac());
         params.put("req_id",miniProgramProjection.getReq_id());
-        params.put("receive_nettytime",receive_nettytime);
         params.put("forscreen_id", miniProgramProjection.getForscreen_id());
         params.put("resource_id", miniProgramProjection.getVideo_id());
         params.put("openid", miniProgramProjection.getOpenid());
@@ -1421,50 +1370,36 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             ProjectionImg img = projection.getImg_list().get(downloadIndex);
             final HashMap params = new HashMap<>();
             params.put("req_id",projection.getReq_id());
-            params.put("receive_nettytime",receive_nettytime);
             params.put("box_mac", session.getEthernetMac());
             params.put("forscreen_id", projection.getForscreen_id());
             params.put("openid", projection.getOpenid());
             params.put("resource_id", img.getImg_id());
-            long startTime = System.currentTimeMillis();
             String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
             String fileName = img.getFilename();
+            long resourceSize = img.getResource_size();
             String path = basePath + fileName;
             File file = new File(path);
             if (file.exists()) {
-                params.put("is_exist", 1);
+//                params.put("is_exist", 1);
                 isDownloaded = true;
                 handler.post(()->pImgListDialog.setImgDownloadProgress(projection.getImg_id(), "100%"));
             } else {
-                params.put("is_exist", 0);
-                if (session.isWhether4gNetwork()){
-                    try {
-                        String oss_url = BuildConfig.OSS_ENDPOINT+img.getUrl();
-                        isDownloaded = new ProgressDownloader(oss_url, basePath,fileName).downloadByRange();
-                        if (isDownloaded){
-                            handler.post(()->pImgListDialog.setImgDownloadProgress(img.getImg_id(),"100%"));
-
+//                params.put("is_exist", 0);
+                try {
+                    String oss_url = BuildConfig.OSS_ENDPOINT+img.getUrl();
+                    ProgressDownloader downloader = new ProgressDownloader(oss_url, basePath,fileName,resourceSize);
+                    downloader.setDownloadProgressListener(new DownloadProgressListener() {
+                        @Override
+                        public void getDownloadProgress(long currentSize, long totalSize) {
                         }
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }else{
-                    OSSUtils ossUtils = new OSSUtils(context,
-                            BuildConfig.OSS_BUCKET_NAME,
-                            img.getUrl(),
-                            file, true);
-                    ossUtils.setDownloadProgressListener((currentSize, totalSize) -> handler.post(() -> {
-                        BigDecimal b = new BigDecimal(currentSize * 1.0 / totalSize);
-                        float f1 = b.setScale(2, BigDecimal.ROUND_HALF_UP).floatValue();
-                        if (f1 >= 0.01f) {
-                            String value = String.valueOf(f1 * 100);
-                            int progress = Integer.valueOf(value.split("\\.")[0]);
-                            pImgListDialog.setImgDownloadProgress(img.getImg_id(), progress + "%");
-                            if (progress==100){
-                            }
+                        @Override
+                        public void getDownloadProgress(String progress) {
+                            handler.post(()->pImgListDialog.setImgDownloadProgress(img.getImg_id(),progress));
                         }
-                    }));
-                    isDownloaded = ossUtils.syncNativeOSSDownload();
+                    });
+                    isDownloaded = downloader.downloadByRange();
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
             }
             if (isDownloaded) {
@@ -1485,13 +1420,10 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         }
                     }).start();
                 }
-                long endTime = System.currentTimeMillis() - startTime;
-                params.put("used_time", endTime);
                 if (projectionIdMap != null && projectionIdMap.containsKey(projection.getForscreen_id())) {
                     params.put("is_break", projectionIdMap.get(projection.getForscreen_id()));
                 }
-
-                postProjectionResourceLog(params);
+//                postProjectionResourceLog(params);
             } else {
                 if (!GlobalValues.PROJECT_FAIL_IMAGES.contains(path)) {
                     GlobalValues.PROJECT_FAIL_IMAGES.add(path);
@@ -1503,14 +1435,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 if (projectionIdMap != null && projectionIdMap.containsKey(projection.getForscreen_id())) {
                     params.put("is_break", projectionIdMap.get(projection.getForscreen_id()));
                 }
-                long endTime = System.currentTimeMillis() - startTime;
-                params.put("used_time", endTime);
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        postProjectionResourceLog(params);
-                    }
-                });
+//                postProjectionResourceLog(params);
             }
             if (GlobalValues.PROJECT_IMAGES.size()+GlobalValues.PROJECT_FAIL_IMAGES.size()==img_nums){
                 handler.removeCallbacks(downloadFileRunnable);
@@ -1523,6 +1448,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         }
                     }
                 },1000);
+                postProjectionResourceLog(params);
             }else{
                 handler.postDelayed(downloadFileRunnable,500);
             }
@@ -1648,6 +1574,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 }
             }
         }
+        postProjectionResourceLog(params);
         //记录当前欢迎词投屏ID
         GlobalValues.WELCOME_ID = minipp.getId();
         if (type==1){

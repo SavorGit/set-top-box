@@ -12,6 +12,8 @@ public class ProjectionImg {
     private String img_id;
     /**投视频ID*/
     private String video_id;
+    /**文件大小*/
+    private long resource_size;
 
     public String getUrl() {
         return url;
@@ -51,5 +53,13 @@ public class ProjectionImg {
 
     public void setVideo_id(String video_id) {
         this.video_id = video_id;
+    }
+
+    public long getResource_size() {
+        return resource_size;
+    }
+
+    public void setResource_size(long resource_size) {
+        this.resource_size = resource_size;
     }
 }
