@@ -20,6 +20,7 @@ import com.savor.tvlibrary.AtvChannel;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.xml.sax.helpers.ParserAdapter;
 
 import java.io.File;
 import java.io.IOException;
@@ -96,7 +97,6 @@ public class AppApi {
         SP_GET_PROGRAM_DATA_FROM_JSON,
         SP_GET_ADV_DATA_FROM_JSON,
         SP_GET_ADS_DATA_FROM_JSON,
-        SP_GET_ON_DEMAND_DATA_FROM_JSON,
         SP_GET_TV_MATCH_DATA_FROM_JSON,
         SP_GET_TV_MATCH_DATA_FROM_GIEC_JSON,
         SP_GET_UPGRADE_INFO_JSON,
@@ -111,10 +111,7 @@ public class AppApi {
         CP_GET_PRIZE_JSON,
         CP_REPORT_LOTTERY_JSON,
         PH_NOTIFY_STOP_JSON,
-        SP_GET_SPECIALTY_JSON,
-        CP_GET_ADMASTER_CONFIG_JSON,
         CP_POST_DEVICE_TOKEN_JSON,
-        SP_GET_RTB_ADS_JSON,
         SP_GET_POLY_ADS_JSON,
         CP_POST_POLY_PLAY_RECORD_JSON,
         SP_POST_NETSTAT_JSON,
@@ -154,7 +151,8 @@ public class AppApi {
         CP_POST_LOGOUT_GAME_H5_JSON,
         CP_GET_BOX_TPMEDIAS_JSON,
         CP_GET_ADDPLAYLOG_JSON,
-        CP_GET_GOODSCOUNTDOWN_JSON
+        CP_GET_GOODSCOUNTDOWN_JSON,
+        CP_POST_FORSCREEN_ADSLOG_JSON
 
     }
 
@@ -176,7 +174,6 @@ public class AppApi {
             put(Action.SP_GET_PROGRAM_DATA_FROM_JSON,SP_BASE_URL+"small/api/download/vod/config/v2");
             put(Action.SP_GET_ADV_DATA_FROM_JSON,SP_BASE_URL+"small/api/download/adv/config");
             put(Action.SP_GET_ADS_DATA_FROM_JSON,SP_BASE_URL+"small/api/download/ads/config");
-            put(Action.SP_GET_ON_DEMAND_DATA_FROM_JSON,SP_BASE_URL+"small/api/download/demand/config");
             put(Action.SP_GET_TV_MATCH_DATA_FROM_JSON,SP_BASE_URL+"small/tvList/api/stb/tv_getCommands");
             put(Action.SP_GET_TV_MATCH_DATA_FROM_GIEC_JSON,SP_BASE_URL+"small/tvListNew/api/stb/tv_getCommands");
             put(Action.SP_GET_UPGRADE_INFO_JSON,SP_BASE_URL+"small/api/download/apk/config");
@@ -188,10 +185,7 @@ public class AppApi {
             put(Action.CP_GET_PRIZE_JSON, BuildConfig.BASE_URL + "Award/Award/getAwardInfo");
             put(Action.CP_REPORT_LOTTERY_JSON, BuildConfig.BASE_URL + "Award/Award/recordAwardLog");
             put(Action.PH_NOTIFY_STOP_JSON, PHONE_BASE_URL + "stopProjection");
-            put(Action.SP_GET_SPECIALTY_JSON, SP_BASE_URL + "small/api/download/recommend/config");
-            put(Action.CP_GET_ADMASTER_CONFIG_JSON,BuildConfig.BASE_URL + "Box/Admaster/getConfFile");
             put(Action.CP_POST_DEVICE_TOKEN_JSON, BuildConfig.BASE_URL + "Basedata/Box/reportDeviceToken");
-            put(Action.SP_GET_RTB_ADS_JSON, SP_BASE_URL + "small/api/download/rtbads/config");
             put(Action.SP_GET_POLY_ADS_JSON, SP_BASE_URL + "small/api/download/poly/config");
             put(Action.CP_POST_POLY_PLAY_RECORD_JSON,BuildConfig.BASE_URL +"Box/BaiduPoly/recordPlay");
             put(Action.SP_POST_NETSTAT_JSON, BuildConfig.BASE_URL + "Small/NetReport/reportInfo");
@@ -224,6 +218,7 @@ public class AppApi {
             put(Action.CP_GET_BOX_TPMEDIAS_JSON,BuildConfig.BASE_URL+"/Box/BaiduPoly/getBoxTpmedias");
             put(Action.CP_GET_ADDPLAYLOG_JSON,BuildConfig.BASE_URL+"box/forscreen/addPlaylog");
             put(Action.CP_GET_GOODSCOUNTDOWN_JSON,BuildConfig.BASE_URL+"box/program/getGoodsCountdown");
+            put(Action.CP_POST_FORSCREEN_ADSLOG_JSON,BuildConfig.BASE_URL+"box/boxLog/adsPlaylog");
 
         }
     };
@@ -382,48 +377,6 @@ public class AppApi {
     }
 
     /**
-     * 获取小平台点播数据
-     * @param context
-     * @param handler
-     * @param boxMac
-     * @return
-     * @throws IOException
-     */
-    public static JsonBean getOnDemandDataFromSmallPlatform(Context context, ApiRequestListener handler,String boxMac) throws IOException {
-        final HashMap<String, Object> params = new HashMap<String, Object>();
-        params.put("boxMac",boxMac);
-        return new AppServiceOk(context, Action.SP_GET_ON_DEMAND_DATA_FROM_JSON, handler, params).syncGet();
-    }
-
-    /**
-     * 获取小平台特色菜数据
-     * @param context
-     * @param handler
-     * @param boxMac
-     * @return
-     * @throws IOException
-     */
-    public static JsonBean getSpecialtyFromSmallPlatform(Context context, ApiRequestListener handler,String boxMac) throws IOException {
-        final HashMap<String, Object> params = new HashMap<String, Object>();
-        params.put("boxMac",boxMac);
-        return new AppServiceOk(context, Action.SP_GET_SPECIALTY_JSON, handler, params).syncGet();
-    }
-
-    /**
-     * 获取实时竞价广告资源
-     * @param context
-     * @param handler
-     * @param boxMac
-     * @return
-     * @throws IOException
-     */
-    public static JsonBean getRtbadsFromSmallPlatform(Context context, ApiRequestListener handler,String boxMac) throws IOException {
-        final HashMap<String, Object> params = new HashMap<String, Object>();
-        params.put("boxMac",boxMac);
-        return new AppServiceOk(context, Action.SP_GET_RTB_ADS_JSON, handler, params).syncGet();
-    }
-
-    /**
      * 获取百度聚屏广告资源
      * @param context
      * @param handler
@@ -496,7 +449,7 @@ public class AppApi {
     }
 
     public static void downloadImg(String url,Context context, ApiRequestListener handler,String filePath){
-        final HashMap<String, Object> params = new HashMap<String, Object>();
+        final HashMap<String, Object> params = new HashMap<>();
         new AppServiceOk(context, Action.SP_GET_LOADING_IMG_DOWN, handler, params).downLoad(url, filePath);
     }
 
@@ -730,16 +683,6 @@ public class AppApi {
         params.put("type", type);
         params.put("tipMsg", msg);
         new AppServiceOk(context, Action.PH_NOTIFY_STOP_JSON, handler, params).get();
-    }
-
-    /**
-     * 获取admaster配置文件
-     * @param context
-     * @param handler
-     */
-    public static void getAdMasterConfig(Context context, ApiRequestListener handler){
-        final HashMap<String, Object> params = new HashMap<>();
-        new AppServiceOk(context, Action.CP_GET_ADMASTER_CONFIG_JSON, handler, params).get();
     }
 
     /**
@@ -1097,6 +1040,20 @@ public class AppApi {
         final HashMap<String,String> params = new HashMap<>();
         params.put("goods_id",goods_id+"");
         return new AppServiceOk(context,Action.CP_GET_GOODSCOUNTDOWN_JSON,handler,params).syncGet();
+    }
+
+    /**
+     * 投屏前后跟的广告添加播放日志
+     * @param context
+     * @param handler
+     * @param ads_id
+     * @param box_mac
+     */
+    public static void postForscreenAdsLog(Context context,ApiRequestListener handler,String ads_id,String box_mac){
+        final HashMap<String,String> params = new HashMap<>();
+        params.put("ads_id",ads_id);
+        params.put("box_mac",box_mac);
+        new AppServiceOk(context,Action.CP_POST_FORSCREEN_ADSLOG_JSON, handler,params).get();
     }
 
     /**

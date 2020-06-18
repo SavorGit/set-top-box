@@ -588,6 +588,13 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         AppApi.postProjectionResourceParam(context,apiRequestListener,params);
     }
 
+    /**
+     * 上报投屏前置后置广告日志
+     * @param adsId
+     */
+    private void postForscreenAdsLog(String adsId){
+        AppApi.postForscreenAdsLog(context,apiRequestListener,adsId,session.getEthernetMac());
+    }
 
     /**
      * 互动游戏数据上传
@@ -903,6 +910,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             }else{
                                 ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, words, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                             }
+                            postForscreenAdsLog(preOrNextAdsBean.getVid());
                             preOrNextAdsBean = null;
                             GlobalValues.PROJECTION_VIDEO_PATH = path;
                         }else if (preOrNextAdsBean.getPlay_position()==2){
@@ -1020,13 +1028,14 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             if (preOrNextAdsBean!=null){
                 if (preOrNextAdsBean.getPlay_position()==1){
                     GlobalValues.INTERACTION_ADS_PLAY = 1;
-                    String path = preOrNextAdsBean.getMediaPath();
+                    String adspath = preOrNextAdsBean.getMediaPath();
                     String duration = preOrNextAdsBean.getDuration();
                     if (preOrNextAdsBean.getMedia_type()==1){
-                        ProjectOperationListener.getInstance(context).showVideo(path, 0, true,forscreen_id, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                        ProjectOperationListener.getInstance(context).showVideo(adspath, 0, true,forscreen_id, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                     }else{
-                        ProjectOperationListener.getInstance(context).showImage(5, path, true,forscreen_id, words, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                        ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, words, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                     }
+                    postForscreenAdsLog(preOrNextAdsBean.getVid());
                     preOrNextAdsBean = null;
                 }
             }
@@ -1815,6 +1824,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 }else{
                     ProjectOperationListener.getInstance(context).showImage(5, path, true,forscreenId, words, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                 }
+                postForscreenAdsLog(preOrNextAdsBean.getVid());
                 GlobalValues.INTERACTION_ADS_PLAY=2;
                 preOrNextAdsBean = null;
             }else{
