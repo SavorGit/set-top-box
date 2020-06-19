@@ -282,7 +282,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         case 2:
                         case 42:
                             new Thread(()->projectionVideo(miniProgramProjection)).start();
-
                             break;
                         case 3:
                             exitProjection();
@@ -921,7 +920,18 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         GlobalValues.INTERACTION_ADS_PLAY = 0;
                         preOrNextAdsBean = null;
                         GlobalValues.PROJECTION_VIDEO_PATH = null;
-                        ProjectOperationListener.getInstance(context).showVideo(path, 0, true,forscreen_id, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                        boolean isBreak = false;
+                        if (projectionIdMap!=null&&projectionIdMap.size()>0&&!TextUtils.isEmpty(forscreen_id)){
+                            if (projectionIdMap.containsKey(forscreen_id)){
+                                String breakState = projectionIdMap.get(forscreen_id);
+                                if (breakState.equals(PROJECTION_STATE_BREAK)){
+                                    isBreak = true;
+                                }
+                            }
+                        }
+                        if (!isBreak){
+                            ProjectOperationListener.getInstance(context).showVideo(path, 0, true,forscreen_id, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                        }
                     }
                 }
             }
@@ -1714,7 +1724,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             if (action!=2&&action!=4&&action!=10&&action==currentAction){
                 return;
             }
-            projectionIdMap.clear();
+//            projectionIdMap.clear();
             if (miniProgramProjection==null){
                 return;
             }
@@ -1756,7 +1766,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         final String forscreenId = miniProgramProjection.getForscreen_id();
         if (GlobalValues.INTERACTION_ADS_PLAY==1){
             if (!TextUtils.isEmpty(forscreenId)){
-                projectionIdMap.put(forscreenId,PROJECTION_STATE_PLAY);
+                updateProjectionState(forscreenId);
             }
             if (GlobalValues.PROJECT_IMAGES.size()>0){
                 if (!isPPTRunnable){
@@ -1771,9 +1781,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     }).start();
                 }
             }else if (GlobalValues.PROJECTION_VIDEO_PATH!=null){
-                if (!TextUtils.isEmpty(forscreenId)){
-                    projectionIdMap.put(forscreenId,PROJECTION_STATE_PLAY);
-                }
                 if (currentAction==42){
                     int time = 0;
                     if (miniProgramProjection!=null){
@@ -1789,7 +1796,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         }else if (GlobalValues.INTERACTION_ADS_PLAY==2){
             if (!TextUtils.isEmpty(id)&&!TextUtils.isEmpty(forscreenId)&&!forscreenId.equals(id)){
                 if (!TextUtils.isEmpty(forscreenId)){
-                    projectionIdMap.put(forscreenId,PROJECTION_STATE_PLAY);
+                    updateProjectionState(forscreenId);
                 }
                 if (GlobalValues.PROJECT_IMAGES.size()>0){
                     if (!isPPTRunnable){
@@ -1805,9 +1812,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         }).start();
                     }
                 }else if (GlobalValues.PROJECTION_VIDEO_PATH!=null){
-                    if (!TextUtils.isEmpty(forscreenId)){
-                        projectionIdMap.put(forscreenId,PROJECTION_STATE_PLAY);
-                    }
                     if (currentAction==42){
                         int time = 0;
                         if (miniProgramProjection!=null){
