@@ -1430,9 +1430,12 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     }).start();
                 }
                 if (projectionIdMap != null && projectionIdMap.containsKey(projection.getForscreen_id())) {
-                    params.put("is_break", projectionIdMap.get(projection.getForscreen_id()));
+                    String isBreak = projectionIdMap.get(projection.getForscreen_id());
+                    params.put("is_break", isBreak);
+                    if (isBreak.equals(PROJECTION_STATE_BREAK)){
+                        postProjectionResourceLog(params);
+                    }
                 }
-//                postProjectionResourceLog(params);
             } else {
                 if (!GlobalValues.PROJECT_FAIL_IMAGES.contains(path)) {
                     GlobalValues.PROJECT_FAIL_IMAGES.add(path);
@@ -1442,9 +1445,12 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         +"|||PROJECT_FAIL_IMAGES:="+GlobalValues.PROJECT_FAIL_IMAGES);
                 params.put("is_exist", 2);
                 if (projectionIdMap != null && projectionIdMap.containsKey(projection.getForscreen_id())) {
-                    params.put("is_break", projectionIdMap.get(projection.getForscreen_id()));
+                    String isBreak = projectionIdMap.get(projection.getForscreen_id());
+                    params.put("is_break", isBreak);
+                    if (isBreak.equals(PROJECTION_STATE_BREAK)){
+                        postProjectionResourceLog(params);
+                    }
                 }
-//                postProjectionResourceLog(params);
             }
             if (GlobalValues.PROJECT_IMAGES.size()+GlobalValues.PROJECT_FAIL_IMAGES.size()==img_nums){
                 handler.removeCallbacks(downloadFileRunnable);

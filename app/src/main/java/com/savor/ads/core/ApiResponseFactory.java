@@ -242,10 +242,6 @@ public class ApiResponseFactory {
             case CP_GET_HEARTBEAT_PLAIN:
                 result = info;
                 break;
-            case CP_GET_ADMASTER_CONFIG_JSON:
-                result = gson.fromJson(info, new TypeToken<AdMasterResult>() {
-                }.getType());
-                break;
             case CP_POST_DEVICE_TOKEN_JSON:
                 result = info;
                 break;

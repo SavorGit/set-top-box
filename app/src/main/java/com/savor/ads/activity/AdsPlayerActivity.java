@@ -1438,12 +1438,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     @Override
     public void onSuccess(AppApi.Action method, Object obj) {
         switch (method) {
-            case CP_GET_ADMASTER_CONFIG_JSON:
-                if (obj instanceof AdMasterResult) {
-                    adMasterResult = (AdMasterResult) obj;
-//                    handleAdmaster();
-                }
-                break;
             case SP_GET_LOADING_IMG_DOWN:
                 if (obj instanceof File) {
                     File f = (File) obj;
