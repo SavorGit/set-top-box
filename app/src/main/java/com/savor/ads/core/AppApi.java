@@ -152,7 +152,8 @@ public class AppApi {
         CP_GET_BOX_TPMEDIAS_JSON,
         CP_GET_ADDPLAYLOG_JSON,
         CP_GET_GOODSCOUNTDOWN_JSON,
-        CP_POST_FORSCREEN_ADSLOG_JSON
+        CP_POST_FORSCREEN_ADSLOG_JSON,
+        CP_POST_WELCOME_PLAYLOG_JSON
 
     }
 
@@ -219,6 +220,7 @@ public class AppApi {
             put(Action.CP_GET_ADDPLAYLOG_JSON,BuildConfig.BASE_URL+"box/forscreen/addPlaylog");
             put(Action.CP_GET_GOODSCOUNTDOWN_JSON,BuildConfig.BASE_URL+"box/program/getGoodsCountdown");
             put(Action.CP_POST_FORSCREEN_ADSLOG_JSON,BuildConfig.BASE_URL+"box/boxLog/adsPlaylog");
+            put(Action.CP_POST_WELCOME_PLAYLOG_JSON,BuildConfig.BASE_URL+"box/boxLog/welcomePlaylog");
 
         }
     };
@@ -1054,6 +1056,20 @@ public class AppApi {
         params.put("ads_id",ads_id);
         params.put("box_mac",box_mac);
         new AppServiceOk(context,Action.CP_POST_FORSCREEN_ADSLOG_JSON, handler,params).get();
+    }
+
+    /**
+     * 欢迎词投屏记录
+     * @param context
+     * @param handler
+     * @param welcome_id
+     * @param box_mac
+     */
+    public static void postWelcomePlayAdsLog(Context context,ApiRequestListener handler,String welcome_id,String box_mac){
+        final HashMap<String,String> params = new HashMap<>();
+        params.put("welcome_id",welcome_id);
+        params.put("box_mac",box_mac);
+        new AppServiceOk(context,Action.CP_POST_WELCOME_PLAYLOG_JSON, handler,params).get();
     }
 
     /**

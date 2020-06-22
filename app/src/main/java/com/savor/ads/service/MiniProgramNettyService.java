@@ -237,7 +237,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     GlobalValues.CURRENT_PROJECT_BITMAP = null;
                     final MiniProgramProjection miniProgramProjection = gson.fromJson(content, new TypeToken<MiniProgramProjection>() {
                     }.getType());
-                    if (miniProgramProjection!=null){
+                    if (miniProgramProjection!=null&&action!=3){
                         this.miniProgramProjection = miniProgramProjection;
                         headPic = Base64Utils.getFromBase64(miniProgramProjection.getHeadPic());
                         nickName = miniProgramProjection.getNickName();
@@ -250,11 +250,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         MonkeyGameActivity activity = (MonkeyGameActivity) ActivitiesManager.getInstance().getCurrentActivity();
                         activity.exitGame();
                     }
-                    if (action != 4&&action!=44) {
-                        handler.removeCallbacks(mProjectShowImageRunnable);
-                        handler.removeCallbacks(downloadFileRunnable);
-                    }
-
+                    handler.removeCallbacks(mProjectShowImageRunnable);
+                    handler.removeCallbacks(downloadFileRunnable);
                     if (action!=110){
                         Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
                         if (activity instanceof WebviewGameActivity){
@@ -585,6 +582,10 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
      */
     private void postProjectionResourceLog(HashMap<String,Object> params){
         AppApi.postProjectionResourceParam(context,apiRequestListener,params);
+    }
+
+    private void postWelcomePlayLog(String welcomeId){
+        AppApi.postWelcomePlayAdsLog(context,apiRequestListener,welcomeId,session.getEthernetMac());
     }
 
     /**
@@ -1602,6 +1603,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         postProjectionResourceLog(params);
         //记录当前欢迎词投屏ID
         GlobalValues.WELCOME_ID = minipp.getId();
+        postWelcomePlayLog(minipp.getId()+"");
         if (type==1){
             ProjectOperationListener.getInstance(context).showRestImage(7,imgPath,rotation,musicPath,forscreen_char,wordsize,wordcolor,fontPath,play_times,GlobalValues.FROM_SERVICE_MINIPROGRAM);
         }else{
