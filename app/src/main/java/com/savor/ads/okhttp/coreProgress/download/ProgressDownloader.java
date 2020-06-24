@@ -109,7 +109,7 @@ public class ProgressDownloader {
 
     public boolean downloadByRange(){
         long startIndex = 0;
-        boolean flag = true;
+        boolean flag = false;
         try {
             File cacheFile = new File(filePath,fileName+ ConstantValues.CACHE);
             if (cacheFile.exists()){

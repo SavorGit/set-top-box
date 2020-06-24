@@ -46,6 +46,7 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
     private Session session;
     private Context mContext;
     private MiniProNettyClient client;
+    private boolean errorChannel=false;
 
     public MiniProNettyClientHandler(MiniProNettyClient client,MiniProNettyClient.MiniNettyMsgCallback m, Context context) {
         this.miniCallback = m;
@@ -94,9 +95,15 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
         switch (Order) {
             case HEART_SERVER_TO_CLIENT:
                 List<String> contentMsgH = msg.getContent();
+                String errorRegistration ="multiple registration";
                 for (String tmp : contentMsgH) {
                     LogUtils.v("miniProgram--SERVER_HEART_RESP： 收到来自服务端的...心跳回应." + tmp + "===>>接收到内容:" + msg.getContent());
                     LogFileUtil.write("miniProgram--SERVER_HEART_RESP： 收到来自服务端的...心跳回应." + tmp + "===>>接收到内容:" + msg.getContent());
+                    if (tmp.contains(errorRegistration)){
+                        close(ctx);
+                        errorChannel=true;
+                        return;
+                    }
                 }
                 if (!session.isHeartbeatMiniNetty()){
                     if (miniCallback != null) {
@@ -227,12 +234,14 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         LogUtils.i("miniProgram--channelInactive......." + session.getNettyUrl() + ':' + session.getNettyPort());Session.get(mContext).setHeartbeatMiniNetty(false);
         LogFileUtil.write("miniProgram--channelInactive......." + session.getNettyUrl() + ':' + session.getNettyPort());Session.get(mContext).setHeartbeatMiniNetty(false);
-        if (miniCallback!=null){
+        if (!errorChannel&&miniCallback!=null){
             miniCallback.onMiniCloseIcon();
         }
         Session.get(mContext).setHeartbeatMiniNetty(false);
         close(ctx);
-        reconnect(ctx);
+        if (!errorChannel){
+            reconnect(ctx);
+        }
 
         super.channelInactive(ctx);
     }
