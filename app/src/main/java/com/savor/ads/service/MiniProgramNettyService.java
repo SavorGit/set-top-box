@@ -23,6 +23,7 @@ import com.savor.ads.SavorApplication;
 import com.savor.ads.activity.AdsPlayerActivity;
 import com.savor.ads.activity.MainActivity;
 import com.savor.ads.activity.MonkeyGameActivity;
+import com.savor.ads.activity.ScreenProjectionActivity;
 import com.savor.ads.activity.WebviewGameActivity;
 import com.savor.ads.bean.BirthdayOndemandBean;
 import com.savor.ads.bean.JsonBean;
@@ -1072,6 +1073,20 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         });
 
         ProjectOperationListener.getInstance(context).stop(GlobalValues.CURRENT_PROJECT_ID);
+        Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+        if (activity instanceof ScreenProjectionActivity&&this.miniProgramProjection!=null){
+            try {
+                HashMap<String, Object> params = new HashMap<>();
+                params.put("box_mac", session.getEthernetMac());
+                params.put("req_id",miniProgramProjection.getReq_id());
+                params.put("forscreen_id", forscreen_id);
+                params.put("openid", openid);
+                params.put("is_exit", 1);
+                postProjectionResourceLog(params);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
