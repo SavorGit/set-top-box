@@ -922,15 +922,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         GlobalValues.INTERACTION_ADS_PLAY = 0;
                         preOrNextAdsBean = null;
                         GlobalValues.PROJECTION_VIDEO_PATH = null;
-                        boolean isBreak = false;
-                        if (projectionIdMap!=null&&projectionIdMap.size()>0&&!TextUtils.isEmpty(forscreen_id)){
-                            if (projectionIdMap.containsKey(forscreen_id)){
-                                String breakState = projectionIdMap.get(forscreen_id);
-                                if (breakState.equals(PROJECTION_STATE_BREAK)){
-                                    isBreak = true;
-                                }
-                            }
-                        }
+                        boolean isBreak = projectionIsBreak(forscreen_id);
                         if (!isBreak){
                             ProjectOperationListener.getInstance(context).showVideo(path, 0, true,forscreen_id, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                         }
@@ -1081,6 +1073,13 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 params.put("req_id",miniProgramProjection.getReq_id());
                 params.put("forscreen_id", forscreen_id);
                 params.put("openid", openid);
+                if (!TextUtils.isEmpty(miniProgramProjection.getVideo_id())){
+                    params.put("resource_id", miniProgramProjection.getVideo_id());
+                }else if (miniProgramProjection.getImg_list()!=null&&miniProgramProjection.getImg_list().size()>0){
+                    List<ProjectionImg> list = miniProgramProjection.getImg_list();
+                    ProjectionImg img = list.get(currentIndex);
+                    params.put("resource_id", img.getImg_id());
+                }
                 params.put("is_exit", 1);
                 postProjectionResourceLog(params);
             }catch (Exception e){
@@ -1438,7 +1437,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 }
             }
             if (isDownloaded) {
-                if (!GlobalValues.PROJECT_IMAGES.contains(path)) {
+                boolean isBreaks = projectionIsBreak(projection.getForscreen_id());
+                if (!GlobalValues.PROJECT_IMAGES.contains(path)&&!isBreaks) {
                     GlobalValues.PROJECT_IMAGES.add(path);
                 }
                 LogUtils.d("img_nums:="+img_nums
@@ -1463,7 +1463,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     }
                 }
             } else {
-                if (!GlobalValues.PROJECT_FAIL_IMAGES.contains(path)) {
+                boolean isBreaks = projectionIsBreak(projection.getForscreen_id());
+                if (!GlobalValues.PROJECT_FAIL_IMAGES.contains(path)&&!isBreaks) {
                     GlobalValues.PROJECT_FAIL_IMAGES.add(path);
                 }
                 LogUtils.d("img_nums:="+img_nums
@@ -1734,6 +1735,24 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         if (!TextUtils.isEmpty(forscreen_id)){
             projectionIdMap.put(forscreen_id,PROJECTION_STATE_PLAY);
         }
+    }
+
+    /**
+     * 是否打断？
+     * @param forscreen_id
+     * @return
+     */
+    private boolean projectionIsBreak(String forscreen_id){
+        boolean isBreak = false;
+        if (projectionIdMap!=null&&projectionIdMap.size()>0&&!TextUtils.isEmpty(forscreen_id)){
+            if (projectionIdMap.containsKey(forscreen_id)){
+                String breakState = projectionIdMap.get(forscreen_id);
+                if (breakState.equals(PROJECTION_STATE_BREAK)){
+                    isBreak = true;
+                }
+            }
+        }
+        return isBreak;
     }
 
     public void startProjection(int action,String forscreen_id){
