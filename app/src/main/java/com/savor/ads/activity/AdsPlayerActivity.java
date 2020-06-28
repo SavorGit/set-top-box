@@ -300,9 +300,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             }
             for (int i = 0; i < mPlayList.size(); i++) {
                 MediaLibBean bean = mPlayList.get(i);
-                if (!TextUtils.isEmpty(bean.getMediaPath())){
-                    urls.add(bean.getMediaPath());
-                }
+                urls.add(bean.getMediaPath());
             }
             mSavorVideoView.setMediaFiles(urls, index, 0);
         }
