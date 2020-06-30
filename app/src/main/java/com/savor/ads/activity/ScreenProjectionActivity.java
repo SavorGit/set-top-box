@@ -263,7 +263,6 @@ public class ScreenProjectionActivity extends BaseActivity{
 
         findView();
         setView();
-        initPlayer();
         isNewProjection = true;
         handleIntent();
         bindMiniprogramNettyService();
@@ -357,13 +356,6 @@ public class ScreenProjectionActivity extends BaseActivity{
         mSavorVideoView.setIfHandlePrepareTimeout(true);
         mSavorVideoView.setPlayStateCallback(mPlayStateCallback);
 
-    }
-
-    private void initPlayer(){
-//        PlayerFactory.setPlayManager(SystemPlayerManager.class);
-//        GSYVideoType.setRenderType(GSYVideoType.SUFRACE);
-        GSYVideoType.enableMediaCodec();
-        GSYVideoType.enableMediaCodecTexture();
     }
 
     private void initSounds(){

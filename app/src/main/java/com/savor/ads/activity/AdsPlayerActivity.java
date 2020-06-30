@@ -656,19 +656,19 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         } else {
             GlobalValues.IS_BOX_BUSY = true;
             ShowMessage.showToast(mContext, "视频节目准备中，即将开始播放");
-            mSavorVideoView.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (AppUtils.isSVT()){
+//            mSavorVideoView.postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+            mSavorVideoView.onResume();
+            if (AppUtils.isSVT()){
                         setVolume(mSession.getVodVolume());
                     }else {
                         setVolume(mSession.getVolume());
                     }
-                    mSavorVideoView.onResume();
-                    GlobalValues.mIsGoneToTv = false;
-                    GlobalValues.IS_BOX_BUSY = false;
-                }
-            }, 1000 * DELAY_TIME);
+            GlobalValues.mIsGoneToTv = false;
+            GlobalValues.IS_BOX_BUSY = false;
+//                }
+//            }, 500 * DELAY_TIME);
         }
 
 //        toCheckMediaIsShowMiniProgramIcon();

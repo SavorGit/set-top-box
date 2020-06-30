@@ -278,7 +278,7 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
                         isLast = mCurrentFileIndex == mMediaFiles.size() - 1;
                     }
                     // 回调某个视频播放出错
-                    mPlayStateCallback.onMediaError(mCurrentFileIndex, isLast);
+//                    mPlayStateCallback.onMediaError(mCurrentFileIndex, isLast);
                 }
             }
         }
