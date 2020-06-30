@@ -225,7 +225,7 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
     /**
      * 设置播放数据源
      */
-    private boolean setMediaPlayerSource() {
+    private boolean setMediaPlayerSource(boolean change) {
         LogUtils.w(TAG + " setMediaPlayerSource " + GGVideoPlayer.this.hashCode());
         LogFileUtil.write(TAG + " setMediaPlayerSource " + GGVideoPlayer.this.hashCode());
         Map<String, String> mapHeadData =null;
@@ -235,7 +235,7 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
         mHandler.removeCallbacksAndMessages(null);
 
         super.setStartAfterPrepared(false);
-        super.setUp(mMediaPath, false, file, "",false);
+        super.setUp(mMediaPath, false, file, "",change);
 
         return true;
     }
@@ -287,7 +287,11 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
     }
 
     private void setAndPrepare() {
-        setMediaPlayerSource();
+        setAndPrepare(false);
+    }
+
+    private void setAndPrepare(boolean change) {
+        setMediaPlayerSource(change);
         prepareMediaPlayer();
 
 //        if (setMediaPlayerSource()) {
@@ -468,7 +472,7 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
 
             initPlayer();
 
-            setAndPrepare();
+            setAndPrepare(changeState);
             changeRotate();
         }
     }
