@@ -1406,8 +1406,9 @@ public class ScreenProjectionActivity extends BaseActivity{
         @Override
         public boolean onMediaError(int index, boolean isLast) {
             LogUtils.w("activity onMediaError " + this.hashCode());
-
-            ShowMessage.showToast(mContext, "视频播放失败");
+            if (!AppUtils.isSVT()){
+                ShowMessage.showToast(mContext, "视频播放失败");
+            }
             LogFileUtil.write("视频播放失败:" + mMediaPath);
             if (isLast) {
                 AppApi.notifyStop(mContext, apiRequestListener, 2, "");

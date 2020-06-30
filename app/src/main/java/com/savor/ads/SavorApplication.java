@@ -548,6 +548,7 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
         if (level == TRIM_MEMORY_UI_HIDDEN) {
             Log.i("SavorApplication123", "APP遁入后台");
             if (AppUtils.isLeTV()||AppUtils.isSVT()){
+                GlobalValues.mIsGoneToTv = true;
 //                mHandler.postDelayed(mBackToAdsPlayerRunnable, 60 * 1000);
                 int switchTime = session.getSwitchTime();
                 if (switchTime > 0 && switchTime != 999){

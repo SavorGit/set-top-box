@@ -134,4 +134,6 @@ public class GlobalValues <T extends MediaLibBean> {
     public static long loopStartTime;
     /**当前欢迎词投屏ID*/
     public static int WELCOME_ID;
+
+    public static boolean mIsGoneToTv=false;
 }

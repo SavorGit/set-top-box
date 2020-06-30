@@ -126,7 +126,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     private String mListPeriod;
     private boolean mNeedUpdatePlaylist;
 
-    private boolean mIsGoneToTv;
     //每次开机赋值，请求广告类型
     private String dspRequestType = null;
     //0-开始播放
@@ -194,7 +193,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         wxProjectionIconTipIV = findViewById(R.id.wx_projection_icon_tip);
         wxProjectionTxtTipTV = findViewById(R.id.wx_projection_nickname_tip);
         PlayerFactory.setPlayManager(Exo2PlayerManager.class);
-//        GSYVideoType.setRenderType(GSYVideoType.TEXTURE);
         GSYVideoType.enableMediaCodec();
         GSYVideoType.enableMediaCodecTexture();
 //        //ijk关闭log
@@ -649,13 +647,12 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         }
         LogFileUtil.write("AdsPlayerActivity onResume " + this.hashCode());
         mActivityResumeTime = System.currentTimeMillis();
-        if (!mIsGoneToTv) {
+        if (!GlobalValues.mIsGoneToTv) {
             if (AppUtils.isSVT()){
                 setVolume(mSession.getVodVolume());
             }else {
                 setVolume(mSession.getVolume());
             }
-            mSavorVideoView.onResume();
         } else {
             GlobalValues.IS_BOX_BUSY = true;
             ShowMessage.showToast(mContext, "视频节目准备中，即将开始播放");
@@ -668,7 +665,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                         setVolume(mSession.getVolume());
                     }
                     mSavorVideoView.onResume();
-                    mIsGoneToTv = false;
+                    GlobalValues.mIsGoneToTv = false;
                     GlobalValues.IS_BOX_BUSY = false;
                 }
             }, 1000 * DELAY_TIME);
@@ -764,6 +761,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     protected void onPause() {
         LogFileUtil.write("AdsPlayerActivity onPause " + this.hashCode());
         mSavorVideoView.onPause();
+        GlobalValues.mIsGoneToTv = true;
         priceLayout.setVisibility(View.GONE);
         goodsTitleLayout.setVisibility(View.GONE);
         storeSaleLayout.setVisibility(View.GONE);
@@ -887,7 +885,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         if (mPlayList != null && mCurrentPlayingIndex >= 0 && mCurrentPlayingIndex < mPlayList.size()) {
             vid = mPlayList.get(mCurrentPlayingIndex).getVid();
         }
-        mIsGoneToTv = true;
         if (AppUtils.isMstar()) {
             Intent intent = new Intent(this, TvPlayerActivity.class);
             intent.putExtra(TvPlayerActivity.EXTRA_LAST_VID, vid);

@@ -11,6 +11,7 @@ import android.util.AttributeSet;
 import com.savor.ads.R;
 import com.savor.ads.bean.MediaPlayerError;
 import com.savor.ads.player.mediacodec.MediaCodecRenderView;
+import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
@@ -205,8 +206,9 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
     private void initPlayer() {
         LogUtils.w(TAG + " initPlayer " + GGVideoPlayer.this.hashCode());
         LogFileUtil.write(TAG + " initPlayer " + GGVideoPlayer.this.hashCode());
-
-        ((GSYVideoManager) getGSYVideoManager()).setTimeOut(MAX_BUFFER_TIME, true);
+        if (!AppUtils.isSVT()){
+            ((GSYVideoManager) getGSYVideoManager()).setTimeOut(MAX_BUFFER_TIME, true);
+        }
     }
 
     /**
@@ -262,7 +264,9 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
         @Override
         public void run() {
             // 回调某个视频播放出错
-            mPlayStateCallback.onMediaError(mMediaTag);
+            if (!AppUtils.isSVT()){
+                mPlayStateCallback.onMediaError(mMediaTag);
+            }
         }
     };
 
