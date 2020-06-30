@@ -101,6 +101,7 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
     private boolean mForcePlayFromStart;
     private boolean mIsPauseByOut;
 
+    private boolean isResume=false;
     /**
      * 暂停时是否显示“播放”图片
      */
@@ -379,7 +380,7 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
     /**
      * 设置播放数据源
      */
-    private boolean setMediaPlayerSource() {
+    private boolean setMediaPlayerSource(boolean isResume) {
         LogUtils.w(TAG + " setMediaPlayerSource " + SavorVideoView.this.hashCode());
         LogFileUtil.write(TAG + " setMediaPlayerSource " + SavorVideoView.this.hashCode());
         if (mMediaFiles == null || mMediaFiles.isEmpty() || mCurrentFileIndex >= mMediaFiles.size() || TextUtils.isEmpty(mMediaFiles.get(mCurrentFileIndex))) {
@@ -400,7 +401,7 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
                 mHandler.removeCallbacksAndMessages(null);
                 post(() -> atlasViewPager.setVisibility(View.GONE));
             }
-            mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex), mAssignedPlayPosition);
+            mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex), mAssignedPlayPosition,isResume);
         } else {
             isVideoAds = false;
             if (mPlayStateCallback != null) {
@@ -426,16 +427,6 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
                 mHandler.removeCallbacksAndMessages(null);
                 mHandler.sendEmptyMessageDelayed(0, duration * 1000);
             }
-//                File file = new File(url);
-//                if (Looper.myLooper() == Looper.getMainLooper()) {
-//                    GlideImageLoader.loadLocalImage(mContext,file,mImgView);
-//                }else {
-//                    post(()->GlideImageLoader.loadLocalImage(mContext,file,mImgView));
-//                }
-//
-//                projectTipAnimateIn();
-//                removeCallbacks(mPlayCompletionRunnable);
-//                postDelayed(mPlayCompletionRunnable ,duration>0?duration*1000:15*1000);
         }
 
         return true;
@@ -561,7 +552,32 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
     }
 
     private void setAndPrepare() {
-        if (setMediaPlayerSource()) {
+        if (setMediaPlayerSource(false)) {
+            if (isVideoAds) {
+                prepareMediaPlayer();
+            }
+        } else {
+            if (mForcePlayFromStart) {
+                // 强制从头播放
+                mForcePlayFromStart = false;
+                mCurrentFileIndex = 0;
+                mAssignedPlayPosition = 0;
+            } else {
+                // 播放下一个
+                mCurrentFileIndex = (mCurrentFileIndex + 1) % mMediaFiles.size();
+                mAssignedPlayPosition = 0;
+            }
+
+            if (mIsLooping) {
+                // 重置播放器状态，以备下次播放
+                LogFileUtil.write(TAG + " will resetAndPreparePlayer at method setAndPrepare" + " " + SavorVideoView.this.hashCode());
+                resetAndPreparePlayer();
+            }
+        }
+    }
+
+    private void setAndPrepare(boolean isResume) {
+        if (setMediaPlayerSource(isResume)) {
             if (isVideoAds) {
                 prepareMediaPlayer();
             }
@@ -705,10 +721,10 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
     public void onResume() {
         LogUtils.w(TAG + " onResume " + SavorVideoView.this.hashCode());
         LogFileUtil.write(TAG + " onResume " + SavorVideoView.this.hashCode());
-
         mIsPauseByOut = false;
+        isResume = true;
         if (mMediaFiles != null && mMediaFiles.size() > 0) {
-            setAndPrepare();
+            setAndPrepare(true);
         }
 
         if (mDanmakuView != null && mDanmakuView.isPrepared() && mDanmakuView.isPaused()) {

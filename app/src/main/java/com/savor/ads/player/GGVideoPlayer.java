@@ -18,6 +18,7 @@ import com.shuyu.gsyvideoplayer.GSYVideoManager;
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
 import com.shuyu.gsyvideoplayer.video.base.GSYVideoView;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
@@ -228,12 +229,13 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
         LogUtils.w(TAG + " setMediaPlayerSource " + GGVideoPlayer.this.hashCode());
         LogFileUtil.write(TAG + " setMediaPlayerSource " + GGVideoPlayer.this.hashCode());
         Map<String, String> mapHeadData =null;
+        File file = null;
         LogUtils.w("开始播放：" + mMediaPath + " " + GGVideoPlayer.this.hashCode());
 
         mHandler.removeCallbacksAndMessages(null);
 
         super.setStartAfterPrepared(false);
-        super.setUp(mMediaPath, false, null, mapHeadData, "");
+        super.setUp(mMediaPath, false, file, "",false);
 
         return true;
     }
@@ -429,6 +431,28 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
 
     @Override
     public void setSource(String mediaPath, String mediaTag, int seekPosition) {
+        LogUtils.w(TAG + " setSource " + GGVideoPlayer.this.hashCode());
+        LogFileUtil.write(TAG + " setSource " + GGVideoPlayer.this.hashCode());
+        mIsPauseByOut = false;
+        if (!TextUtils.isEmpty(mediaPath)) {
+            mAssignedPlayPosition = seekPosition;
+
+            mMediaPath = mediaPath;
+            mMediaTag = mediaTag;
+
+            if (!hasKnownPrefix(mMediaPath)) {
+                mMediaPath = "file://" + mMediaPath;
+            }
+
+            initPlayer();
+
+            setAndPrepare();
+            changeRotate();
+        }
+    }
+
+    @Override
+    public void setSource(String mediaPath, String mediaTag, int seekPosition, boolean changeState) {
         LogUtils.w(TAG + " setSource " + GGVideoPlayer.this.hashCode());
         LogFileUtil.write(TAG + " setSource " + GGVideoPlayer.this.hashCode());
         mIsPauseByOut = false;

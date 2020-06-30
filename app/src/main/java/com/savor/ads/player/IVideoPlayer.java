@@ -16,6 +16,7 @@ public interface IVideoPlayer {
 
     void setSource(String mediaPath, String mediaTag);
     void setSource(String mediaPath, String mediaTag, int seekPosition);
+    void setSource(String mediaPath, String mediaTag, int seekPosition,boolean changeState);
 
 //    void onPause();
 //    void onStop();

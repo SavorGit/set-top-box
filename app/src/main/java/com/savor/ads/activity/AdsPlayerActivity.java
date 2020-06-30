@@ -655,11 +655,11 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             }
         } else {
             GlobalValues.IS_BOX_BUSY = true;
+            mSavorVideoView.onResume();
             ShowMessage.showToast(mContext, "视频节目准备中，即将开始播放");
 //            mSavorVideoView.postDelayed(new Runnable() {
 //                @Override
 //                public void run() {
-            mSavorVideoView.onResume();
             if (AppUtils.isSVT()){
                         setVolume(mSession.getVodVolume());
                     }else {
