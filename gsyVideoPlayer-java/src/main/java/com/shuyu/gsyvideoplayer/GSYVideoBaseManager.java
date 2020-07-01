@@ -9,6 +9,7 @@ import android.os.Message;
 import androidx.annotation.Nullable;
 
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Surface;
 
 import com.shuyu.gsyvideoplayer.cache.CacheFactory;
@@ -176,6 +177,7 @@ public abstract class GSYVideoBaseManager implements IMediaPlayer.OnPreparedList
 
     @Override
     public void setListener(GSYMediaPlayerListener listener) {
+        Log.d("StackTrack", "GSYVideoBaseManager::setListener to " + listener);
         if (listener == null)
             this.listener = null;
         else
@@ -184,6 +186,7 @@ public abstract class GSYVideoBaseManager implements IMediaPlayer.OnPreparedList
 
     @Override
     public void setLastListener(GSYMediaPlayerListener lastListener) {
+        Log.d("StackTrack", "GSYVideoBaseManager::setLastListener to " + listener);
         if (lastListener == null)
             this.lastListener = null;
         else
@@ -217,6 +220,7 @@ public abstract class GSYVideoBaseManager implements IMediaPlayer.OnPreparedList
 
     @Override
     public void releaseMediaPlayer() {
+        Log.d("StackTrack", "GSYVideoBaseManager::releaseMediaPlayer");
         Message msg = new Message();
         msg.what = HANDLER_RELEASE;
         sendMessage(msg);
@@ -564,11 +568,13 @@ public abstract class GSYVideoBaseManager implements IMediaPlayer.OnPreparedList
             super.handleMessage(msg);
             switch (msg.what) {
                 case HANDLER_PREPARE:
+                    Log.d("StackTrack", "GSYVideoBaseManager::handleMessage HANDLER_PREPARE");
                     initVideo(msg);
                     break;
                 case HANDLER_SETDISPLAY:
                     break;
                 case HANDLER_RELEASE:
+                    Log.d("StackTrack", "GSYVideoBaseManager::handleMessage HANDLER_RELEASE");
                     if (playerManager != null) {
                         playerManager.release();
                     }
@@ -580,6 +586,7 @@ public abstract class GSYVideoBaseManager implements IMediaPlayer.OnPreparedList
                     cancelTimeOutBuffer();
                     break;
                 case HANDLER_RELEASE_SURFACE:
+                    Log.d("StackTrack", "GSYVideoBaseManager::handleMessage HANDLER_RELEASE_SURFACE");
                     releaseSurface(msg);
                     break;
             }
@@ -588,6 +595,7 @@ public abstract class GSYVideoBaseManager implements IMediaPlayer.OnPreparedList
     }
 
     private void initVideo(Message msg) {
+        Log.d("StackTrack", "GSYVideoBaseManager::initVideo");
         try {
             currentVideoWidth = 0;
             currentVideoHeight = 0;

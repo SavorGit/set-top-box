@@ -552,31 +552,11 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
     }
 
     private void setAndPrepare() {
-        if (setMediaPlayerSource(false)) {
-            if (isVideoAds) {
-                prepareMediaPlayer();
-            }
-        } else {
-            if (mForcePlayFromStart) {
-                // 强制从头播放
-                mForcePlayFromStart = false;
-                mCurrentFileIndex = 0;
-                mAssignedPlayPosition = 0;
-            } else {
-                // 播放下一个
-                mCurrentFileIndex = (mCurrentFileIndex + 1) % mMediaFiles.size();
-                mAssignedPlayPosition = 0;
-            }
-
-            if (mIsLooping) {
-                // 重置播放器状态，以备下次播放
-                LogFileUtil.write(TAG + " will resetAndPreparePlayer at method setAndPrepare" + " " + SavorVideoView.this.hashCode());
-                resetAndPreparePlayer();
-            }
-        }
+        setAndPrepare(false);
     }
 
     private void setAndPrepare(boolean isResume) {
+        Log.d("StackTrack", "SavorVideoView::setAndPrepare isResume?" + isResume);
         if (setMediaPlayerSource(isResume)) {
             if (isVideoAds) {
                 prepareMediaPlayer();
@@ -738,6 +718,7 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
      */
     public void release() {
         LogUtils.w(TAG + " release " + SavorVideoView.this.hashCode());
+        Log.d("StackTrack", "SavorVideoView::release");
         if (mVideoPlayer != null) {
             mVideoPlayer.release();
         }

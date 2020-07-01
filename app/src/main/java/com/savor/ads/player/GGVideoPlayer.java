@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import com.savor.ads.R;
 import com.savor.ads.bean.MediaPlayerError;
@@ -225,7 +226,7 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
     /**
      * 设置播放数据源
      */
-    private boolean setMediaPlayerSource(boolean change) {
+    private boolean setMediaPlayerSource(boolean changeState) {
         LogUtils.w(TAG + " setMediaPlayerSource " + GGVideoPlayer.this.hashCode());
         LogFileUtil.write(TAG + " setMediaPlayerSource " + GGVideoPlayer.this.hashCode());
         Map<String, String> mapHeadData =null;
@@ -235,7 +236,7 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
         mHandler.removeCallbacksAndMessages(null);
 
         super.setStartAfterPrepared(false);
-        super.setUp(mMediaPath, false, file, "",change);
+        super.setUp(mMediaPath, false, file, "", changeState);
 
         return true;
     }
@@ -251,6 +252,8 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
      * 准备播放
      */
     private void prepareMediaPlayer() {
+        Log.d("StackTrack", "GGVideoPlayer::prepareMediaPlayer by " + this.hashCode() + " at Thread:" + Thread.currentThread().getName());
+
         super.prepareVideo();
 
         if (mIfHandlePrepareTimeout) {
@@ -290,8 +293,10 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
         setAndPrepare(false);
     }
 
-    private void setAndPrepare(boolean change) {
-        setMediaPlayerSource(change);
+    private void setAndPrepare(boolean changeState) {
+        Log.d("StackTrack", "GGVideoPlayer::setAndPrepare by " + this.hashCode() + " at Thread:" + Thread.currentThread().getName());
+
+        setMediaPlayerSource(changeState);
         prepareMediaPlayer();
 
 //        if (setMediaPlayerSource()) {
@@ -355,6 +360,7 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
      */
     public void release() {
         LogUtils.w(TAG + " release mPlayState: " + GGVideoPlayer.this.hashCode());
+        Log.d("StackTrack", "GGVideoPlayer::release");
         super.release();
     }
 
@@ -435,30 +441,15 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
 
     @Override
     public void setSource(String mediaPath, String mediaTag, int seekPosition) {
-        LogUtils.w(TAG + " setSource " + GGVideoPlayer.this.hashCode());
-        LogFileUtil.write(TAG + " setSource " + GGVideoPlayer.this.hashCode());
-        mIsPauseByOut = false;
-        if (!TextUtils.isEmpty(mediaPath)) {
-            mAssignedPlayPosition = seekPosition;
-
-            mMediaPath = mediaPath;
-            mMediaTag = mediaTag;
-
-            if (!hasKnownPrefix(mMediaPath)) {
-                mMediaPath = "file://" + mMediaPath;
-            }
-
-            initPlayer();
-
-            setAndPrepare();
-            changeRotate();
-        }
+        setSource(mediaPath, mediaTag, seekPosition, false);
     }
 
     @Override
     public void setSource(String mediaPath, String mediaTag, int seekPosition, boolean changeState) {
         LogUtils.w(TAG + " setSource " + GGVideoPlayer.this.hashCode());
         LogFileUtil.write(TAG + " setSource " + GGVideoPlayer.this.hashCode());
+        Log.d("StackTrack", "GGVideoPlayer::setSource by " + this.hashCode() + " at Thread:" + Thread.currentThread().getName());
+
         mIsPauseByOut = false;
         if (!TextUtils.isEmpty(mediaPath)) {
             mAssignedPlayPosition = seekPosition;

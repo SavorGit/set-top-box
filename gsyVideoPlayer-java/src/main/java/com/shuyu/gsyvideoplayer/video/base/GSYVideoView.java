@@ -13,6 +13,7 @@ import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.InflateException;
 import android.view.Surface;
 import android.view.View;
@@ -318,6 +319,8 @@ public abstract class GSYVideoView extends GSYTextureRenderView implements GSYMe
     }
 
     protected void startPrepare() {
+        Log.d("StackTrack", "GSYVideoView::startPrepare by " + this.hashCode() + " at Thread:" + Thread.currentThread().getName());
+
         if (getGSYVideoManager().listener() != null) {
             getGSYVideoManager().listener().onCompletion();
         }
@@ -779,10 +782,14 @@ public abstract class GSYVideoView extends GSYTextureRenderView implements GSYMe
      * 释放吧
      */
     public void release() {
+        Log.d("StackTrack", "GSYVideoView::release by " + this.hashCode() + " on Thread: " + Thread.currentThread().getName());
+
         mSaveChangeViewTIme = 0;
         if (isCurrentMediaListener() &&
                 (System.currentTimeMillis() - mSaveChangeViewTIme) > CHANGE_DELAY_TIME) {
             releaseVideos();
+        } else {
+            Log.w("StackTrack", "GSYVideoView::release but not real trigger releaseVideos() by " + this.hashCode() + " on Thread: " + Thread.currentThread().getName());
         }
     }
 

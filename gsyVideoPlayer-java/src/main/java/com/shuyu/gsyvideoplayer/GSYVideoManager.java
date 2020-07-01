@@ -4,6 +4,7 @@ package com.shuyu.gsyvideoplayer;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -97,6 +98,7 @@ public class GSYVideoManager extends GSYVideoBaseManager {
      * 页面销毁了记得调用是否所有的video
      */
     public static void releaseAllVideos() {
+        Log.d("StackTrack", "GSYVideoManager::releaseAllVideos");
         if (GSYVideoManager.instance().listener() != null) {
             GSYVideoManager.instance().listener().onCompletion();
         }

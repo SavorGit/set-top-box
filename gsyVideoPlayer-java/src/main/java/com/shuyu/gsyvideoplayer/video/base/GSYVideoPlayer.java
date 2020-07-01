@@ -2,6 +2,7 @@ package com.shuyu.gsyvideoplayer.video.base;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
 
@@ -44,6 +45,8 @@ public abstract class GSYVideoPlayer extends GSYBaseVideoPlayer {
 
     @Override
     protected void releaseVideos() {
+        Log.d("StackTrack", "GSYVideoPlayer::releaseVideos by " + this.hashCode() + " on Thread: " + Thread.currentThread().getName());
+
         GSYVideoManager.releaseAllVideos();
     }
 

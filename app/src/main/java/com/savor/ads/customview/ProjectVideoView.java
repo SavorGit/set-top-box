@@ -312,6 +312,7 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
     }
 
     private void setAndPrepare() {
+        Log.d("StackTrack", "ProjectVideoView::setAndPrepare");
         if (setMediaPlayerSource()) {
             if (isVideoAds) {
                 prepareMediaPlayer();
@@ -402,6 +403,7 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
      */
     public void release() {
         LogUtils.w(TAG + " release " + ProjectVideoView.this.hashCode());
+        Log.d("StackTrack", "ProjectVideoView::release");
         if (mVideoPlayer != null) {
             mVideoPlayer.release();
         }

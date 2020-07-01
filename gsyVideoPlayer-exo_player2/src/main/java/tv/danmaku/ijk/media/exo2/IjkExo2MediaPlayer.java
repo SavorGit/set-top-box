@@ -9,6 +9,7 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.annotation.Size;
 
+import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
@@ -331,6 +332,7 @@ public class IjkExo2MediaPlayer extends AbstractMediaPlayer implements Player.Ev
 
     @Override
     public void release() {
+        Log.d("StackTrack", "IjkExo2MediaPlayer::release by " + this.hashCode() + " at Thread:" + Thread.currentThread().getName());
         if (mInternalPlayer != null) {
             reset();
             mEventLogger = null;

@@ -5,6 +5,7 @@ import android.media.AudioManager;
 import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.Message;
+import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.Nullable;
@@ -45,6 +46,8 @@ public class Exo2PlayerManager extends BasePlayerManager {
 
     @Override
     public void initVideoPlayer(Context context, Message msg, List<VideoOptionModel> optionModelList, ICacheManager cacheManager) {
+        Log.d("StackTrack", "Exo2PlayerManager::initVideoPlayer by " + this.hashCode() + " at Thread:" + Thread.currentThread().getName());
+
         this.context = context.getApplicationContext();
         mediaPlayer = new IjkExo2MediaPlayer(context);
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -122,6 +125,7 @@ public class Exo2PlayerManager extends BasePlayerManager {
 
     @Override
     public void release() {
+        Log.d("StackTrack", "Exo2PlayerManager::release");
         if (mediaPlayer != null) {
             mediaPlayer.setSurface(null);
             mediaPlayer.release();
