@@ -358,19 +358,19 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
     }
 
     /**
-     * 所在页面onPause时请调用此方法处理，类似的还有{@link #onResume()}
+     * 所在页面onPause时请调用此方法处理
      */
-    public void onPause() {
-        if (mVideoPlayer != null) {
-            try {
-                // 记录播放进度
-                mAssignedPlayPosition = mVideoPlayer.getCurrentPosition();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            release();
-        }
-    }
+//    public void onPause() {
+//        if (mVideoPlayer != null) {
+//            try {
+//                // 记录播放进度
+//                mAssignedPlayPosition = mVideoPlayer.getCurrentPosition();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//            release();
+//        }
+//    }
 
     public void onStop() {
         LogUtils.w(TAG + " onPause " + ProjectVideoView.this.hashCode());
@@ -384,17 +384,17 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
     }
 
     /**
-     * 所在页面onResume时请调用此方法处理，类似的还有{@link #onPause()}
+     * 所在页面onResume时请调用此方法处理
      */
-    public void onResume() {
-        LogUtils.w(TAG + " onResume " + ProjectVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " onResume " + ProjectVideoView.this.hashCode());
-
-        mIsPauseByOut = false;
-        if (mMediaFiles != null && mMediaFiles.size() > 0) {
-            setAndPrepare();
-        }
-    }
+//    public void onResume() {
+//        LogUtils.w(TAG + " onResume " + ProjectVideoView.this.hashCode());
+//        LogFileUtil.write(TAG + " onResume " + ProjectVideoView.this.hashCode());
+//
+//        mIsPauseByOut = false;
+//        if (mMediaFiles != null && mMediaFiles.size() > 0) {
+//            setAndPrepare();
+//        }
+//    }
 
 
     /**

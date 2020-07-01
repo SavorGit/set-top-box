@@ -1441,6 +1441,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 if (!GlobalValues.PROJECT_IMAGES.contains(path)&&!isBreaks) {
                     GlobalValues.PROJECT_IMAGES.add(path);
                 }
+                if (GlobalValues.PROJECT_IMAGES.size()==1){
+                    postProjectionResourceLog(params);
+                }
                 LogUtils.d("img_nums:="+img_nums
                         +"|||PROJECT_IMAGES:="+GlobalValues.PROJECT_IMAGES
                         +"|||PROJECT_FAIL_IMAGES:="+GlobalValues.PROJECT_FAIL_IMAGES);
@@ -1490,7 +1493,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         }
                     }
                 },1000);
-                postProjectionResourceLog(params);
             }else{
                 handler.postDelayed(downloadFileRunnable,500);
             }
@@ -1522,8 +1524,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private void adjustVideo(int value){
         Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
         if (activity instanceof AdsPlayerActivity){
-
-            ((AdsPlayerActivity) activity).changeMedia(value);
+            handler.post(()-> ((AdsPlayerActivity) activity).changeMedia(value));
         }
     }
 

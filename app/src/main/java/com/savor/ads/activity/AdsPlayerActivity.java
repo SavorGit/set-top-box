@@ -655,24 +655,26 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             }
         } else {
             GlobalValues.IS_BOX_BUSY = true;
-            mSavorVideoView.onResume();
             ShowMessage.showToast(mContext, "视频节目准备中，即将开始播放");
-//            mSavorVideoView.postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-            if (AppUtils.isSVT()){
-                        setVolume(mSession.getVodVolume());
-                    }else {
-                        setVolume(mSession.getVolume());
-                    }
-            GlobalValues.mIsGoneToTv = false;
-            GlobalValues.IS_BOX_BUSY = false;
-//                }
-//            }, 500 * DELAY_TIME);
+            mSavorVideoView.postDelayed(resumeRunnable, 1000 * DELAY_TIME);
         }
 
-//        toCheckMediaIsShowMiniProgramIcon();
     }
+
+
+    private Runnable resumeRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (AppUtils.isSVT()){
+                setVolume(mSession.getVodVolume());
+            }else {
+                setVolume(mSession.getVolume());
+            }
+            mSavorVideoView.onResume();
+            GlobalValues.mIsGoneToTv = false;
+            GlobalValues.IS_BOX_BUSY = false;
+        }
+    };
 
 
     public void toCheckMediaIsShowMiniProgramIcon(){
@@ -761,6 +763,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     protected void onPause() {
         LogFileUtil.write("AdsPlayerActivity onPause " + this.hashCode());
         mSavorVideoView.onPause();
+        mSavorVideoView.removeCallbacks(resumeRunnable);
         GlobalValues.mIsGoneToTv = true;
         priceLayout.setVisibility(View.GONE);
         goodsTitleLayout.setVisibility(View.GONE);

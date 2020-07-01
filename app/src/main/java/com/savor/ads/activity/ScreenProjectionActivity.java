@@ -1305,21 +1305,21 @@ public class ScreenProjectionActivity extends BaseActivity{
     @Override
     protected void onResume() {
         super.onResume();
-        if (mIsFirstResume) {
-            mIsFirstResume = false;
-        } else {
-            if (ConstantValues.PROJECT_TYPE_VIDEO_VOD.equals(mProjectType)
-                    || ConstantValues.PROJECT_TYPE_VIDEO.equals(mProjectType)
-                    || ConstantValues.PROJECT_TYPE_VIDEO_BIRTHDAY.equals(mProjectType)) {
-                mSavorVideoView.onResume();
-            }
-        }
+//        if (mIsFirstResume) {
+//            mIsFirstResume = false;
+//        } else {
+//            if (ConstantValues.PROJECT_TYPE_VIDEO_VOD.equals(mProjectType)
+//                    || ConstantValues.PROJECT_TYPE_VIDEO.equals(mProjectType)
+//                    || ConstantValues.PROJECT_TYPE_VIDEO_BIRTHDAY.equals(mProjectType)) {
+//                mSavorVideoView.onResume();
+//            }
+//        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mSavorVideoView.onPause();
+//        mSavorVideoView.onPause();
     }
 
     @Override
