@@ -1066,6 +1066,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
 
         ProjectOperationListener.getInstance(context).stop(GlobalValues.CURRENT_PROJECT_ID);
         Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+        if (this.miniProgramProjection!=null){
+            projectionIdMap.put(miniProgramProjection.getForscreen_id(),PROJECTION_STATE_BREAK);
+        }
         if (activity instanceof ScreenProjectionActivity&&this.miniProgramProjection!=null){
             try {
                 HashMap<String, Object> params = new HashMap<>();
