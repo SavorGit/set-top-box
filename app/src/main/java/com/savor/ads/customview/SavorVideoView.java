@@ -798,6 +798,17 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
         resetAndPreparePlayer();
     }
 
+
+    public void playCurrentVideo() {
+        LogUtils.w(TAG + " playNext " + SavorVideoView.this.hashCode());
+        LogFileUtil.write(TAG + " playNext " + SavorVideoView.this.hashCode());
+        stopInner();
+        mIsPauseByOut = false;
+        mAssignedPlayPosition = 0;
+        mCurrentFileIndex = (mCurrentFileIndex) % mMediaFiles.size();
+        LogUtils.w(TAG + " mCurrentFileIndex:" + mCurrentFileIndex + " size = " + mMediaFiles.size() + " " + SavorVideoView.this.hashCode());
+        resetAndPreparePlayer();
+    }
     /**
      * 播放上一条
      */
