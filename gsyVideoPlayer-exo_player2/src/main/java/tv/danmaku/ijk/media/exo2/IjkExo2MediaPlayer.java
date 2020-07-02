@@ -375,6 +375,8 @@ public class IjkExo2MediaPlayer extends AbstractMediaPlayer implements Player.Ev
                         if (mSpeedPlaybackParameters != null) {
                             mInternalPlayer.setPlaybackParameters(mSpeedPlaybackParameters);
                         }
+                        Log.d("StackTrack", "IjkExo2MediaPlayer::prepareAsyncInternal will setVideoSurface with " + mSurface +
+                                " isValid?" + (mSurface == null? null:mSurface.isValid()));
                         if (mSurface != null)
                             mInternalPlayer.setVideoSurface(mSurface);
 
