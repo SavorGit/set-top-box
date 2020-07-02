@@ -241,7 +241,7 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
             } else {
                 post(()->mImgView.setVisibility(View.GONE));
             }
-            mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex));
+            mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex),0,false);
             orientationUtils = new OrientationUtils((Activity) mContext,(GGVideoPlayer)mVideoPlayer);
         }
 
