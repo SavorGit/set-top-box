@@ -92,7 +92,6 @@ public abstract class GSYTextureRenderView extends FrameLayout implements IGSYSu
 
     @Override
     public void onSurfaceUpdated(Surface surface) {
-        Log.d("StackTrack", "GSYTextureRenderView::onSurfaceUpdated");
         //如果播放的是暂停全屏了
         releasePauseCover();
     }

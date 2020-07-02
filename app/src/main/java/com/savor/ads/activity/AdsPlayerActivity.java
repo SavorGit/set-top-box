@@ -658,7 +658,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         } else {
             GlobalValues.IS_BOX_BUSY = true;
             ShowMessage.showToast(mContext, "视频节目准备中，即将开始播放");
-//            mSavorVideoView.postDelayed(resumeRunnable, 500 * DELAY_TIME);
             if (AppUtils.isSVT()){
                 setVolume(mSession.getVodVolume());
             }else {
@@ -671,23 +670,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         }
 
     }
-
-
-    private Runnable resumeRunnable = new Runnable() {
-        @Override
-        public void run() {
-            Log.d("StackTrack", "AdsPlayerActivity::resumeRunnable::run");
-            if (AppUtils.isSVT()){
-                setVolume(mSession.getVodVolume());
-            }else {
-                setVolume(mSession.getVolume());
-            }
-            mSavorVideoView.onResume();
-            GlobalValues.mIsGoneToTv = false;
-            GlobalValues.IS_BOX_BUSY = false;
-            mSavorVideoView.postDelayed(currentVideoRunnable, 2000 * DELAY_TIME);
-        }
-    };
 
     Runnable currentVideoRunnable = new Runnable() {
         @Override
@@ -784,7 +766,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         LogFileUtil.write("AdsPlayerActivity onPause " + this.hashCode());
         Log.d("StackTrack", "AdsPlayerActivity::onPause");
         mSavorVideoView.onPause();
-//        mSavorVideoView.removeCallbacks(resumeRunnable);
         mSavorVideoView.removeCallbacks(currentVideoRunnable);
         GlobalValues.mIsGoneToTv = true;
         priceLayout.setVisibility(View.GONE);
