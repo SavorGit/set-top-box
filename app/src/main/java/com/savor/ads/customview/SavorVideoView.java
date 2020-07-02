@@ -701,6 +701,7 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
     public void onResume() {
         LogUtils.w(TAG + " onResume " + SavorVideoView.this.hashCode());
         LogFileUtil.write(TAG + " onResume " + SavorVideoView.this.hashCode());
+        Log.d("StackTrack", "SavorVideoView::onResume " + this.hashCode());
         mIsPauseByOut = false;
         isResume = true;
         if (mMediaFiles != null && mMediaFiles.size() > 0) {

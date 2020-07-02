@@ -186,7 +186,7 @@ public abstract class GSYVideoBaseManager implements IMediaPlayer.OnPreparedList
 
     @Override
     public void setLastListener(GSYMediaPlayerListener lastListener) {
-        Log.d("StackTrack", "GSYVideoBaseManager::setLastListener to " + listener);
+        Log.d("StackTrack", "GSYVideoBaseManager::setLastListener to " + lastListener);
         if (lastListener == null)
             this.lastListener = null;
         else

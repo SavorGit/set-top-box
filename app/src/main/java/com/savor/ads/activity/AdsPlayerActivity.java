@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
@@ -646,6 +647,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             new Handler().postDelayed(()->ShellUtils.setAmvecmPcMode(), 3000);
         }
         LogFileUtil.write("AdsPlayerActivity onResume " + this.hashCode());
+        Log.d("StackTrack", "AdsPlayerActivity::onResume");
         mActivityResumeTime = System.currentTimeMillis();
         if (!GlobalValues.mIsGoneToTv) {
             if (AppUtils.isSVT()){
@@ -665,6 +667,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     private Runnable resumeRunnable = new Runnable() {
         @Override
         public void run() {
+            Log.d("StackTrack", "AdsPlayerActivity::resumeRunnable::run");
             if (AppUtils.isSVT()){
                 setVolume(mSession.getVodVolume());
             }else {
@@ -762,6 +765,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     @Override
     protected void onPause() {
         LogFileUtil.write("AdsPlayerActivity onPause " + this.hashCode());
+        Log.d("StackTrack", "AdsPlayerActivity::onPause");
         mSavorVideoView.onPause();
         mSavorVideoView.removeCallbacks(resumeRunnable);
         GlobalValues.mIsGoneToTv = true;
