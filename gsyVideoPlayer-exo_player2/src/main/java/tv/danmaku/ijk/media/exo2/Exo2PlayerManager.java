@@ -50,6 +50,8 @@ public class Exo2PlayerManager extends BasePlayerManager {
 
         this.context = context.getApplicationContext();
         mediaPlayer = new IjkExo2MediaPlayer(context);
+        Log.d("StackTrack", "Exo2PlayerManager::initVideoPlayer release player:" +
+                (mediaPlayer != null ? mediaPlayer.hashCode() : null));
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         if (dummySurface == null) {
             dummySurface = DummySurface.newInstanceV17(context, false);
@@ -125,7 +127,8 @@ public class Exo2PlayerManager extends BasePlayerManager {
 
     @Override
     public void release() {
-        Log.d("StackTrack", "Exo2PlayerManager::release");
+        Log.d("StackTrack", "Exo2PlayerManager::release release player:" +
+                (mediaPlayer != null ? mediaPlayer.hashCode() : null));
         if (mediaPlayer != null) {
             mediaPlayer.setSurface(null);
             mediaPlayer.release();

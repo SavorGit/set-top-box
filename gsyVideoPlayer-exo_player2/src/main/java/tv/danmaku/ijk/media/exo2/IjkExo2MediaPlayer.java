@@ -271,6 +271,7 @@ public class IjkExo2MediaPlayer extends AbstractMediaPlayer implements Player.Ev
 
     @Override
     public void reset() {
+        Log.d("StackTrack", "IjkExo2MediaPlayer::reset will release real exo player:" + mInternalPlayer);
         if (mInternalPlayer != null) {
             mInternalPlayer.release();
             mInternalPlayer = null;
@@ -361,10 +362,12 @@ public class IjkExo2MediaPlayer extends AbstractMediaPlayer implements Player.Ev
                         if (mLoadControl == null) {
                             mLoadControl = new DefaultLoadControl();
                         }
+
                         mInternalPlayer = new SimpleExoPlayer.Builder(mAppContext, mRendererFactory)
                                 .setLooper(Looper.getMainLooper())
                                 .setTrackSelector(mTrackSelector)
                                 .setLoadControl(mLoadControl).build();
+                        Log.d("StackTrack", "IjkExo2MediaPlayer::prepareAsyncInternal just new a real exo player:" + mInternalPlayer);
                         mInternalPlayer.addListener(IjkExo2MediaPlayer.this);
                         mInternalPlayer.addAnalyticsListener(IjkExo2MediaPlayer.this);
                         mInternalPlayer.addListener(mEventLogger);
