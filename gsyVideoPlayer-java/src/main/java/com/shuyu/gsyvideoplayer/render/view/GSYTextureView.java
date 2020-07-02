@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
@@ -60,6 +61,7 @@ public class GSYTextureView extends TextureView implements TextureView.SurfaceTe
 
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+        Log.d("StackTrack", "GSYTextureView::onSurfaceTextureAvailable");
         if (GSYVideoType.isMediaCodecTexture()) {
             if (mSaveTexture == null) {
                 mSaveTexture = surface;
@@ -80,6 +82,7 @@ public class GSYTextureView extends TextureView implements TextureView.SurfaceTe
 
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+        Log.d("StackTrack", "GSYTextureView::onSurfaceTextureSizeChanged");
         if (mIGSYSurfaceListener != null) {
             mIGSYSurfaceListener.onSurfaceSizeChanged(mSurface, width, height);
         }
@@ -87,7 +90,7 @@ public class GSYTextureView extends TextureView implements TextureView.SurfaceTe
 
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-
+        Log.d("StackTrack", "GSYTextureView::onSurfaceTextureDestroyed");
         //清空释放
         if (mIGSYSurfaceListener != null) {
             mIGSYSurfaceListener.onSurfaceDestroyed(mSurface);

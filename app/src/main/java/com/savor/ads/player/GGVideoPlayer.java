@@ -244,6 +244,7 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void addTextureView() {
+        Log.d("StackTrack", "GGVideoPlayer::addTextureView");
         mTextureView = new MediaCodecRenderView();
         mTextureView.addView(getContext(), mTextureViewContainer, mRotate, this, this, mEffectFilter, mMatrixGL, mRenderer, mMode);
     }

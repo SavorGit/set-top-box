@@ -6,6 +6,7 @@ import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.ViewGroup;
@@ -70,16 +71,18 @@ public abstract class GSYTextureRenderView extends FrameLayout implements IGSYSu
 
     @Override
     public void onSurfaceAvailable(Surface surface) {
+        Log.d("StackTrack", "GSYTextureRenderView::onSurfaceAvailable");
         pauseLogic(surface, (mTextureView != null && mTextureView.getShowView() instanceof TextureView));
     }
 
     @Override
     public void onSurfaceSizeChanged(Surface surface, int width, int height) {
-
+        Log.d("StackTrack", "GSYTextureRenderView::onSurfaceSizeChanged");
     }
 
     @Override
     public boolean onSurfaceDestroyed(Surface surface) {
+        Log.d("StackTrack", "GSYTextureRenderView::onSurfaceDestroyed");
         //清空释放
         setDisplay(null);
         //同一消息队列中去release
@@ -89,6 +92,7 @@ public abstract class GSYTextureRenderView extends FrameLayout implements IGSYSu
 
     @Override
     public void onSurfaceUpdated(Surface surface) {
+        Log.d("StackTrack", "GSYTextureRenderView::onSurfaceUpdated");
         //如果播放的是暂停全屏了
         releasePauseCover();
     }

@@ -128,6 +128,7 @@ public class IjkExo2MediaPlayer extends AbstractMediaPlayer implements Player.Ev
 
     @Override
     public void setSurface(Surface surface) {
+        Log.d("StackTrack", "setSurface surface:" + surface + " Valid?" + (surface != null ? surface.isValid() : false));
         mSurface = surface;
         if (mInternalPlayer != null) {
             if (surface != null && !surface.isValid()) {
