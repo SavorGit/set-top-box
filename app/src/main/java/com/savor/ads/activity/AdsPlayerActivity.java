@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Point;
+import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -651,7 +652,9 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         mActivityResumeTime = System.currentTimeMillis();
         if (!GlobalValues.mIsGoneToTv) {
             if (AppUtils.isSVT()){
-                setVolume(mSession.getVodVolume());
+                if (mAudioManager != null) {
+                    mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mSession.getVodVolume(), 0);
+                }
             }else {
                 setVolume(mSession.getVolume());
             }
@@ -659,7 +662,9 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             GlobalValues.IS_BOX_BUSY = true;
             ShowMessage.showToast(mContext, "视频节目准备中，即将开始播放");
             if (AppUtils.isSVT()){
-                setVolume(mSession.getVodVolume());
+                if (mAudioManager != null) {
+                    mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mSession.getVodVolume(), 0);
+                }
             }else {
                 setVolume(mSession.getVolume());
             }
