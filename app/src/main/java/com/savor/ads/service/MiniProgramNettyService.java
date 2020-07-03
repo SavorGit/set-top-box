@@ -8,7 +8,6 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -152,7 +151,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     }
 
 
-    @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return adsBinder;
@@ -1066,6 +1064,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
 
         ProjectOperationListener.getInstance(context).stop(GlobalValues.CURRENT_PROJECT_ID);
         Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+        if (this.miniProgramProjection!=null){
+            projectionIdMap.put(miniProgramProjection.getForscreen_id(),PROJECTION_STATE_BREAK);
+        }
         if (activity instanceof ScreenProjectionActivity&&this.miniProgramProjection!=null){
             try {
                 HashMap<String, Object> params = new HashMap<>();
@@ -1441,6 +1442,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 if (!GlobalValues.PROJECT_IMAGES.contains(path)&&!isBreaks) {
                     GlobalValues.PROJECT_IMAGES.add(path);
                 }
+                if (GlobalValues.PROJECT_IMAGES.size()==1){
+                    postProjectionResourceLog(params);
+                }
                 LogUtils.d("img_nums:="+img_nums
                         +"|||PROJECT_IMAGES:="+GlobalValues.PROJECT_IMAGES
                         +"|||PROJECT_FAIL_IMAGES:="+GlobalValues.PROJECT_FAIL_IMAGES);
@@ -1490,7 +1494,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         }
                     }
                 },1000);
-                postProjectionResourceLog(params);
             }else{
                 handler.postDelayed(downloadFileRunnable,500);
             }
@@ -1522,8 +1525,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private void adjustVideo(int value){
         Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
         if (activity instanceof AdsPlayerActivity){
-
-            ((AdsPlayerActivity) activity).changeMedia(value);
+            handler.post(()-> ((AdsPlayerActivity) activity).changeMedia(value));
         }
     }
 
