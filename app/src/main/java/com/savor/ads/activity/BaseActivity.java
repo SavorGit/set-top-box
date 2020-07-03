@@ -485,7 +485,7 @@ public abstract class BaseActivity extends Activity implements InputBoiteIdDialo
     }
 
     protected void setVolume(int volume) {
-        if (AppUtils.isMstar()||AppUtils.isSVT()) {
+        if (AppUtils.isMstar()) {
             if (mAudioSkin != null) {
                 if (volume > 100)
                     volume = 100;

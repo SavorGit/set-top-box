@@ -660,7 +660,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             }
         } else {
             GlobalValues.IS_BOX_BUSY = true;
-            ShowMessage.showToast(mContext, "视频节目准备中，即将开始播放");
             if (AppUtils.isSVT()){
                 if (mAudioManager != null) {
                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mSession.getVodVolume(), 0);
