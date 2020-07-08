@@ -554,7 +554,7 @@ public class RemoteService extends Service {
                 VideoPrepareRequestVo req = (new Gson()).fromJson(reqJson, VideoPrepareRequestVo.class);
                 if (!TextUtils.isEmpty(req.getMediaPath())) {
 
-                    BaseResponse object = RemoteService.listener.showVideo(req.getMediaPath(), req.getPosition(), TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_DEVICE_ID),GlobalValues.FROM_SERVICE_REMOTE);
+                    BaseResponse object = RemoteService.listener.showVideo(req.getMediaPath(),TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_DEVICE_ID),GlobalValues.FROM_SERVICE_REMOTE);
                     if (object.getCode() == AppApi.HTTP_RESPONSE_STATE_SUCCESS) {
                         GlobalValues.CURRENT_PROJECT_DEVICE_ID = deviceId;
                         GlobalValues.CURRENT_PROJECT_DEVICE_NAME = deviceName;
@@ -585,7 +585,7 @@ public class RemoteService extends Service {
                         VideoPrepareRequestVo req = (new Gson()).fromJson(reqJson, VideoPrepareRequestVo.class);
                         if (!TextUtils.isEmpty(req.getMediaPath())) {
 
-                            BaseResponse object = RemoteService.listener.showVideo(req.getMediaPath(), req.getPosition(), true,GlobalValues.FROM_SERVICE_REMOTE);
+                            BaseResponse object = RemoteService.listener.showVideo(req.getMediaPath(), true,GlobalValues.FROM_SERVICE_REMOTE);
                             if (object.getCode() == AppApi.HTTP_RESPONSE_STATE_SUCCESS) {
                                 // 通知上一个投屏者已被抢投
                                 if (!TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_DEVICE_IP)) {
@@ -762,7 +762,7 @@ public class RemoteService extends Service {
                                     String adspath = preOrNextAdsBean.getMediaPath();
                                     String adsduration = preOrNextAdsBean.getDuration();
                                     if (preOrNextAdsBean.getMedia_type()==1){
-                                        ProjectOperationListener.getInstance(context).showVideo(adspath, 0, true,forscreen_id, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                                        ProjectOperationListener.getInstance(context).showVideo(adspath,true,forscreen_id, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                                     }else{
                                         ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, "", avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                                     }
@@ -770,7 +770,7 @@ public class RemoteService extends Service {
                                     GlobalValues.PROJECTION_VIDEO_PATH = resultFile.getAbsolutePath();
                                 }else{
                                     GlobalValues.PROJECTION_VIDEO_PATH = null;
-                                    RemoteService.listener.showVideo(media_path, 0, true,forscreen_id,avatarUrl,nickName,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                                    RemoteService.listener.showVideo(media_path, true,forscreen_id,avatarUrl,nickName,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                                     postSimpleMiniProgramProjectionLog(action,duration,null,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,ConstantValues.SMALL_APP_ID_SIMPLE);
                                 }
 
@@ -780,7 +780,7 @@ public class RemoteService extends Service {
                             if (!TextUtils.isEmpty(play_time)&&!play_time.equals("0")){
                                 time = Integer.valueOf(play_time);
                             }
-                            RemoteService.listener.showRestVideo(resultFile.getAbsolutePath(), 0, true, avatarUrl, nickName,time);
+                            RemoteService.listener.showRestVideo(resultFile.getAbsolutePath(),true, avatarUrl, nickName,time);
                             postSimpleMiniProgramProjectionLog(action,duration,null,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,ConstantValues.SMALL_APP_ID_REST);
                         }
                         object = new BaseResponse();
@@ -1250,7 +1250,7 @@ public class RemoteService extends Service {
                             final String adsduration = preOrNextAdsBean.getDuration();
 
                             if (preOrNextAdsBean.getMedia_type()==1){
-                                ProjectOperationListener.getInstance(context).showVideo(adspath, 0, true,forscreen_id, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                                ProjectOperationListener.getInstance(context).showVideo(adspath,true,forscreen_id, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                             }else {
                                 ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, words, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                             }
@@ -1728,10 +1728,10 @@ public class RemoteService extends Service {
                     if (file.exists()){
                         ProjectOperationListener.getInstance(context).showVod(media_name, "3", 0, false, true,GlobalValues.FROM_SERVICE_REMOTE);
                     }else{
-                        ProjectOperationListener.getInstance(context).showVideo(media_url, 0, true,GlobalValues.FROM_SERVICE_REMOTE);
+                        ProjectOperationListener.getInstance(context).showVideo(media_url,true,GlobalValues.FROM_SERVICE_REMOTE);
                     }
                 }else{
-                    ProjectOperationListener.getInstance(context).showVideo(media_url, 0, true,GlobalValues.FROM_SERVICE_REMOTE);
+                    ProjectOperationListener.getInstance(context).showVideo(media_url, true,GlobalValues.FROM_SERVICE_REMOTE);
                 }
                 response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
             }catch (Exception e){
@@ -1788,12 +1788,12 @@ public class RemoteService extends Service {
                     String path = AppUtils.getFilePath(AppUtils.StorageFile.activity_ads) + media_name;
                     File file = new File(path);
                     if (file.exists()){
-                        ProjectOperationListener.getInstance(context).showVideo(path, 0,true,GlobalValues.FROM_SERVICE_REMOTE);
+                        ProjectOperationListener.getInstance(context).showVideo(path,true,GlobalValues.FROM_SERVICE_REMOTE);
                     }else{
-                        ProjectOperationListener.getInstance(context).showVideo(media_url, 0, true,GlobalValues.FROM_SERVICE_REMOTE);
+                        ProjectOperationListener.getInstance(context).showVideo(media_url,true,GlobalValues.FROM_SERVICE_REMOTE);
                     }
                 }else{
-                    ProjectOperationListener.getInstance(context).showVideo(media_url, 0, true,GlobalValues.FROM_SERVICE_REMOTE);
+                    ProjectOperationListener.getInstance(context).showVideo(media_url,true,GlobalValues.FROM_SERVICE_REMOTE);
                 }
                 response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
             }catch (Exception e){
@@ -1854,11 +1854,11 @@ public class RemoteService extends Service {
 
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.select_content)+filename;
                 if (new File(path).exists()){
-                    ProjectOperationListener.getInstance(context).showVideo(path, 0,true,GlobalValues.FROM_SERVICE_REMOTE);
+                    ProjectOperationListener.getInstance(context).showVideo(path,true,GlobalValues.FROM_SERVICE_REMOTE);
                 }else{
                     path =  AppUtils.getFilePath(AppUtils.StorageFile.media)+filename;
                     if (new File(path).exists()){
-                        ProjectOperationListener.getInstance(context).showVideo(path, 0,true,GlobalValues.FROM_SERVICE_REMOTE);
+                        ProjectOperationListener.getInstance(context).showVideo(path,true,GlobalValues.FROM_SERVICE_REMOTE);
                     }
                 }
                 response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
@@ -2033,14 +2033,14 @@ public class RemoteService extends Service {
                             File file = new File(path);
                             if (file.exists()){
                                 handler.post(()->projectionImgListDialog.setImgDownloadProgress(video_id,100+"%"));
-                                ProjectOperationListener.getInstance(context).showVideo(path, 0,true,GlobalValues.FROM_SERVICE_REMOTE);
+                                ProjectOperationListener.getInstance(context).showVideo(path,true,GlobalValues.FROM_SERVICE_REMOTE);
                             }else{
                                 handler.post(()->projectionImgListDialog.setImgDownloadProgress(video_id,100+"%"));
-                                ProjectOperationListener.getInstance(context).showVideo(url, 0, true,GlobalValues.FROM_SERVICE_REMOTE);
+                                ProjectOperationListener.getInstance(context).showVideo(url, true,GlobalValues.FROM_SERVICE_REMOTE);
                             }
                         }else{
                             handler.post(()->projectionImgListDialog.setImgDownloadProgress(video_id,100+"%"));
-                            ProjectOperationListener.getInstance(context).showVideo(url, 0, true,GlobalValues.FROM_SERVICE_REMOTE);
+                            ProjectOperationListener.getInstance(context).showVideo(url, true,GlobalValues.FROM_SERVICE_REMOTE);
                         }
                         closeProjectionDialog();
                         response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
@@ -2224,7 +2224,7 @@ public class RemoteService extends Service {
                                 projectShowImage(words,fid,0);
                             }
                         }else if (GlobalValues.PROJECTION_VIDEO_PATH!=null){
-                            ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH, 0, true,forscreenId, avatarUrl, nickName,GlobalValues.FROM_SERVICE_REMOTE);
+                            ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH,true,forscreenId, avatarUrl, nickName,GlobalValues.FROM_SERVICE_REMOTE);
                         }
                         GlobalValues.INTERACTION_ADS_PLAY=0;
                     }else if (GlobalValues.INTERACTION_ADS_PLAY==2){
@@ -2238,7 +2238,7 @@ public class RemoteService extends Service {
                                     projectShowImage(words,fid,0);
                                 }
                             }else if (GlobalValues.PROJECTION_VIDEO_PATH!=null){
-                                ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH, 0, true,forscreenId, avatarUrl, nickName,GlobalValues.FROM_SERVICE_REMOTE);
+                                ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH,true,forscreenId, avatarUrl, nickName,GlobalValues.FROM_SERVICE_REMOTE);
                             }
                         }
                         GlobalValues.INTERACTION_ADS_PLAY=0;
@@ -2247,7 +2247,7 @@ public class RemoteService extends Service {
                             String adspath = preOrNextAdsBean.getMediaPath();
                             String adsduration = preOrNextAdsBean.getDuration();
                             if (preOrNextAdsBean.getMedia_type()==1){
-                                ProjectOperationListener.getInstance(context).showVideo(adspath, 0, true,forscreenId, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                                ProjectOperationListener.getInstance(context).showVideo(adspath, true,forscreenId, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                             }else{
                                 ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreenId, words, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                             }

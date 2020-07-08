@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 
+import android.os.Message;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -38,6 +39,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.savor.ads.R;
+import com.savor.ads.bean.MediaFileBean;
 import com.savor.ads.bean.MediaPlayerError;
 import com.savor.ads.bean.MediaPlayerState;
 import com.savor.ads.player.GGVideoPlayer;
@@ -89,7 +91,7 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
 
     //    private MediaPlayer mMediaPlayer;
 //    private MediaPlayerState mPlayState;
-    private ArrayList<String> mMediaFiles;
+    private ArrayList<MediaFileBean> mMediaFiles;
 
     /**
      * 当前应该播放的源序号
@@ -141,15 +143,13 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
     };
 
     private PlayStateCallback mPlayStateCallback;
-    private Handler mHandler = new Handler();
     /**
      * 当前播放的是图片还是视频:视频true,图片false
      **/
-    private boolean isVideoAds = true;
     private int duration = 0;
     private int mSurfaceViewWidth;
     private int mSurfaceViewHeight;
-
+    private Handler mHandler = new Handler();
     public ProjectVideoView(Context context) {
         this(context, null);
     }
@@ -225,7 +225,7 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
     private boolean setMediaPlayerSource() {
         LogUtils.w(TAG + " setMediaPlayerSource " + ProjectVideoView.this.hashCode());
         LogFileUtil.write(TAG + " setMediaPlayerSource " + ProjectVideoView.this.hashCode());
-        if (mMediaFiles == null || mMediaFiles.isEmpty() || mCurrentFileIndex >= mMediaFiles.size() || TextUtils.isEmpty(mMediaFiles.get(mCurrentFileIndex))) {
+        if (mMediaFiles == null || mMediaFiles.isEmpty() || mCurrentFileIndex >= mMediaFiles.size()) {
             LogUtils.e(TAG + " setMediaPlayerSource in garbled source, mCurrentFileIndex =  " + mCurrentFileIndex + " " + ProjectVideoView.this.hashCode());
             LogFileUtil.write(TAG + " setMediaPlayerSource in garbled source, mCurrentFileIndex =  " + mCurrentFileIndex + " " + ProjectVideoView.this.hashCode());
             return false;
@@ -233,17 +233,22 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
 
         LogUtils.w("开始播放：" + mMediaFiles.get(mCurrentFileIndex) + " " + ProjectVideoView.this.hashCode());
 
-        String url = mMediaFiles.get(mCurrentFileIndex);
-        if (url.endsWith("mp4") || url.endsWith("MP4")) {
-            isVideoAds = true;
-            if (Looper.myLooper() == Looper.getMainLooper()) {
-                mImgView.setVisibility(View.GONE);
-            } else {
-                post(()->mImgView.setVisibility(View.GONE));
-            }
-            mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex),0,false);
-            orientationUtils = new OrientationUtils((Activity) mContext,(GGVideoPlayer)mVideoPlayer);
+        MediaFileBean bean = mMediaFiles.get(mCurrentFileIndex);
+        String url = bean.getUrl();
+        File cacheFile  = bean.getCacheFile();
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            mImgView.setVisibility(View.GONE);
+        } else {
+            post(()->mImgView.setVisibility(View.GONE));
         }
+        if (!TextUtils.isEmpty(url)&&cacheFile!=null){
+            mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex),0,false,true,cacheFile);
+        }else if (cacheFile!=null){
+            mVideoPlayer.setSource(cacheFile.getPath(), String.valueOf(mCurrentFileIndex),0,false);
+        }else if (!TextUtils.isEmpty(url)){
+            mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex),0,false);
+        }
+        orientationUtils = new OrientationUtils((Activity) mContext,(GGVideoPlayer)mVideoPlayer);
 
         return true;
     }
@@ -258,8 +263,9 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
             mProgressBar.setVisibility(VISIBLE);
         }
         if (mIfHandlePrepareTimeout) {
-            removeCallbacks(mPrepareTimeoutRunnable);
-            postDelayed(mPrepareTimeoutRunnable, MAX_PREPARE_TIME);
+            LogUtils.w(TAG + " postDelayed(mPrepareTimeoutRunnable, MAX_PREPARE_TIME) " + ProjectVideoView.this.hashCode());
+            mHandler.removeCallbacks(mPrepareTimeoutRunnable);
+            mHandler.postDelayed(mPrepareTimeoutRunnable, MAX_PREPARE_TIME);
         }
     }
 
@@ -314,9 +320,7 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
     private void setAndPrepare() {
         Log.d("StackTrack", "ProjectVideoView::setAndPrepare");
         if (setMediaPlayerSource()) {
-            if (isVideoAds) {
-                prepareMediaPlayer();
-            }
+            prepareMediaPlayer();
         } else {
             if (mForcePlayFromStart) {
                 // 强制从头播放
@@ -421,16 +425,12 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
      * 设置播放源
      *
      * @param mediaFiles       文件路径集合
-     * @param currentFileIndex 要播放的文件序号
-     * @param playPosition     文件播放进度
      */
-    public void setMediaFiles(ArrayList<String> mediaFiles, int currentFileIndex, int playPosition) {
+    public void setMediaFiles(ArrayList<MediaFileBean> mediaFiles) {
         LogUtils.w(TAG + "setMediaFiles " + ProjectVideoView.this.hashCode());
         LogFileUtil.write(TAG + " setMediaFiles " + ProjectVideoView.this.hashCode());
         mIsPauseByOut = false;
         if (mediaFiles != null && !mediaFiles.isEmpty()) {
-            mCurrentFileIndex = currentFileIndex;
-            mAssignedPlayPosition = playPosition;
             mMediaFiles = mediaFiles;
             mPlayVideoIv.setVisibility(GONE);
 
@@ -585,7 +585,8 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
     public boolean onMediaPrepared(String mediaTag) {
         if (mIfHandlePrepareTimeout) {
             // 准备开始播放移除Runnable
-            removeCallbacks(mPrepareTimeoutRunnable);
+            LogUtils.w(TAG + " removeCallbacks(mPrepareTimeoutRunnable) " + ProjectVideoView.this.hashCode());
+            mHandler.removeCallbacks(mPrepareTimeoutRunnable);
         }
 
         boolean beenAborted = false;

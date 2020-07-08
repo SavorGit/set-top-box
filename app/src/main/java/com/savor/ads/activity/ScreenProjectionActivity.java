@@ -34,6 +34,7 @@ import com.jar.savor.box.vo.SeekResponseVo;
 import com.jar.savor.box.vo.VolumeResponseVo;
 import com.savor.ads.R;
 import com.savor.ads.SavorApplication;
+import com.savor.ads.bean.MediaFileBean;
 import com.savor.ads.bean.MiniProgramProjection;
 import com.savor.ads.core.ApiRequestListener;
 import com.savor.ads.core.AppApi;
@@ -65,6 +66,7 @@ import pl.droidsonroids.gif.GifImageView;
 public class ScreenProjectionActivity extends BaseActivity{
 
     public static final String EXTRA_TYPE = "extra_type";
+    public static final String EXTRA_PATH = "extra_path";
     public static final String EXTRA_URL = "extra_url";
     public static final String EXTRA_WAITER_ICON_URL = "extra_waiter_icon_url";
     public static final String EXTRA_WAITER_NAME = "extra_waiter_name";
@@ -84,7 +86,6 @@ public class ScreenProjectionActivity extends BaseActivity{
     public static final String EXTRA_PROJECTION_WORDS = "extra_projection_words";
     public static final String EXTRA_PROJECTION_TIME = "extra_projection_time";
     public static final String EXTRA_MEDIA_ID = "extra_vid";
-    public static final String EXTRA_VIDEO_POSITION = "extra_video_position";
     public static final String EXTRA_IMAGE_ROTATION = "extra_image_rotation";
     public static final String EXTRA_IS_THUMBNAIL = "extra_is_thumbnail";
     public static final String EXTRA_IMAGE_TYPE = "extra_image_type";
@@ -117,6 +118,7 @@ public class ScreenProjectionActivity extends BaseActivity{
      * 媒体文件位置
      */
     private String mMediaPath;
+    private String mMediaUrl;
     /**
      * 视频ID（只有点播会传进来）
      */
@@ -229,7 +231,7 @@ public class ScreenProjectionActivity extends BaseActivity{
     /**
      * 视频初始位置
      */
-    private int mVideoInitPosition;
+//    private int mVideoInitPosition;
     /**
      * 日志用的投屏动作记录标识
      */
@@ -418,7 +420,8 @@ public class ScreenProjectionActivity extends BaseActivity{
     private void handleBundleData(Bundle bundle) {
         mIsThumbnail = bundle.getBoolean(EXTRA_IS_THUMBNAIL, true);
         mProjectType = bundle.getString(EXTRA_TYPE);
-        mMediaPath = bundle.getString(EXTRA_URL);
+        mMediaPath = bundle.getString(EXTRA_PATH);
+        mMediaUrl = bundle.getString(EXTRA_URL);
         avatar_url = bundle.getString(EXTRA_AVATAR_URL);
         nickname = bundle.getString(EXTRA_NICKNAME);
         waiterIconUrl = bundle.getString(EXTRA_WAITER_ICON_URL);
@@ -428,7 +431,6 @@ public class ScreenProjectionActivity extends BaseActivity{
             mMediaId = bundle.getString(EXTRA_MEDIA_ID, "");
         }
         from_service = bundle.getInt(EXTRA_FROM_SERVICE_ID);
-        mVideoInitPosition = bundle.getInt(EXTRA_VIDEO_POSITION);
         mImageRotationDegree = bundle.getInt(EXTRA_IMAGE_ROTATION);
         mImageType = bundle.getInt(EXTRA_IMAGE_TYPE);
         mImagePath = bundle.getString(EXTRA_IMAGE_PATH);
@@ -547,10 +549,15 @@ public class ScreenProjectionActivity extends BaseActivity{
             mHandler.removeCallbacks(mExitProjectionRunnable);
             mHandler.removeCallbacks(mShowMiniProgramQrCodeRunnable);
             mHandler.removeCallbacks(mCountDownRunnable);
-            ArrayList<String> list = new ArrayList<>();
-            list.add(mMediaPath);
+            ArrayList<MediaFileBean> list = new ArrayList<>();
+            MediaFileBean bean = new MediaFileBean();
+            bean.setUrl(mMediaUrl);
+            if (!TextUtils.isEmpty(mMediaPath)){
+                bean.setCacheFile(new File(mMediaPath));
+            }
+            list.add(bean);
 
-            mSavorVideoView.setMediaFiles(list, 0, mVideoInitPosition * 1000);
+            mSavorVideoView.setMediaFiles(list);
         }else if (ConstantValues.PROJECT_TYPE_VIDEO_BIRTHDAY.equals(mProjectType)){
             // 生日点播
             mSavorVideoView.setVisibility(View.VISIBLE);
@@ -561,10 +568,15 @@ public class ScreenProjectionActivity extends BaseActivity{
             mHandler.removeCallbacks(mExitProjectionRunnable);
             mHandler.removeCallbacks(mShowMiniProgramQrCodeRunnable);
             mHandler.removeCallbacks(mCountDownRunnable);
-            ArrayList<String> list = new ArrayList<>();
-            list.add(mMediaPath);
+            ArrayList<MediaFileBean> list = new ArrayList<>();
+            MediaFileBean bean = new MediaFileBean();
+            bean.setUrl(mMediaUrl);
+            if (!TextUtils.isEmpty(mMediaPath)){
+                bean.setCacheFile(new File(mMediaPath));
+            }
+            list.add(bean);
 
-            mSavorVideoView.setMediaFiles(list, 0, mVideoInitPosition * 1000);
+            mSavorVideoView.setMediaFiles(list);
         }else if (ConstantValues.PROJECT_TYPE_VIDEO.equals(mProjectType)) {
 
             if (currentAction==40){
@@ -586,10 +598,14 @@ public class ScreenProjectionActivity extends BaseActivity{
             mHandler.removeCallbacks(mExitProjectionRunnable);
             mHandler.removeCallbacks(mShowMiniProgramQrCodeRunnable);
             mHandler.removeCallbacks(mCountDownRunnable);
-            ArrayList<String> list = new ArrayList<>();
-            list.add(mMediaPath);
-//            mSavorVideoView.release();
-            mSavorVideoView.setMediaFiles(list, 0, mVideoInitPosition * 1000);
+            ArrayList<MediaFileBean> list = new ArrayList<>();
+            MediaFileBean bean = new MediaFileBean();
+            bean.setUrl(mMediaUrl);
+            if (!TextUtils.isEmpty(mMediaPath)){
+                bean.setCacheFile(new File(mMediaPath));
+            }
+            list.add(bean);
+            mSavorVideoView.setMediaFiles(list);
             mHandler.removeCallbacks(mCountDownRunnable);
             if (!TextUtils.isEmpty(delayTime)&&!"0".equals(delayTime)){
                 projectCountdowTipTV.setText(delayTime);
@@ -606,10 +622,15 @@ public class ScreenProjectionActivity extends BaseActivity{
             mHandler.removeCallbacks(mExitProjectionRunnable);
             mHandler.removeCallbacks(mShowMiniProgramQrCodeRunnable);
             mHandler.removeCallbacks(mCountDownRunnable);
-            ArrayList<String> list = new ArrayList<>();
-            list.add(mMediaPath);
+            ArrayList<MediaFileBean> list = new ArrayList<>();
+            MediaFileBean bean = new MediaFileBean();
+            bean.setUrl(mMediaUrl);
+            if (!TextUtils.isEmpty(mMediaPath)){
+                bean.setCacheFile(new File(mMediaPath));
+            }
+            list.add(bean);
 
-            mSavorVideoView.setMediaFiles(list, 0, mVideoInitPosition * 1000);
+            mSavorVideoView.setMediaFiles(list);
             if (projectionTime==0){
                 rescheduleToExit(false);
             }else{
@@ -905,6 +926,7 @@ public class ScreenProjectionActivity extends BaseActivity{
     }
 
     private void handleProjectionEndResult(){
+
         LogUtils.d("mExitProjectionRunnable " + ScreenProjectionActivity.this.hashCode());
         if (miniProgramNettyService!=null&&from_service == GlobalValues.FROM_SERVICE_MINIPROGRAM){
             LogUtils.d("handleImgAndVideo=000>>>currentAction="+currentAction+"&mForscreenId="+mForscreenId);
@@ -916,7 +938,8 @@ public class ScreenProjectionActivity extends BaseActivity{
             }
         }
 
-
+        mMediaPath = null;
+        mMediaUrl = null;
         AppApi.notifyStop(mContext, apiRequestListener, 2, "");
         resetGlobalFlag();
         exitProjection();

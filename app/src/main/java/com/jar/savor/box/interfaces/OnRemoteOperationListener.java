@@ -29,23 +29,23 @@ public interface OnRemoteOperationListener {
     PrepareResponseVoNew showImage(int imageType, String imageUrl,boolean isThumbnail,String forscreenId,String words,String avatarUrl,String nickname,String delayTime,int action,int fromService);
     PrepareResponseVoNew showImage(int imageType, String imageUrl,boolean isThumbnail,String price,int storeSale,String delayTime,int action,int fromService);
 
-    PrepareResponseVoNew showVideo(String videoPath, int position, boolean isNewDevice,int fromService);
-    PrepareResponseVoNew showVideo(String videoPath, int position, boolean isNewDevice,String price,int storeSale,String delayTime,int action,int fromService);
-    PrepareResponseVoNew showVideo(String videoPath, int position, boolean isNewDevice,String forscreenId,String avatarUrl,String nickname,int fromService);
-    PrepareResponseVoNew showVideo(String videoPath, int position, boolean isNewDevice,String forscreenId,String avatarUrl,String nickname,String delayTime,int action,int fromService);
+    PrepareResponseVoNew showVideo(String videoPath, boolean isNewDevice,int fromService);
+    PrepareResponseVoNew showVideo(String videoPath, boolean isNewDevice,String price,int storeSale,String delayTime,int action,int fromService);
+    PrepareResponseVoNew showVideo(String videoPath, boolean isNewDevice,String forscreenId,String avatarUrl,String nickname,int fromService);
+    PrepareResponseVoNew showVideo(String videoPath, String videoUrl, boolean isNewDevice,String forscreenId,String avatarUrl,String nickname,int fromService);
+    PrepareResponseVoNew showVideo(String videoPath, boolean isNewDevice,String forscreenId,String avatarUrl,String nickname,String delayTime,int action,int fromService);
 
     SeekResponseVo seek(int position, String projectId);
 
     /**
      * 点播生日歌相关
      * @param videoPath
-     * @param position
      * @param forscreenId
      * @param action
      * @param fromService
      * @return
      */
-    PrepareResponseVoNew showVideoBirthday(String videoPath,int position,String forscreenId,int action,int fromService);
+    PrepareResponseVoNew showVideoBirthday(String videoUrl,String videoPath,String forscreenId,int action,int fromService);
 
     /**
      * 控制播放、暂停
@@ -64,7 +64,8 @@ public interface OnRemoteOperationListener {
     /**欢迎词专用-携带服务人员信息*/
     PrepareResponseVoNew showRestImage(int imageType, String imageUrl,int rotation,String musicPath,String words,String wordsSize,String wordsColor,String fontPath,String waiterName,String waiterIconUrl,int projectionTime,int fromService);
 
-    PrepareResponseVoNew showRestVideo(String videoPath, int position, boolean isNewDevice,String avatarUrl,String nickname,int projectionTime);
+    PrepareResponseVoNew showRestVideo(String videoPath,boolean isNewDevice,String avatarUrl,String nickname,int projectionTime);
+    PrepareResponseVoNew showRestVideo(String videoPath,String videoUrl,boolean isNewDevice,String avatarUrl,String nickname,int projectionTime);
     void rstrStop();
 
     RotateResponseVo rotate(int rotateDegree, String projectId);

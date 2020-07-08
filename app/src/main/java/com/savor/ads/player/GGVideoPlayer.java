@@ -226,17 +226,16 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
     /**
      * 设置播放数据源
      */
-    private boolean setMediaPlayerSource(boolean changeState) {
+    private boolean setMediaPlayerSource(boolean changeState,boolean cacheWithPlay,File cacheFile) {
         LogUtils.w(TAG + " setMediaPlayerSource " + GGVideoPlayer.this.hashCode());
         LogFileUtil.write(TAG + " setMediaPlayerSource " + GGVideoPlayer.this.hashCode());
         Map<String, String> mapHeadData =null;
-        File file = null;
         LogUtils.w("开始播放：" + mMediaPath + " " + GGVideoPlayer.this.hashCode());
 
         mHandler.removeCallbacksAndMessages(null);
 
         super.setStartAfterPrepared(false);
-        super.setUp(mMediaPath, false, file, "", changeState);
+        super.setUp(mMediaPath, cacheWithPlay, cacheFile, "", changeState);
 
         return true;
     }
@@ -291,37 +290,14 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
     }
 
     private void setAndPrepare() {
-        setAndPrepare(false);
+        setAndPrepare(false,false,null);
     }
 
-    private void setAndPrepare(boolean changeState) {
+    private void setAndPrepare(boolean changeState,boolean cacheWithPlay,File cacheFile) {
         Log.d("StackTrack", "GGVideoPlayer::setAndPrepare by " + this.hashCode() + " at Thread:" + Thread.currentThread().getName());
 
-        setMediaPlayerSource(changeState);
+        setMediaPlayerSource(changeState,cacheWithPlay,cacheFile);
         prepareMediaPlayer();
-
-//        if (setMediaPlayerSource()) {
-//
-//            prepareMediaPlayer();
-//
-//        } else {
-//            if (mForcePlayFromStart) {
-//                // 强制从头播放
-//                mForcePlayFromStart = false;
-//                mCurrentFileIndex = 0;
-//                mAssignedPlayPosition = 0;
-//            } else {
-//                // 播放下一个
-//                mCurrentFileIndex = (mCurrentFileIndex + 1) % mMediaFiles.size();
-//                mAssignedPlayPosition = 0;
-//            }
-//
-//            if (mIsLooping) {
-//                // 重置播放器状态，以备下次播放
-//                LogFileUtil.write(TAG + " will resetAndPreparePlayer at method setAndPrepare" + " " + GGVideoPlayer.this.hashCode());
-//                resetAndPreparePlayer();
-//            }
-//        }
     }
 
     public void resume() {
@@ -436,11 +412,6 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
     }
 
     @Override
-    public void setSource(String mediaPath, String mediaTag) {
-        setSource(mediaPath, mediaTag, 0);
-    }
-
-    @Override
     public void setSource(String mediaPath, String mediaTag, int seekPosition) {
         setSource(mediaPath, mediaTag, seekPosition, false);
     }
@@ -464,7 +435,31 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
 
             initPlayer();
 
-            setAndPrepare(changeState);
+            setAndPrepare(changeState,false,null);
+            changeRotate();
+        }
+    }
+
+    @Override
+    public void setSource(String mediaPath, String mediaTag, int seekPosition, boolean changeState,boolean cacheWithPlay,File cacheFile) {
+        LogUtils.w(TAG + " setSource " + GGVideoPlayer.this.hashCode());
+        LogFileUtil.write(TAG + " setSource " + GGVideoPlayer.this.hashCode());
+        Log.d("StackTrack", "GGVideoPlayer::setSource by " + this.hashCode() + " at Thread:" + Thread.currentThread().getName());
+
+        mIsPauseByOut = false;
+        if (!TextUtils.isEmpty(mediaPath)) {
+            mAssignedPlayPosition = seekPosition;
+
+            mMediaPath = mediaPath;
+            mMediaTag = mediaTag;
+
+            if (!hasKnownPrefix(mMediaPath)) {
+                mMediaPath = "file://" + mMediaPath;
+            }
+
+            initPlayer();
+
+            setAndPrepare(changeState,cacheWithPlay,cacheFile);
             changeRotate();
         }
     }

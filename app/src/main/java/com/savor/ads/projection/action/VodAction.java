@@ -22,12 +22,11 @@ public class VodAction extends ProjectionActionBase implements Serializable {
 
     private String vid;
     private String url;
-    private int position;
     private boolean isFromWeb;
     private boolean isNewDevice;
     private int action;
 
-    public VodAction(Context context, String vid, String url, int position, boolean isFromWeb, boolean isNewDevice,int fromService) {
+    public VodAction(Context context, String vid, String url,boolean isFromWeb, boolean isNewDevice,int fromService) {
         super();
 
         mPriority = ProjectPriority.HIGH;
@@ -35,13 +34,12 @@ public class VodAction extends ProjectionActionBase implements Serializable {
         mContext = context;
         this.vid = vid;
         this.url = url;
-        this.position = position;
         this.isFromWeb = isFromWeb;
         this.isNewDevice = isNewDevice;
         this.action = action;
     }
 
-    public VodAction(Context context, String vid, String url, int position, boolean isFromWeb, boolean isNewDevice,int action,int fromService) {
+    public VodAction(Context context, String vid, String url,boolean isFromWeb, boolean isNewDevice,int action,int fromService) {
         super();
 
         mPriority = ProjectPriority.HIGH;
@@ -49,7 +47,6 @@ public class VodAction extends ProjectionActionBase implements Serializable {
         mContext = context;
         this.vid = vid;
         this.url = url;
-        this.position = position;
         this.isFromWeb = isFromWeb;
         this.isNewDevice = isNewDevice;
         this.action = action;
@@ -61,12 +58,11 @@ public class VodAction extends ProjectionActionBase implements Serializable {
 
         // 跳转或将参数设置到ScreenProjectionActivity
         Bundle data = new Bundle();
-        data.putString(ScreenProjectionActivity.EXTRA_URL, url);
+        data.putString(ScreenProjectionActivity.EXTRA_PATH, url);
         data.putString(ScreenProjectionActivity.EXTRA_TYPE, ConstantValues.PROJECT_TYPE_VIDEO_VOD);
         data.putString(ScreenProjectionActivity.EXTRA_MEDIA_ID, vid);
         data.putInt(ScreenProjectionActivity.EXTRA_ACTION_ID, action);
         data.putInt(ScreenProjectionActivity.EXTRA_FROM_SERVICE_ID, fromService);
-        data.putInt(ScreenProjectionActivity.EXTRA_VIDEO_POSITION, position);
         data.putBoolean(ScreenProjectionActivity.EXTRA_IS_FROM_WEB, isFromWeb);
         data.putBoolean(ScreenProjectionActivity.EXTRA_IS_NEW_DEVICE, isNewDevice);
         data.putSerializable(ScreenProjectionActivity.EXTRA_PROJECT_ACTION, this);
@@ -89,7 +85,6 @@ public class VodAction extends ProjectionActionBase implements Serializable {
         return "VodAction{" +
                 "vid='" + vid + '\'' +
                 ", url='" + url + '\'' +
-                ", position=" + position +
                 ", isFromWeb=" + isFromWeb +
                 '}';
     }

@@ -21,7 +21,7 @@ public class VideoAction extends ProjectionActionBase implements Serializable {
 
     private transient Context mContext;
     private String videoPath;
-    private int position;
+    private String videoUrl;
     private boolean isNewDevice;
     private String forscreenId;
     private String price;
@@ -30,39 +30,51 @@ public class VideoAction extends ProjectionActionBase implements Serializable {
     private String nickname;
     private String delayTime;
     private int action;
-    public VideoAction(Context context, String videoPath, int position, boolean isNewDevice,int fromService) {
+    public VideoAction(Context context, String videoPath,boolean isNewDevice,int fromService) {
         super();
 
         mPriority = ProjectPriority.HIGH;
         this.fromService = fromService;
         mContext = context;
         this.videoPath = videoPath;
-        this.position = position;
         this.isNewDevice = isNewDevice;
     }
 
-    public VideoAction(Context context, String videoPath, int position, boolean isNewDevice,String forscreenId,String avatarUrl,String nickname,int fromService) {
+    public VideoAction(Context context, String videoPath,String videoUrl, boolean isNewDevice,String forscreenId,String avatarUrl,String nickname,int fromService) {
         super();
 
         mPriority = ProjectPriority.HIGH;
         this.fromService = fromService;
         mContext = context;
         this.videoPath = videoPath;
-        this.position = position;
+        this.videoUrl = videoUrl;
         this.isNewDevice = isNewDevice;
         this.forscreenId = forscreenId;
         this.avatarUrl = avatarUrl;
         this.nickname = nickname;
     }
 
-    public VideoAction(Context context, String videoPath, int position, boolean isNewDevice,String forscreenId,String avatarUrl,String nickname,String delayTime,int action,int fromService) {
+    public VideoAction(Context context, String videoPath, boolean isNewDevice,String forscreenId,String avatarUrl,String nickname,int fromService) {
         super();
 
         mPriority = ProjectPriority.HIGH;
         this.fromService = fromService;
         mContext = context;
         this.videoPath = videoPath;
-        this.position = position;
+        this.videoUrl = videoUrl;
+        this.isNewDevice = isNewDevice;
+        this.forscreenId = forscreenId;
+        this.avatarUrl = avatarUrl;
+        this.nickname = nickname;
+    }
+
+    public VideoAction(Context context, String videoPath, boolean isNewDevice,String forscreenId,String avatarUrl,String nickname,String delayTime,int action,int fromService) {
+        super();
+
+        mPriority = ProjectPriority.HIGH;
+        this.fromService = fromService;
+        mContext = context;
+        this.videoPath = videoPath;
         this.isNewDevice = isNewDevice;
         this.forscreenId = forscreenId;
         this.avatarUrl = avatarUrl;
@@ -71,14 +83,13 @@ public class VideoAction extends ProjectionActionBase implements Serializable {
         this.action = action;
     }
 
-    public VideoAction(Context context, String videoPath, int position, boolean isNewDevice,String price,int storeSale,String delayTime,int action,int fromService) {
+    public VideoAction(Context context, String videoPath, boolean isNewDevice,String price,int storeSale,String delayTime,int action,int fromService) {
         super();
 
         mPriority = ProjectPriority.HIGH;
         this.fromService = fromService;
         mContext = context;
         this.videoPath = videoPath;
-        this.position = position;
         this.isNewDevice = isNewDevice;
         this.price = price;
         this.storeSale = storeSale;
@@ -92,9 +103,9 @@ public class VideoAction extends ProjectionActionBase implements Serializable {
 
         // 跳转或将参数设置到ScreenProjectionActivity
         Bundle data = new Bundle();
-        data.putString(ScreenProjectionActivity.EXTRA_URL, videoPath);
+        data.putString(ScreenProjectionActivity.EXTRA_PATH, videoPath);
+        data.putString(ScreenProjectionActivity.EXTRA_URL, videoUrl);
         data.putString(ScreenProjectionActivity.EXTRA_TYPE, ConstantValues.PROJECT_TYPE_VIDEO);
-        data.putInt(ScreenProjectionActivity.EXTRA_VIDEO_POSITION, position);
         data.putBoolean(ScreenProjectionActivity.EXTRA_IS_NEW_DEVICE, isNewDevice);
         data.putString(ScreenProjectionActivity.EXTRA_FORSCREEN_ID, forscreenId);
         data.putString(ScreenProjectionActivity.EXTRA_PRICE_ID, price);
@@ -129,7 +140,6 @@ public class VideoAction extends ProjectionActionBase implements Serializable {
     public String toString() {
         return "VideoAction{" +
                 "videoPath='" + videoPath + '\'' +
-                ", position=" + position +
                 '}';
     }
 }

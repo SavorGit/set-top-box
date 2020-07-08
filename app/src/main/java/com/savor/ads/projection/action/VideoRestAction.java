@@ -21,28 +21,31 @@ public class VideoRestAction extends ProjectionActionBase implements Serializabl
 
     private transient Context mContext;
     private String videoPath;
-    private int position;
+    private String videoUrl;
     private boolean isNewDevice;
     private String avatarUrl;
     private String nickname;
     private int projectionTime;
-    public VideoRestAction(Context context, String videoPath, int position, boolean isNewDevice) {
+
+    public VideoRestAction(Context context, String videoPath, boolean isNewDevice, String avatarUrl, String nickname,int projectionTime) {
         super();
 
         mPriority = ProjectPriority.HIGH;
         mContext = context;
         this.videoPath = videoPath;
-        this.position = position;
         this.isNewDevice = isNewDevice;
+        this.avatarUrl = avatarUrl;
+        this.nickname = nickname;
+        this.projectionTime = projectionTime;
     }
 
-    public VideoRestAction(Context context, String videoPath, int position, boolean isNewDevice, String avatarUrl, String nickname,int projectionTime) {
+    public VideoRestAction(Context context, String videoPath,String videoUrl, boolean isNewDevice, String avatarUrl, String nickname,int projectionTime) {
         super();
 
         mPriority = ProjectPriority.HIGH;
         mContext = context;
         this.videoPath = videoPath;
-        this.position = position;
+        this.videoUrl = videoUrl;
         this.isNewDevice = isNewDevice;
         this.avatarUrl = avatarUrl;
         this.nickname = nickname;
@@ -55,9 +58,9 @@ public class VideoRestAction extends ProjectionActionBase implements Serializabl
 
         // 跳转或将参数设置到ScreenProjectionActivity
         Bundle data = new Bundle();
-        data.putString(ScreenProjectionActivity.EXTRA_URL, videoPath);
+        data.putString(ScreenProjectionActivity.EXTRA_PATH, videoPath);
+        data.putString(ScreenProjectionActivity.EXTRA_URL, videoUrl);
         data.putString(ScreenProjectionActivity.EXTRA_TYPE, ConstantValues.PROJECT_TYPE_VIDEO_REST);
-        data.putInt(ScreenProjectionActivity.EXTRA_VIDEO_POSITION, position);
         data.putBoolean(ScreenProjectionActivity.EXTRA_IS_NEW_DEVICE, isNewDevice);
         data.putInt(ScreenProjectionActivity.EXTRA_PROJECTION_TIME, projectionTime);
         data.putString(ScreenProjectionActivity.EXTRA_AVATAR_URL,avatarUrl);
@@ -81,13 +84,5 @@ public class VideoRestAction extends ProjectionActionBase implements Serializabl
                 activity.startActivity(intent);
             }
         }
-    }
-
-    @Override
-    public String toString() {
-        return "VideoAction{" +
-                "videoPath='" + videoPath + '\'' +
-                ", position=" + position +
-                '}';
     }
 }

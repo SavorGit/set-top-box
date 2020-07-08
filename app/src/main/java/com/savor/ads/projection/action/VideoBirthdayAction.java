@@ -21,18 +21,18 @@ public class VideoBirthdayAction extends ProjectionActionBase implements Seriali
 
     private transient Context mContext;
     private String videoPath;
-    private int position;
+    private String videoUrl;
     private boolean isNewDevice;
     private String forscreenId;
     private int action;
 
-    public VideoBirthdayAction(Context context, String videoPath, int position, String forscreenId,int action,int fromService) {
+    public VideoBirthdayAction(Context context, String videoUrl,String videoPath, String forscreenId,int action,int fromService) {
         super();
 
         mPriority = ProjectPriority.HIGH;
         mContext = context;
+        this.videoUrl = videoUrl;
         this.videoPath = videoPath;
-        this.position = position;
         this.forscreenId = forscreenId;
         this.action = action;
         this.fromService = fromService;
@@ -45,8 +45,8 @@ public class VideoBirthdayAction extends ProjectionActionBase implements Seriali
         // 跳转或将参数设置到ScreenProjectionActivity
         Bundle data = new Bundle();
         data.putString(ScreenProjectionActivity.EXTRA_TYPE, ConstantValues.PROJECT_TYPE_VIDEO_BIRTHDAY);
-        data.putString(ScreenProjectionActivity.EXTRA_URL, videoPath);
-        data.putInt(ScreenProjectionActivity.EXTRA_VIDEO_POSITION, position);
+        data.putString(ScreenProjectionActivity.EXTRA_URL, videoUrl);
+        data.putString(ScreenProjectionActivity.EXTRA_PATH, videoPath);
         data.putString(ScreenProjectionActivity.EXTRA_FORSCREEN_ID, forscreenId);
         data.putInt(ScreenProjectionActivity.EXTRA_ACTION_ID, action);
         data.putInt(ScreenProjectionActivity.EXTRA_FROM_SERVICE_ID, fromService);
@@ -75,7 +75,6 @@ public class VideoBirthdayAction extends ProjectionActionBase implements Seriali
     public String toString() {
         return "VideoAction{" +
                 "videoPath='" + videoPath + '\'' +
-                ", position=" + position +
                 '}';
     }
 }

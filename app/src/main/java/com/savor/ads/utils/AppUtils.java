@@ -849,9 +849,7 @@ public class AppUtils {
                     return;
                 }
                 for (File file:listProjectionFiles){
-                    if (file.isFile()){
-                        file.delete();
-                    }
+                    com.savor.ads.utils.FileUtils.deleteFile(file);
                 }
 
                 DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.PROJECTION_LOG,null,null);

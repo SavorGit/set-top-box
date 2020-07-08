@@ -31,7 +31,6 @@ import com.savor.ads.bean.MediaLibBean;
 import com.savor.ads.bean.MiniProgramProjection;
 import com.savor.ads.bean.ProjectionImg;
 import com.savor.ads.bean.UserBarrage;
-import com.savor.ads.bean.WelcomeOrderBean;
 import com.savor.ads.bean.WelcomeResourceBean;
 import com.savor.ads.callback.ProjectOperationListener;
 import com.savor.ads.core.ApiRequestListener;
@@ -61,7 +60,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -815,141 +813,83 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         params.put("forscreen_id", forscreen_id);
         params.put("resource_id", minipp.getVideo_id());
         params.put("openid", openid);
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (pImgListDialog!=null){
-                    if (!pImgListDialog.isShowing()){
-                        pImgListDialog.show();
-                        pImgListDialog.setProjectionPersonInfo(headPic,nickName);
-                    }
-                    pImgListDialog.clearContent();
-                    ArrayList<ProjectionImg> list = new ArrayList<>();
-                    ProjectionImg video = new ProjectionImg();
-                    video.setUrl(minipp.getUrl());
-                    video.setVideo_id(minipp.getVideo_id());
-                    list.add(video);
-                    pImgListDialog.setContent(list,TYPE_VIDEO);
-                }
-            }
-        });
-
         String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
         String path = basePath + fileName;
         File file = new File(path);
+        String oss_url = BuildConfig.OSS_ENDPOINT+url;
         if (file.exists()) {
             isDownloaded = true;
             LogUtils.d("MiniProgramNettyService:投屏视频已存在");
             params.put("is_exist", 1);
-            handler.post(()->pImgListDialog.setImgDownloadProgress(minipp.getVideo_id(),"100%"));
 
         } else {
             LogUtils.d("MiniProgramNettyService:需要下载视频的url=="+url);
             LogUtils.d("MiniProgramNettyService:file=="+file.getAbsolutePath());
             params.put("is_exist", 0);
-            try {
-                String oss_url = BuildConfig.OSS_ENDPOINT+url;
-                ProgressDownloader downloader = new ProgressDownloader(oss_url, basePath,fileName,resourceSize);
-                downloader.setDownloadProgressListener(new DownloadProgressListener() {
-                    @Override
-                    public void getDownloadProgress(long currentSize, long totalSize) {
-                    }
-                    @Override
-                    public void getDownloadProgress(String progress) {
-                        handler.post(()->pImgListDialog.setImgDownloadProgress(minipp.getVideo_id(),progress));
-                    }
-                });
-                isDownloaded = downloader.downloadByRange();
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+
         }
-        if (isDownloaded) {
-            LogUtils.d("12345+下载完成="+url);
-            long endTime = System.currentTimeMillis();
-            long downloadTime =  endTime- startTime;
-            LogUtils.d("-|-|结束下载时间"+endTime);
-            LogUtils.d("-|-|下载所用时间"+downloadTime);
-            params.put("used_time", downloadTime);
-            if (projectionIdMap!=null&&projectionIdMap.size()>0&&!TextUtils.isEmpty(forscreen_id)){
-                params.put("is_break",projectionIdMap.get(forscreen_id));
+
+        LogUtils.d("12345+下载完成="+url);
+        if (projectionIdMap!=null&&projectionIdMap.size()>0&&!TextUtils.isEmpty(forscreen_id)){
+            params.put("is_break",projectionIdMap.get(forscreen_id));
+        }
+        postProjectionResourceLog(params);
+        LogUtils.d("12345+:postProjectionResourceLog="+params);
+
+        MobclickAgent.onEvent(context, "screenProjctionDownloadSuccess" + file.getName());
+        GlobalValues.PROJECT_IMAGES.clear();
+        GlobalValues.PROJECT_FAIL_IMAGES.clear();
+
+        if (currentAction==42){
+            if (GlobalValues.INTERACTION_ADS_PLAY==0){
+                if (isDownloaded){
+                    ProjectOperationListener.getInstance(context).showRestVideo(basePath,oss_url,true, headPic, nickName,minipp.getPlay_times());
+                }else{
+                    ProjectOperationListener.getInstance(context).showRestVideo(basePath,oss_url,true, headPic, nickName,minipp.getPlay_times());
+                }
             }
-            postProjectionResourceLog(params);
-            LogUtils.d("12345+:postProjectionResourceLog="+params);
-
-            MobclickAgent.onEvent(context, "screenProjctionDownloadSuccess" + file.getName());
-            GlobalValues.PROJECT_IMAGES.clear();
-            GlobalValues.PROJECT_FAIL_IMAGES.clear();
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (pImgListDialog!=null){
-                        pImgListDialog.clearContent();
-                        pImgListDialog.dismiss();
-                    }
-                }
-            });
-
-            if (currentAction==42){
-                if (GlobalValues.INTERACTION_ADS_PLAY==0){
-                    ProjectOperationListener.getInstance(context).showRestVideo(path, 0, true, headPic, nickName,minipp.getPlay_times());
-                }
+        }else {
+            if (GlobalValues.INTERACTION_ADS_PLAY!=0){
+                //处理抢投
+                GlobalValues.PROJECTION_VIDEO_PATH = path;
             }else {
-                if (GlobalValues.INTERACTION_ADS_PLAY!=0){
-                    //处理抢投
-                    GlobalValues.PROJECTION_VIDEO_PATH = path;
-                }else {
-                    //正常投屏
-                    preOrNextAdsBean = AppUtils.getInteractionAds(context);
-                    if (preOrNextAdsBean!=null){
-                        if (preOrNextAdsBean.getPlay_position()==1){
-                            GlobalValues.INTERACTION_ADS_PLAY = 1;
-                            String adspath = preOrNextAdsBean.getMediaPath();
-                            String duration = preOrNextAdsBean.getDuration();
-                            if (preOrNextAdsBean.getMedia_type()==1){
-                                ProjectOperationListener.getInstance(context).showVideo(adspath, 0, true,forscreen_id, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
-                            }else{
-                                ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, words, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
-                            }
-                            postForscreenAdsLog(preOrNextAdsBean.getVid());
-                            preOrNextAdsBean = null;
-                            GlobalValues.PROJECTION_VIDEO_PATH = path;
-                        }else if (preOrNextAdsBean.getPlay_position()==2){
-                            GlobalValues.PROJECTION_VIDEO_PATH = null;
-                            ProjectOperationListener.getInstance(context).showVideo(path, 0, true,forscreen_id, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                //正常投屏
+                preOrNextAdsBean = AppUtils.getInteractionAds(context);
+                if (preOrNextAdsBean!=null){
+                    if (preOrNextAdsBean.getPlay_position()==1){
+                        GlobalValues.INTERACTION_ADS_PLAY = 1;
+                        String adspath = preOrNextAdsBean.getMediaPath();
+                        String duration = preOrNextAdsBean.getDuration();
+                        if (preOrNextAdsBean.getMedia_type()==1){
+                            ProjectOperationListener.getInstance(context).showVideo(adspath, true,forscreen_id, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                        }else{
+                            ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, words, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                         }
-                    }else{
-                        GlobalValues.INTERACTION_ADS_PLAY = 0;
+                        postForscreenAdsLog(preOrNextAdsBean.getVid());
                         preOrNextAdsBean = null;
+                        GlobalValues.PROJECTION_VIDEO_PATH = path;
+                    }else if (preOrNextAdsBean.getPlay_position()==2){
                         GlobalValues.PROJECTION_VIDEO_PATH = null;
-                        boolean isBreak = projectionIsBreak(forscreen_id);
-                        if (!isBreak){
-                            ProjectOperationListener.getInstance(context).showVideo(path, 0, true,forscreen_id, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                        if (isDownloaded){
+                            ProjectOperationListener.getInstance(context).showVideo(basePath,oss_url,true,forscreen_id, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                        }else{
+                            ProjectOperationListener.getInstance(context).showVideo(basePath,oss_url, true,forscreen_id, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                        }
+                    }
+                }else{
+                    GlobalValues.INTERACTION_ADS_PLAY = 0;
+                    preOrNextAdsBean = null;
+                    GlobalValues.PROJECTION_VIDEO_PATH = null;
+                    boolean isBreak = projectionIsBreak(forscreen_id);
+                    if (!isBreak){
+                        if (isDownloaded){
+                            ProjectOperationListener.getInstance(context).showVideo(basePath,oss_url,true,forscreen_id, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                        }else{
+                            ProjectOperationListener.getInstance(context).showVideo(basePath,oss_url, true,forscreen_id, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                         }
                     }
                 }
             }
-
-        } else {
-            params.put("is_exist", 2);
-            long endTime = System.currentTimeMillis();
-            long downloadTime =  endTime- startTime;
-            params.put("used_time", downloadTime);
-            if (projectionIdMap!=null&&projectionIdMap.size()>0&&!TextUtils.isEmpty(forscreen_id)){
-                params.put("is_break",projectionIdMap.get(forscreen_id));
-            }
-            postProjectionResourceLog(params);
-
-            MobclickAgent.onEvent(context, "screenProjctionDownloadError" + file.getName());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (pImgListDialog!=null){
-                        pImgListDialog.clearContent();
-                        pImgListDialog.dismiss();
-                    }
-                }
-            });
         }
     }
     /**
@@ -1035,7 +975,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     String adspath = preOrNextAdsBean.getMediaPath();
                     String duration = preOrNextAdsBean.getDuration();
                     if (preOrNextAdsBean.getMedia_type()==1){
-                        ProjectOperationListener.getInstance(context).showVideo(adspath, 0, true,forscreen_id, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                        ProjectOperationListener.getInstance(context).showVideo(adspath,  true,forscreen_id, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                     }else{
                         ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, words, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                     }
@@ -1112,7 +1052,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         params.put("is_break",projectionIdMap.get(forscreen_id));
         String selection = DBHelper.MediaDBInfo.FieldName.MEDIANAME + "=? ";
         String[] selectionArgs = new String[]{fileName};
-        long startTime = System.currentTimeMillis();
         List<MediaLibBean> listPlayList = dbHelper.findNewPlayListByWhere(selection, selectionArgs);
         if (listPlayList==null||listPlayList.size()==0){
             listPlayList =  dbHelper.findAdsByWhere(selection, selectionArgs);
@@ -1130,11 +1069,11 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             File file = new File(path);
             if (file.exists()) {
                 params.put("is_exist",1);
-                ProjectOperationListener.getInstance(context).showVideo(path, 0, true,currentAction);
+                ProjectOperationListener.getInstance(context).showVideo(path, true,currentAction);
             }
         }else {
             params.put("is_exist",0);
-            ProjectOperationListener.getInstance(context).showVideo(url, 0, true,currentAction);
+            ProjectOperationListener.getInstance(context).showVideo(url, true,currentAction);
         }
         postProjectionResourceLog(params);
     }
@@ -1158,16 +1097,17 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         String selection = DBHelper.MediaDBInfo.FieldName.MEDIANAME + "=? ";
         String[] selectionArgs = new String[]{fileName};
         List<BirthdayOndemandBean> list = DBHelper.get(context).findBirthdayOndemandByWhere(selection,selectionArgs);
+        String basePath = AppUtils.getFilePath(AppUtils.StorageFile.birthday_ondemand);
         if (list!=null&&list.size()>0){
-            String path = AppUtils.getFilePath(AppUtils.StorageFile.birthday_ondemand) + fileName;
+            String path = basePath + fileName;
             File file = new File(path);
             if (file.exists()){
                 params.put("is_exist","1");
-                ProjectOperationListener.getInstance(context).showVideoBirthday(path, 0, forscreen_id, currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                ProjectOperationListener.getInstance(context).showVideoBirthday(null,path,forscreen_id, currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
             }
         }else{
             params.put("is_exist","0");
-            ProjectOperationListener.getInstance(context).showVideoBirthday(url, 0, forscreen_id, currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+            ProjectOperationListener.getInstance(context).showVideoBirthday(url,basePath,forscreen_id, currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
         }
         postProjectionResourceLog(params);
     }
@@ -1197,7 +1137,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             File file = new File(path);
             if (file.exists()) {
                 params.put("is_exist","1");
-                VodAction vodAction = new VodAction(context, ConstantValues.QRCODE_CALL_VIDEO_ID, path, 0, false, true,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                VodAction vodAction = new VodAction(context, ConstantValues.QRCODE_CALL_VIDEO_ID, path, false, true,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                 ProjectionManager.getInstance().enqueueAction(vodAction);
                 handler.postDelayed(new Runnable() {
                     @Override
@@ -1545,7 +1485,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             File file = new File(path);
             if (file.exists()){
                 if (bean.getMedia_type()==1){
-                    ProjectOperationListener.getInstance(context).showVideo(path,0, true,bean.getPrice(),bean.getIs_storebuy(),bean.getDuration(), currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                    ProjectOperationListener.getInstance(context).showVideo(path, true,bean.getPrice(),bean.getIs_storebuy(),bean.getDuration(), currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                 }else if (bean.getMedia_type()==2){
                     ProjectOperationListener.getInstance(context).showImage(6, path, true,bean.getPrice(),bean.getIs_storebuy(),bean.getDuration(),currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                 }
@@ -1764,7 +1704,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             if (action!=2&&action!=4&&action!=10&&action==currentAction){
                 return;
             }
-//            projectionIdMap.clear();
             if (miniProgramProjection==null){
                 return;
             }
@@ -1826,9 +1765,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     if (miniProgramProjection!=null){
                         time =miniProgramProjection.getPlay_times();
                     }
-                    ProjectOperationListener.getInstance(context).showRestVideo(GlobalValues.PROJECTION_VIDEO_PATH, 0, true, headPic, nickName,time);
+                    ProjectOperationListener.getInstance(context).showRestVideo(GlobalValues.PROJECTION_VIDEO_PATH,true, headPic, nickName,time);
                 }else {
-                    ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH, 0, true,forscreenId, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                    ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH,true,forscreenId, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                 }
             }
             GlobalValues.INTERACTION_ADS_PLAY=0;
@@ -1857,9 +1796,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         if (miniProgramProjection!=null){
                             time =miniProgramProjection.getPlay_times();
                         }
-                        ProjectOperationListener.getInstance(context).showRestVideo(GlobalValues.PROJECTION_VIDEO_PATH, 0, true, headPic, nickName,time);
+                        ProjectOperationListener.getInstance(context).showRestVideo(GlobalValues.PROJECTION_VIDEO_PATH,true, headPic, nickName,time);
                     }else {
-                        ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH, 0, true,forscreenId, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                        ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH,true,forscreenId, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                     }
                 }
             }
@@ -1870,7 +1809,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 String path = preOrNextAdsBean.getMediaPath();
                 String duration = preOrNextAdsBean.getDuration();
                 if (preOrNextAdsBean.getMedia_type()==1){
-                    ProjectOperationListener.getInstance(context).showVideo(path, 0, true,forscreenId, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                    ProjectOperationListener.getInstance(context).showVideo(path, true,forscreenId, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                 }else{
                     ProjectOperationListener.getInstance(context).showImage(5, path, true,forscreenId, words, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                 }
