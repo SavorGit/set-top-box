@@ -5,7 +5,7 @@ import android.net.Uri;
 
 import com.danikula.videocache.file.DiskUsage;
 import com.danikula.videocache.file.FileNameGenerator;
-import com.danikula.videocache.file.Md5FileNameGenerator;
+import com.danikula.videocache.file.MyFileNameGenerator;
 import com.danikula.videocache.file.TotalCountLruDiskUsage;
 import com.danikula.videocache.file.TotalSizeLruDiskUsage;
 import com.danikula.videocache.headers.EmptyHeadersInjector;
@@ -338,7 +338,7 @@ public class HttpProxyCacheServer {
      */
     public static final class Builder {
 
-        private static final long DEFAULT_MAX_SIZE = 512 * 1024 * 1024;
+        private static final long DEFAULT_MAX_SIZE = 1024 * 1024 * 1024;
 
         private File cacheRoot;
         private FileNameGenerator fileNameGenerator;
@@ -350,7 +350,7 @@ public class HttpProxyCacheServer {
             this.sourceInfoStorage = SourceInfoStorageFactory.newSourceInfoStorage(context);
             this.cacheRoot = StorageUtils.getIndividualCacheDirectory(context);
             this.diskUsage = new TotalSizeLruDiskUsage(DEFAULT_MAX_SIZE);
-            this.fileNameGenerator = new Md5FileNameGenerator();
+            this.fileNameGenerator = new MyFileNameGenerator();
             this.headerInjector = new EmptyHeadersInjector();
         }
 
@@ -372,7 +372,7 @@ public class HttpProxyCacheServer {
         }
 
         /**
-         * Overrides default cache file name generator {@link Md5FileNameGenerator} .
+         * Overrides default cache file name generator {@link MyFileNameGenerator} .
          *
          * @param fileNameGenerator a new file name generator.
          * @return a builder.

@@ -619,11 +619,14 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
         if (mVideoPlayer.getDuration()==0){
             return;
         }
-        int currentPercent = mVideoPlayer.getCurrentPosition() * 100 / mVideoPlayer.getDuration();
-        LogUtils.v(TAG + "onBufferingUpdate currentPercent = " + currentPercent + " position = " +
+        if (percent==100){
+            mPlayStateCallback.onMediaBufferPercent();
+        }
+//        int currentPercent = mVideoPlayer.getCurrentPosition() * 100 / mVideoPlayer.getDuration();
+        LogUtils.v(TAG + "onBufferingUpdate currentPercent = " + percent + " position = " +
                 mVideoPlayer.getCurrentPosition() + " duration = " + mVideoPlayer.getDuration() + " "
                 + this.hashCode());
-        LogFileUtil.write(TAG + " onBufferingUpdate currentPercent = " + currentPercent +
+        LogFileUtil.write(TAG + " onBufferingUpdate currentPercent = " + percent +
                 " position = " + mVideoPlayer.getCurrentPosition() + " duration = " +
                 mVideoPlayer.getDuration() + " " + this.hashCode());
 //                    if (mp.getCurrentPosition() + 400 < mp.getDuration()) {
@@ -682,5 +685,7 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
         void onMediaPause(int index);
 
         void onMediaResume(int index);
+
+        void onMediaBufferPercent();
     }
 }

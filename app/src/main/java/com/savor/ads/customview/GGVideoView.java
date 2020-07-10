@@ -63,6 +63,7 @@ import master.flame.danmaku.ui.widget.DanmakuView;
  * 公用的播放器类
  * Created by zhanghq on 2016/12/8.
  */
+@Deprecated
 public class GGVideoView extends StandardGSYVideoPlayer {
     private static final String TAG = "GGVideoView";
 

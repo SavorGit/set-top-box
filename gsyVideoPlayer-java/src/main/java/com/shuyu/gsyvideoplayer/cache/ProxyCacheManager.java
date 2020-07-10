@@ -7,7 +7,7 @@ import android.text.TextUtils;
 import com.danikula.videocache.CacheListener;
 import com.danikula.videocache.HttpProxyCacheServer;
 import com.danikula.videocache.file.FileNameGenerator;
-import com.danikula.videocache.file.Md5FileNameGenerator;
+import com.danikula.videocache.file.MyFileNameGenerator;
 import com.shuyu.gsyvideoplayer.utils.CommonUtil;
 import com.shuyu.gsyvideoplayer.utils.FileUtils;
 import com.shuyu.gsyvideoplayer.utils.StorageUtils;
@@ -25,7 +25,7 @@ import tv.danmaku.ijk.media.player.IMediaPlayer;
 
 public class ProxyCacheManager implements ICacheManager, CacheListener {
 
-    public static int DEFAULT_MAX_SIZE = 512 * 1024 * 1024;
+    public static int DEFAULT_MAX_SIZE = 1024 * 1024 * 1024;
 
     //视频代理
     protected HttpProxyCacheServer proxy;
@@ -98,11 +98,11 @@ public class ProxyCacheManager implements ICacheManager, CacheListener {
                     (context.getApplicationContext()).getAbsolutePath();
             FileUtils.deleteFiles(new File(path));
         } else {
-            FileNameGenerator md5FileNameGenerator = new Md5FileNameGenerator();
+            FileNameGenerator myFileNameGenerator = new MyFileNameGenerator();
             if (ProxyCacheManager.fileNameGenerator != null) {
-                md5FileNameGenerator = ProxyCacheManager.fileNameGenerator;
+                myFileNameGenerator = ProxyCacheManager.fileNameGenerator;
             }
-            String name = md5FileNameGenerator.generate(url);
+            String name = myFileNameGenerator.generate(url);
             if (cachePath != null) {
                 String tmpPath = cachePath.getAbsolutePath() + File.separator + name + ".download";
                 String path = cachePath.getAbsolutePath() + File.separator + name;

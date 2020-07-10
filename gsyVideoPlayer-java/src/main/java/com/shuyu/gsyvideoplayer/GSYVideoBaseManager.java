@@ -351,6 +351,9 @@ public abstract class GSYVideoBaseManager implements IMediaPlayer.OnPreparedList
     @Override
     public void onCacheAvailable(File cacheFile, String url, int percentsAvailable) {
         bufferPoint = percentsAvailable;
+        if (listener() != null) {
+            listener().onBufferingUpdate(bufferPoint);
+        }
     }
 
     @Override

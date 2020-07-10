@@ -90,7 +90,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private int DOWNLOAD_TIME = 0;
     private int downloadIndex;
     private int currentIndex;
-    private MiniProgramProjection miniProgramProjection;
+    public MiniProgramProjection miniProgramProjection;
 
     private String headPic;
     private String nickName;

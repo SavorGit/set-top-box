@@ -60,6 +60,7 @@ import com.shuyu.gsyvideoplayer.utils.GSYVideoType;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import pl.droidsonroids.gif.GifImageView;
 
@@ -1449,7 +1450,34 @@ public class ScreenProjectionActivity extends BaseActivity{
         @Override
         public void onMediaResume(int index) {
         }
+
+        @Override
+        public void onMediaBufferPercent() {
+            MiniProgramNettyService mpns = new MiniProgramNettyService();
+            if (mpns.miniProgramProjection!=null){
+                HashMap<String,Object> params = new HashMap<>();
+                params.put("req_id",mpns.miniProgramProjection.getReq_id());
+                params.put("forscreen_id",mpns.miniProgramProjection.getForscreen_id());
+                params.put("resource_id",mpns.miniProgramProjection.getVideo_id());
+                params.put("box_mac",mSession.getEthernetMac());
+                params.put("openid",mpns.miniProgramProjection.getOpenid());
+                params.put("is_download",1);
+                postProjectionResourceLog(params);
+            }
+
+        }
     };
+
+
+
+
+    /**
+     * 小程序投屏日志统计接口，不在区分资源类型
+     * @param params
+     */
+    private void postProjectionResourceLog(HashMap<String,Object> params) {
+        AppApi.postProjectionResourceParam(mContext, apiRequestListener, params);
+    }
 
     ApiRequestListener apiRequestListener = new ApiRequestListener() {
         @Override
