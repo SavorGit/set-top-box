@@ -57,7 +57,7 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
     /**
      * 最大缓冲加载时间
      */
-    private static final int MAX_BUFFER_TIME = 1000 * 10;
+    private static final int MAX_BUFFER_TIME = 1000 * 60;
     private Runnable mBufferTimeoutRunnable = new Runnable() {
         @Override
         public void run() {
@@ -208,9 +208,7 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
     private void initPlayer() {
         LogUtils.w(TAG + " initPlayer " + GGVideoPlayer.this.hashCode());
         LogFileUtil.write(TAG + " initPlayer " + GGVideoPlayer.this.hashCode());
-        if (!AppUtils.isSVT()){
-            ((GSYVideoManager) getGSYVideoManager()).setTimeOut(MAX_BUFFER_TIME, true);
-        }
+        ((GSYVideoManager) getGSYVideoManager()).setTimeOut(MAX_BUFFER_TIME, true);
     }
 
     /**
