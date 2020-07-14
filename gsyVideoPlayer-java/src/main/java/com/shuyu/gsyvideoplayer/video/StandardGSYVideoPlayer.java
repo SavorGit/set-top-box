@@ -442,7 +442,7 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         setViewShowState(mBottomContainer, INVISIBLE);
         setViewShowState(mStartButton, VISIBLE);
         setViewShowState(mLoadingProgressBar, INVISIBLE);
-        setViewShowState(mThumbImageViewLayout, VISIBLE);
+        setViewShowState(mThumbImageViewLayout, INVISIBLE);
         setViewShowState(mBottomProgressBar, INVISIBLE);
         setViewShowState(mLockScreen, (mIfCurrentIsFullscreen && mNeedLockFull) ? VISIBLE : GONE);
 
@@ -460,7 +460,7 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         setViewShowState(mBottomContainer, VISIBLE);
         setViewShowState(mStartButton, INVISIBLE);
         setViewShowState(mLoadingProgressBar, VISIBLE);
-        setViewShowState(mThumbImageViewLayout, INVISIBLE);
+        setViewShowState(mThumbImageViewLayout, VISIBLE);
         setViewShowState(mBottomProgressBar, INVISIBLE);
         setViewShowState(mLockScreen, GONE);
 
@@ -537,7 +537,7 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         setViewShowState(mBottomContainer, VISIBLE);
         setViewShowState(mStartButton, VISIBLE);
         setViewShowState(mLoadingProgressBar, INVISIBLE);
-        setViewShowState(mThumbImageViewLayout, VISIBLE);
+        setViewShowState(mThumbImageViewLayout, INVISIBLE);
         setViewShowState(mBottomProgressBar, INVISIBLE);
         setViewShowState(mLockScreen, (mIfCurrentIsFullscreen && mNeedLockFull) ? VISIBLE : GONE);
 

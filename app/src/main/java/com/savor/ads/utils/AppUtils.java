@@ -2854,13 +2854,13 @@ public class AppUtils {
 
 
 
-    public static Bitmap getVideoThumbnail(String filePath){
-        MediaMetadataRetriever mmr  = new MediaMetadataRetriever();
-        mmr.setDataSource(filePath);
+    public static Bitmap getVideoThumbnail(String fileUrl){
+        MediaMetadataRetriever retriever  = new MediaMetadataRetriever();
+        retriever.setDataSource(fileUrl);
         //获取指定位置指定宽高的缩略图
         long timeUs = 1000*1000;
 //        return mmr.getScaledFrameAtTime(timeUs,MediaMetadataRetriever.OPTION_CLOSEST,512,384);
-        return mmr.getFrameAtTime();
+        return retriever.getFrameAtTime();
     }
 
 

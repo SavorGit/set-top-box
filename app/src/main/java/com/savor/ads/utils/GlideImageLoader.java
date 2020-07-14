@@ -40,6 +40,14 @@ public class GlideImageLoader {
         }
     }
 
+    public static void loadCoverImage(Context context, String url, ImageView imageView) {
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Glide.with(context)
+                .setDefaultRequestOptions(new RequestOptions().frameOf(2000000).centerCrop())
+                .load(url)
+                .into(imageView);
+    }
+
     public static void loadImage(Context context, String imgPath, ImageView imageView) {
         if (context == null) {
             return;

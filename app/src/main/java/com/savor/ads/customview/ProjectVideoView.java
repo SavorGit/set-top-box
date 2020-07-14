@@ -38,6 +38,7 @@ import android.widget.RelativeLayout;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.mstar.android.media.MstMediaMetadataRetriever;
 import com.savor.ads.R;
 import com.savor.ads.bean.MediaFileBean;
 import com.savor.ads.bean.MediaPlayerError;
@@ -179,7 +180,6 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
     private void initMediaPlayer() {
         LogUtils.w(TAG + "initMediaPlayer " + ProjectVideoView.this.hashCode());
         LogFileUtil.write(TAG + " initMediaPlayer " + ProjectVideoView.this.hashCode());
-
         mVideoPlayer.setPlayStateCallback(this);
 
     }
@@ -241,17 +241,43 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
         } else {
             post(()->mImgView.setVisibility(View.GONE));
         }
-        if (!TextUtils.isEmpty(url)&&cacheFile!=null){
-            mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex),0,false,true,cacheFile);
-        }else if (cacheFile!=null){
-            mVideoPlayer.setSource(cacheFile.getPath(), String.valueOf(mCurrentFileIndex),0,false);
-        }else if (!TextUtils.isEmpty(url)){
-            mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex),0,false);
+        if (AppUtils.isSVT()){
+            if (!TextUtils.isEmpty(url)&&cacheFile!=null){
+                mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex),0,false,true,cacheFile);
+            }else if (cacheFile!=null){
+                mVideoPlayer.setSource(cacheFile.getPath(), String.valueOf(mCurrentFileIndex),0,false);
+            }else if (!TextUtils.isEmpty(url)){
+                mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex),0,false);
+            }
+        }else{
+            Message msg = Message.obtain();
+            msg.obj = bean;
+            videoHandler.sendMessage(msg);
         }
+
         orientationUtils = new OrientationUtils((Activity) mContext,(GGVideoPlayer)mVideoPlayer);
 
         return true;
     }
+
+    Handler videoHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            MediaFileBean bean = (MediaFileBean) msg.obj;
+            String url = bean.getUrl();
+            File cacheFile  = bean.getCacheFile();
+            if (!TextUtils.isEmpty(url)){
+                mVideoPlayer.setCoverImage(url);
+            }
+            if (!TextUtils.isEmpty(url)&&cacheFile!=null){
+                mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex),0,false,true,cacheFile);
+            }else if (cacheFile!=null){
+                mVideoPlayer.setSource(cacheFile.getPath(), String.valueOf(mCurrentFileIndex),0,false);
+            }else if (!TextUtils.isEmpty(url)){
+                mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex),0,false);
+            }
+        }
+    };
 
     /**
      * 准备播放

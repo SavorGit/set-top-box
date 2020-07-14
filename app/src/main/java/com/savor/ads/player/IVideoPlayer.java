@@ -26,5 +26,7 @@ public interface IVideoPlayer {
     int getDuration();
     boolean isPaused();
     boolean isInPlaybackState();
-//    int getCurrentState();
+
+    void setCoverImage(String url);
+
 }

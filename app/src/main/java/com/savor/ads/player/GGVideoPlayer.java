@@ -1,6 +1,8 @@
 package com.savor.ads.player;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -8,11 +10,17 @@ import android.os.Looper;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.mstar.android.media.MstMediaMetadataRetriever;
 import com.savor.ads.R;
+import com.savor.ads.activity.ScreenProjectionActivity;
 import com.savor.ads.bean.MediaPlayerError;
 import com.savor.ads.player.mediacodec.MediaCodecRenderView;
 import com.savor.ads.utils.AppUtils;
+import com.savor.ads.utils.GlideImageLoader;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
@@ -22,6 +30,7 @@ import com.shuyu.gsyvideoplayer.video.base.GSYVideoView;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import androidx.annotation.RequiresApi;
@@ -238,6 +247,22 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
         return true;
     }
 
+    @Override
+    public void setCoverImage(String url) {
+        getThumbImageViewLayout().setVisibility(VISIBLE);
+        ImageView imageView = new ImageView(mContext);
+        loadCover(imageView, url);
+        setThumbImageView(imageView);
+    }
+    private void loadCover(ImageView imageView, String url) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(url, new HashMap<>());
+        //获得第10帧图片 这里的第一个参数 以微秒为单位
+        Bitmap bitmap = retriever.getFrameAtTime(2000000,MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+        imageView.setImageBitmap(bitmap);
+        retriever.release();
+
+    }
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void addTextureView() {
