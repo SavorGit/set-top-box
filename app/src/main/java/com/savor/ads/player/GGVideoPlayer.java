@@ -20,6 +20,7 @@ import com.savor.ads.activity.ScreenProjectionActivity;
 import com.savor.ads.bean.MediaPlayerError;
 import com.savor.ads.player.mediacodec.MediaCodecRenderView;
 import com.savor.ads.utils.AppUtils;
+import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.GlideImageLoader;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
@@ -255,13 +256,8 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
         setThumbImageView(imageView);
     }
     private void loadCover(ImageView imageView, String url) {
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(url, new HashMap<>());
-        //获得第10帧图片 这里的第一个参数 以微秒为单位
-        Bitmap bitmap = retriever.getFrameAtTime(2000000,MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
-        imageView.setImageBitmap(bitmap);
-        retriever.release();
-
+        String videoUrl = url+ConstantValues.PROJECTION_VIDEO_THUMBNAIL_AOTO;
+        GlideImageLoader.loadImage(mContext,videoUrl,imageView);
     }
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override

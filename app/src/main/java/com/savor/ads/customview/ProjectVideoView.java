@@ -241,43 +241,21 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
         } else {
             post(()->mImgView.setVisibility(View.GONE));
         }
-        if (AppUtils.isSVT()){
-            if (!TextUtils.isEmpty(url)&&cacheFile!=null){
-                mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex),0,false,true,cacheFile);
-            }else if (cacheFile!=null){
-                mVideoPlayer.setSource(cacheFile.getPath(), String.valueOf(mCurrentFileIndex),0,false);
-            }else if (!TextUtils.isEmpty(url)){
-                mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex),0,false);
-            }
-        }else{
-            Message msg = Message.obtain();
-            msg.obj = bean;
-            videoHandler.sendMessage(msg);
+        if (!TextUtils.isEmpty(url)){
+            mVideoPlayer.setCoverImage(url);
+        }
+        if (!TextUtils.isEmpty(url)&&cacheFile!=null){
+            mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex),0,false,true,cacheFile);
+        }else if (cacheFile!=null){
+            mVideoPlayer.setSource(cacheFile.getPath(), String.valueOf(mCurrentFileIndex),0,false);
+        }else if (!TextUtils.isEmpty(url)){
+            mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex),0,false);
         }
 
         orientationUtils = new OrientationUtils((Activity) mContext,(GGVideoPlayer)mVideoPlayer);
 
         return true;
     }
-
-    Handler videoHandler = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            MediaFileBean bean = (MediaFileBean) msg.obj;
-            String url = bean.getUrl();
-            File cacheFile  = bean.getCacheFile();
-            if (!TextUtils.isEmpty(url)){
-                mVideoPlayer.setCoverImage(url);
-            }
-            if (!TextUtils.isEmpty(url)&&cacheFile!=null){
-                mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex),0,false,true,cacheFile);
-            }else if (cacheFile!=null){
-                mVideoPlayer.setSource(cacheFile.getPath(), String.valueOf(mCurrentFileIndex),0,false);
-            }else if (!TextUtils.isEmpty(url)){
-                mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex),0,false);
-            }
-        }
-    };
 
     /**
      * 准备播放

@@ -251,6 +251,7 @@ public class ConstantValues {
 
     public static final String PROJECTION_IMG_THUMBNAIL_PARAM = "?x-oss-process=image/resize,m_lfit,h_150,w_150";
     public static final String PROJECTION_VIDEO_THUMBNAIL_PARAM = "?x-oss-process=video/snapshot,t_7000,f_jpg,w_150,h_150,m_fast,ar_auto";
+    public static final String PROJECTION_VIDEO_THUMBNAIL_AOTO = "?x-oss-process=video/snapshot,t_3000,f_jpg,m_fast,ar_auto";
 
     /**小程序投屏-标准版**/
     public static final String SMALL_APP_ID_STANDARD = "1";
