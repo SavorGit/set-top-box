@@ -14,7 +14,9 @@ package cn.savor.small.netty;
 import android.content.Context;
 
 import com.google.gson.Gson;
+import com.savor.ads.bean.LogParam;
 import com.savor.ads.core.Session;
+import com.savor.ads.log.LogReportUtil;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.LogFileUtil;
@@ -254,6 +256,19 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
                 LogUtils.i("Reconnecting to: " + session.getNettyUrl() + ':' + session.getNettyPort());
                 client.start();
             }, 60L, TimeUnit.SECONDS);
+            String mUUID = String.valueOf(System.currentTimeMillis());
+            LogReportUtil.get(mContext).sendAdsLog(mUUID,
+                    session.getBoiteId(),
+                    session.getRoomId(),
+                    String.valueOf(System.currentTimeMillis()),
+                    LogParam.reconn,
+                    LogParam.netty,
+                    "",
+                    "",
+                    session.getVersionName(),
+                    session.getAdsPeriod(),
+                    session.getBirthdayOndemandPeriod(),
+                    "");
         } catch (Exception ex) {
             ex.toString();
         }

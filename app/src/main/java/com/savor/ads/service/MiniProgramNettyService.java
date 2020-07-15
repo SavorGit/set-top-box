@@ -27,6 +27,7 @@ import com.savor.ads.activity.ScreenProjectionActivity;
 import com.savor.ads.activity.WebviewGameActivity;
 import com.savor.ads.bean.BirthdayOndemandBean;
 import com.savor.ads.bean.JsonBean;
+import com.savor.ads.bean.LogParam;
 import com.savor.ads.bean.MediaLibBean;
 import com.savor.ads.bean.MiniProgramProjection;
 import com.savor.ads.bean.ProjectionImg;
@@ -40,6 +41,7 @@ import com.savor.ads.database.DBHelper;
 import com.savor.ads.dialog.PayRedEnvelopeQrCodeDialog;
 import com.savor.ads.dialog.ProjectionImgListDialog;
 import com.savor.ads.dialog.ScanRedEnvelopeQrCodeDialog;
+import com.savor.ads.log.LogReportUtil;
 import com.savor.ads.okhttp.coreProgress.download.ProgressDownloader;
 import com.savor.ads.oss.OSSUtils;
 import com.savor.ads.projection.ProjectionManager;
@@ -174,6 +176,19 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             if (!TextUtils.isEmpty(session.getNettyUrl())&&session.getNettyPort()!=0) {
                 MiniProNettyClient.init(session.getNettyPort(), session.getNettyUrl(), this, getApplicationContext());
                 MiniProNettyClient.get().start();
+                String mUUID = String.valueOf(System.currentTimeMillis());
+                LogReportUtil.get(this).sendAdsLog(mUUID,
+                        session.getBoiteId(),
+                        session.getRoomId(),
+                        String.valueOf(System.currentTimeMillis()),
+                        LogParam.conn,
+                        LogParam.netty,
+                        "",
+                        "",
+                        session.getVersionName(),
+                        session.getAdsPeriod(),
+                        session.getBirthdayOndemandPeriod(),
+                        "");
             }
         }catch (Exception e){
             e.printStackTrace();
