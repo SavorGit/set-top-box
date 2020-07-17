@@ -1,8 +1,12 @@
 package com.savor.ads.okhttp.coreProgress.download;
 
+import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.savor.ads.core.Session;
+import com.savor.ads.log.LogParamValues;
+import com.savor.ads.log.LogReportUtil;
 import com.savor.ads.service.MiniProgramNettyService;
 import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.LogFileUtil;
@@ -42,6 +46,8 @@ public class ProgressDownloader {
     public final static int CONNECT_TIMEOUT =60;
     public final static int READ_TIMEOUT=10;
     public final static int WRITE_TIMEOUT=10;
+    private Context context;
+    private Session session;
     private String url;
     private OkHttpClient client;
     //下载文件存储的位置
@@ -51,25 +57,38 @@ public class ProgressDownloader {
     //下载失败重复下载次数，最多3次
     private int downloadCount=0;
     private Call call;
+    private boolean standard;
     private MiniProgramNettyService.DownloadProgressListener downloadProgressListener;
 
     public void setDownloadProgressListener(MiniProgramNettyService.DownloadProgressListener listener){
         downloadProgressListener = listener;
     }
 
-    public ProgressDownloader (String url,String filePath,String fileName){
+    public ProgressDownloader (Context context, String url, String filePath, String fileName){
         this.url = url;
         this.filePath = filePath;
         this.fileName = fileName;
         //在下载、暂停后的继续下载中可复用同一个client对象
         client = getProgressClient();
     }
-    public ProgressDownloader (String url,String filePath,String fileName,long resourceSize){
+    public ProgressDownloader (Context context,String url,String filePath,String fileName,long resourceSize,boolean standard){
+        this.context = context;
+        session = Session.get(context);
         this.url = url;
         this.filePath = filePath;
         this.fileName = fileName;
         this.fileSize = resourceSize;
+        this.standard = standard;
         //在下载、暂停后的继续下载中可复用同一个client对象
+        client = getProgressClient();
+    }
+    public ProgressDownloader (Context context,String url,String filePath,String fileName,boolean standard){
+        this.context = context;
+        session = Session.get(context);
+        this.url = url;
+        this.filePath = filePath;
+        this.fileName = fileName;
+        this.standard = standard;
         client = getProgressClient();
     }
     //每次下载需要新建新的Call对象
@@ -128,7 +147,20 @@ public class ProgressDownloader {
                 call = newCall();
                 Response response = call.execute();
                 if (response.code() == 200) {
+                    long startTime = System.currentTimeMillis();
                     flag = saveRangeFile(response,startIndex,cacheFile);
+                    String useTime = String.valueOf(System.currentTimeMillis()-startTime);
+                    if (flag){
+                        String resourceSize = String.valueOf(cacheFile.length());
+                        String mUUID = String.valueOf(System.currentTimeMillis());
+                        if (standard){
+                            LogReportUtil.get(context).downloadLog(mUUID, LogParamValues.download, LogParamValues.standard_size,resourceSize);
+                            LogReportUtil.get(context).downloadLog(mUUID, LogParamValues.download, LogParamValues.standard_duration,useTime);
+                        }else {
+                            LogReportUtil.get(context).downloadLog(mUUID, LogParamValues.download, LogParamValues.speed_size,resourceSize);
+                            LogReportUtil.get(context).downloadLog(mUUID, LogParamValues.download, LogParamValues.speed_duration,useTime);
+                        }
+                    }
                 }
             }
         }catch (Exception e){

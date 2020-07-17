@@ -161,25 +161,36 @@ public class LogReportUtil {
         offer(mLogEn);
     }
 
-    /**
-     * 写小程序码显示日志
-     * @param boxId
-     * @param hotel_id
-     * @param room_id
-     * @param time
-     * @param action
-     */
-    public void sendQRCodeLog(String boxId,
-                            String hotel_id,
-                            String room_id,
-                            String time,
-                            String action){
-        QRCodeLogBean codeLogBean = new QRCodeLogBean();
-        codeLogBean.setHotel_id(hotel_id);
-        codeLogBean.setRoom_id(room_id);
-        codeLogBean.setBoxId(boxId);
-        codeLogBean.setAction(action);
-        codeLogBean.setTime(time);
-        offerQRCode(codeLogBean);
+    public void downloadLog(String mUUID,String action, String type){
+        downloadLog(mUUID,action,type,"","");
     }
+
+    public void downloadLog(String mUUID,String action, String type,String resourceSize){
+        downloadLog(mUUID,action,type,resourceSize,"");
+    }
+
+    /**
+     * 极简版投屏日志
+     * @param mUUID
+     * @param action
+     * @param type
+     * @param resourceSize
+     * @param serial_number 这个序列号只有极简版才会用到
+     */
+    public void downloadLog(String mUUID,String action, String type,String resourceSize,String serial_number){
+        sendAdsLog(mUUID,
+                session.getBoiteId(),
+                session.getRoomId(),
+                String.valueOf(System.currentTimeMillis()),
+                action,
+                type,
+                serial_number,
+                "",
+                session.getVersionName(),
+                session.getAdsPeriod(),
+                session.getBirthdayOndemandPeriod(),
+                resourceSize);
+    }
+
+
 }

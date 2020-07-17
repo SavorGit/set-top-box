@@ -15,6 +15,8 @@ import android.content.Context;
 
 import com.google.gson.Gson;
 import com.savor.ads.core.Session;
+import com.savor.ads.log.LogParamValues;
+import com.savor.ads.log.LogReportUtil;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.LogFileUtil;
@@ -253,6 +255,8 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
             loop.schedule(() -> {
                 LogUtils.i("Reconnecting to: " + session.getNettyUrl() + ':' + session.getNettyPort());
                 client.start();
+                String mUUid = String.valueOf(System.currentTimeMillis());
+                LogReportUtil.get(mContext).downloadLog(mUUid, LogParamValues.reconn,LogParamValues.netty);
             }, 60L, TimeUnit.SECONDS);
         } catch (Exception ex) {
             ex.toString();

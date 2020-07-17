@@ -80,7 +80,7 @@ public class UpdateUtil{
      */
     public boolean dowloadApkFile(String oss_url,String basePath,String apkName){
         try {
-            return new ProgressDownloader(oss_url,basePath, apkName).downloadByRange();
+            return new ProgressDownloader(mContext,oss_url,basePath, apkName,true).downloadByRange();
         }catch (Exception e){
             e.printStackTrace();
         }

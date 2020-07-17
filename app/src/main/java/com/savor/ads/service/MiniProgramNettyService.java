@@ -40,6 +40,8 @@ import com.savor.ads.database.DBHelper;
 import com.savor.ads.dialog.PayRedEnvelopeQrCodeDialog;
 import com.savor.ads.dialog.ProjectionImgListDialog;
 import com.savor.ads.dialog.ScanRedEnvelopeQrCodeDialog;
+import com.savor.ads.log.LogParamValues;
+import com.savor.ads.log.LogReportUtil;
 import com.savor.ads.okhttp.coreProgress.download.ProgressDownloader;
 import com.savor.ads.oss.OSSUtils;
 import com.savor.ads.projection.ProjectionManager;
@@ -174,6 +176,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             if (!TextUtils.isEmpty(session.getNettyUrl())&&session.getNettyPort()!=0) {
                 MiniProNettyClient.init(session.getNettyPort(), session.getNettyUrl(), this, getApplicationContext());
                 MiniProNettyClient.get().start();
+                String mUUid = String.valueOf(System.currentTimeMillis());
+                LogReportUtil.get(context).downloadLog(mUUid, LogParamValues.conn,LogParamValues.netty);
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -674,7 +678,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             if (session.isWhether4gNetwork()){
                 try {
                     String oss_url = BuildConfig.OSS_ENDPOINT+url;
-                    isDownloaded = new ProgressDownloader(oss_url, basePath,fileName).downloadByRange();
+                    isDownloaded = new ProgressDownloader(context,oss_url, basePath,fileName,true).downloadByRange();
                     if (isDownloaded){
                         handler.post(new Runnable() {
                             @Override
@@ -847,7 +851,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             params.put("is_exist", 0);
             try {
                 String oss_url = BuildConfig.OSS_ENDPOINT+url;
-                ProgressDownloader downloader = new ProgressDownloader(oss_url, basePath,fileName,resourceSize);
+                ProgressDownloader downloader = new ProgressDownloader(context,oss_url, basePath,fileName,resourceSize,true);
                 downloader.setDownloadProgressListener(new DownloadProgressListener() {
                     @Override
                     public void getDownloadProgress(long currentSize, long totalSize) {
@@ -1422,7 +1426,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
 //                params.put("is_exist", 0);
                 try {
                     String oss_url = BuildConfig.OSS_ENDPOINT+img.getUrl();
-                    ProgressDownloader downloader = new ProgressDownloader(oss_url, basePath,fileName,resourceSize);
+                    ProgressDownloader downloader = new ProgressDownloader(context,oss_url, basePath,fileName,resourceSize,true);
                     downloader.setDownloadProgressListener(new DownloadProgressListener() {
                         @Override
                         public void getDownloadProgress(long currentSize, long totalSize) {
@@ -1637,7 +1641,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         if(new File(path).exists()){
             imgPath = path;
         }else{
-            boolean isDownloaded = new ProgressDownloader(img_url,projectionPath,filename).downloadByRange();
+            boolean isDownloaded = new ProgressDownloader(context,img_url,projectionPath,filename,true).downloadByRange();
             if (isDownloaded){
                 imgPath = path;
             }else{
