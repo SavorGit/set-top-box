@@ -43,8 +43,8 @@ class ProxyCache {
         }
         int read = cache.read(buffer, offset, length);
         if (cache.isCompleted() && percentsAvailable != 100) {
-            percentsAvailable = 100;
-            onCachePercentsAvailableChanged(100);
+//            percentsAvailable = 100;
+//            onCachePercentsAvailableChanged(100);
         }
         return read;
     }
@@ -143,8 +143,8 @@ class ProxyCache {
 
     private void onSourceRead() {
         // guaranteed notify listeners after source read and cache completed
-        percentsAvailable = 100;
-        onCachePercentsAvailableChanged(percentsAvailable);
+//        percentsAvailable = 100;
+//        onCachePercentsAvailableChanged(percentsAvailable);
     }
 
     private void tryComplete() throws ProxyCacheException {

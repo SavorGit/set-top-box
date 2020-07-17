@@ -41,6 +41,7 @@ import com.savor.ads.core.AppApi;
 import com.savor.ads.customview.CircleProgressBar;
 import com.savor.ads.customview.MyImageView;
 import com.savor.ads.customview.ProjectVideoView;
+import com.savor.ads.log.LogParamValues;
 import com.savor.ads.log.LogReportUtil;
 import com.savor.ads.projection.action.ProjectionActionBase;
 import com.savor.ads.projection.action.StopAction;
@@ -258,6 +259,8 @@ public class ScreenProjectionActivity extends BaseActivity{
     private MiniProgramNettyService.AdsBinder adsBinder;
     private RemoteService remoteJettyService;
     private RemoteService.OperationBinder remoteBinder;
+
+    private long startTime=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -499,6 +502,7 @@ public class ScreenProjectionActivity extends BaseActivity{
      * 根据不同的投屏类型
      */
     private void handleProjectRequest() {
+        startTime = System.currentTimeMillis();
         if (!ConstantValues.PROJECT_TYPE_REST_PICTURE.equals(mProjectType)||
                 (ConstantValues.PROJECT_TYPE_REST_PICTURE.equals(mProjectType)&&mIsThumbnail)){
 
@@ -922,12 +926,12 @@ public class ScreenProjectionActivity extends BaseActivity{
      */
     public void setNewProjection(Bundle bundle) {
         isNewProjection = false;
-
+        downloadLog(true);
         handleNewProjection(bundle);
     }
 
     private void handleProjectionEndResult(){
-
+        downloadLog(true);
         LogUtils.d("mExitProjectionRunnable " + ScreenProjectionActivity.this.hashCode());
         if (miniProgramNettyService!=null&&from_service == GlobalValues.FROM_SERVICE_MINIPROGRAM){
             LogUtils.d("handleImgAndVideo=000>>>currentAction="+currentAction+"&mForscreenId="+mForscreenId);
@@ -1422,6 +1426,7 @@ public class ScreenProjectionActivity extends BaseActivity{
         @Override
         public boolean onMediaError(int index, boolean isLast) {
             LogUtils.w("activity onMediaError " + this.hashCode());
+            downloadLog(false);
             if (!AppUtils.isSVT()){
                 ShowMessage.showToast(mContext, "视频播放失败");
             }
@@ -1464,12 +1469,45 @@ public class ScreenProjectionActivity extends BaseActivity{
                 params.put("is_download",1);
                 postProjectionResourceLog(params);
             }
-
+            if (from_service==GlobalValues.FROM_SERVICE_MINIPROGRAM){
+                String mUuid = String.valueOf(System.currentTimeMillis());
+                String useTime = String.valueOf(System.currentTimeMillis()-startTime);
+                String resourceSize=null;
+                if (!TextUtils.isEmpty(mMediaUrl)){
+                    String [] names = mMediaUrl.split("/");
+                    if (names!=null&&names.length>0){
+                        String name = names[names.length-1];
+                        String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+                        File file = new File(basePath+name);
+                        if (file.exists()){
+                            resourceSize = String.valueOf(file.length());
+                        }
+                    }
+                }
+                LogReportUtil.get(mContext).downloadLog(mUuid, LogParamValues.download,LogParamValues.standard_duration,useTime);
+                LogReportUtil.get(mContext).downloadLog(mUuid, LogParamValues.download,LogParamValues.standard_size,resourceSize);
+            }
         }
     };
 
 
 
+    private void downloadLog(boolean success){
+        String mUuid = String.valueOf(System.currentTimeMillis());
+        if (from_service==GlobalValues.FROM_SERVICE_MINIPROGRAM){
+            if (success){
+                LogReportUtil.get(mContext).downloadLog(mUuid, LogParamValues.launch,LogParamValues.standard_success);
+            }else{
+                LogReportUtil.get(mContext).downloadLog(mUuid, LogParamValues.launch,LogParamValues.standard_fail);
+            }
+        }else{
+            if (success){
+                LogReportUtil.get(mContext).downloadLog(mUuid, LogParamValues.launch,LogParamValues.speed_success);
+            }else{
+                LogReportUtil.get(mContext).downloadLog(mUuid, LogParamValues.launch,LogParamValues.speed_fail);
+            }
+        }
+    }
 
     /**
      * 小程序投屏日志统计接口，不在区分资源类型

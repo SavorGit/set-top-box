@@ -264,18 +264,23 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
     }
 
     public void addItems(final String url, final String text) {
-        Glide.with(mContext).load(url).into(new SimpleTarget<Drawable>() {
-            @Override
-            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+        if (!TextUtils.isEmpty(url)){
+            Glide.with(mContext).load(url).into(new SimpleTarget<Drawable>() {
+                @Override
+                public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
 
-                try {
-                    Bitmap bitmap = AppUtils.drawable2Bitmap(resource);
-                    addDanmaKuShowTextAndImage(bitmap, text, Color.WHITE, Color.RED, false);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    try {
+                        Bitmap bitmap = AppUtils.drawable2Bitmap(resource);
+                        addDanmaKuShowTextAndImage(bitmap, text, Color.WHITE, Color.RED, false);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        });
+            });
+        }else{
+            addDanmaKuShowTextAndImage(null, text, Color.WHITE, Color.RED, false);
+        }
+
 
     }
 
@@ -284,15 +289,17 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
         if (danmaku == null) {
             Log.e(TAG, "BaseDanmaku空");
         }
-
-        //最里面的图像
-        RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
-        drawable.setCircular(true);
-        drawable.setAntiAlias(true);
-        drawable.setCornerRadius(Math.max(bitmap.getWidth() / 2, bitmap.getHeight() / 2));
-        drawable.setBounds(0, 0, bitmap.getWidth() / 2, bitmap.getHeight() / 2);
-
+        RoundedBitmapDrawable drawable = null;
+        if (bitmap!=null){
+            //最里面的图像
+            drawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
+            drawable.setCircular(true);
+            drawable.setAntiAlias(true);
+            drawable.setCornerRadius(Math.max(bitmap.getWidth() / 2, bitmap.getHeight() / 2));
+            drawable.setBounds(0, 0, bitmap.getWidth() / 2, bitmap.getHeight() / 2);
+        }
         SpannableStringBuilder spannable = createSpannable(drawable, msg, bgColor);
+
         danmaku.text = spannable;
         danmaku.padding = 10;
         danmaku.priority = 1; // 一定会显示, 一般用于本机发送的弹幕
@@ -311,10 +318,10 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
         String text = "image";
         SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(text);
         spannableStringBuilder.append(msg);
-
-        ImageSpan span = new ImageSpan(drawable);// ImageSpan.ALIGN_BOTTOM);
-        spannableStringBuilder.setSpan(span, 0, text.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
+        if (drawable!=null){
+            ImageSpan span = new ImageSpan(drawable);// ImageSpan.ALIGN_BOTTOM);
+            spannableStringBuilder.setSpan(span, 0, text.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
         spannableStringBuilder.setSpan(new BackgroundColorSpan(color), 0, spannableStringBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         return spannableStringBuilder;
     }

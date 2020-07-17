@@ -729,7 +729,11 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                             }else{
                                 if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())
                                         ||ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())) {
-                                    mSavorVideoView.playNext();
+                                    if (Looper.myLooper()==Looper.getMainLooper()){
+                                        mSavorVideoView.playNext();
+                                    }else{
+                                        mHandler.post(()->mSavorVideoView.playNext());
+                                    }
                                 }else{
                                     ((SavorApplication) getApplication()).hideMiniProgramQrCodeWindow();
                                     LogUtils.v("MiniProgramNettyService closeMiniProgramQrCodeWindow");
@@ -1798,7 +1802,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 
                                 try {
                                     DSP_DOWNLOADING_FILES.add(fileName);
-                                    boolean isDownloaded =new ProgressDownloader(url, basePath,fileName).downloadByRange();
+                                    boolean isDownloaded =new ProgressDownloader(mContext,url, basePath,fileName,true).downloadByRange();
                                     boolean isCompleted = AppUtils.isDownloadCompleted(path,adInfo.getMatMd5());
                                     if (isDownloaded&&isCompleted){
                                         DSP_DOWNLOADING_FILES.remove(fileName);
@@ -1910,7 +1914,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 
                             try {
                                 DSP_DOWNLOADING_FILES.add(fileName);
-                                boolean isDownloaded =new ProgressDownloader(url, basePath,fileName).downloadByRange();
+                                boolean isDownloaded =new ProgressDownloader(mContext,url, basePath,fileName,true).downloadByRange();
                                 boolean isCompleted = AppUtils.isDownloadCompleted(path,md5.toUpperCase());
                                 if (isDownloaded&&isCompleted){
                                     DSP_DOWNLOADING_FILES.remove(fileName);
@@ -1983,7 +1987,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                         }
                         try {
                             DSP_DOWNLOADING_FILES.add(fileName);
-                            boolean isDownloaded =new ProgressDownloader(url, basePath,fileName).downloadByRange();
+                            boolean isDownloaded =new ProgressDownloader(mContext,url, basePath,fileName,true).downloadByRange();
                             boolean isCompleted = AppUtils.isDownloadCompleted(path,sign.toUpperCase());
                             if (isDownloaded&&isCompleted){
                                 DSP_DOWNLOADING_FILES.remove(fileName);

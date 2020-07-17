@@ -15,8 +15,6 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.jar.savor.box.services.RemoteService;
-import com.jar.savor.box.vo.RotateResponseVo;
 import com.savor.ads.BuildConfig;
 import com.savor.ads.R;
 import com.savor.ads.SavorApplication;
@@ -27,7 +25,7 @@ import com.savor.ads.activity.ScreenProjectionActivity;
 import com.savor.ads.activity.WebviewGameActivity;
 import com.savor.ads.bean.BirthdayOndemandBean;
 import com.savor.ads.bean.JsonBean;
-import com.savor.ads.bean.LogParam;
+import com.savor.ads.log.LogParamValues;
 import com.savor.ads.bean.MediaLibBean;
 import com.savor.ads.bean.MiniProgramProjection;
 import com.savor.ads.bean.ProjectionImg;
@@ -177,18 +175,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 MiniProNettyClient.init(session.getNettyPort(), session.getNettyUrl(), this, getApplicationContext());
                 MiniProNettyClient.get().start();
                 String mUUID = String.valueOf(System.currentTimeMillis());
-                LogReportUtil.get(this).sendAdsLog(mUUID,
-                        session.getBoiteId(),
-                        session.getRoomId(),
-                        String.valueOf(System.currentTimeMillis()),
-                        LogParam.conn,
-                        LogParam.netty,
-                        "",
-                        "",
-                        session.getVersionName(),
-                        session.getAdsPeriod(),
-                        session.getBirthdayOndemandPeriod(),
-                        "");
+                LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.conn,LogParamValues.netty,"");
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -385,7 +372,13 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                                     if (userBarrageList!=null&&userBarrageList.size()>0&&activity instanceof AdsPlayerActivity){
                                         for (UserBarrage userBarrage:userBarrageList){
                                             if (!TextUtils.isEmpty(userBarrage.getBarrage())){
-                                                ((AdsPlayerActivity) activity).showDanmaku(userBarrage.getAvatarUrl(),userBarrage.getBarrage());
+                                                if (!TextUtils.isEmpty(userBarrage.getHeadPic())){
+                                                    String headPic = Base64Utils.getFromBase64(userBarrage.getHeadPic());
+                                                    ((AdsPlayerActivity) activity).showDanmaku(headPic,userBarrage.getBarrage());
+                                                }else{
+                                                    ((AdsPlayerActivity) activity).showDanmaku(null,userBarrage.getBarrage());
+                                                }
+
                                             }
                                         }
                                     }
@@ -689,7 +682,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             if (session.isWhether4gNetwork()){
                 try {
                     String oss_url = BuildConfig.OSS_ENDPOINT+url;
-                    isDownloaded = new ProgressDownloader(oss_url, basePath,fileName).downloadByRange();
+                    isDownloaded = new ProgressDownloader(context,oss_url, basePath,fileName,true).downloadByRange();
                     if (isDownloaded){
                         handler.post(new Runnable() {
                             @Override
@@ -1379,7 +1372,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
 //                params.put("is_exist", 0);
                 try {
                     String oss_url = BuildConfig.OSS_ENDPOINT+img.getUrl();
-                    ProgressDownloader downloader = new ProgressDownloader(oss_url, basePath,fileName,resourceSize);
+                    ProgressDownloader downloader = new ProgressDownloader(context,oss_url, basePath,fileName,resourceSize,true);
                     downloader.setDownloadProgressListener(new DownloadProgressListener() {
                         @Override
                         public void getDownloadProgress(long currentSize, long totalSize) {
@@ -1594,7 +1587,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         if(new File(path).exists()){
             imgPath = path;
         }else{
-            boolean isDownloaded = new ProgressDownloader(img_url,projectionPath,filename).downloadByRange();
+            boolean isDownloaded = new ProgressDownloader(context,img_url,projectionPath,filename,true).downloadByRange();
             if (isDownloaded){
                 imgPath = path;
             }else{

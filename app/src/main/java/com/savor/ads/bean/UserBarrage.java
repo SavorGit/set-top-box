@@ -3,6 +3,7 @@ package com.savor.ads.bean;
 public class UserBarrage {
 
     private String avatarUrl;
+    private String headPic;
     private String nickName;
     private String barrage;
 
@@ -12,6 +13,14 @@ public class UserBarrage {
 
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
+    }
+
+    public String getHeadPic() {
+        return headPic;
+    }
+
+    public void setHeadPic(String headPic) {
+        this.headPic = headPic;
     }
 
     public String getNickName() {

@@ -54,6 +54,8 @@ import com.savor.ads.core.AppApi;
 import com.savor.ads.core.Session;
 import com.savor.ads.database.DBHelper;
 import com.savor.ads.dialog.ProjectionImgListDialog;
+import com.savor.ads.log.LogParamValues;
+import com.savor.ads.log.LogReportUtil;
 import com.savor.ads.okhttp.coreProgress.download.ProgressDownloader;
 import com.savor.ads.projection.ProjectionManager;
 import com.savor.ads.service.MiniProgramNettyService;
@@ -314,11 +316,9 @@ public class RemoteService extends Service {
             switch (action) {
                 case "/vod":
                     currentAction = 0;
-                    resJson = handleVodRequest(request, isWebReq, deviceId, deviceName, forceProject);
                     break;
                 case "/video":
                     currentAction = 1;
-                    resJson = handleVideoRequest(request, isWebReq, deviceId, deviceName, forceProject);
                     break;
                 case "/videoH5":
                 case "/h5/video":
@@ -331,7 +331,6 @@ public class RemoteService extends Service {
                     break;
                 case "/pic":
                     currentAction = 4;
-                    resJson = handlePicRequest(request, isWebReq, deviceId, deviceName, resJson, forceProject);
                     break;
                 case "/picH5":
                 case "/h5/pic":
@@ -446,185 +445,6 @@ public class RemoteService extends Service {
             return resJson;
         }
 
-        /**
-         * 处理点播请求
-         *
-         * @param request
-         * @param isWebReq
-         * @param deviceId
-         * @param deviceName
-         * @param forceProject
-         * @return
-         */
-        private String handleVodRequest(HttpServletRequest request, boolean isWebReq, String deviceId, String deviceName, int forceProject) {
-            String resJson;
-            String type = request.getParameter("type");
-            String mediaName = request.getParameter("name");
-            int position = 0;
-            try {
-                position = Integer.parseInt(request.getParameter("position"));
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            }
-            try {
-                forceProject = Integer.parseInt(request.getParameter("force"));
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            }
-            if (TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_DEVICE_ID) ||
-                    deviceId.equals(GlobalValues.CURRENT_PROJECT_DEVICE_ID)) {
-
-                BaseResponse object = RemoteService.listener.showVod(mediaName, type, position, isWebReq, TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_DEVICE_ID),GlobalValues.FROM_SERVICE_REMOTE);
-                if (object.getCode() == AppApi.HTTP_RESPONSE_STATE_SUCCESS) {
-                    GlobalValues.CURRENT_PROJECT_DEVICE_ID = deviceId;
-                    GlobalValues.CURRENT_PROJECT_DEVICE_NAME = deviceName;
-                    GlobalValues.CURRENT_PROJECT_DEVICE_IP = request.getRemoteHost();
-                    AppApi.resetPhoneInterface(GlobalValues.CURRENT_PROJECT_DEVICE_IP);
-                }
-                resJson = new Gson().toJson(object);
-            } else {
-                if (isWebReq || GlobalValues.IS_LOTTERY) {
-                    BaseResponse vo = new BaseResponse();
-                    vo.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
-                    if (GlobalValues.IS_LOTTERY) {
-                        vo.setMsg("请稍等，" + GlobalValues.CURRENT_PROJECT_DEVICE_NAME + " 正在砸蛋");
-                    } else {
-                        vo.setMsg("请稍等，" + GlobalValues.CURRENT_PROJECT_DEVICE_NAME + " 正在投屏");
-                    }
-                    resJson = new Gson().toJson(vo);
-                } else {
-                    if (forceProject == 1) {
-                        BaseResponse object = RemoteService.listener.showVod(mediaName, type, position, isWebReq, true,GlobalValues.FROM_SERVICE_REMOTE);
-                        if (object.getCode() == AppApi.HTTP_RESPONSE_STATE_SUCCESS) {
-                            // 通知上一个投屏者已被抢投
-                            if (!TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_DEVICE_IP)) {
-                                AppApi.notifyStop(RemoteService.this, this, 1, deviceName);
-                            }
-
-                            GlobalValues.CURRENT_PROJECT_DEVICE_ID = deviceId;
-                            GlobalValues.CURRENT_PROJECT_DEVICE_NAME = deviceName;
-                            GlobalValues.IS_RSTR_PROJECTION = false;
-                            GlobalValues.CURRENT_PROJECT_DEVICE_IP = request.getRemoteHost();
-                            AppApi.resetPhoneInterface(GlobalValues.CURRENT_PROJECT_DEVICE_IP);
-                        }
-                        resJson = new Gson().toJson(object);
-
-                    } else if (forceProject == -1) {
-                        BaseResponse vo = new BaseResponse();
-                        vo.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
-                        if (GlobalValues.IS_LOTTERY) {
-                            vo.setMsg("请稍等，" + GlobalValues.CURRENT_PROJECT_DEVICE_NAME + " 正在砸蛋");
-                        } else {
-                            vo.setMsg("请稍等，" + GlobalValues.CURRENT_PROJECT_DEVICE_NAME + " 正在投屏");
-                        }
-                        resJson = new Gson().toJson(vo);
-                    } else {
-                        BaseResponse vo = new BaseResponse();
-                        vo.setCode(ConstantValues.SERVER_RESPONSE_CODE_ANOTHER_PROJECT);
-                        vo.setMsg(GlobalValues.CURRENT_PROJECT_DEVICE_NAME);
-
-                        resJson = new Gson().toJson(vo);
-                    }
-                }
-            }
-            return resJson;
-        }
-
-        /**
-         * 处理视频投屏请求
-         *
-         * @param request
-         * @param isWebReq
-         * @param deviceId
-         * @param deviceName
-         * @param forceProject
-         * @return
-         * @throws IOException
-         */
-        private String handleVideoRequest(HttpServletRequest request, boolean isWebReq, String deviceId, String deviceName, int forceProject) throws IOException {
-            String resJson;
-            try {
-                forceProject = Integer.parseInt(request.getParameter("force"));
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            }
-            if (TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_DEVICE_ID) ||
-                    deviceId.equals(GlobalValues.CURRENT_PROJECT_DEVICE_ID)) {
-                String reqJson = getBodyString(request);
-                VideoPrepareRequestVo req = (new Gson()).fromJson(reqJson, VideoPrepareRequestVo.class);
-                if (!TextUtils.isEmpty(req.getMediaPath())) {
-
-                    BaseResponse object = RemoteService.listener.showVideo(req.getMediaPath(),TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_DEVICE_ID),GlobalValues.FROM_SERVICE_REMOTE);
-                    if (object.getCode() == AppApi.HTTP_RESPONSE_STATE_SUCCESS) {
-                        GlobalValues.CURRENT_PROJECT_DEVICE_ID = deviceId;
-                        GlobalValues.CURRENT_PROJECT_DEVICE_NAME = deviceName;
-                        GlobalValues.IS_RSTR_PROJECTION = false;
-                        GlobalValues.CURRENT_PROJECT_DEVICE_IP = request.getRemoteHost();
-                        AppApi.resetPhoneInterface(GlobalValues.CURRENT_PROJECT_DEVICE_IP);
-                    }
-                    resJson = new Gson().toJson(object);
-                } else {
-                    BaseResponse vo = new BaseResponse();
-                    vo.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
-                    vo.setMsg("缺少视频路径");
-                    resJson = new Gson().toJson(vo);
-                }
-            } else {
-                if (isWebReq || GlobalValues.IS_LOTTERY) {
-                    BaseResponse vo = new BaseResponse();
-                    vo.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
-                    if (GlobalValues.IS_LOTTERY) {
-                        vo.setMsg("请稍等，" + GlobalValues.CURRENT_PROJECT_DEVICE_NAME + " 正在砸蛋");
-                    } else {
-                        vo.setMsg("请稍等，" + GlobalValues.CURRENT_PROJECT_DEVICE_NAME + " 正在投屏");
-                    }
-                    resJson = new Gson().toJson(vo);
-                } else {
-                    if (forceProject == 1) {
-                        String reqJson = getBodyString(request);
-                        VideoPrepareRequestVo req = (new Gson()).fromJson(reqJson, VideoPrepareRequestVo.class);
-                        if (!TextUtils.isEmpty(req.getMediaPath())) {
-
-                            BaseResponse object = RemoteService.listener.showVideo(req.getMediaPath(), true,GlobalValues.FROM_SERVICE_REMOTE);
-                            if (object.getCode() == AppApi.HTTP_RESPONSE_STATE_SUCCESS) {
-                                // 通知上一个投屏者已被抢投
-                                if (!TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_DEVICE_IP)) {
-                                    AppApi.notifyStop(RemoteService.this, this, 1, deviceName);
-                                }
-
-                                GlobalValues.CURRENT_PROJECT_DEVICE_ID = deviceId;
-                                GlobalValues.CURRENT_PROJECT_DEVICE_NAME = deviceName;
-                                GlobalValues.CURRENT_PROJECT_DEVICE_IP = request.getRemoteHost();
-                                AppApi.resetPhoneInterface(GlobalValues.CURRENT_PROJECT_DEVICE_IP);
-                            }
-                            resJson = new Gson().toJson(object);
-                        } else {
-                            BaseResponse vo = new BaseResponse();
-                            vo.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
-                            vo.setMsg("缺少视频路径");
-                            resJson = new Gson().toJson(vo);
-                        }
-                    } else if (forceProject == -1) {
-                        BaseResponse vo = new BaseResponse();
-                        vo.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
-                        if (GlobalValues.IS_LOTTERY) {
-                            vo.setMsg("请稍等，" + GlobalValues.CURRENT_PROJECT_DEVICE_NAME + " 正在砸蛋");
-                        } else {
-                            vo.setMsg("请稍等，" + GlobalValues.CURRENT_PROJECT_DEVICE_NAME + " 正在投屏");
-                        }
-                        resJson = new Gson().toJson(vo);
-                    } else {
-                        BaseResponse vo = new BaseResponse();
-                        vo.setCode(ConstantValues.SERVER_RESPONSE_CODE_ANOTHER_PROJECT);
-                        vo.setMsg(GlobalValues.CURRENT_PROJECT_DEVICE_NAME);
-
-                        resJson = new Gson().toJson(vo);
-                    }
-                }
-            }
-            return resJson;
-        }
-
         private String handleVideoH5Request(HttpServletRequest request, String deviceId, String deviceName,String resJson){
 
 
@@ -680,7 +500,7 @@ public class RemoteService extends Service {
                     String resource_type = request.getParameter("resource_type");
                     String duration = request.getParameter("duration");
                     String play_time = request.getParameter("play_times");
-
+                    String serial_number = request.getParameter("serial_number");
                     if (TextUtils.isEmpty(filename)){
                         object = new BaseResponse();
                         object.setMsg("上传异常-文件名称为空");
@@ -704,6 +524,7 @@ public class RemoteService extends Service {
 
                     }else{
                         int start = 0;
+                        long startTime = System.currentTimeMillis();
                         for (Part part : request.getParts()) {
                             switch (part.getName()) {
                                 case "fileUpload":
@@ -723,9 +544,9 @@ public class RemoteService extends Service {
                                         setDownloadProgress(video_id,totalSize,currentSize);
 
                                     }
-
                                     raf.close();
                                     part.delete();
+
                                     break;
                                 default:
                                     part.delete();
@@ -733,6 +554,13 @@ public class RemoteService extends Service {
                         }
                         isDownloaded = true;
                         videoTmpFile.renameTo(resultFile);
+
+                        String useTime = String.valueOf(System.currentTimeMillis()-startTime);
+                        String resourceSize = String.valueOf(resultFile.length());
+                        String mUUID = String.valueOf(System.currentTimeMillis());
+                        LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_size,resourceSize,serial_number);
+                        LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_duration,useTime,serial_number);
+
                     }
 
                     if (isDownloaded){
@@ -867,207 +695,6 @@ public class RemoteService extends Service {
         }
 
 
-        /**
-         * 处理图片投屏请求
-         *
-         * @param request
-         * @param isWebReq
-         * @param deviceId
-         * @param deviceName
-         * @param resJson
-         * @param forceProject
-         * @return
-         * @throws IOException
-         * @throws ServletException
-         */
-        private String handlePicRequest(HttpServletRequest request, boolean isWebReq, String deviceId, String deviceName, String resJson, int forceProject) throws IOException, ServletException {
-            String isThumbnail = request.getParameter("isThumbnail");
-            String imageId = request.getParameter("imageId");
-            String seriesId = request.getParameter("seriesId");
-            int imageType = 1;
-            try {
-                imageType = Integer.parseInt(request.getParameter("imageType"));
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            }
-            int rotation = 0;
-            try {
-                rotation = Integer.parseInt(request.getParameter("rotation"));
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            }
-            try {
-                forceProject = Integer.parseInt(request.getParameter("force"));
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            }
-            if (request.getContentType().contains("multipart/form-data;")) {
-
-                // 图片流投屏处理
-                resJson = handleStreamImageProjection(request, imageType, deviceId, deviceName,
-                        isThumbnail, imageId, rotation, seriesId, forceProject, isWebReq);
-            }
-            return resJson;
-        }
-
-        private String handleStreamImageProjection(HttpServletRequest request, int imageType,
-                                                   String deviceId, String deviceName, String isThumbnail,
-                                                   String imageId, int rotation, String seriesId, int forceProject,
-                                                   boolean isWebReq) throws IOException, ServletException {
-            String respJson = "";
-            if (TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_DEVICE_ID) ||
-                    deviceId.equals(GlobalValues.CURRENT_PROJECT_DEVICE_ID)) {
-
-                BaseResponse object = null;
-
-                boolean showImage = false;
-                if ("1".equals(isThumbnail)) {
-                    // 缩略图
-                    GlobalValues.CURRENT_PROJECT_IMAGE_ID = imageId;
-                    showImage = true;
-                } else {
-                    // 大图
-                    if (!TextUtils.isEmpty(imageId) &&
-                            imageId.equals(GlobalValues.CURRENT_PROJECT_IMAGE_ID)) {
-                        showImage = true;
-                    }
-                }
-
-                if (showImage) {
-                    Bitmap bitmap = null;
-
-                    MultipartConfigElement multipartConfigElement = new MultipartConfigElement((String) null);
-                    request.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT, multipartConfigElement);
-                    if (request.getParts() != null) {
-                        for (Part part : request.getParts()) {
-                            switch (part.getName()) {
-                                case "fileUpload":
-                                    bitmap = BitmapFactory.decodeStream(part.getInputStream());
-                                    part.delete();
-                                    break;
-                                default:
-                                    part.delete();
-                                    break;
-                            }
-                        }
-
-//                        FileOutputStream outputStream = new FileOutputStream(AppUtils.getSDCardPath() + System.currentTimeMillis() + ".jpg");
-//                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-                        // 显示图片
-                        GlobalValues.CURRENT_PROJECT_BITMAP = bitmap;
-                        object = RemoteService.listener.showImage(imageType, rotation, "1".equals(isThumbnail), seriesId, TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_DEVICE_ID),GlobalValues.FROM_SERVICE_REMOTE);
-                    } else {
-                        // 请求格式错误
-                        object = new BaseResponse();
-                        object.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
-                    }
-                } else {
-                    // 图片被忽略
-                    object = new BaseResponse();
-                    object.setCode(ConstantValues.SERVER_RESPONSE_CODE_IMAGE_ID_CHECK_FAILED);
-                }
-                if (object.getCode() == AppApi.HTTP_RESPONSE_STATE_SUCCESS) {
-                    GlobalValues.CURRENT_PROJECT_DEVICE_ID = deviceId;
-                    GlobalValues.CURRENT_PROJECT_DEVICE_NAME = deviceName;
-                    GlobalValues.IS_RSTR_PROJECTION = false;
-                    GlobalValues.CURRENT_PROJECT_DEVICE_IP = request.getRemoteHost();
-                    AppApi.resetPhoneInterface(GlobalValues.CURRENT_PROJECT_DEVICE_IP);
-                }
-
-                respJson = new Gson().toJson(object);
-            } else {
-                if (isWebReq || GlobalValues.IS_LOTTERY) {
-                    BaseResponse vo = new BaseResponse();
-                    vo.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
-                    if (GlobalValues.IS_LOTTERY) {
-                        vo.setMsg("请稍等，" + GlobalValues.CURRENT_PROJECT_DEVICE_NAME + " 正在砸蛋");
-                    } else {
-                        vo.setMsg("请稍等，" + GlobalValues.CURRENT_PROJECT_DEVICE_NAME + " 正在投屏");
-                    }
-                    respJson = new Gson().toJson(vo);
-                } else {
-                    if (forceProject == 1) {
-                        BaseResponse object = null;
-
-                        boolean showImage = false;
-                        if ("1".equals(isThumbnail)) {
-                            // 缩略图
-                            GlobalValues.CURRENT_PROJECT_IMAGE_ID = imageId;
-                            showImage = true;
-                        } else {
-                            // 大图
-                            if (!TextUtils.isEmpty(imageId) &&
-                                    imageId.equals(GlobalValues.CURRENT_PROJECT_IMAGE_ID)) {
-                                showImage = true;
-                            }
-                        }
-
-                        if (showImage) {
-                            Bitmap bitmap = null;
-
-                            MultipartConfigElement multipartConfigElement = new MultipartConfigElement((String) null);
-                            request.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT, multipartConfigElement);
-                            if (request.getParts() != null) {
-                                for (Part part : request.getParts()) {
-                                    switch (part.getName()) {
-                                        case "fileUpload":
-                                            bitmap = BitmapFactory.decodeStream(part.getInputStream());
-                                            part.delete();
-                                            break;
-                                        default:
-                                            part.delete();
-                                            break;
-                                    }
-                                }
-
-                                // 显示图片
-                                GlobalValues.CURRENT_PROJECT_BITMAP = bitmap;
-                                object = RemoteService.listener.showImage(imageType, rotation, "1".equals(isThumbnail), seriesId, true,GlobalValues.FROM_SERVICE_REMOTE);
-                            } else {
-                                // 请求格式错误
-                                object = new BaseResponse();
-                                object.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
-                            }
-                        } else {
-                            // 图片被忽略
-                            object = new BaseResponse();
-                            object.setCode(ConstantValues.SERVER_RESPONSE_CODE_IMAGE_ID_CHECK_FAILED);
-                        }
-                        if (object.getCode() == AppApi.HTTP_RESPONSE_STATE_SUCCESS) {
-                            // 通知上一个投屏者已被抢投
-                            if (!TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_DEVICE_IP)) {
-                                AppApi.notifyStop(RemoteService.this, this, 1, deviceName);
-                            }
-
-                            GlobalValues.CURRENT_PROJECT_DEVICE_ID = deviceId;
-                            GlobalValues.CURRENT_PROJECT_DEVICE_NAME = deviceName;
-                            GlobalValues.IS_RSTR_PROJECTION = false;
-                            GlobalValues.CURRENT_PROJECT_DEVICE_IP = request.getRemoteHost();
-                            AppApi.resetPhoneInterface(GlobalValues.CURRENT_PROJECT_DEVICE_IP);
-                        }
-
-                        respJson = new Gson().toJson(object);
-                    } else if (forceProject == -1) {
-                        BaseResponse vo = new BaseResponse();
-                        vo.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
-                        if (GlobalValues.IS_LOTTERY) {
-                            vo.setMsg("请稍等，" + GlobalValues.CURRENT_PROJECT_DEVICE_NAME + " 正在砸蛋");
-                        } else {
-                            vo.setMsg("请稍等，" + GlobalValues.CURRENT_PROJECT_DEVICE_NAME + " 正在投屏");
-                        }
-                        respJson = new Gson().toJson(vo);
-                    } else {
-                        BaseResponse vo = new BaseResponse();
-                        vo.setCode(ConstantValues.SERVER_RESPONSE_CODE_ANOTHER_PROJECT);
-                        vo.setMsg(GlobalValues.CURRENT_PROJECT_DEVICE_NAME);
-
-                        respJson = new Gson().toJson(vo);
-                    }
-                }
-            }
-            return respJson;
-        }
-
         private String handlePicH5Request(final HttpServletRequest request,final String deviceId, final String deviceName){
             String resJson = null;
             LogUtils.d("enter method request.handlePicH5Request");
@@ -1115,6 +742,7 @@ public class RemoteService extends Service {
                 String resource_size = request.getParameter("resource_size");
                 String resource_type = request.getParameter("resource_type");
                 String duration = request.getParameter("duration");
+                String serial_number = request.getParameter("serial_number");
                 final String img_id = System.currentTimeMillis()+"";
                 ProjectionImg img = new ProjectionImg();
                 img.setImg_id(img_id);
@@ -1142,6 +770,7 @@ public class RemoteService extends Service {
                         for (Part part : request.getParts()) {
                             switch (part.getName()) {
                                 case "fileUpload":
+                                    long startTime = System.currentTimeMillis();
                                     // 存文件
                                     RandomAccessFile raf = new RandomAccessFile(file, "rw");
                                     raf.seek(start);
@@ -1158,6 +787,11 @@ public class RemoteService extends Service {
                                     raf.close();
                                     part.delete();
                                     isDownload = true;
+                                    String useTime = String.valueOf(System.currentTimeMillis()-startTime);
+                                    String resourceSize = String.valueOf(file.length());
+                                    String mUUID = String.valueOf(System.currentTimeMillis());
+                                    LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_size,resourceSize,serial_number);
+                                    LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_duration,useTime,serial_number);
                                     break;
                                 default:
                                     part.delete();
@@ -1362,6 +996,7 @@ public class RemoteService extends Service {
                 String resource_size = request.getParameter("resource_size");
                 String resource_type = request.getParameter("resource_type");
                 String duration = request.getParameter("duration");
+                String serial_number = request.getParameter("serial_number");
                 final String img_id = System.currentTimeMillis()+"";
                 final MiniProgramProjection minipp = new MiniProgramProjection();
                 minipp.setImg_id(img_id);
@@ -1384,6 +1019,7 @@ public class RemoteService extends Service {
                         for (Part part : request.getParts()) {
                             switch (part.getName()) {
                                 case "fileUpload":
+                                    long startTime = System.currentTimeMillis();
                                     // 存文件
                                     RandomAccessFile raf = new RandomAccessFile(file, "rw");
                                     raf.seek(start);
@@ -1400,6 +1036,11 @@ public class RemoteService extends Service {
                                     raf.close();
                                     part.delete();
                                     isDownload = true;
+                                    String useTime = String.valueOf(System.currentTimeMillis()-startTime);
+                                    String resourceSize = String.valueOf(file.length());
+                                    String mUUID = String.valueOf(System.currentTimeMillis());
+                                    LogReportUtil.get(context).downloadLog(mUUID, LogParamValues.download,LogParamValues.speed_size,resourceSize,serial_number);
+                                    LogReportUtil.get(context).downloadLog(mUUID, LogParamValues.download,LogParamValues.speed_duration,useTime,serial_number);
                                     break;
                                 default:
                                     part.delete();
@@ -1993,7 +1634,7 @@ public class RemoteService extends Service {
                                 if (new File(path).exists()){
                                     isSuccess = true;
                                 }else{
-                                    isSuccess = new ProgressDownloader(url,basePath,fileName).downloadByRange();
+                                    isSuccess = new ProgressDownloader(context,url,basePath,fileName,true).downloadByRange();
                                 }
                                 if (isSuccess){
                                     handler.post(()->projectionImgListDialog.setImgDownloadProgress(img_id,100+"%"));

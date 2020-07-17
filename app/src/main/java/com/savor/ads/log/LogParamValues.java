@@ -1,13 +1,13 @@
-package com.savor.ads.bean;
+package com.savor.ads.log;
 
 
-public class LogParam{
-
+public class LogParamValues {
+    /**action**/
     public static final String conn = "conn";
     public static final String reconn = "reconn";
     public static final String download = "download";
     public static final String launch = "launch";
-
+    /**type**/
     public static final String netty = "netty";
     public static final String standard_size = "standard_size";
     public static final String standard_duration = "standard_duration";
