@@ -1174,7 +1174,7 @@ public class AppUtils {
                                 final String mediaPath = bean.getMedia_path();
                                 long resuorceSize = 0;
                                 if (!TextUtils.isEmpty(bean.getResource_size())){
-                                      = Long.valueOf(bean.getResource_size());
+                                    resuorceSize = Long.valueOf(bean.getResource_size());
                                 }
                                 String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
                                 JSONArray jsonArray = new JSONArray();
