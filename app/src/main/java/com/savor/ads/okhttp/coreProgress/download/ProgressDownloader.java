@@ -151,7 +151,7 @@ public class ProgressDownloader {
                     flag = saveRangeFile(response,startIndex,cacheFile);
                     String useTime = String.valueOf(System.currentTimeMillis()-startTime);
                     if (flag){
-                        String resourceSize = String.valueOf(cacheFile.length());
+                        String resourceSize = String.valueOf(new File(filePath+fileName).length());
                         String mUUID = String.valueOf(System.currentTimeMillis());
                         if (standard){
                             LogReportUtil.get(context).downloadLog(mUUID, LogParamValues.download, LogParamValues.standard_size,resourceSize);
