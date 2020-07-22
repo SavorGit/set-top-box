@@ -5,6 +5,7 @@ import java.io.Serializable;
 public class ProjectionLogBean implements Serializable {
 
     private String action;
+    private String serial_number;
     private String box_mac;
     private String duration;
     private String forscreen_char;
@@ -25,6 +26,14 @@ public class ProjectionLogBean implements Serializable {
 
     public void setAction(String action) {
         this.action = action;
+    }
+
+    public String getSerial_number() {
+        return serial_number;
+    }
+
+    public void setSerial_number(String serial_number) {
+        this.serial_number = serial_number;
     }
 
     public String getBox_mac() {
