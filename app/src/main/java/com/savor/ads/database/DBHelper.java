@@ -67,6 +67,7 @@ import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.RESOURCE_ID;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.RESOURCE_SIZE;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.RESOURCE_TYPE;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.ROTATION;
+import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.SERIAL_NUMBER;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.SMALL_APP_ID;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.START_DATE;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.SURFIX;
@@ -89,6 +90,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         public static class FieldName {
             public static final String ID = "id";
+            public static final String SERIAL_NUMBER = "serial_number";
             public static final String LOCATION_ID = "location_id";
             public static final String PERIOD = "period";
             public static final String ADS_ORDER = "ads_order";
@@ -167,7 +169,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "dbsavor.db";
 
 
-    private static final int DB_VERSION = 33;
+    private static final int DB_VERSION = 34;
 
     private Context mContext;
 
@@ -349,6 +351,14 @@ public class DBHelper extends SQLiteOpenHelper {
                 e.printStackTrace();
             }
         }
+        if(oldVersion<34){
+            try{
+                String alterAdslist = "ALTER TABLE " + TableName.PROJECTION_LOG + " ADD " + SERIAL_NUMBER + " TEXT;";
+                sqLiteDatabase.execSQL(alterAdslist);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -521,6 +531,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 + TableName.PROJECTION_LOG
                 + " (" + FieldName.ID + " INTEGER PRIMARY KEY, "
                 + ACTION + " TEXT, "
+                + SERIAL_NUMBER + " TEXT, "
                 + BOX_MAC + " TEXT, "
                 + DURATION + " TEXT, "
                 + FORSCREEN_CHAR + " TEXT, "
@@ -1408,6 +1419,7 @@ public class DBHelper extends SQLiteOpenHelper {
         try {
             ContentValues initialValues = new ContentValues();
             initialValues.put(ACTION,bean.getAction());
+            initialValues.put(SERIAL_NUMBER,bean.getSerial_number());
             initialValues.put(BOX_MAC,bean.getBox_mac());
             initialValues.put(DURATION,bean.getDuration());
             initialValues.put(FORSCREEN_CHAR,bean.getForscreen_char());
@@ -1420,7 +1432,7 @@ public class DBHelper extends SQLiteOpenHelper {
             initialValues.put(RESOURCE_TYPE,bean.getResource_type());
             initialValues.put(MEDIA_PATH,bean.getMedia_path());
             initialValues.put(SMALL_APP_ID,bean.getSmall_app_id());
-            initialValues.put(CREATETIME,System.currentTimeMillis()+"");
+            initialValues.put(CREATETIME,bean.getCreate_time());
             long success = db.insert(TableName.PROJECTION_LOG,null,initialValues);
             if (success>0){
                 flag = true;
@@ -1451,6 +1463,7 @@ public class DBHelper extends SQLiteOpenHelper {
                         do {
                             ProjectionLogBean bean = new ProjectionLogBean();
                             bean.setAction(cursor.getString(cursor.getColumnIndex(ACTION)));
+                            bean.setSerial_number(cursor.getString(cursor.getColumnIndex(SERIAL_NUMBER)));
                             bean.setBox_mac(cursor.getString(cursor.getColumnIndex(BOX_MAC)));
                             bean.setDuration(cursor.getString(cursor.getColumnIndex(DURATION)));
                             bean.setForscreen_char(cursor.getString(cursor.getColumnIndex(FORSCREEN_CHAR)));

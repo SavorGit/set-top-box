@@ -1174,7 +1174,7 @@ public class AppUtils {
                                 final String mediaPath = bean.getMedia_path();
                                 long resuorceSize = 0;
                                 if (!TextUtils.isEmpty(bean.getResource_size())){
-                                    resuorceSize = Long.valueOf(bean.getResource_size());
+                                      = Long.valueOf(bean.getResource_size());
                                 }
                                 String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
                                 JSONArray jsonArray = new JSONArray();
@@ -1266,9 +1266,11 @@ public class AppUtils {
         }
         HashMap<String,Object> params = new HashMap<>();
         params.put("box_mac", Session.get(context).getEthernetMac());
+        params.put("serial_number",bean.getSerial_number());
         params.put("forscreen_id", bean.getForscreen_id());
         params.put("resource_addr", jsonArray.toString());
         params.put("resource_id", bean.getResource_id());
+        params.put("create_time", bean.getCreate_time());
         AppApi.updateSimpleProjectionLog(context, new ApiRequestListener() {
             @Override
             public void onSuccess(AppApi.Action method, Object obj) {
