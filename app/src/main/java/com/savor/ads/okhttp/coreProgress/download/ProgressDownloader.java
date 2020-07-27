@@ -162,7 +162,7 @@ public class ProgressDownloader {
                     LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.standard_size,resourceSize);
                     LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.standard_duration,useTime);
                     if (!TextUtils.isEmpty(serial_number)){
-                        LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.speed_serial, LogParamValues.standard_serial,serial_number);
+                        LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.standard_serial,serial_number);
                     }
                 }else {
                     LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_size,resourceSize);
