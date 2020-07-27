@@ -620,6 +620,7 @@ public class ScreenProjectionActivity extends BaseActivity{
             mHandler.postDelayed(mShowMiniProgramQrCodeRunnable,1000*60*2);
 
         } else if (ConstantValues.PROJECT_TYPE_PICTURE.equals(mProjectType)) {
+            downloadLog(true);
             if (currentAction==40){
                 if (!TextUtils.isEmpty(goodsPrice)){
                     priceLayout.setVisibility(View.VISIBLE);
@@ -700,6 +701,7 @@ public class ScreenProjectionActivity extends BaseActivity{
                 mHandler.post(mCountDownRunnable);
             }
         } else if (mProjectType.equals(ConstantValues.PROJECT_TYPE_REST_PICTURE)){
+            downloadLog(true);
             //小程序餐厅端投图片
             mSavorVideoView.setVisibility(View.GONE);
             mSavorVideoView.release();
@@ -901,7 +903,6 @@ public class ScreenProjectionActivity extends BaseActivity{
      */
     public void setNewProjection(Bundle bundle) {
         isNewProjection = false;
-        downloadLog(true);
         handleNewProjection(bundle);
     }
 

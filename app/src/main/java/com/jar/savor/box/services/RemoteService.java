@@ -559,8 +559,9 @@ public class RemoteService extends Service {
                         videoTmpFile.renameTo(resultFile);
                         String useTime = String.valueOf(System.currentTimeMillis()-startTime);
                         String mUUid = String.valueOf(System.currentTimeMillis());
-                        LogReportUtil.get(context).downloadLog(mUUid, LogParamValues.download,LogParamValues.speed_size,resource_size,serial_number);
-                        LogReportUtil.get(context).downloadLog(mUUid, LogParamValues.download,LogParamValues.speed_duration,useTime,serial_number);
+                        LogReportUtil.get(context).downloadLog(mUUid, LogParamValues.download,LogParamValues.speed_size,resource_size);
+                        LogReportUtil.get(context).downloadLog(mUUid, LogParamValues.download,LogParamValues.speed_duration,useTime);
+                        LogReportUtil.get(context).downloadLog(mUUid, LogParamValues.download,LogParamValues.speed_serial,serial_number);
                     }
 
                     if (isDownloaded){
@@ -958,8 +959,9 @@ public class RemoteService extends Service {
                         }
                         String useTime = String.valueOf(System.currentTimeMillis()-startTime);
                         String mUUid = String.valueOf(System.currentTimeMillis());
-                        LogReportUtil.get(context).downloadLog(mUUid,LogParamValues.download,LogParamValues.speed_size,resource_size,serial_number);
-                        LogReportUtil.get(context).downloadLog(mUUid,LogParamValues.download,LogParamValues.speed_duration,useTime,serial_number);
+                        LogReportUtil.get(context).downloadLog(mUUid,LogParamValues.download,LogParamValues.speed_size,resource_size);
+                        LogReportUtil.get(context).downloadLog(mUUid,LogParamValues.download,LogParamValues.speed_duration,useTime);
+                        LogReportUtil.get(context).downloadLog(mUUid,LogParamValues.download,LogParamValues.speed_serial,serial_number);
                     }
                 }
 
@@ -1206,8 +1208,9 @@ public class RemoteService extends Service {
                         }
                         String useTime = String.valueOf(System.currentTimeMillis()-startTime);
                         String mUUid = String.valueOf(System.currentTimeMillis());
-                        LogReportUtil.get(context).downloadLog(mUUid,LogParamValues.download,LogParamValues.speed_size,resource_size,serial_number);
-                        LogReportUtil.get(context).downloadLog(mUUid,LogParamValues.download,LogParamValues.speed_duration,useTime,serial_number);
+                        LogReportUtil.get(context).downloadLog(mUUid,LogParamValues.download,LogParamValues.speed_size,resource_size);
+                        LogReportUtil.get(context).downloadLog(mUUid,LogParamValues.download,LogParamValues.speed_duration,useTime);
+                        LogReportUtil.get(context).downloadLog(mUUid,LogParamValues.download,LogParamValues.speed_serial,serial_number);
                     }
                 }
 

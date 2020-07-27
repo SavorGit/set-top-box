@@ -11,7 +11,9 @@ public class LogParamValues {
     public static final String netty = "netty";
     public static final String standard_size = "standard_size";
     public static final String standard_duration = "standard_duration";
+    public static final String standard_serial = "standard_serial";
     public static final String speed_size = "speed_size";
+    public static final String speed_serial = "speed_serial";
     public static final String speed_duration = "speed_duration";
     public static final String standard_success = "standard_success";
     public static final String standard_fail = "standard_fail";
