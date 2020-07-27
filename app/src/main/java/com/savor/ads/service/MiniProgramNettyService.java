@@ -90,7 +90,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private int DOWNLOAD_TIME = 0;
     private int downloadIndex;
     private int currentIndex;
-    public MiniProgramProjection miniProgramProjection;
+    public static MiniProgramProjection miniProgramProjection;
 
     private String headPic;
     private String nickName;
@@ -111,6 +111,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private boolean isPPTRunnable = false;
     //当前投屏唯一标示ID
     private String forscreen_id;
+    private String serial_number;
     private String words;
     Handler handler=new Handler(Looper.getMainLooper());
     public static ConcurrentHashMap<String,String> projectionIdMap = new ConcurrentHashMap<>();
@@ -245,6 +246,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         lastOpenid = openid;
                         openid = miniProgramProjection.getOpenid();
                         forscreen_id = miniProgramProjection.getForscreen_id();
+                        serial_number = miniProgramProjection.getSerial_number();
                     }
                     if (action != 101 && action != 102 && action != 103 && action != 105
                             && ActivitiesManager.getInstance().getCurrentActivity() instanceof MonkeyGameActivity) {
@@ -682,7 +684,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             if (session.isWhether4gNetwork()){
                 try {
                     String oss_url = BuildConfig.OSS_ENDPOINT+url;
-                    isDownloaded = new ProgressDownloader(context,oss_url, basePath,fileName,true).downloadByRange();
+                    isDownloaded = new ProgressDownloader(context,oss_url, basePath,fileName,true,serial_number).downloadByRange();
                     if (isDownloaded){
                         handler.post(new Runnable() {
                             @Override
@@ -1372,7 +1374,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
 //                params.put("is_exist", 0);
                 try {
                     String oss_url = BuildConfig.OSS_ENDPOINT+img.getUrl();
-                    ProgressDownloader downloader = new ProgressDownloader(context,oss_url, basePath,fileName,resourceSize,true);
+                    ProgressDownloader downloader = new ProgressDownloader(context,oss_url, basePath,fileName,resourceSize,true,serial_number);
                     downloader.setDownloadProgressListener(new DownloadProgressListener() {
                         @Override
                         public void getDownloadProgress(long currentSize, long totalSize) {
@@ -1587,7 +1589,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         if(new File(path).exists()){
             imgPath = path;
         }else{
-            boolean isDownloaded = new ProgressDownloader(context,img_url,projectionPath,filename,true).downloadByRange();
+            boolean isDownloaded = new ProgressDownloader(context,img_url,projectionPath,filename,true,serial_number).downloadByRange();
             if (isDownloaded){
                 imgPath = path;
             }else{

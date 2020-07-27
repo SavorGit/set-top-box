@@ -162,33 +162,31 @@ public class LogReportUtil {
     }
 
     public void downloadLog(String mUUID,String action, String type){
-        downloadLog(mUUID,action,type,"","");
+        downloadLog(mUUID,action,type,"");
     }
 
-    public void downloadLog(String mUUID,String action, String type,String resourceSize){
-        downloadLog(mUUID,action,type,resourceSize,"");
-    }
+
 
     /**
      * 极简版投屏日志
      * @param mUUID
      * @param action
      * @param type
-     * @param resourceSize
-     * @param serial_number 这个序列号只有极简版才会用到
+     * @param custom
      */
-    public void downloadLog(String mUUID,String action, String type,String resourceSize,String serial_number){
+    public void downloadLog(String mUUID,String action, String type,String custom){
         sendAdsLog(mUUID,
                 session.getBoiteId(),
                 session.getRoomId(),
                 String.valueOf(System.currentTimeMillis()),
                 action,
                 type,
-                serial_number,
+                "",
                 "",
                 session.getVersionName(),
                 session.getAdsPeriod(),
                 session.getBirthdayOndemandPeriod(),
-                resourceSize);
+                custom);
     }
+
 }

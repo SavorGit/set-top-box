@@ -645,6 +645,7 @@ public class ScreenProjectionActivity extends BaseActivity{
             mHandler.postDelayed(mShowMiniProgramQrCodeRunnable,1000*60*2);
 
         } else if (ConstantValues.PROJECT_TYPE_PICTURE.equals(mProjectType)) {
+            downloadLog(true);
             if (currentAction==40){
                 if (!TextUtils.isEmpty(goodsPrice)){
                     priceLayout.setVisibility(View.VISIBLE);
@@ -725,6 +726,7 @@ public class ScreenProjectionActivity extends BaseActivity{
                 mHandler.post(mCountDownRunnable);
             }
         } else if (mProjectType.equals(ConstantValues.PROJECT_TYPE_REST_PICTURE)){
+            downloadLog(true);
             //小程序餐厅端投图片
             mSavorVideoView.setVisibility(View.GONE);
             mSavorVideoView.release();
@@ -926,7 +928,6 @@ public class ScreenProjectionActivity extends BaseActivity{
      */
     public void setNewProjection(Bundle bundle) {
         isNewProjection = false;
-        downloadLog(true);
         handleNewProjection(bundle);
     }
 
@@ -1457,15 +1458,15 @@ public class ScreenProjectionActivity extends BaseActivity{
         }
 
         @Override
-        public void onMediaBufferPercent() {
-            MiniProgramNettyService mpns = new MiniProgramNettyService();
-            if (mpns.miniProgramProjection!=null){
+        public void onMediaBufferPercent(){
+            MiniProgramProjection mpp = MiniProgramNettyService.miniProgramProjection;
+            if (mpp!=null){
                 HashMap<String,Object> params = new HashMap<>();
-                params.put("req_id",mpns.miniProgramProjection.getReq_id());
-                params.put("forscreen_id",mpns.miniProgramProjection.getForscreen_id());
-                params.put("resource_id",mpns.miniProgramProjection.getVideo_id());
+                params.put("req_id",mpp.getReq_id());
+                params.put("forscreen_id",mpp.getForscreen_id());
+                params.put("resource_id",mpp.getVideo_id());
                 params.put("box_mac",mSession.getEthernetMac());
-                params.put("openid",mpns.miniProgramProjection.getOpenid());
+                params.put("openid",mpp.getOpenid());
                 params.put("is_download",1);
                 postProjectionResourceLog(params);
             }
@@ -1485,7 +1486,20 @@ public class ScreenProjectionActivity extends BaseActivity{
                     }
                 }
                 LogReportUtil.get(mContext).downloadLog(mUuid, LogParamValues.download,LogParamValues.standard_duration,useTime);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 LogReportUtil.get(mContext).downloadLog(mUuid, LogParamValues.download,LogParamValues.standard_size,resourceSize);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if (mpp!=null&&!TextUtils.isEmpty(mpp.getSerial_number())){
+                    LogReportUtil.get(mContext).downloadLog(mUuid, LogParamValues.download,LogParamValues.standard_serial,mpp.getSerial_number());
+                }
             }
         }
     };

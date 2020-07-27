@@ -76,6 +76,8 @@ public class MiniProgramProjection implements Serializable{
     /**服务人员头像地址*/
     private String waiterIconUrl;
 
+    private String serial_number;
+
     public int getAction() {
         return action;
     }
@@ -370,5 +372,13 @@ public class MiniProgramProjection implements Serializable{
 
     public void setWaiterIconUrl(String waiterIconUrl) {
         this.waiterIconUrl = waiterIconUrl;
+    }
+
+    public String getSerial_number() {
+        return serial_number;
+    }
+
+    public void setSerial_number(String serial_number) {
+        this.serial_number = serial_number;
     }
 }

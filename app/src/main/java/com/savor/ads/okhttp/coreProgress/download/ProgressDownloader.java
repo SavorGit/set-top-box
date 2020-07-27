@@ -1,6 +1,7 @@
 package com.savor.ads.okhttp.coreProgress.download;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.savor.ads.log.LogParamValues;
@@ -46,6 +47,7 @@ public class ProgressDownloader {
     private int downloadCount=0;
     private Call call;
     private boolean standard;
+    private String serial_number;
     private MiniProgramNettyService.DownloadProgressListener downloadProgressListener;
 
     public void setDownloadProgressListener(MiniProgramNettyService.DownloadProgressListener listener){
@@ -61,7 +63,7 @@ public class ProgressDownloader {
         //在下载、暂停后的继续下载中可复用同一个client对象
         client = getProgressClient();
     }
-    public ProgressDownloader (Context context,String url,String filePath,String fileName,long resourceSize,boolean standard){
+    public ProgressDownloader (Context context,String url,String filePath,String fileName,long resourceSize,boolean standard,String serial_number){
         this.context = context;
         session = Session.get(context);
         this.url = url;
@@ -69,6 +71,7 @@ public class ProgressDownloader {
         this.fileName = fileName;
         this.fileSize = resourceSize;
         this.standard = standard;
+        this.serial_number = serial_number;
         //在下载、暂停后的继续下载中可复用同一个client对象
         client = getProgressClient();
     }
@@ -79,6 +82,16 @@ public class ProgressDownloader {
         this.filePath = filePath;
         this.fileName = fileName;
         this.standard = standard;
+        client = getProgressClient();
+    }
+    public ProgressDownloader (Context context,String url,String filePath,String fileName,boolean standard,String serial_number){
+        this.context = context;
+        session = Session.get(context);
+        this.url = url;
+        this.filePath = filePath;
+        this.fileName = fileName;
+        this.standard = standard;
+        this.serial_number = serial_number;
         client = getProgressClient();
     }
     //每次下载需要新建新的Call对象
@@ -121,6 +134,7 @@ public class ProgressDownloader {
         boolean flag = false;
         try {
             File cacheFile = new File(filePath,fileName+ ConstantValues.CACHE);
+            long startTime = System.currentTimeMillis();
             if (cacheFile.exists()){
                 RandomAccessFile cacheAccessFile = new RandomAccessFile(cacheFile,"rwd");
                 try {
@@ -137,19 +151,24 @@ public class ProgressDownloader {
                 call = newCall();
                 Response response = call.execute();
                 if (response.code() == 200) {
-                    long startTime = System.currentTimeMillis();
                     flag = saveRangeFile(response,startIndex,cacheFile);
-                    String useTime = String.valueOf(System.currentTimeMillis()-startTime);
-                    if (flag){
-                        String resourceSize = String.valueOf(new File(filePath+fileName).length());
-                        String mUUID = String.valueOf(System.currentTimeMillis());
-                        if (standard){
-                            LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.standard_size,resourceSize);
-                            LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.standard_duration,useTime);
-                        }else {
-                            LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_size,resourceSize);
-                            LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download,LogParamValues.speed_duration,useTime);
-                        }
+                }
+            }
+            String useTime = String.valueOf(System.currentTimeMillis()-startTime);
+            if (flag){
+                String resourceSize = String.valueOf(new File(filePath+fileName).length());
+                String mUUID = String.valueOf(System.currentTimeMillis());
+                if (standard){
+                    LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.standard_size,resourceSize);
+                    LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.standard_duration,useTime);
+                    if (!TextUtils.isEmpty(serial_number)){
+                        LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.speed_serial, LogParamValues.standard_serial,serial_number);
+                    }
+                }else {
+                    LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_size,resourceSize);
+                    LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download,LogParamValues.speed_duration,useTime);
+                    if (!TextUtils.isEmpty(serial_number)){
+                        LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download,LogParamValues.speed_serial,serial_number);
                     }
                 }
             }

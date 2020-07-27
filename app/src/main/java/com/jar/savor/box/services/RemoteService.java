@@ -558,8 +558,9 @@ public class RemoteService extends Service {
                         String useTime = String.valueOf(System.currentTimeMillis()-startTime);
                         String resourceSize = String.valueOf(resultFile.length());
                         String mUUID = String.valueOf(System.currentTimeMillis());
-                        LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_size,resourceSize,serial_number);
-                        LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_duration,useTime,serial_number);
+                        LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_size,resourceSize);
+                        LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_duration,useTime);
+                        LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_serial,serial_number);
 
                     }
 
@@ -796,8 +797,9 @@ public class RemoteService extends Service {
                                     String useTime = String.valueOf(System.currentTimeMillis()-startTime);
                                     String resourceSize = String.valueOf(file.length());
                                     String mUUID = String.valueOf(System.currentTimeMillis());
-                                    LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_size,resourceSize,serial_number);
-                                    LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_duration,useTime,serial_number);
+                                    LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_size,resourceSize);
+                                    LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_duration,useTime);
+                                    LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_serial,serial_number);
                                     break;
                                 default:
                                     part.delete();
@@ -1045,8 +1047,9 @@ public class RemoteService extends Service {
                                     String useTime = String.valueOf(System.currentTimeMillis()-startTime);
                                     String resourceSize = String.valueOf(file.length());
                                     String mUUID = String.valueOf(System.currentTimeMillis());
-                                    LogReportUtil.get(context).downloadLog(mUUID, LogParamValues.download,LogParamValues.speed_size,resourceSize,serial_number);
-                                    LogReportUtil.get(context).downloadLog(mUUID, LogParamValues.download,LogParamValues.speed_duration,useTime,serial_number);
+                                    LogReportUtil.get(context).downloadLog(mUUID, LogParamValues.download,LogParamValues.speed_size,resourceSize);
+                                    LogReportUtil.get(context).downloadLog(mUUID, LogParamValues.download,LogParamValues.speed_duration,useTime);
+                                    LogReportUtil.get(context).downloadLog(mUUID, LogParamValues.download,LogParamValues.speed_serial,serial_number);
                                     break;
                                 default:
                                     part.delete();
