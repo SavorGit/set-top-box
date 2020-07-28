@@ -677,59 +677,21 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             LogUtils.d("MiniProgramNettyService:需要下载视频的url=="+url);
             LogUtils.d("MiniProgramNettyService:file=="+file.getAbsolutePath());
             params.put("is_exist", 0);
-            if (session.isWhether4gNetwork()){
-                try {
-                    String oss_url = BuildConfig.OSS_ENDPOINT+url;
-                    isDownloaded = new ProgressDownloader(context,oss_url, basePath,fileName,true,serial_number).downloadByRange();
-                    if (isDownloaded){
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                pImgListDialog.setImgDownloadProgress(minipp.getVideo_id(),"100%");
-                            }
-                        });
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
+            try {
+                String oss_url = BuildConfig.OSS_ENDPOINT+url;
+                isDownloaded = new ProgressDownloader(context,oss_url, basePath,fileName,true,serial_number).downloadByRange();
+                if (isDownloaded){
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            pImgListDialog.setImgDownloadProgress(minipp.getVideo_id(),"100%");
+                        }
+                    });
                 }
-            }else{
-                OSSUtils ossUtils = new OSSUtils(context,
-                        BuildConfig.OSS_BUCKET_NAME,
-                        url,
-                        file,true);
-
-                ossUtils.setDownloadProgressListener(new DownloadProgressListener() {
-
-                    @Override
-                    public void getDownloadProgress(String progress) {
-
-                    }
-
-                    @Override
-                    public void getDownloadProgress(final long currentSize, final long totalSize) {
-
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-
-                                BigDecimal b = new BigDecimal(currentSize * 1.0 / totalSize);
-                                Log.d("circularProgress", "原始除法得到的值" + currentSize * 1.0 / totalSize);
-                                float f1 = b.setScale(2, BigDecimal.ROUND_HALF_UP).floatValue();
-                                Log.d("circularProgress", "保留两位小数得到的值" + f1);
-                                if (f1 >= 0.01f) {
-                                    String value = String.valueOf(f1 * 100);
-                                    int progress = Integer.valueOf(value.split("\\.")[0]);
-                                    Log.d("circularProgress", "乘以100并且转成整数得到的值" + progress);
-                                    pImgListDialog.setImgDownloadProgress(minipp.getVideo_id(),progress+"%");
-                                }
-
-                            }
-                        });
-                    }
-                });
-                LogUtils.d("12345+:开始下载投屏视频的url="+url);
-                isDownloaded = ossUtils.syncNativeOSSDownload();
+            }catch (Exception e){
+                e.printStackTrace();
             }
+
         }
         if (isDownloaded) {
             LogUtils.d("12345+下载完成="+url);
