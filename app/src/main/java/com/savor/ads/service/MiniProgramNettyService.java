@@ -1079,11 +1079,11 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             File file = new File(path);
             if (file.exists()) {
                 params.put("is_exist",1);
-                ProjectOperationListener.getInstance(context).showVideo(path, true,currentAction);
+                ProjectOperationListener.getInstance(context).showVideo(path,"", true,currentAction);
             }
         }else {
             params.put("is_exist",0);
-            ProjectOperationListener.getInstance(context).showVideo(url, true,currentAction);
+            ProjectOperationListener.getInstance(context).showVideo("",url, true,currentAction);
         }
         postProjectionResourceLog(params);
     }

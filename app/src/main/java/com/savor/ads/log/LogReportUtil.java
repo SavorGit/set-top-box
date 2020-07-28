@@ -18,7 +18,7 @@ public class LogReportUtil {
     private static LogReportUtil instance = null;
 
     private LogReportUtil(Context context) {
-        mLogQueue = new ArrayBlockingQueue<>(15);
+        mLogQueue = new ArrayBlockingQueue<>(100);
         mQRCodeLogQueue = new ArrayBlockingQueue<>(15);
         this.mContext = context;
         session = Session.get(mContext);

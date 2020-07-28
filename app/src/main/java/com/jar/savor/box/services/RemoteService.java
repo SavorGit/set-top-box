@@ -559,7 +559,9 @@ public class RemoteService extends Service {
                         String resourceSize = String.valueOf(resultFile.length());
                         String mUUID = String.valueOf(System.currentTimeMillis());
                         LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_size,resourceSize);
+                        Thread.sleep(500);
                         LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_duration,useTime);
+                        Thread.sleep(500);
                         LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_serial,serial_number);
 
                     }
@@ -798,7 +800,9 @@ public class RemoteService extends Service {
                                     String resourceSize = String.valueOf(file.length());
                                     String mUUID = String.valueOf(System.currentTimeMillis());
                                     LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_size,resourceSize);
+                                    Thread.sleep(500);
                                     LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_duration,useTime);
+                                    Thread.sleep(500);
                                     LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_serial,serial_number);
                                     break;
                                 default:
@@ -1048,7 +1052,9 @@ public class RemoteService extends Service {
                                     String resourceSize = String.valueOf(file.length());
                                     String mUUID = String.valueOf(System.currentTimeMillis());
                                     LogReportUtil.get(context).downloadLog(mUUID, LogParamValues.download,LogParamValues.speed_size,resourceSize);
+                                    Thread.sleep(500);
                                     LogReportUtil.get(context).downloadLog(mUUID, LogParamValues.download,LogParamValues.speed_duration,useTime);
+                                    Thread.sleep(500);
                                     LogReportUtil.get(context).downloadLog(mUUID, LogParamValues.download,LogParamValues.speed_serial,serial_number);
                                     break;
                                 default:
@@ -1378,10 +1384,10 @@ public class RemoteService extends Service {
                     if (file.exists()){
                         ProjectOperationListener.getInstance(context).showVod(media_name, "3", 0, false, true,GlobalValues.FROM_SERVICE_REMOTE);
                     }else{
-                        ProjectOperationListener.getInstance(context).showVideo(media_url,true,GlobalValues.FROM_SERVICE_REMOTE);
+                        ProjectOperationListener.getInstance(context).showVideo("",media_url,true,GlobalValues.FROM_SERVICE_REMOTE);
                     }
                 }else{
-                    ProjectOperationListener.getInstance(context).showVideo(media_url, true,GlobalValues.FROM_SERVICE_REMOTE);
+                    ProjectOperationListener.getInstance(context).showVideo("",media_url, true,GlobalValues.FROM_SERVICE_REMOTE);
                 }
                 response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
             }catch (Exception e){
@@ -1438,12 +1444,12 @@ public class RemoteService extends Service {
                     String path = AppUtils.getFilePath(AppUtils.StorageFile.activity_ads) + media_name;
                     File file = new File(path);
                     if (file.exists()){
-                        ProjectOperationListener.getInstance(context).showVideo(path,true,GlobalValues.FROM_SERVICE_REMOTE);
+                        ProjectOperationListener.getInstance(context).showVideo(path,"",true,GlobalValues.FROM_SERVICE_REMOTE);
                     }else{
-                        ProjectOperationListener.getInstance(context).showVideo(media_url,true,GlobalValues.FROM_SERVICE_REMOTE);
+                        ProjectOperationListener.getInstance(context).showVideo("",media_url,true,GlobalValues.FROM_SERVICE_REMOTE);
                     }
                 }else{
-                    ProjectOperationListener.getInstance(context).showVideo(media_url,true,GlobalValues.FROM_SERVICE_REMOTE);
+                    ProjectOperationListener.getInstance(context).showVideo("",media_url,true,GlobalValues.FROM_SERVICE_REMOTE);
                 }
                 response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
             }catch (Exception e){
@@ -1504,11 +1510,11 @@ public class RemoteService extends Service {
 
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.select_content)+filename;
                 if (new File(path).exists()){
-                    ProjectOperationListener.getInstance(context).showVideo(path,true,GlobalValues.FROM_SERVICE_REMOTE);
+                    ProjectOperationListener.getInstance(context).showVideo(path,"",true,GlobalValues.FROM_SERVICE_REMOTE);
                 }else{
                     path =  AppUtils.getFilePath(AppUtils.StorageFile.media)+filename;
                     if (new File(path).exists()){
-                        ProjectOperationListener.getInstance(context).showVideo(path,true,GlobalValues.FROM_SERVICE_REMOTE);
+                        ProjectOperationListener.getInstance(context).showVideo(path,"",true,GlobalValues.FROM_SERVICE_REMOTE);
                     }
                 }
                 response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
@@ -1683,14 +1689,14 @@ public class RemoteService extends Service {
                             File file = new File(path);
                             if (file.exists()){
                                 handler.post(()->projectionImgListDialog.setImgDownloadProgress(video_id,100+"%"));
-                                ProjectOperationListener.getInstance(context).showVideo(path,true,GlobalValues.FROM_SERVICE_REMOTE);
+                                ProjectOperationListener.getInstance(context).showVideo(path,"",true,GlobalValues.FROM_SERVICE_REMOTE);
                             }else{
                                 handler.post(()->projectionImgListDialog.setImgDownloadProgress(video_id,100+"%"));
-                                ProjectOperationListener.getInstance(context).showVideo(url, true,GlobalValues.FROM_SERVICE_REMOTE);
+                                ProjectOperationListener.getInstance(context).showVideo("",url, true,GlobalValues.FROM_SERVICE_REMOTE);
                             }
                         }else{
                             handler.post(()->projectionImgListDialog.setImgDownloadProgress(video_id,100+"%"));
-                            ProjectOperationListener.getInstance(context).showVideo(url, true,GlobalValues.FROM_SERVICE_REMOTE);
+                            ProjectOperationListener.getInstance(context).showVideo("",url, true,GlobalValues.FROM_SERVICE_REMOTE);
                         }
                         closeProjectionDialog();
                         response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);

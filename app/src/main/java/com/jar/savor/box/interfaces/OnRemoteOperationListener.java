@@ -29,7 +29,7 @@ public interface OnRemoteOperationListener {
     PrepareResponseVoNew showImage(int imageType, String imageUrl,boolean isThumbnail,String forscreenId,String words,String avatarUrl,String nickname,String delayTime,int action,int fromService);
     PrepareResponseVoNew showImage(int imageType, String imageUrl,boolean isThumbnail,String price,int storeSale,String delayTime,int action,int fromService);
 
-    PrepareResponseVoNew showVideo(String videoPath, boolean isNewDevice,int fromService);
+    PrepareResponseVoNew showVideo(String videoPath,String videoUrl, boolean isNewDevice,int fromService);
     PrepareResponseVoNew showVideo(String videoPath, boolean isNewDevice,String price,int storeSale,String delayTime,int action,int fromService);
     PrepareResponseVoNew showVideo(String videoPath, boolean isNewDevice,String forscreenId,String avatarUrl,String nickname,int fromService);
     PrepareResponseVoNew showVideo(String videoPath, String videoUrl, boolean isNewDevice,String forscreenId,String avatarUrl,String nickname,int fromService);

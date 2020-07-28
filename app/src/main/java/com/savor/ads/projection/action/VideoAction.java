@@ -30,13 +30,14 @@ public class VideoAction extends ProjectionActionBase implements Serializable {
     private String nickname;
     private String delayTime;
     private int action;
-    public VideoAction(Context context, String videoPath,boolean isNewDevice,int fromService) {
+    public VideoAction(Context context, String videoPath,String videoUrl,boolean isNewDevice,int fromService) {
         super();
 
         mPriority = ProjectPriority.HIGH;
         this.fromService = fromService;
         mContext = context;
         this.videoPath = videoPath;
+        this.videoUrl = videoUrl;
         this.isNewDevice = isNewDevice;
     }
 
