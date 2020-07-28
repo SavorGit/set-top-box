@@ -12,14 +12,12 @@ import java.util.concurrent.BlockingQueue;
 
 public class LogReportUtil {
     private static BlockingQueue<LogReportParam> mLogQueue = null;
-    private static BlockingQueue<QRCodeLogBean> mQRCodeLogQueue = null;
     Context mContext;
     Session session;
     private static LogReportUtil instance = null;
 
     private LogReportUtil(Context context) {
-        mLogQueue = new ArrayBlockingQueue<>(15);
-        mQRCodeLogQueue = new ArrayBlockingQueue<>(15);
+        mLogQueue = new ArrayBlockingQueue<>(100);
         this.mContext = context;
         session = Session.get(mContext);
         initLog();
@@ -86,12 +84,6 @@ public class LogReportUtil {
         }
     }
 
-    private void offerQRCode(QRCodeLogBean arg) {
-        if (mQRCodeLogQueue != null) {
-            mQRCodeLogQueue.offer(arg);
-        }
-    }
-
     public LogReportParam poll() {
         return mLogQueue.poll();
     }
@@ -103,19 +95,9 @@ public class LogReportUtil {
             return null;
     }
 
-    public QRCodeLogBean takeCodeLog() throws InterruptedException {
-        if (mQRCodeLogQueue != null)
-            return mQRCodeLogQueue.take();
-        else
-            return null;
-    }
 
     public static int getLogNum() {
         return mLogQueue.size();
-    }
-
-    public int getQRCodeLogNum() {
-        return mQRCodeLogQueue.size();
     }
 
     /**

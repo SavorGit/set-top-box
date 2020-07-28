@@ -160,14 +160,18 @@ public class ProgressDownloader {
                 String mUUID = String.valueOf(System.currentTimeMillis());
                 if (standard){
                     LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.standard_size,resourceSize);
+                    Thread.sleep(500);
                     LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.standard_duration,useTime);
                     if (!TextUtils.isEmpty(serial_number)){
+                        Thread.sleep(500);
                         LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.standard_serial,serial_number);
                     }
                 }else {
                     LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_size,resourceSize);
+                    Thread.sleep(500);
                     LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download,LogParamValues.speed_duration,useTime);
                     if (!TextUtils.isEmpty(serial_number)){
+                        Thread.sleep(500);
                         LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download,LogParamValues.speed_serial,serial_number);
                     }
                 }

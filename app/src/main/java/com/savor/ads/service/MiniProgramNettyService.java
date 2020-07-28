@@ -680,7 +680,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             if (session.isWhether4gNetwork()){
                 try {
                     String oss_url = BuildConfig.OSS_ENDPOINT+url;
-                    isDownloaded = new ProgressDownloader(context,oss_url, basePath,fileName,true).downloadByRange();
+                    isDownloaded = new ProgressDownloader(context,oss_url, basePath,fileName,true,serial_number).downloadByRange();
                     if (isDownloaded){
                         handler.post(new Runnable() {
                             @Override
@@ -1643,7 +1643,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         if(new File(path).exists()){
             imgPath = path;
         }else{
-            boolean isDownloaded = new ProgressDownloader(context,img_url,projectionPath,filename,true).downloadByRange();
+            boolean isDownloaded = new ProgressDownloader(context,img_url,projectionPath,filename,true,serial_number).downloadByRange();
             if (isDownloaded){
                 imgPath = path;
             }else{

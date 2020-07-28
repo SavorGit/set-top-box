@@ -560,7 +560,9 @@ public class RemoteService extends Service {
                         String useTime = String.valueOf(System.currentTimeMillis()-startTime);
                         String mUUid = String.valueOf(System.currentTimeMillis());
                         LogReportUtil.get(context).downloadLog(mUUid, LogParamValues.download,LogParamValues.speed_size,resource_size);
+                        Thread.sleep(500);
                         LogReportUtil.get(context).downloadLog(mUUid, LogParamValues.download,LogParamValues.speed_duration,useTime);
+                        Thread.sleep(500);
                         LogReportUtil.get(context).downloadLog(mUUid, LogParamValues.download,LogParamValues.speed_serial,serial_number);
                     }
 
@@ -960,7 +962,9 @@ public class RemoteService extends Service {
                         String useTime = String.valueOf(System.currentTimeMillis()-startTime);
                         String mUUid = String.valueOf(System.currentTimeMillis());
                         LogReportUtil.get(context).downloadLog(mUUid,LogParamValues.download,LogParamValues.speed_size,resource_size);
+                        Thread.sleep(500);
                         LogReportUtil.get(context).downloadLog(mUUid,LogParamValues.download,LogParamValues.speed_duration,useTime);
+                        Thread.sleep(500);
                         LogReportUtil.get(context).downloadLog(mUUid,LogParamValues.download,LogParamValues.speed_serial,serial_number);
                     }
                 }
@@ -1209,7 +1213,9 @@ public class RemoteService extends Service {
                         String useTime = String.valueOf(System.currentTimeMillis()-startTime);
                         String mUUid = String.valueOf(System.currentTimeMillis());
                         LogReportUtil.get(context).downloadLog(mUUid,LogParamValues.download,LogParamValues.speed_size,resource_size);
+                        Thread.sleep(500);
                         LogReportUtil.get(context).downloadLog(mUUid,LogParamValues.download,LogParamValues.speed_duration,useTime);
+                        Thread.sleep(500);
                         LogReportUtil.get(context).downloadLog(mUUid,LogParamValues.download,LogParamValues.speed_serial,serial_number);
                     }
                 }
