@@ -504,9 +504,9 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                     try {
                         String info = (String)obj;
                         JSONObject jsonObject = new JSONObject(info);
-                        //是否支持小程序码
+                        //是否开启小程序码1:开启，0:关闭
                         int is_sapp_forscreen =jsonObject.getInt("is_sapp_forscreen");
-                        //是否支持极简版小程序码
+                        //是否开启极简版小程序码|1:开启，0:关闭
                         int is_simple_sapp_forscreen =jsonObject.getInt("is_simple_sapp_forscreen");
                         //是否支持添加投屏互动广告
                         int is_open_interactscreenad = jsonObject.getInt("is_open_interactscreenad");
