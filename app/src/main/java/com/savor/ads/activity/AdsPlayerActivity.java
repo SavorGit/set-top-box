@@ -687,67 +687,73 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         try{
             if (mPlayList != null && !TextUtils.isEmpty(mPlayList.get(mCurrentPlayingIndex).getVid())) {
                 MediaLibBean libBean = mPlayList.get(mCurrentPlayingIndex);
-                MiniProgramQrCodeWindowManager.get(this).setCurrentPlayMediaId(libBean.getVid());
-                if (libBean.getIs_sapp_qrcode() == 1
-                        && !libBean.getType().equals(ConstantValues.POLY_ADS)
-                        && !libBean.getType().equals(ConstantValues.POLY_ADS_ONLINE)){
-                        if (mSession.isShowMiniProgramIcon()&& mSession.isShowSimpleMiniProgramIcon()){
-                            if (AppUtils.isNetworkAvailable(mContext) && mSession.isHeartbeatMiniNetty()) {
-                                if (ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())){
-                                    ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_BIG_TYPE);
-                                }else if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())) {
-                                    ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_NEW_TYPE);
-                                } else {
-                                    ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE);
-                                }
-                            }else{
-                                if (ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())){
-                                    ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_BIG_TYPE);
-                                }else if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())) {
-                                    ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_NEW_TYPE);
-                                } else {
-                                    ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE);
-                                }
-                            }
-                        }else if (!mSession.isShowMiniProgramIcon()&& mSession.isShowSimpleMiniProgramIcon()){
-                            if (ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())){
-                                ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_BIG_TYPE);
-                            }else if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())) {
-                                ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_NEW_TYPE);
-                            }else {
-                                ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE);
-                            }
-                        }else if (mSession.isShowMiniProgramIcon()&& !mSession.isShowSimpleMiniProgramIcon()){
-                            if (AppUtils.isNetworkAvailable(mContext) && mSession.isHeartbeatMiniNetty()) {
-                                if (ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())){
-                                    ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_BIG_TYPE);
-                                }else if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())) {
-                                    ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_NEW_TYPE);
-                                }else {
-                                    ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE);
-                                }
-                            }else{
-                                if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())
-                                        ||ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())) {
-                                    if (Looper.myLooper()==Looper.getMainLooper()){
-                                        mSavorVideoView.playNext();
-                                    }else{
-                                        mHandler.post(()->mSavorVideoView.playNext());
-                                    }
-                                }else{
-                                    ((SavorApplication) getApplication()).hideMiniProgramQrCodeWindow();
-                                    LogUtils.v("MiniProgramNettyService closeMiniProgramQrCodeWindow");
-                                }
-                            }
-
-                        }
-                }
+                isShowMiniProgramIcon(libBean);
             }
         }catch (Exception e){
             e.printStackTrace();
         }
     }
 
+    private void isShowMiniProgramIcon(MediaLibBean libBean){
+        MiniProgramQrCodeWindowManager.get(this).setCurrentPlayMediaId(libBean.getVid());
+        if (libBean.getIs_sapp_qrcode() == 1
+                && !libBean.getType().equals(ConstantValues.POLY_ADS)
+                && !libBean.getType().equals(ConstantValues.POLY_ADS_ONLINE)
+                && !libBean.getType().equals(ConstantValues.ACTGOODS_OPTI)
+                && !libBean.getType().equals(ConstantValues.ACTGOODS_ACTIVITY)
+                && !libBean.getType().equals(ConstantValues.ACTGOODS_COUNTDOWN)
+                && !libBean.getType().equals(ConstantValues.SELECT_CONTENT)
+                && !libBean.getType().equals(ConstantValues.SHOP_GOODS_ADS)) {
+            if (mSession.isShowMiniProgramIcon()&& mSession.isShowSimpleMiniProgramIcon()){
+                if (mSession.isHeartbeatMiniNetty()) {
+                    if (ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())){
+                        ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_BIG_TYPE);
+                    }else if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())) {
+                        ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_NEW_TYPE);
+                    } else {
+                        ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE);
+                    }
+                }else{
+                    if (ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())){
+                        ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_BIG_TYPE);
+                    }else if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())) {
+                        ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_NEW_TYPE);
+                    } else {
+                        ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE);
+                    }
+                }
+            }else if (!mSession.isShowMiniProgramIcon()&& mSession.isShowSimpleMiniProgramIcon()){
+                if (ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())){
+                    ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_BIG_TYPE);
+                }else if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())) {
+                    ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_NEW_TYPE);
+                }else {
+                    ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE);
+                }
+            }else if (mSession.isShowMiniProgramIcon()&& !mSession.isShowSimpleMiniProgramIcon()){
+                if (mSession.isHeartbeatMiniNetty()) {
+                    if (ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())){
+                        ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_BIG_TYPE);
+                    }else if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())) {
+                        ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_NEW_TYPE);
+                    }else {
+                        ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE);
+                    }
+                }else {
+                    if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())
+                            ||ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())) {
+                        mSavorVideoView.playNext();
+                        return;
+                    }else{
+                        ((SavorApplication) getApplication()).hideMiniProgramQrCodeWindow();
+                        LogUtils.v("MiniProgramNettyService closeMiniProgramQrCodeWindow");
+                    }
+                }
+            }
+        }else{
+            ((SavorApplication) getApplication()).hideMiniProgramQrCodeWindow();
+        }
+    }
 
     @Override
     protected void onStart() {
@@ -1010,8 +1016,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 
     @Override
     public boolean onMediaPrepared(int index) {
-        if (mPlayList != null
-                && (!TextUtils.isEmpty(mPlayList.get(index).getVid()))) {
+        if (mPlayList != null && (!TextUtils.isEmpty(mPlayList.get(index).getVid()))) {
             MediaLibBean libBean = mPlayList.get(index);
             if (libBean.getType().equals(ConstantValues.ADS)
                     ||libBean.getType().equals(ConstantValues.POLY_ADS)
@@ -1034,7 +1039,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                     && !libBean.getType().equals(ConstantValues.SELECT_CONTENT)
                     && !libBean.getType().equals(ConstantValues.SHOP_GOODS_ADS)) {
                     if (mSession.isShowMiniProgramIcon()&& mSession.isShowSimpleMiniProgramIcon()){
-                        if (AppUtils.isNetworkAvailable(mContext) && mSession.isHeartbeatMiniNetty()) {
+                        if (mSession.isHeartbeatMiniNetty()) {
                             if (ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())){
                                 ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_BIG_TYPE);
                             }else if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())) {
@@ -1060,7 +1065,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                             ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE);
                         }
                     }else if (mSession.isShowMiniProgramIcon()&& !mSession.isShowSimpleMiniProgramIcon()){
-                        if (AppUtils.isNetworkAvailable(mContext) && mSession.isHeartbeatMiniNetty()) {
+                        if (mSession.isHeartbeatMiniNetty()) {
                             if (ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())){
                                 ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_BIG_TYPE);
                             }else if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())) {
