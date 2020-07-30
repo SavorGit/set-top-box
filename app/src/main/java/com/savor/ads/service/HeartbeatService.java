@@ -504,9 +504,14 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                     try {
                         String info = (String)obj;
                         JSONObject jsonObject = new JSONObject(info);
-                        //是否支持小程序码
+                        //0:关闭,1:打开
+                        int is_open_netty = 0;
+                        if (jsonObject.has("is_open_netty")){
+                            is_open_netty = jsonObject.getInt("is_open_netty");
+                        }
+                        //是否开启小程序码0:关闭，1:开启
                         int is_sapp_forscreen =jsonObject.getInt("is_sapp_forscreen");
-                        //是否支持极简版小程序码
+                        //是否开启极简版小程序码|0:关闭，1:开启
                         int is_simple_sapp_forscreen =jsonObject.getInt("is_simple_sapp_forscreen");
                         //是否支持添加投屏互动广告
                         int is_open_interactscreenad = jsonObject.getInt("is_open_interactscreenad");
@@ -520,7 +525,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                         int activity_adv_playtype = jsonObject.getInt("activity_adv_playtype");
                         //极简版投屏上传文件大小分界
                         int simple_upload_size = jsonObject.getInt("simple_upload_size");
-                        if (is_sapp_forscreen==1){
+                        if (is_open_netty==1 && is_sapp_forscreen==1){
                             LogFileUtil.write("开始立刻调用小程序码接口返回成功，启动小程序NETTY服务");
                             Log.d("HeartbeatService","showMiniProgramIcon(true)");
                             LogUtils.i("miniProgram--setShowMiniProgramIcon(true)");
@@ -534,7 +539,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                         }else{
                             session.setShowSimpleMiniProgramIcon(false);
                         }
-                        if (is_sapp_forscreen==1||is_simple_sapp_forscreen==1){
+                        if (is_open_netty==1){
                             getNettyBalancingInfo();
                         }
                         if (is_open_interactscreenad==1){

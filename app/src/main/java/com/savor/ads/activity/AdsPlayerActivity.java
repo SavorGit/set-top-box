@@ -677,7 +677,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                         && !libBean.getType().equals(ConstantValues.POLY_ADS)
                         && !libBean.getType().equals(ConstantValues.POLY_ADS_ONLINE)){
                         if (mSession.isShowMiniProgramIcon()&& mSession.isShowSimpleMiniProgramIcon()){
-                            if (AppUtils.isNetworkAvailable(mContext) && mSession.isHeartbeatMiniNetty()) {
+                            if (mSession.isHeartbeatMiniNetty()) {
                                 if (ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())){
                                     ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_BIG_TYPE);
                                 }else if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())) {
@@ -703,7 +703,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                                 ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE);
                             }
                         }else if (mSession.isShowMiniProgramIcon()&& !mSession.isShowSimpleMiniProgramIcon()){
-                            if (AppUtils.isNetworkAvailable(mContext) && mSession.isHeartbeatMiniNetty()) {
+                            if (mSession.isHeartbeatMiniNetty()) {
                                 if (ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())){
                                     ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_BIG_TYPE);
                                 }else if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())) {
@@ -989,8 +989,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 
     @Override
     public boolean onMediaPrepared(int index) {
-        if (mPlayList != null
-                && (!TextUtils.isEmpty(mPlayList.get(index).getVid()))) {
+        if (mPlayList != null && (!TextUtils.isEmpty(mPlayList.get(index).getVid()))) {
             MediaLibBean libBean = mPlayList.get(index);
             if (libBean.getType().equals(ConstantValues.ADS)
                     ||libBean.getType().equals(ConstantValues.POLY_ADS)
@@ -1013,7 +1012,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                     && !libBean.getType().equals(ConstantValues.SELECT_CONTENT)
                     && !libBean.getType().equals(ConstantValues.SHOP_GOODS_ADS)) {
                     if (mSession.isShowMiniProgramIcon()&& mSession.isShowSimpleMiniProgramIcon()){
-                        if (AppUtils.isNetworkAvailable(mContext) && mSession.isHeartbeatMiniNetty()) {
+                        if (mSession.isHeartbeatMiniNetty()) {
                             if (ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())){
                                 ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_BIG_TYPE);
                             }else if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())) {
@@ -1038,7 +1037,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                         }else {
                             ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE);
                         }
-                    }else if (mSession.isShowMiniProgramIcon()&& !mSession.isShowSimpleMiniProgramIcon()){
+                    }else if (!mSession.isShowSimpleMiniProgramIcon()){
                         if (AppUtils.isNetworkAvailable(mContext) && mSession.isHeartbeatMiniNetty()) {
                             if (ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())){
                                 ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_BIG_TYPE);
