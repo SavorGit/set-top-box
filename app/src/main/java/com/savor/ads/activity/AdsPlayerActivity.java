@@ -1083,6 +1083,8 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                                 LogUtils.v("MiniProgramNettyService closeMiniProgramQrCodeWindow");
                             }
                         }
+                    }else{
+                        ((SavorApplication) getApplication()).hideMiniProgramQrCodeWindow();
                     }
             }else{
                 ((SavorApplication) getApplication()).hideMiniProgramQrCodeWindow();
