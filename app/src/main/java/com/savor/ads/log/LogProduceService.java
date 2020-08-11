@@ -45,6 +45,7 @@ public class LogProduceService {
 	private boolean isNewRequestSQRcodeBig = false;
 	private boolean isNewRequestSQRcodeNew = false;
 	private boolean isNewRequestSQRcodeCall = false;
+	private boolean isNewRequestQRcodeExtension = false;
 	public LogProduceService (Context context){
 		this.mContext = context;
 		session = Session.get(context);
@@ -157,6 +158,8 @@ public class LogProduceService {
 		downloadMiniProgramSimpleQRcodeCall(box_mac);
 		isNewRequestSQRcodeCall = true;
 		//-----------------------------------
+		downloadMiniProgramQRcodeExtension(box_mac);
+		isNewRequestQRcodeExtension = true;
 	}
 
 
@@ -335,6 +338,17 @@ public class LogProduceService {
 						file.renameTo(tarFile);
 					}
 					break;
+				case SP_GET_QR_EXTENSION_JSON:
+					if (obj instanceof File){
+						File file = (File)obj;
+						String pathQRcode = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_EXTENSIOM_NAME;
+						File tarFile = new File(pathQRcode);
+						if (tarFile.exists()) {
+							tarFile.delete();
+						}
+						file.renameTo(tarFile);
+					}
+					break;
 			}
 
 		}
@@ -389,6 +403,12 @@ public class LogProduceService {
 					if (isNewRequestSQRcodeCall){
 						downloadMiniProgramSimpleQRcodeCall(box_mac);
 						isNewRequestSQRcodeCall = false;
+					}
+					break;
+				case SP_GET_QR_EXTENSION_JSON:
+					if (isNewRequestQRcodeExtension){
+						downloadMiniProgramQRcodeExtension(box_mac);
+						isNewRequestQRcodeExtension = false;
 					}
 					break;
 			}
@@ -479,5 +499,15 @@ public class LogProduceService {
 			tarFile.delete();
 		}
 		AppApi.downloadQRSimpleCallImg(urlSmall,mContext,apiRequestListener,pathSmall);
+	}
+
+	private void downloadMiniProgramQRcodeExtension(String box_mac){
+		String urlExtension = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ box_mac+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_EXTENSION_TYPE;
+		String pathExtension = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_EXTENSION_TEMP_NAME;
+		File tarFile = new File(pathExtension);
+		if (tarFile.exists()) {
+			tarFile.delete();
+		}
+		AppApi.downloadQRCodeExtensionImg(urlExtension,mContext,apiRequestListener,pathExtension);
 	}
 }

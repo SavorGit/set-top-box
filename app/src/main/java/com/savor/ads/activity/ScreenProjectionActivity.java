@@ -485,6 +485,7 @@ public class ScreenProjectionActivity extends BaseActivity{
         if (mMusicPlayer!=null){
             mMusicPlayer.setLooping(false);
         }
+
         mIsBeenStopped = true;
         finish();
         mHandler.postDelayed(new Runnable() {

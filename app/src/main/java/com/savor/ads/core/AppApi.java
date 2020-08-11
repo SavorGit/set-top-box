@@ -147,6 +147,7 @@ public class AppApi {
         SP_GET_QR_SIMPLE_BIG_JSON,
         SP_GET_QR_SIMPLE_NEW_JSON,
         SP_GET_QR_SIMPLE_CALL_JSON,
+        SP_GET_QR_EXTENSION_JSON,
         CP_GET_NETTY_BALANCING_FORM,
         CP_POST_LOGOUT_GAME_H5_JSON,
         CP_GET_BOX_TPMEDIAS_JSON,
@@ -546,6 +547,18 @@ public class AppApi {
     public static void downloadQRSimpleCallImg(String url,Context context, ApiRequestListener handler,String filePath){
         final HashMap<String, Object> params = new HashMap<>();
         new AppServiceOk(context, Action.SP_GET_QR_SIMPLE_CALL_JSON, handler, params).downLoad(url, filePath);
+    }
+
+    /**
+     * 下载推广互动小程序码
+     * @param url
+     * @param context
+     * @param handler
+     * @param filePath
+     */
+    public static void downloadQRCodeExtensionImg(String url,Context context, ApiRequestListener handler,String filePath){
+        final HashMap<String, Object> params = new HashMap<>();
+        new AppServiceOk(context, Action.SP_GET_QR_EXTENSION_JSON, handler, params).downLoad(url, filePath);
     }
 
     /**

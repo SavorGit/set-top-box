@@ -196,7 +196,8 @@ public class MiniProgramQrCodeWindowManager {
 
         QRCodeType = type;
         if (QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE
-                ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE){
+                ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE
+                ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_HELP_TYPE){
             final ImageView qrCodeFrontIv = mFloatLayout.findViewById(R.id.iv_mini_program_qrcode_front);
             final ImageView qrCodeBackIv = mFloatLayout.findViewById(R.id.iv_mini_program_qrcode_back);
 
@@ -240,10 +241,15 @@ public class MiniProgramQrCodeWindowManager {
     private void addToWindow(final Context context,final String url,final String path,final ImageView qrCodeIv) {
 
         boolean isCompletePicture = FileUtils.isCompletePicture(path);
-        File localFile = new File(path);
-        long modifyTime = localFile.lastModified();
-        long nowTime = System.currentTimeMillis();
-        long hour = (nowTime-modifyTime)/1000/60/60;
+        File localFile = null;
+        long hour = 0;
+        if (isCompletePicture){
+            localFile = new File(path);
+            long modifyTime = localFile.lastModified();
+            long nowTime = System.currentTimeMillis();
+            hour = (nowTime-modifyTime)/1000/60/60;
+        }
+
         if ((QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE)
                 &&isCompletePicture&&hour<2) {
@@ -414,7 +420,8 @@ public class MiniProgramQrCodeWindowManager {
         mHandler.postDelayed(flipCardRunnable,1000*3);
         mIsHandling = false;
         if (QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE
-                ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE){
+                ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE
+                ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_HELP_TYPE){
             mIsAdded = true;
         }else if(QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_BIG_TYPE
                     ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE

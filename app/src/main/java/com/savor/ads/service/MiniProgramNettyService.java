@@ -36,7 +36,7 @@ import com.savor.ads.core.ApiRequestListener;
 import com.savor.ads.core.AppApi;
 import com.savor.ads.core.Session;
 import com.savor.ads.database.DBHelper;
-import com.savor.ads.dialog.PayRedEnvelopeQrCodeDialog;
+import com.savor.ads.dialog.ExtensionQrCodeDialog;
 import com.savor.ads.dialog.ProjectionImgListDialog;
 import com.savor.ads.dialog.ScanRedEnvelopeQrCodeDialog;
 import com.savor.ads.log.LogReportUtil;
@@ -116,7 +116,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     Handler handler=new Handler(Looper.getMainLooper());
     public static ConcurrentHashMap<String,String> projectionIdMap = new ConcurrentHashMap<>();
     private int currentAction;
-    private PayRedEnvelopeQrCodeDialog payRedEnvelopeQrCodeDialog = null;
+    private ExtensionQrCodeDialog extensionQrCodeDialog = null;
     private ScanRedEnvelopeQrCodeDialog scanRedEnvelopeQrCodeDialog =null;
     private AdsBinder adsBinder = new AdsBinder();
     /**增加投屏前置或者后置广告,前置：1，后置：2*/
@@ -132,7 +132,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         session = Session.get(context);
         dbHelper = DBHelper.get(context);
         pImgListDialog = new ProjectionImgListDialog(context);
-        payRedEnvelopeQrCodeDialog = new PayRedEnvelopeQrCodeDialog(context);
+        extensionQrCodeDialog = new ExtensionQrCodeDialog(context);
         scanRedEnvelopeQrCodeDialog = new ScanRedEnvelopeQrCodeDialog(context);
     }
 
@@ -217,6 +217,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 122:接收到弹幕
          * 130:欢迎词推送
          * 131|132:退出欢迎词播放
+         * 133:推广渠道投屏码
+         * 134:投屏帮助视频
          * 140:对服务人员评价完成通知盒子
          * 000:活动广告
          */
@@ -239,7 +241,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     GlobalValues.CURRENT_PROJECT_BITMAP = null;
                     final MiniProgramProjection miniProgramProjection = gson.fromJson(content, new TypeToken<MiniProgramProjection>() {
                     }.getType());
-                    if (miniProgramProjection!=null&&action!=3){
+                    if (miniProgramProjection!=null&&action!=3&&action!=133&action!=134){
                         this.miniProgramProjection = miniProgramProjection;
                         headPic = Base64Utils.getFromBase64(miniProgramProjection.getHeadPic());
                         nickName = miniProgramProjection.getNickName();
@@ -393,6 +395,37 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         case 131:
                         case 132:
                             exitProjectionWelcome(miniProgramProjection);
+                            break;
+                        case 133:
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+                                    if (activity instanceof AdsPlayerActivity){
+                                        String qrcodeurl = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ session.getEthernetMac()+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_EXTENSION_TYPE;
+                                        String forscreen_num = "";
+                                        int countdown = 0;
+                                        try {
+                                            if (jsonObject.has("forscreen_number")){
+                                                forscreen_num = jsonObject.getString("forscreen_number");
+                                            }
+                                            if (jsonObject.has("countdown")){
+                                                countdown = jsonObject.getInt("countdown");
+                                            }
+                                        }catch (Exception e){
+                                            e.printStackTrace();
+                                        }
+                                        if (extensionQrCodeDialog.isShowing()){
+                                            extensionQrCodeDialog.dismiss();
+                                        }
+                                        extensionQrCodeDialog.show();
+                                        extensionQrCodeDialog.showExtensionWindow(context,qrcodeurl,countdown,forscreen_num);
+                                    }
+                                }
+                            });
+                            break;
+                        case 134:
+                            onDemandExtensionVideo(miniProgramProjection);
                             break;
                         case 140:
                             finishEvaluate(miniProgramProjection);
@@ -1086,6 +1119,33 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             ProjectOperationListener.getInstance(context).showVideo("",url, true,currentAction);
         }
         postProjectionResourceLog(params);
+    }
+
+
+    private void onDemandExtensionVideo(MiniProgramProjection miniProgramProjection){
+        String fileName = miniProgramProjection.getFilename();
+        String url = miniProgramProjection.getUrl();
+        if (TextUtils.isEmpty(fileName)&&TextUtils.isEmpty(url)){
+            return;
+        }
+        String selection = DBHelper.MediaDBInfo.FieldName.MEDIANAME + "=? ";
+        String[] selectionArgs = new String[]{fileName};
+        List<MediaLibBean> listPlayList = dbHelper.findNewPlayListByWhere(selection, selectionArgs);
+        if (listPlayList!=null&&listPlayList.size()>1){
+            ProjectOperationListener.getInstance(context).showVod(fileName, "", 0, false, true,currentAction);
+        }else{
+            if (!TextUtils.isEmpty(url)){
+                url = BuildConfig.OSS_ENDPOINT+url;
+            }
+            ProjectOperationListener.getInstance(context).showVideo("",url, true,currentAction);
+        }
+        String names[] = fileName.split("\\.");
+        if (names.length!=2){
+            return;
+        }
+        String mediaId = names[0];
+        MiniProgramQrCodeWindowManager.get(context).setCurrentPlayMediaId(mediaId);
+        ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_HELP_TYPE);
     }
 
     /**

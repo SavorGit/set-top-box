@@ -217,6 +217,7 @@ public class ConstantValues {
      * 19.极简版大维码(新节目)
      * 20.极简版大二维码
      * 21.极简版呼二维码
+     * 29.推广投屏码
      * **/
 
     public static final int MINI_PROGRAM_QRCODE_SMALL_TYPE = 8;
@@ -227,9 +228,11 @@ public class ConstantValues {
     public static final int MINI_PROGRAM_SQRCODE_NEW_TYPE = 19;
     public static final int MINI_PROGRAM_SQRCODE_BIG_TYPE = 20;
     public static final int MINI_PROGRAM_SQRCODE_CALL_TYPE = 21;
+    public static final int MINI_PROGRAM_QRCODE_EXTENSION_TYPE = 29;
+    public static final int MINI_PROGRAM_QRCODE_HELP_TYPE = 30;
 
     /**存储到本地图片的名称**/
-    public static final String MINI_PROGRAM_QRCODE_NAME = "getBoxQrcode.jpg";
+    public static final String MINI_PROGRAM_QRCODE_NAME = "get_box_qrcode.jpg";
     public static final String MINI_PROGRAM_QRCODE_TEMP_NAME = "getBoxQrcodeTemp.jpg";
     public static final String MINI_PROGRAM_QRCODE_BIG_NAME = "getBoxQrcodeBig.jpg";
     public static final String MINI_PROGRAM_QRCODE_BIG_TEMP_NAME = "getBoxQrcodeBigTemp.jpg";
@@ -246,6 +249,8 @@ public class ConstantValues {
     public static final String MINI_PROGRAM_SQRCODE_NEW_TEMP_NAME = "getBoxQrcodeSimpleNewTemp.jpg";
     public static final String MINI_PROGRAM_SQRCODE_CALL_NAME = "getBoxQrcodeSimpleCall.jpg";
     public static final String MINI_PROGRAM_SQRCODE_CALL_TEMP_NAME = "getBoxQrcodeSimpleCallTemp.jpg";
+    public static final String MINI_PROGRAM_QRCODE_EXTENSIOM_NAME = "getBoxQrcodeExtension.jpg";
+    public static final String MINI_PROGRAM_QRCODE_EXTENSION_TEMP_NAME = "getBoxQrcodeExtensionTemp.jpg";
 
     public static String MEI_SSP_ADS_MONITOR_URL = "";
 

@@ -1151,7 +1151,7 @@ public class AppUtils {
                 }
                 for (File file:cacheFiles){
                     String name = file.getName();
-                    if (file.isFile()&&!name.contains("getBoxQrcode")){
+                    if (file.isFile()&&!name.contains("get_box_qrcode")){
                         file.delete();
                     }
                 }
