@@ -1140,7 +1140,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         String selection = DBHelper.MediaDBInfo.FieldName.MEDIANAME + "=? ";
         String[] selectionArgs = new String[]{fileName};
         List<MediaLibBean> listPlayList = dbHelper.findNewPlayListByWhere(selection, selectionArgs);
-        if (listPlayList!=null&&listPlayList.size()>1){
+        if (listPlayList!=null&&listPlayList.size()>=1){
             ProjectOperationListener.getInstance(context).showVod(fileName, "", 0, false, true,currentAction);
         }else{
             if (!TextUtils.isEmpty(url)){
