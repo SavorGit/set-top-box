@@ -250,6 +250,12 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         forscreen_id = miniProgramProjection.getForscreen_id();
                         serial_number = miniProgramProjection.getSerial_number();
                     }
+                    /*******************************/
+                    //一旦有netty请求进来，就关闭引导用户互动的码和视频
+                    if (extensionQrCodeDialog!=null&&extensionQrCodeDialog.isShowing()){
+                        extensionQrCodeDialog.dismiss();
+                    }
+                    /*******************************/
                     if (action != 101 && action != 102 && action != 103 && action != 105
                             && ActivitiesManager.getInstance().getCurrentActivity() instanceof MonkeyGameActivity) {
                         MonkeyGameActivity activity = (MonkeyGameActivity) ActivitiesManager.getInstance().getCurrentActivity();
@@ -401,7 +407,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                                 @Override
                                 public void run() {
                                     Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
-                                    if (activity instanceof AdsPlayerActivity){
+                                    if (activity instanceof AdsPlayerActivity&&scanRedEnvelopeQrCodeDialog!=null&&!scanRedEnvelopeQrCodeDialog.isShowing()){
                                         String qrcodeurl = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ session.getEthernetMac()+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_EXTENSION_TYPE;
                                         String forscreen_num = "";
                                         int countdown = 0;
@@ -425,7 +431,10 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             });
                             break;
                         case 134:
-                            onDemandExtensionVideo(miniProgramProjection);
+                            Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+                            if (activity instanceof AdsPlayerActivity){
+                                onDemandExtensionVideo(miniProgramProjection);
+                            }
                             break;
                         case 140:
                             finishEvaluate(miniProgramProjection);
