@@ -14,7 +14,7 @@ import java.util.TimeZone;
 /**
  * Created by Administrator on 2017/9/18.
  */
-
+@Deprecated
 public class TimeCalibrateHelper {
     private final int NTP_TIME_OUT_MILLISECOND = 30000;
     private final String LOG_TAG = TimeCalibrateHelper.class.getSimpleName();

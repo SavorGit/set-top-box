@@ -116,7 +116,7 @@ public class AppUtils {
     public static final String BoxlogedDir = "loged";
     public static final String BoxMediaDir = "media";
     public static final String BoxMulticast = "multicast";//已删除
-    public static final String BoxLotteryDir = "lottery";//已删除
+    public static final String BoxLotteryDir = "lottery";//霸王菜
     public static final String BoxPPTDir = "ppt";//已删除
     public static final String BoxSpecialtyDir = "specialty";//已删除
     public static final String rtbAdsDir = "rtb_ads";
@@ -169,6 +169,8 @@ public class AppUtils {
          * 广告视频目录
          */
         media,
+        /**抽奖相关**/
+        lottery,
         /**
          * RTB广告目录
          */
@@ -342,6 +344,10 @@ public class AppUtils {
         if (!targetMediaFile.exists()) {
             targetMediaFile.mkdir();
         }
+        File targetLotteryFile = new File(path + File.separator, BoxLotteryDir);
+        if (!targetLotteryFile.exists()) {
+            targetLotteryFile.mkdir();
+        }
         File targetCacheFile = new File(path + File.separator, cacheDir);
         if (!targetCacheFile.exists()) {
             targetCacheFile.mkdir();
@@ -396,7 +402,9 @@ public class AppUtils {
             path = targetLogedFile.getAbsolutePath() + File.separator;
         } else if (mode == StorageFile.media) {
             path = targetMediaFile.getAbsolutePath() + File.separator;
-        }  else if (mode == StorageFile.cache) {
+        } else if (mode == StorageFile.lottery) {
+            path = targetLotteryFile.getAbsolutePath() + File.separator;
+        } else if (mode == StorageFile.cache) {
             path = targetCacheFile.getAbsolutePath() + File.separator;
         } else if (mode == StorageFile.rtb_ads) {
             path = rtbFile.getAbsolutePath() + File.separator;
@@ -432,13 +440,6 @@ public class AppUtils {
             @Override
             public void run() {
                 String path = getMainMediaPath();
-                File lotteryFile = new File(path + File.separator,BoxLotteryDir);
-                if (lotteryFile.exists()){
-                    if (lotteryFile.isDirectory()&&lotteryFile.listFiles().length>0){
-                        com.savor.ads.utils.FileUtils.deleteFile(lotteryFile);
-                    }
-                    lotteryFile.delete();
-                }
                 File pptFile = new File(path+File.separator,BoxPPTDir);
                 if (pptFile.exists()){
                     if (pptFile.isDirectory()&&pptFile.listFiles().length>0){

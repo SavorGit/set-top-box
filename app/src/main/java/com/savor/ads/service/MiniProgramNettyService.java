@@ -219,6 +219,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 131|132:退出欢迎词播放
          * 133:推广渠道投屏码
          * 134:投屏帮助视频
+         * 135:霸王餐抽奖活动推送
+         * 136:霸王餐抽奖活动结果
          * 140:对服务人员评价完成通知盒子
          * 000:活动广告
          */
@@ -408,6 +410,10 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                                 public void run() {
                                     Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
                                     if (activity instanceof AdsPlayerActivity&&scanRedEnvelopeQrCodeDialog!=null&&!scanRedEnvelopeQrCodeDialog.isShowing()){
+                                        //如果是电视机的话，因为无法将tv模块放到activity的管理栈中，所有加下面的if判断
+                                        if (AppUtils.isSVT()&&GlobalValues.mIsGoneToTv){
+                                           return;
+                                        }
                                         String qrcodeurl = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ session.getEthernetMac()+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_EXTENSION_TYPE;
                                         String forscreen_num = "";
                                         int countdown = 0;
@@ -433,8 +439,14 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         case 134:
                             Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
                             if (activity instanceof AdsPlayerActivity){
+                                if (AppUtils.isSVT()&&GlobalValues.mIsGoneToTv){
+                                    return;
+                                }
                                 onDemandExtensionVideo(miniProgramProjection);
                             }
+                            break;
+                        case 135:
+
                             break;
                         case 140:
                             finishEvaluate(miniProgramProjection);

@@ -340,10 +340,10 @@ public class MainActivity extends BaseActivity {
         if (mAudioManager != null) {
             mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 30, 0);
         }
-        if (!AppUtils.isLeTV()&&!AppUtils.isSVT()){
-            TimeCalibrateHelper timeCalibrateHelper = new TimeCalibrateHelper();
-            timeCalibrateHelper.startCalibrateTime();
-        }
+//        if (!AppUtils.isLeTV()&&!AppUtils.isSVT()){
+//            TimeCalibrateHelper timeCalibrateHelper = new TimeCalibrateHelper();
+//            timeCalibrateHelper.startCalibrateTime();
+//        }
 
 
     }

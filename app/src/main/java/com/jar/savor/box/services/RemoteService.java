@@ -490,136 +490,124 @@ public class RemoteService extends Service {
                 BaseResponse object = null;
                 MultipartConfigElement multipartConfigElement = new MultipartConfigElement((String) null);
                 request.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT, multipartConfigElement);
-                if (request.getParts() != null) {
-                    String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-                    String action = request.getParameter("action");
-                    String device_model = request.getParameter("device_model");
-                    String filename = request.getParameter("filename");
-                    String forscreen_id = request.getParameter("forscreen_id");
-                    String resource_size = request.getParameter("resource_size");
-                    String resource_type = request.getParameter("resource_type");
-                    String duration = request.getParameter("duration");
-                    String play_time = request.getParameter("play_times");
-                    String serial_number = request.getParameter("serial_number");
-                    if (TextUtils.isEmpty(filename)){
-                        object = new BaseResponse();
-                        object.setMsg("上传异常-文件名称为空");
-                        object.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
-                        return new Gson().toJson(object);
+                String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+                String action = request.getParameter("action");
+                String device_model = request.getParameter("device_model");
+                String filename = request.getParameter("filename");
+                String forscreen_id = request.getParameter("forscreen_id");
+                String resource_size = request.getParameter("resource_size");
+                String resource_type = request.getParameter("resource_type");
+                String duration = request.getParameter("duration");
+                String play_time = request.getParameter("play_times");
+                String serial_number = request.getParameter("serial_number");
+                if (TextUtils.isEmpty(filename)){
+                    object = new BaseResponse();
+                    object.setMsg("上传异常-文件名称为空");
+                    object.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
+                    return new Gson().toJson(object);
+                }
+                // 临时文件
+                String name = filename+".mp4";
+                File videoTmpFile = new File(path + "tmp_" + name);
+                //结果文件
+                File resultFile = new File(path+name);
+                boolean isDownloaded;
+                if (resultFile.exists()){
+                    isDownloaded = true;
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            projectionImgListDialog.setImgDownloadProgress(video_id,"100%");
+                        }
+                    });
+
+                }else{
+                    int start = 0;
+                    long startTime = System.currentTimeMillis();
+                    Part part = request.getPart("fileUpload");
+                    // 存文件
+                    RandomAccessFile raf = new RandomAccessFile(videoTmpFile, "rw");
+                    raf.seek(start);
+                    byte[] byteBuffer = new byte[1024*1024*1];
+                    int len = 0;
+                    final long totalSize = part.getSize();
+                    int currentSize = 0;
+                    // 注意，part.getInputStream()切记不要多次调用
+                    InputStream inputStream = part.getInputStream();
+                    while ((len = inputStream.read(byteBuffer)) > 0) {
+                        raf.write(byteBuffer, 0, len);
+                        currentSize = currentSize +len;
+                        setDownloadProgress(video_id,totalSize,currentSize);
+
                     }
-                    // 临时文件
-                    String name = filename+".mp4";
-                    File videoTmpFile = new File(path + "tmp_" + name);
-                    //结果文件
-                    File resultFile = new File(path+name);
-                    boolean isDownloaded;
-                    if (resultFile.exists()){
-                        isDownloaded = true;
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                projectionImgListDialog.setImgDownloadProgress(video_id,"100%");
-                            }
-                        });
+                    raf.close();
+                    inputStream.close();
+                    isDownloaded = true;
+                    videoTmpFile.renameTo(resultFile);
 
-                    }else{
-                        int start = 0;
-                        long startTime = System.currentTimeMillis();
-                        for (Part part : request.getParts()) {
-                            switch (part.getName()) {
-                                case "fileUpload":
-                                    // 存文件
-                                    RandomAccessFile raf = new RandomAccessFile(videoTmpFile, "rw");
-                                    raf.seek(start);
-                                    byte[] byteBuffer = new byte[1024*1024*10];
-                                    int len = 0;
-                                    final long totalSize = part.getSize();
-                                    int currentSize = 0;
-                                    // 注意，part.getInputStream()切记不要多次调用
-                                    InputStream inputStream = part.getInputStream();
-                                    while ((len = inputStream.read(byteBuffer)) > 0) {
-                                        raf.write(byteBuffer, 0, len);
-                                        currentSize = currentSize +len;
+                    String useTime = String.valueOf(System.currentTimeMillis()-startTime);
+                    String resourceSize = String.valueOf(resultFile.length());
+                    String mUUID = String.valueOf(System.currentTimeMillis());
+                    LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_size,resourceSize);
+                    Thread.sleep(500);
+                    LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_duration,useTime);
+                    Thread.sleep(500);
+                    LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_serial,serial_number);
 
-                                        setDownloadProgress(video_id,totalSize,currentSize);
+                }
 
-                                    }
-                                    raf.close();
-                                    part.delete();
-
-                                    break;
-                                default:
-                                    part.delete();
+                if (isDownloaded){
+                    String media_path = resultFile.getAbsolutePath();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (projectionImgListDialog!=null&&projectionImgListDialog.isShowing()){
+                                projectionImgListDialog.clearContent();
+                                projectionImgListDialog.dismiss();
                             }
                         }
-                        isDownloaded = true;
-                        videoTmpFile.renameTo(resultFile);
+                    });
 
-                        String useTime = String.valueOf(System.currentTimeMillis()-startTime);
-                        String resourceSize = String.valueOf(resultFile.length());
-                        String mUUID = String.valueOf(System.currentTimeMillis());
-                        LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_size,resourceSize);
-                        Thread.sleep(500);
-                        LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_duration,useTime);
-                        Thread.sleep(500);
-                        LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_serial,serial_number);
-
-                    }
-
-                    if (isDownloaded){
-                        String media_path = resultFile.getAbsolutePath();
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (projectionImgListDialog!=null&&projectionImgListDialog.isShowing()){
-                                    projectionImgListDialog.clearContent();
-                                    projectionImgListDialog.dismiss();
+                    GlobalValues.CURRENT_PROJECT_DEVICE_ID = deviceId;
+                    GlobalValues.CURRENT_PROJECT_DEVICE_NAME = deviceName;
+                    GlobalValues.IS_RSTR_PROJECTION = true;
+                    GlobalValues.CURRENT_PROJECT_DEVICE_IP = request.getRemoteHost();
+                    if (currentAction == 2){
+                        if (GlobalValues.INTERACTION_ADS_PLAY!=0){
+                            //处理抢投
+                            GlobalValues.PROJECTION_VIDEO_PATH = resultFile.getAbsolutePath();
+                        }else{
+                            preOrNextAdsBean = AppUtils.getInteractionAds(context);
+                            if (preOrNextAdsBean!=null&&preOrNextAdsBean.getPlay_position()==1){
+                                GlobalValues.INTERACTION_ADS_PLAY=1;
+                                String adspath = preOrNextAdsBean.getMediaPath();
+                                String adsduration = preOrNextAdsBean.getDuration();
+                                if (preOrNextAdsBean.getMedia_type()==1){
+                                    ProjectOperationListener.getInstance(context).showVideo(adspath,true,forscreen_id, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                                }else{
+                                    ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, "", avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                                 }
-                            }
-                        });
-
-                        GlobalValues.CURRENT_PROJECT_DEVICE_ID = deviceId;
-                        GlobalValues.CURRENT_PROJECT_DEVICE_NAME = deviceName;
-                        GlobalValues.IS_RSTR_PROJECTION = true;
-                        GlobalValues.CURRENT_PROJECT_DEVICE_IP = request.getRemoteHost();
-                        if (currentAction == 2){
-                            if (GlobalValues.INTERACTION_ADS_PLAY!=0){
-                                //处理抢投
+                                preOrNextAdsBean = null;
                                 GlobalValues.PROJECTION_VIDEO_PATH = resultFile.getAbsolutePath();
                             }else{
-                                preOrNextAdsBean = AppUtils.getInteractionAds(context);
-                                if (preOrNextAdsBean!=null&&preOrNextAdsBean.getPlay_position()==1){
-                                    GlobalValues.INTERACTION_ADS_PLAY=1;
-                                    String adspath = preOrNextAdsBean.getMediaPath();
-                                    String adsduration = preOrNextAdsBean.getDuration();
-                                    if (preOrNextAdsBean.getMedia_type()==1){
-                                        ProjectOperationListener.getInstance(context).showVideo(adspath,true,forscreen_id, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
-                                    }else{
-                                        ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, "", avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
-                                    }
-                                    preOrNextAdsBean = null;
-                                    GlobalValues.PROJECTION_VIDEO_PATH = resultFile.getAbsolutePath();
-                                }else{
-                                    GlobalValues.PROJECTION_VIDEO_PATH = null;
-                                    RemoteService.listener.showVideo(media_path, true,forscreen_id,avatarUrl,nickName,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
-                                    postSimpleMiniProgramProjectionLog(action,duration,null,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE);
-                                }
+                                GlobalValues.PROJECTION_VIDEO_PATH = null;
+                                RemoteService.listener.showVideo(media_path, true,forscreen_id,avatarUrl,nickName,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                                postSimpleMiniProgramProjectionLog(action,duration,null,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE);
+                            }
 
-                            }
-                        }else if (currentAction==3){
-                            int time = 0;
-                            if (!TextUtils.isEmpty(play_time)&&!play_time.equals("0")){
-                                time = Integer.valueOf(play_time);
-                            }
-                            RemoteService.listener.showRestVideo(resultFile.getAbsolutePath(),true, avatarUrl, nickName,time);
-                            postSimpleMiniProgramProjectionLog(action,duration,null,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,ConstantValues.SMALL_APP_ID_REST);
                         }
-                        object = new BaseResponse();
-                        object.setMsg("上传成功");
-                        object.setResult(new JsonObject());
-                        object.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
+                    }else if (currentAction==3){
+                        int time = 0;
+                        if (!TextUtils.isEmpty(play_time)&&!play_time.equals("0")){
+                            time = Integer.valueOf(play_time);
+                        }
+                        RemoteService.listener.showRestVideo(resultFile.getAbsolutePath(),true, avatarUrl, nickName,time);
+                        postSimpleMiniProgramProjectionLog(action,duration,null,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,ConstantValues.SMALL_APP_ID_REST);
                     }
-
+                    object = new BaseResponse();
+                    object.setMsg("上传成功");
+                    object.setResult(new JsonObject());
+                    object.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
                 }
                 respJson = new Gson().toJson(object);
             }catch (Exception e){
