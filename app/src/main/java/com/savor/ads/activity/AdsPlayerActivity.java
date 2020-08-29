@@ -19,6 +19,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -78,6 +79,7 @@ import com.savor.ads.utils.LogUtils;
 import com.savor.ads.utils.MiniProgramQrCodeWindowManager;
 import com.savor.ads.utils.ShellUtils;
 import com.savor.ads.utils.ShowMessage;
+import com.savor.ads.utils.TimeUtils;
 import com.savor.ads.utils.ZmengAdsResponseCode;
 import com.savor.tvlibrary.OutputResolution;
 import com.savor.tvlibrary.TVOperatorFactory;
@@ -114,6 +116,8 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 
     private static final String TAG = "AdsPlayerActivity";
     private SavorVideoView mSavorVideoView;
+    private FrameLayout partakeDishLayout;
+    private TextView pdCountdownTV;
     private ImageView imgView;
     private RelativeLayout priceLayout;
     private TextView goodsPriceTV;
@@ -184,6 +188,8 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         mSavorVideoView.setIfShowLoading(false);
         mSavorVideoView.setIfHandlePrepareTimeout(true);
         mSavorVideoView.setPlayStateCallback(this);
+        partakeDishLayout = findViewById(R.id.partake_dish_layout);
+        pdCountdownTV = findViewById(R.id.pd_countdown);
         imgView = findViewById(R.id.img_view);
         priceLayout = findViewById(R.id.price_layout);
         goodsPriceTV = findViewById(R.id.goods_price);
@@ -213,6 +219,38 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         AtlasDialog atlasDialog = new AtlasDialog(getApplicationContext());
         atlasDialog.show();
     }
+
+    /**霸王菜头部布局开关*/
+    public void isClosePartakeDishHead(boolean close){
+        if (close){
+            partakeDishLayout.setVisibility(View.INVISIBLE);
+        }else{
+            partakeDishLayout.setVisibility(View.VISIBLE);
+        }
+    }
+    /**设置霸王菜开奖倒计时*/
+    int partakedishTime = 0;
+    public void setPartakeDishCountdown(int time){
+        if (time>0){
+            partakedishTime = time;
+            partakeDishCountdown();
+        }
+    }
+
+    private void partakeDishCountdown(){
+        String minute = TimeUtils.formatSeconds(partakedishTime);
+        pdCountdownTV.setText(minute);
+        partakedishTime = partakedishTime-1;
+        if (partakedishTime<=0){
+            mHandler.removeCallbacks(partakedishRunnable);
+            isClosePartakeDishHead(true);
+        }else{
+            mHandler.postDelayed(partakedishRunnable,1000);
+        }
+
+    }
+
+    private Runnable partakedishRunnable = ()->partakeDishCountdown();
 
     public void setScanRedEnvelopeQrCodeDialogListener(ScanRedEnvelopeQrCodeDialog sreqcd){
         this.scanRedEnvelopeQrCodeDialog = sreqcd;
@@ -808,9 +846,14 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         } else if (keyCode == KeyCode.KEY_CODE_CHANGE_MODE||keyCode == KeyCode.KEY_CODE_CHAGE_LETV_MODE) {
             switchToTvPlayer();
             handled = true;
-            ((SavorApplication) getApplication()).hideMiniProgramQrCodeWindow();
-            ((SavorApplication) getApplication()).hideGoodsQrCodeWindow();
-            ((SavorApplication) getApplication()).hideGoodsCountdownQrCodeWindow();
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    ((SavorApplication) getApplication()).hideMiniProgramQrCodeWindow();
+                    ((SavorApplication) getApplication()).hideGoodsQrCodeWindow();
+                    ((SavorApplication) getApplication()).hideGoodsCountdownQrCodeWindow();
+                }
+            },1000*3);
             // 呼出二维码
         } else if (keyCode == KeyCode.KEY_CODE_SHOW_QRCODE) {
             ((SavorApplication) getApplication()).showQrCodeWindow(null);
@@ -913,17 +956,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             Intent intent = new Intent(this, TvPlayerGiecActivity.class);
             intent.putExtra(TvPlayerActivity.EXTRA_LAST_VID, vid);
             startActivity(intent);
-        }else if (AppUtils.isLeTV()){
-            Intent intent = new Intent();
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-            intent.setClassName(ConstantValues.LETV_SIGNAL_SOURCE_PAKAGE, ConstantValues.LETV_SIGNAL_SOURCE_CLASS);
-            try{
-                startActivity(intent);
-            }catch (ActivityNotFoundException e){
-                LogUtils.d("Can't find signalsourcemanager activity.", e);
-            }catch (Exception e){
-                LogUtils.d("Error while switching to signalsourcemanager.", e);
-            }
         }else if (AppUtils.isSVT()){
             Intent intent = new Intent();
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);

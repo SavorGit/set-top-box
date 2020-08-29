@@ -12,6 +12,7 @@ package cn.savor.small.netty;
 
 
 import android.content.Context;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.savor.ads.log.LogParamValues;
@@ -80,6 +81,7 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
             contList.add(new Gson().toJson(bean));
             message.setContent(contList);
             ChannelFuture future = ctx.writeAndFlush(message);
+            Log.d("测试netty启动","channelActive|future.isSuccess()="+future.isSuccess());
             if (!future.isSuccess()) {
                 close(ctx);
             }
@@ -107,6 +109,8 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
                         return;
                     }
                 }
+                Log.d("测试netty启动","channelRead0|session.isHeartbeatMiniNetty()="+session.isHeartbeatMiniNetty());
+                Log.d("测试netty启动","channelRead0|miniCallback="+miniCallback);
                 if (!session.isHeartbeatMiniNetty()){
                     if (miniCallback != null) {
                         miniCallback.onMiniConnected();

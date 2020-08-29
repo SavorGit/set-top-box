@@ -21,10 +21,13 @@ import com.savor.ads.SavorApplication;
 import com.savor.ads.activity.AdsPlayerActivity;
 import com.savor.ads.activity.MainActivity;
 import com.savor.ads.activity.MonkeyGameActivity;
+import com.savor.ads.activity.PartakeDishDrawActivity;
 import com.savor.ads.activity.ScreenProjectionActivity;
 import com.savor.ads.activity.WebviewGameActivity;
 import com.savor.ads.bean.BirthdayOndemandBean;
 import com.savor.ads.bean.JsonBean;
+import com.savor.ads.bean.PartakeDishBean;
+import com.savor.ads.dialog.PartakeDishDialog;
 import com.savor.ads.log.LogParamValues;
 import com.savor.ads.bean.MediaLibBean;
 import com.savor.ads.bean.MiniProgramProjection;
@@ -58,6 +61,7 @@ import com.umeng.analytics.MobclickAgent;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -91,7 +95,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private int downloadIndex;
     private int currentIndex;
     public static MiniProgramProjection miniProgramProjection;
-
+    private PartakeDishBean partakeDishBean;
     private String headPic;
     private String nickName;
     private String openid;
@@ -117,6 +121,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     public static ConcurrentHashMap<String,String> projectionIdMap = new ConcurrentHashMap<>();
     private int currentAction;
     private ExtensionQrCodeDialog extensionQrCodeDialog = null;
+    private PartakeDishDialog partakeDishDialog = null;
     private ScanRedEnvelopeQrCodeDialog scanRedEnvelopeQrCodeDialog =null;
     private AdsBinder adsBinder = new AdsBinder();
     /**增加投屏前置或者后置广告,前置：1，后置：2*/
@@ -133,6 +138,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         dbHelper = DBHelper.get(context);
         pImgListDialog = new ProjectionImgListDialog(context);
         extensionQrCodeDialog = new ExtensionQrCodeDialog(context);
+        partakeDishDialog = new PartakeDishDialog(context);
         scanRedEnvelopeQrCodeDialog = new ScanRedEnvelopeQrCodeDialog(context);
     }
 
@@ -171,7 +177,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
 
     private void fetchMessage()  {
         try{
-            LogUtils.d("MiniProgramNettyService fetchMessage");
+            LogUtils.d("测试netty启动 fetchMessage");
             if (!TextUtils.isEmpty(session.getNettyUrl())&&session.getNettyPort()!=0) {
                 MiniProNettyClient.init(session.getNettyPort(), session.getNettyUrl(), this, getApplicationContext());
                 MiniProNettyClient.get().start();
@@ -179,6 +185,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.conn,LogParamValues.netty,"");
             }
         }catch (Exception e){
+            Log.d("测试netty启动fetchMessage异常",e.getMessage());
             e.printStackTrace();
         }
     }
@@ -220,7 +227,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 133:推广渠道投屏码
          * 134:投屏帮助视频
          * 135:霸王餐抽奖活动推送
-         * 136:霸王餐抽奖活动结果
+         * 136:霸王餐开奖
          * 140:对服务人员评价完成通知盒子
          * 000:活动广告
          */
@@ -241,17 +248,23 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     LogUtils.d("收到请求，content="+content);
                     //如果是小程序投屏的话，就将app投屏状态情况
                     GlobalValues.CURRENT_PROJECT_BITMAP = null;
-                    final MiniProgramProjection miniProgramProjection = gson.fromJson(content, new TypeToken<MiniProgramProjection>() {
-                    }.getType());
-                    if (miniProgramProjection!=null&&action!=3&&action!=133&action!=134){
-                        this.miniProgramProjection = miniProgramProjection;
-                        headPic = Base64Utils.getFromBase64(miniProgramProjection.getHeadPic());
-                        nickName = miniProgramProjection.getNickName();
-                        lastOpenid = openid;
-                        openid = miniProgramProjection.getOpenid();
-                        forscreen_id = miniProgramProjection.getForscreen_id();
-                        serial_number = miniProgramProjection.getSerial_number();
+                    if (action==136){
+                        PartakeDishBean partakeDishBean = gson.fromJson(content, new TypeToken<PartakeDishBean>() {}.getType());
+                        this.partakeDishBean = partakeDishBean;
+                    }else{
+                        final MiniProgramProjection miniProgramProjection = gson.fromJson(content, new TypeToken<MiniProgramProjection>() {
+                        }.getType());
+                        if (miniProgramProjection!=null&&action!=3&&action!=133&action!=134){
+                            this.miniProgramProjection = miniProgramProjection;
+                            headPic = Base64Utils.getFromBase64(miniProgramProjection.getHeadPic());
+                            nickName = miniProgramProjection.getNickName();
+                            lastOpenid = openid;
+                            openid = miniProgramProjection.getOpenid();
+                            forscreen_id = miniProgramProjection.getForscreen_id();
+                            serial_number = miniProgramProjection.getSerial_number();
+                        }
                     }
+
                     /*******************************/
                     //一旦有netty请求进来，就关闭引导用户互动的码和视频
                     if (extensionQrCodeDialog!=null&&extensionQrCodeDialog.isShowing()){
@@ -446,7 +459,22 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             }
                             break;
                         case 135:
-
+                           activity = ActivitiesManager.getInstance().getCurrentActivity();
+                            if (activity instanceof AdsPlayerActivity) {
+                                if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
+                                    return;
+                                }
+                                involvementPartakedish(miniProgramProjection);
+                            }
+                            break;
+                        case 136:
+                            activity = ActivitiesManager.getInstance().getCurrentActivity();
+                            if (activity instanceof AdsPlayerActivity) {
+                                if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
+                                    return;
+                                }
+                                partakedishResult(partakeDishBean);
+                            }
                             break;
                         case 140:
                             finishEvaluate(miniProgramProjection);
@@ -1167,6 +1195,55 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         String mediaId = names[0];
         MiniProgramQrCodeWindowManager.get(context).setCurrentPlayMediaId(mediaId);
         ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_HELP_TYPE);
+    }
+    /**霸王餐参与抽奖窗口展示**/
+    private void involvementPartakedish(MiniProgramProjection mpp){
+        int countdown = mpp.getCountdown();
+        int lottery_countdown = mpp.getLottery_countdown();
+        String lottery_time = mpp.getLottery_time();
+        String partakedish_img = mpp.getPartakedish_img();
+        String oss_url = BuildConfig.OSS_ENDPOINT+partakedish_img;
+        String partakedish_filename = mpp.getPartakedish_filename();
+//        String partakedish_filename = "123.jpg";
+        String basePath = AppUtils.getFilePath(AppUtils.StorageFile.lottery);
+        String filePath = basePath+partakedish_filename;
+        File file = new File(filePath);
+        boolean downloaded;
+        if (file.exists()){
+            downloaded = true;
+        }else{
+            ProgressDownloader downloader = new ProgressDownloader(context,oss_url, basePath,partakedish_filename,false);
+            downloaded = downloader.downloadByRange();
+        }
+        if (downloaded){
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (partakeDishDialog.isShowing()){
+                        partakeDishDialog.dismiss();
+                    }
+                    partakeDishDialog = new PartakeDishDialog(context);
+                    String qrcodeurl = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ session.getEthernetMac()+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_PARTAKE_DISH_TYPE;
+                    partakeDishDialog.show();
+                    partakeDishDialog.setPartakeDishBg(filePath);
+                    partakeDishDialog.showPartakeDishWindow(context,qrcodeurl,countdown,lottery_time);
+                    Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+                    if (activity instanceof AdsPlayerActivity){
+                        AdsPlayerActivity adsPlayerActivity = (AdsPlayerActivity) activity;
+                        adsPlayerActivity.isClosePartakeDishHead(true);
+                        adsPlayerActivity.setPartakeDishCountdown(lottery_countdown);
+                    }
+                }
+            });
+
+        }
+    }
+    /**霸王餐开奖**/
+    private void partakedishResult(PartakeDishBean pdb){
+        Intent intent =new Intent();
+        intent.setClass(context, PartakeDishDrawActivity.class);
+        intent.putExtra("pdb",pdb);
+        startActivity(intent);
     }
 
     /**

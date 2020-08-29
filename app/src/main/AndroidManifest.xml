@@ -178,6 +178,10 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:launchMode="singleTask">
         </activity>
+        <activity android:name=".activity.PartakeDishDrawActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:launchMode="singleTask">
+        </activity>
         <!-- 应用设置页面 -->
         <activity
             android:name=".activity.SettingActivity"

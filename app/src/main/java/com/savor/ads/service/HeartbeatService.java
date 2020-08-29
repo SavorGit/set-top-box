@@ -540,6 +540,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                             session.setShowSimpleMiniProgramIcon(false);
                         }
                         if (is_open_netty==1){
+                            Log.d("HeartbeatService","开始请求netty的ip地址和端口号");
                             getNettyBalancingInfo();
                         }
                         if (is_open_interactscreenad==1){
@@ -560,6 +561,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                 break;
             case CP_GET_NETTY_BALANCING_FORM:
                 if (obj instanceof NettyBalancingResult){
+                    Log.d("HeartbeatService","返回netty的端口号和ip，准备启动netty");
                     try {
                         boolean start = false;
                         NettyBalancingResult netty = (NettyBalancingResult)obj;
@@ -582,6 +584,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                                     session.setNettyPort(Integer.valueOf(port));
                                 }
                             }
+
                             if (start){
                                 startMiniProgramNettyService();
                             }
@@ -601,7 +604,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
     }
 
     public void startMiniProgramNettyService(){
-        LogFileUtil.write("HeartbeatService startMiniProgramNettyService");
+        LogFileUtil.write("测试netty启动 startMiniProgramNettyService");
         Intent intent = new Intent(context, MiniProgramNettyService.class);
         startService(intent);
     }
@@ -687,10 +690,13 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
             case CP_POST_PLAY_LIST_JSON:
                 LogUtils.d("上报播放列表失败");
                 break;
+            case CP_POST_FORSCREEN_GETCONFIG_JSON:
+                LogUtils.d("HeartbeatService doInitConfig初始化接口异常，重新请求");
+                doInitConfig();
+                break;
             case CP_GET_NETTY_BALANCING_FORM:
-//                if (!TextUtils.isEmpty(session.getNettyUrl())&&!session.isHeartbeatMiniNetty()){
-//                    startMiniProgramNettyService();
-//                }
+                LogUtils.d("HeartbeatService getNettyBalancingInfo获取netty地址接口异常，重新请求");
+                getNettyBalancingInfo();
                 break;
         }
     }
@@ -714,10 +720,13 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
             case CP_POST_PLAY_LIST_JSON:
                 LogUtils.d("上报播放列表失败，网络异常");
                 break;
+            case CP_POST_FORSCREEN_GETCONFIG_JSON:
+                LogUtils.d("HeartbeatService doInitConfig初始化接口异常，重新请求");
+                doInitConfig();
+                break;
             case CP_GET_NETTY_BALANCING_FORM:
-                if (!TextUtils.isEmpty(session.getNettyUrl())&&!session.isHeartbeatMiniNetty()){
-                    startMiniProgramNettyService();
-                }
+                LogUtils.d("HeartbeatService getNettyBalancingInfo获取netty地址接口异常，重新请求");
+                getNettyBalancingInfo();
                 break;
         }
     }

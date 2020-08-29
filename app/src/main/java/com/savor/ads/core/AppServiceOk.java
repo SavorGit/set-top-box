@@ -48,6 +48,7 @@ import okhttp3.Response;
 import tianshu.ui.api.ZmtAPI;
 
 public class AppServiceOk {
+    public static final String TAG = AppServiceOk.class.getSimpleName();
     private Context mContext;
     private AppApi.Action action;
     private ApiRequestListener handler;
@@ -197,6 +198,9 @@ public class AppServiceOk {
                 }
 
             };
+            if (requestUrl.contains("getConfig")){
+                Log.d("测试netty启动",requestUrl);
+            }
             PostStringRequest stringRequest = new PostStringRequest(requestUrl, action, null, headers, obj.toString(), MediaType.parse("application/json;charset=utf-8"));
             RequestCall requestCall = new RequestCall(stringRequest);
             requestCall.connTimeOut(CONNTIMEOUT);
@@ -214,6 +218,10 @@ public class AppServiceOk {
     public void requestPostByAsynWithForm(HashMap<String, String> paramsMap) {
         try {
             String requestUrl = AppApi.API_URLS.get(action);
+            if (requestUrl.contains("netty/balancing")){
+                Log.d("测试netty启动",requestUrl);
+                Log.d("测试netty启动","paramsMap"+paramsMap.toString());
+            }
             FormBody.Builder builder = new FormBody.Builder();
             for (String key : paramsMap.keySet()) {
                 builder.add(key, paramsMap.get(key));
@@ -225,15 +233,21 @@ public class AppServiceOk {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     handler.onNetworkFailed(action);
+                    Log.d("测试netty启动异常",action+e.getMessage());
                 }
 
                 @Override
                 public void onResponse(Call call, Response response){
+                    Log.d("测试netty启动","action="+action+"response="+response);
                     Object object = ApiResponseFactory.getResponse(mContext, action, response, "", req_id);
                     if (handler != null) {
                         if (object instanceof ResponseErrorMessage) {
+
                             handler.onError(action, object);
                         } else {
+                            if (requestUrl.contains("netty/balancing")){
+                                Log.d("测试netty启动","object"+object.toString());
+                            }
                             handler.onSuccess(action, object);
                         }
                     }
@@ -241,6 +255,7 @@ public class AppServiceOk {
             });
 
         } catch (Exception e) {
+            Log.d("测试netty启动异常",action.toString());
             Log.e("AppServiceOk", e.toString());
         }
     }

@@ -11,6 +11,7 @@
 package cn.savor.small.netty;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.savor.ads.core.Session;
 import com.savor.ads.utils.LogFileUtil;
@@ -93,12 +94,13 @@ public class MiniProNettyClient {
             connect();
 
         } catch (Exception e) {
+            Log.d("测试netty启动-netty-start异常",e.getMessage());
             throw new RuntimeException(e);
         }
     }
 
     public void connect(){
-        System.out.println("client connection.................");
+        Log.d("测试netty启动","---connect");
         if (channel != null && channel.isActive()) {
             return;
         }
@@ -112,9 +114,10 @@ public class MiniProNettyClient {
                 if (futureListener.isSuccess()) {
                     channel = futureListener.channel();
                     System.out.println("Connect to server successfully!");
+                    Log.d("测试netty启动","success|channel="+channel);
                 } else {
                     System.out.println("Failed to connect to server, try connect after 10s");
-
+                    Log.d("测试netty启动","failed");
                     futureListener.channel().eventLoop().schedule(new Runnable() {
                         @Override
                         public void run() {

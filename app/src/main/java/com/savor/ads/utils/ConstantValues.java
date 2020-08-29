@@ -218,6 +218,8 @@ public class ConstantValues {
      * 20.极简版大二维码
      * 21.极简版呼二维码
      * 29.推广投屏码
+     * 30.投屏帮助视频
+     * 31.霸王菜活动
      * **/
 
     public static final int MINI_PROGRAM_QRCODE_SMALL_TYPE = 8;
@@ -230,6 +232,7 @@ public class ConstantValues {
     public static final int MINI_PROGRAM_SQRCODE_CALL_TYPE = 21;
     public static final int MINI_PROGRAM_QRCODE_EXTENSION_TYPE = 29;
     public static final int MINI_PROGRAM_QRCODE_HELP_TYPE = 30;
+    public static final int MINI_PROGRAM_QRCODE_PARTAKE_DISH_TYPE = 30;
 
     /**存储到本地图片的名称**/
     public static final String MINI_PROGRAM_QRCODE_NAME = "get_box_qrcode.jpg";

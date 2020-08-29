@@ -77,6 +77,15 @@ public class MiniProgramProjection implements Serializable{
     private String waiterIconUrl;
 
     private String serial_number;
+    /**倒计时*/
+    private int countdown;
+    /**开奖倒计时*/
+    private int lottery_countdown;
+    /**开奖时间*/
+    private String lottery_time;
+    /**霸王菜的参与背景*/
+    private String partakedish_img;
+    private String partakedish_filename;
 
     public int getAction() {
         return action;
@@ -380,5 +389,45 @@ public class MiniProgramProjection implements Serializable{
 
     public void setSerial_number(String serial_number) {
         this.serial_number = serial_number;
+    }
+
+    public int getCountdown() {
+        return countdown;
+    }
+
+    public void setCountdown(int countdown) {
+        this.countdown = countdown;
+    }
+
+    public int getLottery_countdown() {
+        return lottery_countdown;
+    }
+
+    public void setLottery_countdown(int lottery_countdown) {
+        this.lottery_countdown = lottery_countdown;
+    }
+
+    public String getLottery_time() {
+        return lottery_time;
+    }
+
+    public void setLottery_time(String lottery_time) {
+        this.lottery_time = lottery_time;
+    }
+
+    public String getPartakedish_img() {
+        return partakedish_img;
+    }
+
+    public void setPartakedish_img(String partakedish_img) {
+        this.partakedish_img = partakedish_img;
+    }
+
+    public String getPartakedish_filename() {
+        return partakedish_filename;
+    }
+
+    public void setPartakedish_filename(String partakedish_filename) {
+        this.partakedish_filename = partakedish_filename;
     }
 }
