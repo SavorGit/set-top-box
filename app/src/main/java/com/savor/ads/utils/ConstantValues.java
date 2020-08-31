@@ -232,7 +232,7 @@ public class ConstantValues {
     public static final int MINI_PROGRAM_SQRCODE_CALL_TYPE = 21;
     public static final int MINI_PROGRAM_QRCODE_EXTENSION_TYPE = 29;
     public static final int MINI_PROGRAM_QRCODE_HELP_TYPE = 30;
-    public static final int MINI_PROGRAM_QRCODE_PARTAKE_DISH_TYPE = 30;
+    public static final int MINI_PROGRAM_QRCODE_PARTAKE_DISH_TYPE = 31;
 
     /**存储到本地图片的名称**/
     public static final String MINI_PROGRAM_QRCODE_NAME = "get_box_qrcode.jpg";

@@ -17,8 +17,8 @@ android {
         minSdkVersion MIN_SDK_VERSION as int
         targetSdkVersion TARGET_SDK_VERSION as int
 
-        versionCode 2020082901
-        versionName "2.0.5"
+        versionCode 2020083103
+        versionName "2.0.6"
         multiDexEnabled true
     }
     compileOptions {

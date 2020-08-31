@@ -1227,11 +1227,14 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     partakeDishDialog.show();
                     partakeDishDialog.setPartakeDishBg(filePath);
                     partakeDishDialog.showPartakeDishWindow(context,qrcodeurl,countdown,lottery_time);
+
                     Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
-                    if (activity instanceof AdsPlayerActivity){
+                    if (activity instanceof AdsPlayerActivity&&lottery_countdown!=0){
+                        GlobalValues.isActivity = true;
                         AdsPlayerActivity adsPlayerActivity = (AdsPlayerActivity) activity;
                         adsPlayerActivity.isClosePartakeDishHead(true);
                         adsPlayerActivity.setPartakeDishCountdown(lottery_countdown);
+                        adsPlayerActivity.toCheckMediaIsShowMiniProgramIcon();
                     }
                 }
             });
@@ -1240,9 +1243,11 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     }
     /**霸王餐开奖**/
     private void partakedishResult(PartakeDishBean pdb){
+        GlobalValues.isActivity = false;
         Intent intent =new Intent();
         intent.setClass(context, PartakeDishDrawActivity.class);
         intent.putExtra("pdb",pdb);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
 

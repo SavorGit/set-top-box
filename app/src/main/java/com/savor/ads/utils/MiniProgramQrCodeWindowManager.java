@@ -238,7 +238,7 @@ public class MiniProgramQrCodeWindowManager {
         }
     }
 
-    private void addToWindow(final Context context,final String url,final String path,final ImageView qrCodeIv) {
+    private void addToWindow(final Context context,String url,final String path,final ImageView qrCodeIv) {
 
         boolean isCompletePicture = FileUtils.isCompletePicture(path);
         File localFile = null;
@@ -249,10 +249,12 @@ public class MiniProgramQrCodeWindowManager {
             long nowTime = System.currentTimeMillis();
             hour = (nowTime-modifyTime)/1000/60/60;
         }
-
+        if (GlobalValues.isActivity){
+            url = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ session.getEthernetMac()+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_PARTAKE_DISH_TYPE;
+        }
         if ((QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE)
-                &&isCompletePicture&&hour<2) {
+                &&isCompletePicture&&hour<2&&!GlobalValues.isActivity) {
             ImageView qrCodeFrontIV = mFloatLayout.findViewById(R.id.iv_mini_program_qrcode_front);
             ImageView qrCodeBackIV = mFloatLayout.findViewById(R.id.iv_mini_program_qrcode_back);
             GlideImageLoader.loadLocalImage(context,localFile,qrCodeFrontIV);
@@ -262,13 +264,13 @@ public class MiniProgramQrCodeWindowManager {
                     ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE
                     ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_BIG_TYPE
                     ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_CALL_TYPE)
-                &&isCompletePicture&&hour<2){
+                &&isCompletePicture&&hour<2&&!GlobalValues.isActivity){
             ImageView qrCodeIV = mFloatCallLayout.findViewById(R.id.iv_mini_program_call_qrcode);
             GlideImageLoader.loadLocalImage(context,localFile,qrCodeIV);
             handleWindowLayout();
         }else if ((QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_NEW_TYPE
                     ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_NEW_TYPE)
-                &&isCompletePicture&&hour<2){
+                &&isCompletePicture&&hour<2&&!GlobalValues.isActivity){
             ImageView qrCodeIV = mFloatNewLayout.findViewById(R.id.iv_mini_program_new_qrcode);
             GlideImageLoader.loadLocalImage(context,localFile,qrCodeIV);
             handleWindowLayout();

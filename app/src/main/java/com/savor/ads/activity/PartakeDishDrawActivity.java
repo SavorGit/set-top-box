@@ -22,6 +22,7 @@ import com.savor.ads.bean.PartakeLottery;
 import com.savor.ads.bean.PartakeUser;
 import com.savor.ads.utils.Base64Utils;
 import com.savor.ads.utils.GlideImageLoader;
+import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.StrokeTextView;
 
 import java.util.ArrayList;
@@ -71,6 +72,7 @@ public class PartakeDishDrawActivity extends BaseActivity{
         partakeDishBean = (PartakeDishBean) getIntent().getSerializableExtra("pdb");
     }
     private void initData() {
+        GlobalValues.isActivity = false;
         partakeUsers=new ArrayList<>();
         if (partakeDishBean!=null
                 &&partakeDishBean.getPartake_user()!=null

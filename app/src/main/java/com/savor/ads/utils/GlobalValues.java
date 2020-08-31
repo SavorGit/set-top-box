@@ -136,4 +136,6 @@ public class GlobalValues <T extends MediaLibBean> {
     public static int WELCOME_ID;
 
     public static boolean mIsGoneToTv=false;
+    /**当前是否处于霸王菜活动中*/
+    public static boolean isActivity;
 }
