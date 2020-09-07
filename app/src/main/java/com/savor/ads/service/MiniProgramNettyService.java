@@ -499,6 +499,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         session.setHeartbeatMiniNetty(true);
         Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
         if (activity instanceof AdsPlayerActivity){
+            if (AppUtils.isSVT()&&GlobalValues.mIsGoneToTv){
+                return;
+            }
             ((AdsPlayerActivity) activity).toCheckMediaIsShowMiniProgramIcon();
         }
     }
@@ -605,9 +608,12 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
 
     @Override
     public void onMiniCloseIcon() {
-        Activity activity = ActivitiesManager.getInstance().getSpecialActivity(AdsPlayerActivity.class);
+        ((SavorApplication) getApplication()).hideMiniProgramQrCodeWindow();
+        Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
         if (activity!=null && activity instanceof AdsPlayerActivity){
-            ((SavorApplication) getApplication()).hideMiniProgramQrCodeWindow();
+            if (AppUtils.isSVT()&&GlobalValues.mIsGoneToTv){
+                return;
+            }
             ((AdsPlayerActivity) activity).toCheckMediaIsShowMiniProgramIcon();
         }
     }

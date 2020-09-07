@@ -25,4 +25,12 @@ public class TimeUtils {
         return standardTime;
     }
 
+    public static String formatSecondsToMin(long seconds){
+        String standardTime="00:00";
+        if (seconds==0){
+            return standardTime;
+        }
+        standardTime=String.format(Locale.getDefault(), "%02d:%02d", seconds / 60, seconds % 60);
+        return standardTime;
+    }
 }

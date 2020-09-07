@@ -233,12 +233,13 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     public void setPartakeDishCountdown(int time){
         if (time>0){
             partakedishTime = time;
+            mHandler.removeCallbacks(partakedishRunnable);
             partakeDishCountdown();
         }
     }
 
     private void partakeDishCountdown(){
-        String minute = TimeUtils.formatSeconds(partakedishTime);
+        String minute = TimeUtils.formatSecondsToMin(partakedishTime);
         pdCountdownTV.setText(minute);
         partakedishTime = partakedishTime-1;
         if (partakedishTime<=0){
