@@ -19,6 +19,7 @@ import com.savor.ads.core.ApiRequestListener;
 import com.savor.ads.core.AppApi;
 import com.savor.ads.core.ResponseErrorMessage;
 import com.savor.ads.core.Session;
+import com.savor.ads.dialog.ExtensionQrCodeDialog;
 import com.savor.ads.service.UMessageIntentService;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
@@ -52,6 +53,7 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
     private MiniProgramQrCodeWindowManager miniProgramQrCodeWindowManager;
     private GoodsQrCodeWindowManager goodsQrCodeWindowManager;
     private GoodsCountdownQrCodeWindowManager goodsCountdownQrCodeWindowManager;
+    private ExtensionQrCodeDialog extensionQrCodeDialog;
     private ServiceConnection mConnection;
     private Context context;
     private Session session;
@@ -72,6 +74,7 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
         miniProgramQrCodeWindowManager = MiniProgramQrCodeWindowManager.get(this);
         goodsQrCodeWindowManager = GoodsQrCodeWindowManager.get(this);
         goodsCountdownQrCodeWindowManager = new GoodsCountdownQrCodeWindowManager(this);
+        extensionQrCodeDialog = new ExtensionQrCodeDialog(this);
         // 启动投屏类操作处理的Service
 //        startScreenProjectionService();
         registerActivityLifecycle();
@@ -406,6 +409,10 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
         goodsCountdownQrCodeWindowManager.hideQrCode();
     }
 
+    public void hideExtensionQrCodeDialog(){
+        extensionQrCodeDialog.hideQrCode();
+    }
+
     public void stopScreenProjectionService() {
         if (mConnection != null) {
             unbindService(mConnection);
@@ -555,6 +562,7 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
                         hideMiniProgramQrCodeWindow();
                         hideGoodsQrCodeWindow();
                         hideGoodsCountdownQrCodeWindow();
+                        hideExtensionQrCodeDialog();
                     }
                 },1000*3);
 //                mHandler.postDelayed(mBackToAdsPlayerRunnable, 60 * 1000);

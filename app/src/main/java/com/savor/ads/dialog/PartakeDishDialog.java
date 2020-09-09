@@ -49,6 +49,8 @@ public class PartakeDishDialog extends Dialog{
     private Context mContext;
     private RelativeLayout partakeDishLayout;
     private ImageView partakeDishQrcodeIV;
+    private ImageView partakeDishImgIV;
+    private TextView partakeDishNameTV;
     private TextView lotteryTimeTV;
     private TextView partakeDishCountDownTv;
 
@@ -94,8 +96,10 @@ public class PartakeDishDialog extends Dialog{
         layoutParams.height = this.height/72*37;
         layoutParams.width = this.width/32*25;
         partakeDishLayout.setLayoutParams(layoutParams);
-        partakeDishQrcodeIV = findViewById(R.id.partake_dish_qrcode);
         lotteryTimeTV = findViewById(R.id.lottery_time);
+        partakeDishImgIV = findViewById(R.id.partake_dish_img);
+        partakeDishNameTV = findViewById(R.id.partake_dish_name);
+        partakeDishQrcodeIV = findViewById(R.id.partake_dish_qrcode);
         ViewGroup.LayoutParams layoutParamsView = partakeDishQrcodeIV.getLayoutParams();
         layoutParamsView.height = this.height/15*4;
         layoutParamsView.width = this.height/15*4;
