@@ -60,6 +60,7 @@ import com.savor.ads.callback.ProjectOperationListener;
 import com.savor.ads.core.ApiRequestListener;
 import com.savor.ads.core.AppApi;
 import com.savor.ads.customview.SavorVideoView;
+import com.savor.ads.customview.StrokeTextView;
 import com.savor.ads.database.DBHelper;
 import com.savor.ads.dialog.AtlasDialog;
 import com.savor.ads.dialog.PlayListDialog;
@@ -118,6 +119,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     private SavorVideoView mSavorVideoView;
     private FrameLayout partakeDishLayout;
     private TextView pdCountdownTV;
+    private StrokeTextView pdActivityNameTV;
     private ImageView imgView;
     private RelativeLayout priceLayout;
     private TextView goodsPriceTV;
@@ -190,6 +192,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         mSavorVideoView.setPlayStateCallback(this);
         partakeDishLayout = findViewById(R.id.partake_dish_layout);
         pdCountdownTV = findViewById(R.id.pd_countdown);
+        pdActivityNameTV = findViewById(R.id.pd_activity_name);
         imgView = findViewById(R.id.img_view);
         priceLayout = findViewById(R.id.price_layout);
         goodsPriceTV = findViewById(R.id.goods_price);
@@ -230,7 +233,10 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     }
     /**设置霸王菜开奖倒计时*/
     int partakedishTime = 0;
-    public void setPartakeDishCountdown(int time){
+    public void setPartakeDishCountdown(String activityName,int time){
+        if (!TextUtils.isEmpty(activityName)){
+            pdActivityNameTV.setText(activityName);
+        }
         if (time>0){
             partakedishTime = time;
             mHandler.removeCallbacks(partakedishRunnable);

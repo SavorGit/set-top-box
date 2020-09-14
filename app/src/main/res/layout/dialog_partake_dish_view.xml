@@ -12,48 +12,61 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/partakedish_bg">
-        <RelativeLayout
+
+        <TextView
+            android:id="@+id/lottery_time"
+            android:text="今日12:00"
+            android:textColor="@color/color_white"
+            android:layout_marginTop="93dp"
+            android:layout_marginLeft="170dp"
+            android:textStyle="bold"
+            android:textSize="20dp"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="130dp">
-            <TextView
-                android:id="@+id/lottery_time"
-                android:text="今日12:00"
-                android:textColor="@color/color_white"
-                android:layout_marginTop="125dp"
-                android:layout_centerHorizontal="true"
-                android:textStyle="bold"
-                android:textSize="25dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <ImageView
-                android:id="@+id/partake_dish_img"
-                android:layout_centerVertical="true"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="30dp"
-                android:src="@drawable/exo_icon_play"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <TextView
-                android:id="@+id/partake_dish_name"
-                android:textSize="20dp"
-                android:text="奖品:蒜香糊羊肉1份"
-                android:textColor="@color/color_white"
-                android:layout_centerHorizontal="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginBottom="70dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </RelativeLayout>
+            android:layout_height="wrap_content"/>
+        <ImageView
+            android:id="@+id/partake_dish_img"
+            android:layout_marginLeft="78dp"
+            android:layout_marginTop="16dp"
+            android:scaleType="fitXY"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:layout_below="@id/lottery_time"
+            android:layout_width="304dp"
+            android:layout_height="200dp"/>
+        <com.savor.ads.customview.StrokeTextView
+            android:id="@+id/partake_dish_name"
+            android:textSize="25dp"
+            android:text=""
+            android:maxLength="20"
+            android:textStyle="bold"
+            android:textColor="@color/color_dark"
+            android:layout_marginLeft="110dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="40dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
         <ImageView
             android:id="@+id/partake_dish_qrcode"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="250dp"
+            android:layout_marginRight="140dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
-
+        <com.savor.ads.customview.StrokeTextView
+            android:id="@+id/activity_name"
+            android:textSize="40dp"
+            android:text="测试活动测试活动测试活动"
+            android:maxLength="9"
+            android:layout_marginLeft="550dp"
+            android:textStyle="bold"
+            android:textColor="#fce593"
+            android:lines="1"
+            android:layout_marginBottom="10dp"
+            android:layout_above="@id/partake_dish_qrcode"
+            android:layout_alignLeft="@id/partake_dish_img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
     </RelativeLayout>
     <TextView
         android:id="@+id/partake_dish_countdown"

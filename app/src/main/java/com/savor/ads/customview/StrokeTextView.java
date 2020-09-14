@@ -1,4 +1,4 @@
-package com.savor.ads.utils;
+package com.savor.ads.customview;
 
 import android.content.Context;
 import android.graphics.Canvas;

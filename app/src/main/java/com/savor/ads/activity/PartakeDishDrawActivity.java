@@ -23,7 +23,7 @@ import com.savor.ads.bean.PartakeUser;
 import com.savor.ads.utils.Base64Utils;
 import com.savor.ads.utils.GlideImageLoader;
 import com.savor.ads.utils.GlobalValues;
-import com.savor.ads.utils.StrokeTextView;
+import com.savor.ads.customview.StrokeTextView;
 
 import java.util.ArrayList;
 import java.util.List;

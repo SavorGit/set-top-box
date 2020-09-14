@@ -1207,18 +1207,19 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         int countdown = mpp.getCountdown();
         int lottery_countdown = mpp.getLottery_countdown();
         String lottery_time = mpp.getLottery_time();
-        String partakedish_img = mpp.getPartakedish_img();
-        String oss_url = BuildConfig.OSS_ENDPOINT+partakedish_img;
-        String partakedish_filename = mpp.getPartakedish_filename();
-//        String partakedish_filename = "123.jpg";
+        String partake_img = mpp.getPartake_img();
+        String oss_url = BuildConfig.OSS_ENDPOINT+partake_img;
+        String partake_name = mpp.getPartake_name();
+        String activity_name = mpp.getActivity_name();
+        String partake_filename = mpp.getPartake_filename();
         String basePath = AppUtils.getFilePath(AppUtils.StorageFile.lottery);
-        String filePath = basePath+partakedish_filename;
+        String filePath = basePath+partake_filename;
         File file = new File(filePath);
         boolean downloaded;
         if (file.exists()){
             downloaded = true;
         }else{
-            ProgressDownloader downloader = new ProgressDownloader(context,oss_url, basePath,partakedish_filename,false);
+            ProgressDownloader downloader = new ProgressDownloader(context,oss_url, basePath,partake_filename,false);
             downloaded = downloader.downloadByRange();
         }
         if (downloaded){
@@ -1232,14 +1233,14 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     String qrcodeurl = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ session.getEthernetMac()+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_PARTAKE_DISH_TYPE;
                     partakeDishDialog.show();
                     partakeDishDialog.setPartakeDishBg(filePath);
-                    partakeDishDialog.showPartakeDishWindow(context,qrcodeurl,countdown,lottery_time);
+                    partakeDishDialog.showPartakeDishWindow(context,qrcodeurl,countdown,lottery_time,partake_name,activity_name);
 
                     Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
                     if (activity instanceof AdsPlayerActivity&&lottery_countdown!=0){
                         GlobalValues.isActivity = true;
                         AdsPlayerActivity adsPlayerActivity = (AdsPlayerActivity) activity;
                         adsPlayerActivity.isClosePartakeDishHead(true);
-                        adsPlayerActivity.setPartakeDishCountdown(lottery_countdown);
+                        adsPlayerActivity.setPartakeDishCountdown(activity_name,lottery_countdown);
                         adsPlayerActivity.toCheckMediaIsShowMiniProgramIcon();
                     }
                 }

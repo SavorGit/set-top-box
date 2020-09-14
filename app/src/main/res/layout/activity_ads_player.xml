@@ -12,7 +12,7 @@
         android:background="@android:color/black"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
-    <!--霸王菜头部布局-->
+    <!--餐厅抽奖活动头部布局-->
     <FrameLayout
         android:id="@+id/partake_dish_layout"
         android:layout_width="wrap_content"
@@ -29,11 +29,22 @@
             android:id="@+id/pd_countdown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
+            android:text="12:23"
             android:textSize="45dp"
             android:layout_gravity="right|bottom"
             android:layout_marginRight="25dp"
             android:textColor="#f14040"/>
+        <com.savor.ads.customview.StrokeTextView
+            android:id="@+id/pd_activity_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLength="9"
+            android:text="测试活动测试"
+            android:textSize="45dp"
+            android:layout_gravity="start"
+            android:lines="1"
+            android:layout_marginLeft="40dp"
+            android:textColor="@color/color_black"/>
     </FrameLayout>
     <!--微信头像昵称布局-->
     <LinearLayout

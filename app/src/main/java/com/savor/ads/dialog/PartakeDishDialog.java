@@ -30,6 +30,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.savor.ads.R;
 import com.savor.ads.activity.AdsPlayerActivity;
+import com.savor.ads.customview.StrokeTextView;
 import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.DensityUtil;
 import com.savor.ads.utils.GlideImageLoader;
@@ -48,9 +49,10 @@ public class PartakeDishDialog extends Dialog{
     private Handler mHandler = new Handler();
     private Context mContext;
     private RelativeLayout partakeDishLayout;
+    private StrokeTextView activityNameTV;
     private ImageView partakeDishQrcodeIV;
     private ImageView partakeDishImgIV;
-    private TextView partakeDishNameTV;
+    private StrokeTextView partakeDishNameTV;
     private TextView lotteryTimeTV;
     private TextView partakeDishCountDownTv;
 
@@ -93,12 +95,13 @@ public class PartakeDishDialog extends Dialog{
     private void initViews(){
         partakeDishLayout = findViewById(R.id.partake_dish_layout);
         RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) partakeDishLayout.getLayoutParams();
-        layoutParams.height = this.height/72*37;
-        layoutParams.width = this.width/32*25;
+        layoutParams.width = this.width/100*75;
+        layoutParams.height = this.height/100*63;
         partakeDishLayout.setLayoutParams(layoutParams);
         lotteryTimeTV = findViewById(R.id.lottery_time);
         partakeDishImgIV = findViewById(R.id.partake_dish_img);
         partakeDishNameTV = findViewById(R.id.partake_dish_name);
+        activityNameTV = findViewById(R.id.activity_name);
         partakeDishQrcodeIV = findViewById(R.id.partake_dish_qrcode);
         ViewGroup.LayoutParams layoutParamsView = partakeDishQrcodeIV.getLayoutParams();
         layoutParamsView.height = this.height/15*4;
@@ -143,12 +146,11 @@ public class PartakeDishDialog extends Dialog{
         File file = new File(filePath);
         if (file.exists()){
             Bitmap bit = BitmapFactory.decodeFile(filePath);
-            BitmapDrawable bd = new BitmapDrawable(mContext.getResources(),bit);
-            partakeDishLayout.setBackground(bd);
+            partakeDishImgIV.setImageBitmap(bit);
         }
     }
 
-    public void showPartakeDishWindow(final Context context, final String url,int delayTime,String lotter_time) {
+    public void showPartakeDishWindow(final Context context, final String url,int delayTime,String lotter_time,String partake_name,String activity_name) {
         LogUtils.d("showSendEnvelopeWindow");
         if (TextUtils.isEmpty(url)) {
             LogUtils.e("URL is empty, will not show code window!!");
@@ -159,6 +161,12 @@ public class PartakeDishDialog extends Dialog{
         }
         if (!TextUtils.isEmpty(lotter_time)){
             lotteryTimeTV.setText("今日"+lotter_time);
+        }
+        if (!TextUtils.isEmpty(partake_name)){
+            partakeDishNameTV.setText("奖品:"+partake_name);
+        }
+        if (!TextUtils.isEmpty(activity_name)){
+            activityNameTV.setText(activity_name);
         }
         mHandler.removeCallbacks(mHideRunnable);
         mHandler.removeCallbacks(mCountDownRunnable);

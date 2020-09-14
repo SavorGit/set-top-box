@@ -83,9 +83,14 @@ public class MiniProgramProjection implements Serializable{
     private int lottery_countdown;
     /**开奖时间*/
     private String lottery_time;
-    /**霸王菜的参与背景*/
-    private String partakedish_img;
-    private String partakedish_filename;
+    /**活动图片*/
+    private String partake_img;
+    /**活动文件名*/
+    private String partake_filename;
+    /**活动菜名*/
+    private String partake_name;
+    /**活动名称*/
+    private String activity_name;
 
     public int getAction() {
         return action;
@@ -415,19 +420,35 @@ public class MiniProgramProjection implements Serializable{
         this.lottery_time = lottery_time;
     }
 
-    public String getPartakedish_img() {
-        return partakedish_img;
+    public String getPartake_img() {
+        return partake_img;
     }
 
-    public void setPartakedish_img(String partakedish_img) {
-        this.partakedish_img = partakedish_img;
+    public void setPartake_img(String partake_img) {
+        this.partake_img = partake_img;
     }
 
-    public String getPartakedish_filename() {
-        return partakedish_filename;
+    public String getPartake_filename() {
+        return partake_filename;
     }
 
-    public void setPartakedish_filename(String partakedish_filename) {
-        this.partakedish_filename = partakedish_filename;
+    public void setPartake_filename(String partake_filename) {
+        this.partake_filename = partake_filename;
+    }
+
+    public String getPartake_name() {
+        return partake_name;
+    }
+
+    public void setPartake_name(String partake_name) {
+        this.partake_name = partake_name;
+    }
+
+    public String getActivity_name() {
+        return activity_name;
+    }
+
+    public void setActivity_name(String activity_name) {
+        this.activity_name = activity_name;
     }
 }

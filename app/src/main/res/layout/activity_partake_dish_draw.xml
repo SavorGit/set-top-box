@@ -44,7 +44,7 @@
             android:layout_height="wrap_content"/>
     </RelativeLayout>
     <!--字体描边加粗-->
-    <com.savor.ads.utils.StrokeTextView
+    <com.savor.ads.customview.StrokeTextView
         android:id="@+id/lottery_desc"
         android:visibility="gone"
         android:textSize="30dp"

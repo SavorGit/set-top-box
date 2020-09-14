@@ -26,11 +26,15 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.savor.ads.R;
 import com.savor.ads.utils.AppUtils;
+import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.DensityUtil;
 import com.savor.ads.utils.GlideImageLoader;
+import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
 import com.savor.ads.utils.ShowMessage;
+
+import java.io.File;
 
 /**
  * Created by zhanghq on 2016/12/10.
@@ -160,27 +164,33 @@ public class ExtensionQrCodeDialog extends Dialog{
     }
     private void addToWindow(final Context context, String url) {
         try {
-            GlideImageLoader.loadImageWithoutCache(context, url, extensionQrcodeIV, new RequestListener() {
-                @Override
-                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
-                    mIsHandling = false;
-                    mIsAdded = false;
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            ShowMessage.showToast(context, "加载二维码失败");
-                        }
-                    });
-                    hideQrCode();
-                    return false;
-                }
+            String path = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_EXTENSIOM_NAME;
+            File localFile = new File(path);
+            if (localFile.exists()){
+                GlideImageLoader.loadLocalImage(context,localFile,extensionQrcodeIV);
+            }else {
+                GlideImageLoader.loadImageWithoutCache(context, url, extensionQrcodeIV, new RequestListener() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+                        mIsHandling = false;
+                        mIsAdded = false;
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                ShowMessage.showToast(context, "加载二维码失败");
+                            }
+                        });
+                        hideQrCode();
+                        return false;
+                    }
 
-                @Override
-                public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+                    @Override
+                    public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
 
-                    return false;
-                }
-            });
+                        return false;
+                    }
+                });
+            }
         }catch (Exception e){
             mHandler.post(new Runnable() {
                 @Override
