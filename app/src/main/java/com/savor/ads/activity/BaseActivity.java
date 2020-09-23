@@ -267,6 +267,12 @@ public abstract class BaseActivity extends Activity implements InputBoiteIdDialo
         mHandler.postDelayed(mHideInfoRunnable, 10 * 1000);
     }
 
+    public void showDownloadState(){
+        if (mBoxInfoDialog!=null&&mBoxInfoDialog.isShowing()){
+            mBoxInfoDialog.setTvDownloadState();
+        }
+    }
+
     /**
      * 插入USB以后，读取USB中的内容,目前仅限图片
      *

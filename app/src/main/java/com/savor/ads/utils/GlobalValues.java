@@ -138,4 +138,9 @@ public class GlobalValues <T extends MediaLibBean> {
     public static boolean mIsGoneToTv=false;
     /**当前是否处于霸王菜活动中*/
     public static boolean isActivity;
+    /**----------------------------------**/
+    /**当前机顶盒是否处于下载状态*/
+    public static boolean isDownload;
+    /**当前机顶盒下载文件*/
+    public static String currentDownlaodFileName;
 }

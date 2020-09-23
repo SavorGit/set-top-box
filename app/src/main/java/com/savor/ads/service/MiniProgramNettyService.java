@@ -217,12 +217,12 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 31:加减音量，change_type 1:减音量 2:加音量
          * 32:切换节目, change_type 1:上一个节目 2:下一个节目
          * 40:小程序点播商品广告
-         * 42:小程序餐厅端视频投屏
-         * 44:小程序餐厅端图片投屏(含单张)
+         * 42:小程序销售端视频投屏
+         * 44:小程序销售端图片投屏(含单张)
          * 120:支付红包二维码(---废弃---)
          * 121:抢红包小程序码
          * 122:接收到弹幕
-         * 130:欢迎词推送
+         * 130:小程序销售端欢迎词推送
          * 131|132:退出欢迎词播放
          * 133:推广渠道投屏码
          * 134:投屏帮助视频
@@ -231,12 +231,12 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 140:对服务人员评价完成通知盒子
          * 000:活动广告
          */
-
         if (ConstantValues.NETTY_MINI_PROGRAM_COMMAND.equals(msg)){
             if (!TextUtils.isEmpty(content)){
                 try {
                     JSONObject jsonObject = new JSONObject(content);
                     final int action = jsonObject.getInt("action");
+                    checkIsUserProjection(action);
                     currentAction = action;
                     if (jsonObject.has("req_id")){
                         String req_id = jsonObject.getString("req_id");
@@ -488,6 +488,16 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     e.printStackTrace();
                 }
 
+            }
+        }
+    }
+    /**如果当前用户正在投屏，则不允许销售端打断**/
+    private void checkIsUserProjection(int action){
+        if (action==42||action==44||action==130){
+            Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+            if ((currentAction==2||currentAction==4||currentAction==6)
+                    &&activity instanceof ScreenProjectionActivity){
+                return;
             }
         }
     }
@@ -1539,7 +1549,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             if (file.exists()) {
 //                params.put("is_exist", 1);
                 isDownloaded = true;
-                handler.post(()->pImgListDialog.setImgDownloadProgress(projection.getImg_id(), "100%"));
+                handler.post(()->pImgListDialog.setImgDownloadProgress(img.getImg_id(), "100%"));
             } else {
 //                params.put("is_exist", 0);
                 try {
@@ -1555,6 +1565,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         }
                     });
                     isDownloaded = downloader.downloadByRange();
+                    if (resourceSize==0&&isDownloaded){
+                        handler.post(()->pImgListDialog.setImgDownloadProgress(img.getImg_id(), "100%"));
+                    }
                 }catch (Exception e){
                     e.printStackTrace();
                 }

@@ -91,11 +91,11 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                 int real_data = (int)msg.arg1;
                 if(real_data>1024){
 //                    listSpeed.add(real_data/1024+"kb/s");
-                    Session.get(HeartbeatService.this).setNetSpeed(real_data/1024+"kb/s");
+                    session.setNetSpeed(real_data/1024+"kb/s");
                     Log.d("speed",real_data/1024+"kb/s");
                 }else{
                     Log.d("speed",real_data+"b/s");
-                    Session.get(HeartbeatService.this).setNetSpeed(real_data+"b/s");
+                    session.setNetSpeed(real_data+"b/s");
 //                    listSpeed.add(real_data+"b/s");
                 }
             }

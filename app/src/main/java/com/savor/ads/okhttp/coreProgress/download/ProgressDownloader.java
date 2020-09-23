@@ -1,14 +1,21 @@
 package com.savor.ads.okhttp.coreProgress.download;
 
+import android.app.Activity;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.savor.ads.activity.AdsPlayerActivity;
+import com.savor.ads.dialog.BoxInfoDialog;
 import com.savor.ads.log.LogParamValues;
 import com.savor.ads.core.Session;
 import com.savor.ads.log.LogReportUtil;
 import com.savor.ads.service.MiniProgramNettyService;
+import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.ConstantValues;
+import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.LogFileUtil;
 
 import java.io.Closeable;
@@ -48,6 +55,7 @@ public class ProgressDownloader {
     private Call call;
     private boolean standard;
     private String serial_number;
+    Handler handler = new Handler(Looper.getMainLooper());
     private MiniProgramNettyService.DownloadProgressListener downloadProgressListener;
 
     public void setDownloadProgressListener(MiniProgramNettyService.DownloadProgressListener listener){
@@ -130,11 +138,15 @@ public class ProgressDownloader {
     }
 
     public boolean downloadByRange(){
+        handler.removeCallbacks(downloadStateRunnable);
         long startIndex = 0;
         boolean flag = false;
         try {
             File cacheFile = new File(filePath,fileName+ ConstantValues.CACHE);
             long startTime = System.currentTimeMillis();
+            GlobalValues.isDownload = true;
+            GlobalValues.currentDownlaodFileName = fileName;
+            downloadState();
             if (cacheFile.exists()){
                 RandomAccessFile cacheAccessFile = new RandomAccessFile(cacheFile,"rwd");
                 try {
@@ -156,6 +168,8 @@ public class ProgressDownloader {
             }
             String useTime = String.valueOf(System.currentTimeMillis()-startTime);
             if (flag){
+                GlobalValues.isDownload = false;
+                downloadState();
                 String resourceSize = String.valueOf(new File(filePath+fileName).length());
                 String mUUID = String.valueOf(System.currentTimeMillis());
                 if (standard){
@@ -223,12 +237,26 @@ public class ProgressDownloader {
         float f1 = b.setScale(2, BigDecimal.ROUND_HALF_UP).floatValue();
 //        Log.d("circularProgress", "保留两位小数得到的值" + f1);
         if (f1 >= 0.01f) {
+            BoxInfoDialog boxInfoDialog = new BoxInfoDialog(context);
+            boxInfoDialog.setTvDownloadState();
             String value = String.valueOf(f1 * 100);
             int progress = Integer.valueOf(value.split("\\.")[0]);
             downloadProgressListener.getDownloadProgress(progress+"%");
             Log.d("downloadProgress", "保留两位小数得到的值" + f1);
         }
     }
+
+    private void downloadState(){
+
+        Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+        if (activity instanceof AdsPlayerActivity){
+            ((AdsPlayerActivity) activity).showDownloadState();
+            handler.postDelayed(downloadStateRunnable,500);
+        }
+    }
+
+    private Runnable downloadStateRunnable = ()->downloadState();
+
     /**
      * 关闭资源
      *

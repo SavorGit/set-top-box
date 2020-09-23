@@ -29,7 +29,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/tv_hotel_name"
-        android:layout_marginTop="40dp">
+        android:layout_marginTop="20dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -37,11 +37,32 @@
             android:orientation="vertical"
             android:paddingLeft="48dp"
             android:paddingRight="48dp">
+            <!--下载状态展示-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
 
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="机顶盒下载状态"/>
+
+                    <TextView
+                        android:id="@+id/tv_download_state"
+                        android:text="未下载"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+            </LinearLayout>
             <!--ROM版本、APK版本、当前节目期号-->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 

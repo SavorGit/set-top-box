@@ -21,6 +21,7 @@ import com.savor.ads.core.Session;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.DensityUtil;
+import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.StringUtils;
 
 /**
@@ -29,7 +30,9 @@ import com.savor.ads.utils.StringUtils;
 
 public class BoxInfoDialog extends Dialog {
     private Context mContext;
+    private Session session;
     private TextView mHotelNameTv;
+    private TextView tvDownloadStateTv;
     private TextView mRomVersionTv;
     private TextView mAppVersionTv;
     private TextView mSystemTimeTv;
@@ -64,6 +67,7 @@ public class BoxInfoDialog extends Dialog {
     public BoxInfoDialog(Context context) {
         super(context, R.style.box_info_dialog_theme);
         mContext = context;
+        session = Session.get(mContext);
     }
 
     @Override
@@ -73,6 +77,7 @@ public class BoxInfoDialog extends Dialog {
         setContentView(R.layout.layout_box_info);
         setDialogAttributes();
         mHotelNameTv = findViewById(R.id.tv_hotel_name);
+        tvDownloadStateTv = findViewById(R.id.tv_download_state);
         mRomVersionTv = findViewById(R.id.tv_rom_version);
         mAppVersionTv = findViewById(R.id.tv_app_version);
         mSystemTimeTv = findViewById(R.id.tv_sys_time);
@@ -119,8 +124,8 @@ public class BoxInfoDialog extends Dialog {
     public void show() {
         super.show();
         try {
-            Session session = Session.get(getContext());
             mHotelNameTv.setText(session.getBoiteName());
+            setTvDownloadState();
             mRomVersionTv.setText(session.getRomVersion());
             mAppVersionTv.setText(session.getVersionName() + "_" + session.getVersionCode());
             mSystemTimeTv.setText(AppUtils.getCurTime());
@@ -237,5 +242,13 @@ public class BoxInfoDialog extends Dialog {
                 break;
         }
         return inputSource;
+    }
+
+    public void setTvDownloadState(){
+        if (GlobalValues.isDownload){
+            tvDownloadStateTv.setText("下载中---"+GlobalValues.currentDownlaodFileName+"|当前网速---"+session.getNetSpeed());
+        }else{
+            tvDownloadStateTv.setText("未下载");
+        }
     }
 }
