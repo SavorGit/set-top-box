@@ -1,6 +1,7 @@
 package com.savor.ads.okhttp.coreProgress.download;
 
 import android.app.Activity;
+import android.app.Service;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,6 +13,7 @@ import com.savor.ads.dialog.BoxInfoDialog;
 import com.savor.ads.log.LogParamValues;
 import com.savor.ads.core.Session;
 import com.savor.ads.log.LogReportUtil;
+import com.savor.ads.service.HandleMediaDataService;
 import com.savor.ads.service.MiniProgramNettyService;
 import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.ConstantValues;
@@ -237,8 +239,6 @@ public class ProgressDownloader {
         float f1 = b.setScale(2, BigDecimal.ROUND_HALF_UP).floatValue();
 //        Log.d("circularProgress", "保留两位小数得到的值" + f1);
         if (f1 >= 0.01f) {
-            BoxInfoDialog boxInfoDialog = new BoxInfoDialog(context);
-            boxInfoDialog.setTvDownloadState();
             String value = String.valueOf(f1 * 100);
             int progress = Integer.valueOf(value.split("\\.")[0]);
             downloadProgressListener.getDownloadProgress(progress+"%");
@@ -247,12 +247,24 @@ public class ProgressDownloader {
     }
 
     private void downloadState(){
-
-        Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
-        if (activity instanceof AdsPlayerActivity){
-            ((AdsPlayerActivity) activity).showDownloadState();
-            handler.postDelayed(downloadStateRunnable,500);
+        try {
+            Activity activity = ActivitiesManager.getInstance().getSpecialActivity(AdsPlayerActivity.class);
+            Service service = null;
+            if (context instanceof Service){
+                service = (Service)context;
+            }
+            if (activity!=null&&service !=null&&service instanceof HandleMediaDataService){
+                if (Looper.myLooper() == Looper.getMainLooper()) {
+                    ((AdsPlayerActivity) activity).showDownloadState();
+                }else {
+                    handler.post(()->((AdsPlayerActivity) activity).showDownloadState());
+                }
+                handler.postDelayed(downloadStateRunnable,500);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
+
     }
 
     private Runnable downloadStateRunnable = ()->downloadState();

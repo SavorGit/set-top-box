@@ -125,7 +125,7 @@ public class BoxInfoDialog extends Dialog {
         super.show();
         try {
             mHotelNameTv.setText(session.getBoiteName());
-            setTvDownloadState();
+            tvDownloadStateTv.setText("未下载");
             mRomVersionTv.setText(session.getRomVersion());
             mAppVersionTv.setText(session.getVersionName() + "_" + session.getVersionCode());
             mSystemTimeTv.setText(AppUtils.getCurTime());
