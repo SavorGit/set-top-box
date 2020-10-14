@@ -142,8 +142,8 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
             mCurrentIndex++;
             atlasViewPager.setCurrentItem(mCurrentIndex, true);
             if (mCurrentIndex + 1 == mDataSource.size()) {
-                removeCallbacks(mPlayCompletionRunnable);
-                postDelayed(mPlayCompletionRunnable, duration > 0 ? duration * 1000 : 5 * 1000);
+                mHandler.removeCallbacks(mPlayCompletionRunnable);
+                mHandler.postDelayed(mPlayCompletionRunnable, duration > 0 ? duration * 1000 : 5 * 1000);
             } else {
                 mHandler.sendEmptyMessageDelayed(0, duration * 1000);
             }
@@ -379,6 +379,7 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
             if (mIsLooping) {
                 // 重置播放器状态，以备下次播放
                 LogFileUtil.write(TAG + " will resetAndPreparePlayer at method extractCompletion" + " " + SavorVideoView.this.hashCode());
+                LogUtils.d(TAG + " will resetAndPreparePlayer at method extractCompletion" + " " + SavorVideoView.this.hashCode());
                 resetAndPreparePlayer();
             }
         }
@@ -428,8 +429,8 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
             imageAdapter = new StringPagerAdapter(mContext, mDataSource);
             atlasViewPager.setAdapter(imageAdapter);
             if (mDataSource != null && mDataSource.size() == 1) {
-                removeCallbacks(mPlayCompletionRunnable);
-                postDelayed(mPlayCompletionRunnable, duration > 0 ? duration * 1000 : 5 * 1000);
+                mHandler.removeCallbacks(mPlayCompletionRunnable);
+                mHandler.postDelayed(mPlayCompletionRunnable, duration > 0 ? duration * 1000 : 5 * 1000);
             } else if (mDataSource != null && mDataSource.size() > 1) {
                 mHandler.removeCallbacksAndMessages(null);
                 mHandler.sendEmptyMessageDelayed(0, duration * 1000);
@@ -504,8 +505,8 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
         }
 
         if (mIfHandlePrepareTimeout) {
-            removeCallbacks(mPrepareTimeoutRunnable);
-            postDelayed(mPrepareTimeoutRunnable, MAX_PREPARE_TIME);
+            mHandler.removeCallbacks(mPrepareTimeoutRunnable);
+            mHandler.postDelayed(mPrepareTimeoutRunnable, MAX_PREPARE_TIME);
         }
 //        }
     }
@@ -517,6 +518,7 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
         @Override
         public void run() {
             if (mIsLooping) {
+                Log.d(TAG,"mPrepareTimeoutRunnable-超时播放");
                 playNext();
             } else {
                 if (mPlayStateCallback != null) {
@@ -583,6 +585,7 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
             if (mIsLooping) {
                 // 重置播放器状态，以备下次播放
                 LogFileUtil.write(TAG + " will resetAndPreparePlayer at method setAndPrepare" + " " + SavorVideoView.this.hashCode());
+                LogUtils.d(TAG + " will resetAndPreparePlayer at method setAndPrepare" + " " + SavorVideoView.this.hashCode());
                 resetAndPreparePlayer();
             }
         }
@@ -680,8 +683,8 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
             mAssignedPlayPosition = mVideoPlayer.getCurrentPosition();
 
             mHandler.removeCallbacksAndMessages(null);
-            removeCallbacks(mPlayCompletionRunnable);
-            removeCallbacks(mPrepareTimeoutRunnable);
+            mHandler.removeCallbacks(mPlayCompletionRunnable);
+            mHandler.removeCallbacks(mPrepareTimeoutRunnable);
         }
 
         if (mDanmakuView != null && mDanmakuView.isPrepared()) {
@@ -801,7 +804,7 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
         mIsPauseByOut = false;
         mAssignedPlayPosition = 0;
         mCurrentFileIndex = (mCurrentFileIndex + 1) % mMediaFiles.size();
-        LogUtils.w(TAG + " mCurrentFileIndex:" + mCurrentFileIndex + " size = " + mMediaFiles.size() + " " + SavorVideoView.this.hashCode());
+        LogUtils.d(TAG + " playNext mCurrentFileIndex:" + mCurrentFileIndex + " size = " + mMediaFiles.size() + " " + SavorVideoView.this.hashCode());
         resetAndPreparePlayer();
     }
 
@@ -812,7 +815,7 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
         stopInner();
         mIsPauseByOut = false;
         mCurrentFileIndex = (mCurrentFileIndex) % mMediaFiles.size();
-        LogUtils.w(TAG + " mCurrentFileIndex:" + mCurrentFileIndex + " size = " + mMediaFiles.size() + " " + SavorVideoView.this.hashCode());
+        LogUtils.d(TAG + " playCurrentVideo mCurrentFileIndex:" + mCurrentFileIndex + " size = " + mMediaFiles.size() + " " + SavorVideoView.this.hashCode());
         resetAndPreparePlayer();
     }
     /**
@@ -826,7 +829,7 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
         mIsPauseByOut = false;
         mAssignedPlayPosition = 0;
         mCurrentFileIndex = (mCurrentFileIndex - 1 + mMediaFiles.size()) % mMediaFiles.size();
-        LogUtils.w(TAG + " mCurrentFileIndex:" + mCurrentFileIndex + " size = " + mMediaFiles.size() + " " + SavorVideoView.this.hashCode());
+        LogUtils.d(TAG + " playPrevious mCurrentFileIndex:" + mCurrentFileIndex + " size = " + mMediaFiles.size() + " " + SavorVideoView.this.hashCode());
         resetAndPreparePlayer();
     }
 
@@ -920,6 +923,7 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
             }
             if (mIsLooping) {
                 LogFileUtil.write(TAG + " will resetAndPreparePlayer at method onError" + " " + SavorVideoView.this.hashCode());
+                LogUtils.d(TAG + " will resetAndPreparePlayer at mIsLooping" + " " + SavorVideoView.this.hashCode());
                 resetAndPreparePlayer();
             }
         }
@@ -929,7 +933,7 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
     public boolean onMediaPrepared(String mediaTag) {
         if (mIfHandlePrepareTimeout) {
             // 准备开始播放移除Runnable
-            removeCallbacks(mPrepareTimeoutRunnable);
+            mHandler.removeCallbacks(mPrepareTimeoutRunnable);
         }
 
         boolean beenAborted = false;

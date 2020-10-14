@@ -236,7 +236,10 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 try {
                     JSONObject jsonObject = new JSONObject(content);
                     final int action = jsonObject.getInt("action");
-                    checkIsUserProjection(action);
+                    boolean flag = checkIsUserProjection(action);
+                    if (flag){
+                        return;
+                    }
                     currentAction = action;
                     if (jsonObject.has("req_id")){
                         String req_id = jsonObject.getString("req_id");
@@ -492,14 +495,17 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         }
     }
     /**如果当前用户正在投屏，则不允许销售端打断**/
-    private void checkIsUserProjection(int action){
+    private boolean checkIsUserProjection(int action){
+        boolean flag=false;
         if (action==42||action==44||action==130){
             Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
-            if ((currentAction==2||currentAction==4||currentAction==6)
+            if ((currentAction==2||currentAction==4||currentAction==6||currentAction==10)
                     &&activity instanceof ScreenProjectionActivity){
-                return;
+                flag = true;
+                return flag;
             }
         }
+        return flag;
     }
 
     @Override
@@ -905,6 +911,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         String forscreen_id = minipp.getForscreen_id();
         //更新投屏状态
         updateProjectionState(forscreen_id);
+        handler.removeCallbacks(mProjectExitDownloadRunnable);
+        handler.post(mProjectExitDownloadRunnable);
         int rotation = minipp.getRotation();
         LogUtils.d("12345+miniProgramProjection="+minipp);
         LogUtils.d("12345+downloadVideoIdMap="+projectionIdMap);

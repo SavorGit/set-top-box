@@ -455,6 +455,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                 }
                 if (process != null) {
                     try {
+                        Thread.sleep(1000*10);
                         process.exitValue();
                     } catch (Exception e) {
                         e.printStackTrace();

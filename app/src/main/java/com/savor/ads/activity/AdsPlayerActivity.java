@@ -1,5 +1,6 @@
 package com.savor.ads.activity;
 
+import android.app.Activity;
 import android.app.Service;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
@@ -67,6 +68,7 @@ import com.savor.ads.dialog.PlayListDialog;
 import com.savor.ads.dialog.ScanRedEnvelopeQrCodeDialog;
 import com.savor.ads.log.LogReportUtil;
 import com.savor.ads.okhttp.coreProgress.download.ProgressDownloader;
+import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.BaiduAdsResponseCode;
 import com.savor.ads.utils.ConstantValues;
@@ -723,7 +725,10 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     Runnable currentVideoRunnable = new Runnable() {
         @Override
         public void run() {
-            mSavorVideoView.playCurrentVideo();
+            Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+            if (activity instanceof AdsPlayerActivity){
+                mSavorVideoView.playCurrentVideo();
+            }
         }
     };
 
@@ -787,6 +792,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 }else {
                     if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())
                             ||ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())) {
+                        Log.d(TAG,"isShowMiniProgramIcon");
                         mSavorVideoView.playNext();
                         return;
                     }else{
@@ -878,6 +884,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 
             // 下一条
         } else if (keyCode == KeyCode.KEY_CODE_NEXT_ADS) {
+            Log.d(TAG,"onKeydown");
             mSavorVideoView.playNext();
             handled = true;
 
@@ -907,6 +914,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                     mSavorVideoView.playPrevious();
                     break;
                 case 2:
+                    Log.d(TAG,"changeMedia");
                     mSavorVideoView.playNext();
                     break;
             }
@@ -1115,6 +1123,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                         }else {
                             if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())
                                     ||ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())) {
+                                Log.d(TAG,"onMediaPrepared-isShowMP");
                                 mSavorVideoView.playNext();
                                 return true;
                             }else{
@@ -1140,6 +1149,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 }
                 Date now = new Date();
                 if (endDate != null && endDate.before(now)) {
+                    Log.d(TAG,"onMediaPrepared-date");
                     mSavorVideoView.playNext();
                     return true;
                 }
@@ -1155,6 +1165,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 }
                 Date now = new Date();
                 if (startDate != null && startDate.after(now)) {
+                    Log.d(TAG,"onMediaPrepared-date");
                     mSavorVideoView.playNext();
                     return true;
                 }

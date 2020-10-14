@@ -278,16 +278,17 @@ public class ApiResponseFactory {
             case AD_MEI_IMAGE_ADS_JSON:
                 try{
                     List<AdsMeiSSPResult> adsMeiSSPResults = new ArrayList<>();
-                    JSONArray jsonArray= ret.getJSONArray("ad");
-                    for (int i=0;i<jsonArray.length();i++){
-                        JSONObject jsonObject = jsonArray.getJSONObject(i);
-                        String admnative = jsonObject.getString("admnative");
-                        AdsMeiSSPResult adsMeiSSPResult = gson.fromJson(admnative, new TypeToken<AdsMeiSSPResult>() {
-                        }.getType());
-                        adsMeiSSPResults.add(adsMeiSSPResult);
+                    if (ret.has("ad")){
+                        JSONArray jsonArray= ret.getJSONArray("ad");
+                        for (int i=0;i<jsonArray.length();i++){
+                            JSONObject jsonObject = jsonArray.getJSONObject(i);
+                            String admnative = jsonObject.getString("admnative");
+                            AdsMeiSSPResult adsMeiSSPResult = gson.fromJson(admnative, new TypeToken<AdsMeiSSPResult>() {
+                            }.getType());
+                            adsMeiSSPResults.add(adsMeiSSPResult);
+                        }
+                        result = adsMeiSSPResults;
                     }
-                    result = adsMeiSSPResults;
-                    LogUtils.d("213");
                 }catch (Exception e){
                     e.printStackTrace();
                 }

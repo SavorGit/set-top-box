@@ -77,7 +77,7 @@ import master.flame.danmaku.ui.widget.DanmakuView;
  */
 public class ProjectVideoView extends RelativeLayout implements PlayStateCallback {
     private static final String TAG = "ProjectVideoView";
-
+    private static final String TIP = "BLACK_SCREEN";
     /**
      * MediaPlayer最大Prepare时间
      */
@@ -137,6 +137,7 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
                 if (mMediaFiles != null && mMediaFiles.size() > 0) {
                     isLast = mCurrentFileIndex == mMediaFiles.size() - 1;
                 }
+                LogUtils.d(TIP+"视频播放超时");
                 // 回调某个视频播放出错
                 mPlayStateCallback.onMediaError(mCurrentFileIndex, isLast);
             }
@@ -195,6 +196,7 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
             if (mMediaFiles != null && mMediaFiles.size() > 0) {
                 isLast = mCurrentFileIndex == mMediaFiles.size() - 1;
             }
+            LogUtils.d(TIP+"视频播放完成");
             // 回调某个视频播放完毕
             beenResetSource = mPlayStateCallback.onMediaComplete(mCurrentFileIndex, isLast);
         }
@@ -385,7 +387,7 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
         LogUtils.w(TAG + " onPause " + ProjectVideoView.this.hashCode());
         LogFileUtil.write(TAG + " onPause " + ProjectVideoView.this.hashCode());
 
-        removeCallbacks(mPrepareTimeoutRunnable);
+        mHandler.removeCallbacks(mPrepareTimeoutRunnable);
 
         if (mPlayStateCallback != null) {
             mPlayStateCallback.onMediaPause(mCurrentFileIndex);
@@ -561,6 +563,7 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
             if (mMediaFiles != null && mMediaFiles.size() > 0) {
                 isLast = mCurrentFileIndex == mMediaFiles.size() - 1;
             }
+            LogUtils.d(TIP+"视频播放出错");
             // 回调某个视频播放出错
             beenResetSource = mPlayStateCallback.onMediaError(mCurrentFileIndex, isLast);
         }
@@ -655,7 +658,7 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
 
     @Override
     public void onMediaBufferTimeout(String mediaTag) {
-        post(mBufferTimeoutRunnable);
+        mHandler.post(mBufferTimeoutRunnable);
     }
 
 

@@ -135,7 +135,7 @@ public class GlideImageLoader {
             return;
         }
         RequestOptions requestOptions = new RequestOptions()
-                .skipMemoryCache(false)
+                .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)//不使用硬盘缓存
                 .placeholder(placeholderResId)
                 .dontAnimate();

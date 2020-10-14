@@ -66,7 +66,7 @@ import java.util.HashMap;
 import pl.droidsonroids.gif.GifImageView;
 
 public class ScreenProjectionActivity extends BaseActivity{
-
+    private static final String TAG = "BLACK_SCREEN";
     public static final String EXTRA_TYPE = "extra_type";
     public static final String EXTRA_PATH = "extra_path";
     public static final String EXTRA_URL = "extra_url";
@@ -143,6 +143,7 @@ public class ScreenProjectionActivity extends BaseActivity{
     private int mImageType;
     private String mImagePath;
     private String mMusicPath;
+    private String preForscreenId;
     private String mForscreenId;
     private String goodsPrice;
     /**是否店内有货 1有货 0无货*/
@@ -439,6 +440,7 @@ public class ScreenProjectionActivity extends BaseActivity{
         mImageType = bundle.getInt(EXTRA_IMAGE_TYPE);
         mImagePath = bundle.getString(EXTRA_IMAGE_PATH);
         mMusicPath = bundle.getString(EXTRA_MUSIC_PATH);
+        preForscreenId = mForscreenId;
         mForscreenId = bundle.getString(EXTRA_FORSCREEN_ID);
         goodsPrice = bundle.getString(EXTRA_PRICE_ID);
         storeSale = bundle.getInt(EXTRA_STORE_SALE_ID,0);
@@ -480,7 +482,7 @@ public class ScreenProjectionActivity extends BaseActivity{
 
 
     private void exitProjection() {
-        LogUtils.e("will exitProjection " + this.hashCode());
+        LogUtils.e(TAG+"will exitProjection " + this.hashCode());
         mSavorVideoView.setLooping(false);
         if (mMusicPlayer!=null){
             mMusicPlayer.setLooping(false);
@@ -646,6 +648,11 @@ public class ScreenProjectionActivity extends BaseActivity{
             mHandler.postDelayed(mShowMiniProgramQrCodeRunnable,1000*60*2);
 
         } else if (ConstantValues.PROJECT_TYPE_PICTURE.equals(mProjectType)) {
+            if (currentAction==4
+                    &&(TextUtils.isEmpty(preForscreenId)||(!TextUtils.isEmpty(preForscreenId)&&!preForscreenId.equals(mForscreenId)))){
+                //投图片开始展示第一张时上报一次
+                showImgLog();
+            }
             downloadLog(true);
             if (currentAction==40){
                 if (!TextUtils.isEmpty(goodsPrice)){
@@ -934,7 +941,7 @@ public class ScreenProjectionActivity extends BaseActivity{
 
     private void handleProjectionEndResult(){
         downloadLog(true);
-        LogUtils.d("mExitProjectionRunnable " + ScreenProjectionActivity.this.hashCode());
+        LogUtils.d(TAG+"handleProjectionEndResult " + ScreenProjectionActivity.this.hashCode());
         if (miniProgramNettyService!=null&&from_service == GlobalValues.FROM_SERVICE_MINIPROGRAM){
             LogUtils.d("handleImgAndVideo=000>>>currentAction="+currentAction+"&mForscreenId="+mForscreenId);
             miniProgramNettyService.startProjection(currentAction,mForscreenId);
@@ -1262,41 +1269,6 @@ public class ScreenProjectionActivity extends BaseActivity{
                 mImageView.setScaleY(1);
             }
         }
-//        mImageView.setRotation(mImageRotationDegree);
-//        if ((mImageRotationDegree / 90) % 2 != 0) {
-//            DisplayMetrics dm = new DisplayMetrics();
-//            getWindowManager().getDefaultDisplay().getMetrics(dm);
-//            int winWidth = dm.widthPixels;
-//            int winHeight = dm.heightPixels;
-//
-//            int imgWidth = bmp.getWidth();
-//            int imgHeight = bmp.getHeight();
-//
-//            if (imgWidth > imgHeight) {
-//                float ratio1 = (float) imgWidth / (float) winHeight;
-//                float ratio2 = (float) imgHeight / (float) winWidth;
-//                float sampleSize = 1.0f;
-//                if (ratio1 >= ratio2 && ratio1 >= 1.0f) {
-//                    sampleSize = ratio1;
-//                } else if (ratio2 > ratio1 && ratio2 >= 1.0f) {
-//                    sampleSize = ratio2;
-//                }
-//
-//
-//                Matrix matrix = new Matrix();
-//
-//                matrix.setScale(1.0f / (float) sampleSize, 1.0f / (float) sampleSize, bmp.getWidth() / 2,
-//                        bmp.getHeight() / 2);
-//                Bitmap createBmp = Bitmap.createBitmap(bmp.getWidth(), bmp.getHeight(), bmp.getConfig());
-//                Canvas canvas = new Canvas(createBmp);
-//                Paint paint = new Paint();
-//                canvas.drawBitmap(bmp, matrix, paint);
-//                mImageView.setImageBitmap(createBmp);
-//            }
-//
-//        } else {
-//            mImageView.setImageBitmap(bmp);
-//        }
     }
 
     private void welcomeRotatePicture() {
@@ -1335,21 +1307,11 @@ public class ScreenProjectionActivity extends BaseActivity{
     @Override
     protected void onResume() {
         super.onResume();
-//        if (mIsFirstResume) {
-//            mIsFirstResume = false;
-//        } else {
-//            if (ConstantValues.PROJECT_TYPE_VIDEO_VOD.equals(mProjectType)
-//                    || ConstantValues.PROJECT_TYPE_VIDEO.equals(mProjectType)
-//                    || ConstantValues.PROJECT_TYPE_VIDEO_BIRTHDAY.equals(mProjectType)) {
-//                mSavorVideoView.onResume();
-//            }
-//        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-//        mSavorVideoView.onPause();
     }
 
     @Override
@@ -1360,7 +1322,7 @@ public class ScreenProjectionActivity extends BaseActivity{
 
     @Override
     protected void onDestroy() {
-        LogUtils.e("onDestroy " + this.hashCode());
+        LogUtils.e(TAG+"onDestroy " + this.hashCode());
         // 清空消息队列
         mHandler.removeCallbacksAndMessages(null);
 
@@ -1405,7 +1367,8 @@ public class ScreenProjectionActivity extends BaseActivity{
     private ProjectVideoView.PlayStateCallback mPlayStateCallback = new ProjectVideoView.PlayStateCallback() {
         @Override
         public boolean onMediaComplete(int index, boolean isLast) {
-            LogUtils.w("activity onMediaComplete " + this.hashCode());
+            LogUtils.w(TAG+"activity onMediaComplete ,hashCode=" + this.hashCode());
+            LogUtils.w(TAG+"activity onMediaComplete ,isLash=" + isLast);
             if (isLast){
                 if (ConstantValues.PROJECT_TYPE_VIDEO.equals(mProjectType)){
                     handleProjectionEndResult();
@@ -1505,7 +1468,19 @@ public class ScreenProjectionActivity extends BaseActivity{
         }
     };
 
-
+    private void showImgLog(){
+        MiniProgramProjection mpp = MiniProgramNettyService.miniProgramProjection;
+        if (mpp!=null){
+            HashMap<String,Object> params = new HashMap<>();
+            params.put("req_id",mpp.getReq_id());
+            params.put("forscreen_id",mpp.getForscreen_id());
+            params.put("resource_id",mpp.getVideo_id());
+            params.put("box_mac",mSession.getEthernetMac());
+            params.put("openid",mpp.getOpenid());
+            params.put("is_play",1);
+            postProjectionResourceLog(params);
+        }
+    }
 
     private void downloadLog(boolean success){
         String mUuid = String.valueOf(System.currentTimeMillis());
