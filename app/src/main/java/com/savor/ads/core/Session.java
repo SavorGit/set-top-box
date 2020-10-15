@@ -231,6 +231,8 @@ public class Session {
 	private boolean JDmomediaReport;
 	/**版位支持聚合广告平台**/
 	private String tpMedias;
+	/**底部二维码背景*/
+	private String qrcodeGifBgPath;
     private Session(Context context) {
 
         mContext = context;
@@ -331,6 +333,7 @@ public class Session {
         nettyPort = mPreference.loadIntKey(P_APP_NETTY_PORT,0);
         whether4gNetwork = mPreference.loadBooleanKey(P_APP_4G_NETWORK,false);
         tpMedias = mPreference.loadStringKey(P_APP_BOX_TPMEDIAS,"");
+        qrcodeGifBgPath = mPreference.loadStringKey(P_APP_QRCODE_GIFBG,"");
         qrcodeType = mPreference.loadIntKey(P_APP_BOX_QRCODETYPE,1);
     }
 
@@ -410,6 +413,7 @@ public class Session {
                 || P_APP_BIRTHDAY_ONDEMAND_PERIOD.equals(key)
                 || P_APP_FORSCREEN_ADS_PERIOD.equals(key)
                 || P_APP_BOX_TPMEDIAS.equals(key)
+                || P_APP_QRCODE_GIFBG.equals(key)
                 || P_APP_ACTIVITY_ADS_PERIOD.equals(key)
                 || P_APP_SELECT_CONTENT_PERIOD.equals(key)
                 || P_APP_DISCOVER_CONTENT_PERIOD.equals(key)
@@ -1267,6 +1271,15 @@ public class Session {
         writePreference(new Pair<>(P_APP_BOX_TPMEDIAS,tpMedias));
     }
 
+    public String getQrcodeGifBgPath() {
+        return qrcodeGifBgPath;
+    }
+
+    public void setQrcodeGifBgPath(String qrcodeGifBgPath) {
+        this.qrcodeGifBgPath = qrcodeGifBgPath;
+        writePreference(new Pair<>(P_APP_QRCODE_GIFBG,qrcodeGifBgPath));
+    }
+
     public int getQrcodeType() {
         return qrcodeType;
     }
@@ -1389,6 +1402,7 @@ public class Session {
     public static final String P_APP_BOX_TPMEDIAS = "com.savor.ads.box.tm_medias";
     public static final String P_APP_BOX_QRCODETYPE = "com.savor.ads.box.qrcodeType";
     public static final String P_APP_SIMPLE_UPLOAD_SIZE = "com.savor.ads.simple.uploadSize";
+    public static final String P_APP_QRCODE_GIFBG = "com.savor.ads.qrcode.gifbg";
 
     public String getAdsPeriod() {
         return adsPeriod == null ? "" : adsPeriod;

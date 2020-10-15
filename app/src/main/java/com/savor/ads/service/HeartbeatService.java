@@ -30,6 +30,7 @@ import com.savor.ads.core.AppApi;
 import com.savor.ads.core.Session;
 import com.savor.ads.database.DBHelper;
 import com.savor.ads.log.LogUploadService;
+import com.savor.ads.okhttp.coreProgress.download.ProgressDownloader;
 import com.savor.ads.oss.OSSUtils;
 import com.savor.ads.oss.OSSValues;
 import com.savor.ads.utils.ActivitiesManager;
@@ -104,6 +105,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
     /**几秒刷新一次**/
     private final int count = 5;
     private Session session;
+    private String gifBgPath;
     public HeartbeatService() {
         super("HeartbeatService");
         context = this;
@@ -554,6 +556,29 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                         session.setQrcodeType(qrcode_type);
                         session.setActivityPlayType(activity_adv_playtype);
                         session.setSimple_upload_size(simple_upload_size);
+                        if (jsonObject.has("qrcode_gif")){
+                            String qrcode_gif_filename=jsonObject.getString("qrcode_gif_filename");
+                            String qrcode_gif_url=jsonObject.getString("qrcode_gif");
+                            String qrcode_gif_md5 = jsonObject.getString("qrcode_gif_md5");
+                            String basePath = AppUtils.getSDCardPath()+"Pictures/";
+                            gifBgPath = basePath+qrcode_gif_filename;
+                            boolean isExit = AppUtils.isDownloadCompleted(gifBgPath,qrcode_gif_md5.toUpperCase());
+                            if (isExit){
+                                session.setQrcodeGifBgPath(gifBgPath);
+                            }else{
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        boolean isDownloaded = new ProgressDownloader(context,qrcode_gif_url,basePath, qrcode_gif_filename,false).downloadByRange();
+                                        if (isDownloaded){
+                                            session.setQrcodeGifBgPath(gifBgPath);
+                                        }
+                                    }
+                                }).start();
+
+                            }
+                        }
+
                     }catch (Exception e){
                         e.printStackTrace();
                     }

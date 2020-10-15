@@ -5,6 +5,7 @@ import android.animation.AnimatorSet;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.Nullable;
@@ -33,6 +34,8 @@ import com.savor.ads.log.LogReportUtil;
 import java.io.File;
 import java.util.HashMap;
 
+import pl.droidsonroids.gif.GifImageView;
+
 /**
  * Created by zhanghq on 2018/7/9.
  */
@@ -52,12 +55,9 @@ public class MiniProgramQrCodeWindowManager {
     final WindowManager.LayoutParams wmCallParams = new WindowManager.LayoutParams();
     WindowManager mWindowManager;
     private FrameLayout mFloatLayout;
-    private LinearLayout mFloatFrontLayout;
-    private ImageView qrcodeFrontLogoIV;
-    private TextView qrcodeFrontTipTV;
-    private LinearLayout mFloatBackLayout;
-    private ImageView qrcodeBackLogoIV;
-    private TextView qrcodeBackTipTV;
+    private GifImageView qrCodeGifView;
+    private ImageView qrcodeLogoIV;
+    private ImageView qrcodeIV;
 
     private LinearLayout mFloatNewLayout;
     private ImageView qrcodeNewLogoIV;
@@ -101,7 +101,7 @@ public class MiniProgramQrCodeWindowManager {
 
         // 以屏幕左上角为原点，设置x、y初始值，相对于gravity
         wmParams.x = DensityUtil.dip2px(context, 30);
-        wmParams.y = DensityUtil.dip2px(context, 25);
+        wmParams.y = DensityUtil.dip2px(context, 1);
 
         wmNewParams.x = DensityUtil.dip2px(context,50);
         wmNewParams.y = DensityUtil.dip2px(context,50);
@@ -109,8 +109,8 @@ public class MiniProgramQrCodeWindowManager {
         wmCallParams.x = DensityUtil.dip2px(context, 185);
         wmCallParams.y = DensityUtil.dip2px(context, 30);
         //设置悬浮窗口长宽数据
-        wmParams.width = DensityUtil.dip2px(context, 168);
-        wmParams.height = DensityUtil.dip2px(context, 168*1.2f);
+        wmParams.width = DensityUtil.dip2px(context, 376);
+        wmParams.height = DensityUtil.dip2px(context, 188*1.2f);
 
         wmNewParams.width = DensityUtil.dip2px(context, 350);
         wmNewParams.height = DensityUtil.dip2px(context, 350);
@@ -120,18 +120,16 @@ public class MiniProgramQrCodeWindowManager {
         //获取浮动窗口视图所在布局
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         mFloatLayout = (FrameLayout) layoutInflater.inflate(R.layout.layout_miniprogram_qrcode, null);
-        mFloatFrontLayout = mFloatLayout.findViewById(R.id.layout_miniprogram_qrcode_front);
-        qrcodeFrontLogoIV = mFloatLayout.findViewById(R.id.qrcode_front_logo);
-        qrcodeFrontTipTV = mFloatFrontLayout.findViewById(R.id.qrcode_front_tip);
-        mFloatBackLayout = mFloatLayout.findViewById(R.id.layout_miniprogram_qrcode_back);
-        qrcodeBackLogoIV = mFloatLayout.findViewById(R.id.qrcode_back_logo);
-        qrcodeBackTipTV = mFloatBackLayout.findViewById(R.id.qrcode_back_tip);
+        qrCodeGifView = mFloatLayout.findViewById(R.id.qrcode_gif_view);
+        qrcodeLogoIV = mFloatLayout.findViewById(R.id.qrcode_redian_logo);
+        qrcodeIV = mFloatLayout.findViewById(R.id.iv_mini_program_qrcode);
+
         mFloatNewLayout = (LinearLayout) layoutInflater.inflate(R.layout.layout_miniprogram_new_qrcode, null);
         qrcodeNewLogoIV = mFloatNewLayout.findViewById(R.id.qrcode_new_logo);
         qrcodeNewTipTV = mFloatNewLayout.findViewById(R.id.qrcode_new_tip);
         mFloatCallLayout = (RelativeLayout) layoutInflater.inflate(R.layout.layout_miniprogram_call_qrcode,null);
-        setAnimators(); // 设置动画
-        setCameraDistance(); // 设置镜头距离
+//        setAnimators(); // 设置动画
+//        setCameraDistance(); // 设置镜头距离
     }
 
     public static MiniProgramQrCodeWindowManager get(Context context){
@@ -142,39 +140,41 @@ public class MiniProgramQrCodeWindowManager {
 
     }
 
-    // 设置动画
-    @SuppressWarnings("ResourceType")
-    private void setAnimators() {
-        mRightOutSet = (AnimatorSet) AnimatorInflater.loadAnimator(context, R.anim.anim_out);
-        mLeftInSet = (AnimatorSet) AnimatorInflater.loadAnimator(context, R.anim.anim_in);
-    }
-
-    // 改变视角距离, 贴近屏幕
-    private void setCameraDistance() {
-        int distance = 16000;
-        float scale = context.getResources().getDisplayMetrics().density * distance;
-        mFloatFrontLayout.setCameraDistance(scale);
-        mFloatBackLayout.setCameraDistance(scale);
-    }
-
-    // 翻转卡片
-    public void flipCard() {
-        // 正面朝上
-        if (!mIsShowBack) {
-            mRightOutSet.setTarget(mFloatFrontLayout);
-            mLeftInSet.setTarget(mFloatBackLayout);
-            mRightOutSet.start();
-            mLeftInSet.start();
-            mIsShowBack = true;
-        } else {
-        // 背面朝上
-            mRightOutSet.setTarget(mFloatBackLayout);
-            mLeftInSet.setTarget(mFloatFrontLayout);
-            mRightOutSet.start();
-            mLeftInSet.start();
-            mIsShowBack = false;
-        }
-    }
+    /**
+     * // 设置动画
+     *     @SuppressWarnings("ResourceType")
+     *     private void setAnimators() {
+     *         mRightOutSet = (AnimatorSet) AnimatorInflater.loadAnimator(context, R.anim.anim_out);
+     *         mLeftInSet = (AnimatorSet) AnimatorInflater.loadAnimator(context, R.anim.anim_in);
+     *     }
+     *
+     *     // 改变视角距离, 贴近屏幕
+     *     private void setCameraDistance() {
+     *         int distance = 16000;
+     *         float scale = context.getResources().getDisplayMetrics().density * distance;
+     *         mFloatFrontLayout.setCameraDistance(scale);
+     *         mFloatBackLayout.setCameraDistance(scale);
+     *     }
+     *
+     *     // 翻转卡片
+     *     public void flipCard() {
+     *         // 正面朝上
+     *         if (!mIsShowBack) {
+     *             mRightOutSet.setTarget(mFloatFrontLayout);
+     *             mLeftInSet.setTarget(mFloatBackLayout);
+     *             mRightOutSet.start();
+     *             mLeftInSet.start();
+     *             mIsShowBack = true;
+     *         } else {
+     *         // 背面朝上
+     *             mRightOutSet.setTarget(mFloatBackLayout);
+     *             mLeftInSet.setTarget(mFloatFrontLayout);
+     *             mRightOutSet.start();
+     *             mLeftInSet.start();
+     *             mIsShowBack = false;
+     *         }
+     *     }
+     */
 
     public void setCurrentPlayMediaId(String mediaid){
         this.mediaId = mediaid;
@@ -193,27 +193,25 @@ public class MiniProgramQrCodeWindowManager {
             LogUtils.e("Code is empty, will not show code window!!");
             return;
         }
+        String gifBgPath = session.getQrcodeGifBgPath();
+       if (!TextUtils.isEmpty(gifBgPath)){
+           qrCodeGifView.setVisibility(View.VISIBLE);
+           File file = new File(gifBgPath);
+           qrCodeGifView.setImageURI(Uri.fromFile(file));
+       }else{
+           qrCodeGifView.setVisibility(View.GONE);
+       }
 
         QRCodeType = type;
         if (QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_HELP_TYPE){
-            final ImageView qrCodeFrontIv = mFloatLayout.findViewById(R.id.iv_mini_program_qrcode_front);
-            final ImageView qrCodeBackIv = mFloatLayout.findViewById(R.id.iv_mini_program_qrcode_back);
-
             LogUtils.v("QrCodeWindowManager 开始addView");
 
             if (Looper.myLooper() == Looper.getMainLooper()) {
-                addToWindow(context, url,path, qrCodeFrontIv);
-                addToWindow(context, url,path, qrCodeBackIv);
+                addToWindow(context, url,path, qrcodeIV);
             } else {
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        addToWindow(context, url,path,qrCodeFrontIv);
-                        addToWindow(context, url,path,qrCodeFrontIv);
-                    }
-                });
+                mHandler.post(()->addToWindow(context, url,path,qrcodeIV));
             }
         }else if (QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_BIG_TYPE
                     ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE
@@ -255,10 +253,7 @@ public class MiniProgramQrCodeWindowManager {
         if ((QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE)
                 &&isCompletePicture&&hour<2&&!GlobalValues.isActivity) {
-            ImageView qrCodeFrontIV = mFloatLayout.findViewById(R.id.iv_mini_program_qrcode_front);
-            ImageView qrCodeBackIV = mFloatLayout.findViewById(R.id.iv_mini_program_qrcode_back);
-            GlideImageLoader.loadLocalImage(context,localFile,qrCodeFrontIV);
-            GlideImageLoader.loadLocalImage(context,localFile,qrCodeBackIV);
+            GlideImageLoader.loadLocalImage(context,localFile,qrCodeIv);
             handleWindowLayout();
         }else if((QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_BIG_TYPE
                     ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE
@@ -389,19 +384,13 @@ public class MiniProgramQrCodeWindowManager {
                 mWindowManager.addView(mFloatLayout, wmParams);
             }
             if (QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE){
-                qrcodeFrontLogoIV.setVisibility(View.VISIBLE);
-                qrcodeBackLogoIV.setVisibility(View.VISIBLE);
-                qrcodeFrontTipTV.setTextColor(Color.parseColor("#231816"));
-                qrcodeBackTipTV.setTextColor(Color.parseColor("#231816"));
+                qrcodeLogoIV.setVisibility(View.VISIBLE);
             }else if (QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_NEW_TYPE){
                 qrcodeNewLogoIV.setVisibility(View.VISIBLE);
                 qrcodeNewTipTV.setTextColor(Color.parseColor("#231816"));
             }else{
-                qrcodeFrontTipTV.setTextColor(Color.parseColor("#e61f18"));
-                qrcodeBackTipTV.setTextColor(Color.parseColor("#e61f18"));
                 qrcodeNewTipTV.setTextColor(Color.parseColor("#e61f18"));
-                qrcodeFrontLogoIV.setVisibility(View.GONE);
-                qrcodeBackLogoIV.setVisibility(View.GONE);
+                qrcodeLogoIV.setVisibility(View.GONE);
                 qrcodeNewLogoIV.setVisibility(View.GONE);
             }
 
@@ -418,8 +407,8 @@ public class MiniProgramQrCodeWindowManager {
             Log.d("mpqcwm","sendMiniProgramIconShowLog(id="+id+"|box_mac="+box_mac+"|media_id="+media_id+"|log_time="+log_time+"|action="+action);
         }
         //翻转小程序码
-        mHandler.removeCallbacks(flipCardRunnable);
-        mHandler.postDelayed(flipCardRunnable,1000*3);
+//        mHandler.removeCallbacks(flipCardRunnable);
+//        mHandler.postDelayed(flipCardRunnable,1000*3);
         mIsHandling = false;
         if (QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE
@@ -436,7 +425,7 @@ public class MiniProgramQrCodeWindowManager {
         }
     }
 
-    private Runnable flipCardRunnable = ()->flipCard();
+//    private Runnable flipCardRunnable = ()->flipCard();
 
     /**
      *

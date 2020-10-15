@@ -342,6 +342,7 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
         LogUtils.w(TAG + " pause " + GGVideoPlayer.this.hashCode());
         LogFileUtil.write(TAG + " pause " + GGVideoPlayer.this.hashCode());
         mHandler.removeCallbacks(mPrepareTimeoutRunnable);
+        mHandler.removeCallbacks(mBufferTimeoutRunnable);
         mIsPauseByOut = true;
         super.onVideoPause();
 
