@@ -1,5 +1,6 @@
 package com.savor.ads.customview;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -33,6 +34,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.savor.ads.R;
+import com.savor.ads.activity.AdsPlayerActivity;
+import com.savor.ads.activity.ScreenProjectionActivity;
 import com.savor.ads.adapter.StringPagerAdapter;
 import com.savor.ads.bean.MediaPlayerError;
 import com.savor.ads.bean.MediaPlayerState;
@@ -41,6 +44,7 @@ import com.savor.ads.player.PlayStateCallback;
 import com.savor.ads.player.PlayerType;
 import com.savor.ads.player.SavorPlayerFactory;
 import com.savor.ads.utils.AcFunDanmakuParser;
+import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
@@ -122,7 +126,8 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
     private Runnable mBufferTimeoutRunnable = new Runnable() {
         @Override
         public void run() {
-            if (mPlayStateCallback != null) {
+            Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+            if (mPlayStateCallback != null&&activity instanceof AdsPlayerActivity) {
                 boolean isLast = false;
                 if (mMediaFiles != null && mMediaFiles.size() > 0) {
                     isLast = mCurrentFileIndex == mMediaFiles.size() - 1;
@@ -521,7 +526,8 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
                 Log.d(TAG,"mPrepareTimeoutRunnable-超时播放");
                 playNext();
             } else {
-                if (mPlayStateCallback != null) {
+                Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+                if (mPlayStateCallback != null&&activity instanceof AdsPlayerActivity) {
                     boolean isLast = false;
                     if (mMediaFiles != null && mMediaFiles.size() > 0) {
                         isLast = mCurrentFileIndex == mMediaFiles.size() - 1;
@@ -897,7 +903,10 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
 
     @Override
     public void onMediaError(String mediaTag) {
-
+        Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+        if (activity instanceof ScreenProjectionActivity){
+            return;
+        }
         boolean beenResetSource = false;
         if (mPlayStateCallback != null) {
             boolean isLast = false;
