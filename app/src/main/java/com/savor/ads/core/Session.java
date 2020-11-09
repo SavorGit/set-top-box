@@ -225,6 +225,10 @@ public class Session {
      * 极简版投屏上传文件大小分界
      */
     private long simple_upload_size;
+    /**二维码展示时长s*/
+    private int qrcode_showtime;
+    /**二维码间隔时长s*/
+    private int qrcode_takttime;
     /**是否是安装4G卡的机顶盒**/
 	private boolean whether4gNetwork;
 
@@ -328,6 +332,8 @@ public class Session {
         isOpenInteractscreenad = mPreference.loadBooleanKey(P_APP_OPEN_INTERACTSCREENAD,false);
         systemSappForscreenNums = mPreference.loadIntKey(P_APP_SYSTEM_FORSCREEN_NUMS,0);
         simple_upload_size = mPreference.loadLongKey(P_APP_SIMPLE_UPLOAD_SIZE,0);
+        qrcode_showtime = mPreference.loadIntKey(P_APP_QRCODE_SHOW_TIME,0);
+        qrcode_takttime = mPreference.loadIntKey(P_APP_QRCODE_TAKT_TIME,0);
         isHeartbeatMiniNetty = mPreference.loadBooleanKey(P_APP_HEARTBEAT_MIMIPROGRAM,false);
         nettyUrl = mPreference.loadStringKey(P_APP_NETTY_URL,null);
         nettyPort = mPreference.loadIntKey(P_APP_NETTY_PORT,0);
@@ -421,7 +427,6 @@ public class Session {
                 || P_APP_SHOP_GOODS_ADS_PERIOD.equals(key)) {
 
             mPreference.saveStringKey(key, (String) updateItem.second);
-
         } else if (P_APP_VOLUME.equals(key) ||
                 P_APP_PROJECT_VOLUME.equals(key) ||
                 P_APP_VOD_VOLUME.equals(key) ||
@@ -432,6 +437,8 @@ public class Session {
                 P_APP_TV_SIZE.equals(key)||
                 P_APP_NETTY_PORT.equals(key)||
                 P_APP_SYSTEM_FORSCREEN_NUMS.equals(key)||
+                P_APP_QRCODE_SHOW_TIME.equals(key)||
+                P_APP_QRCODE_TAKT_TIME.equals(key)||
                 P_APP_BOX_QRCODETYPE.equals(key)) {
             mPreference.saveIntKey(key, (int) updateItem.second);
         } else if (P_APP_SIMPLE_UPLOAD_SIZE.equals(key)){
@@ -1210,6 +1217,24 @@ public class Session {
         writePreference(new Pair<>(P_APP_SIMPLE_UPLOAD_SIZE,simple_upload_size));
     }
 
+    public int getQrcode_showtime() {
+        return qrcode_showtime;
+    }
+
+    public void setQrcode_showtime(int qrcode_showtime) {
+        this.qrcode_showtime = qrcode_showtime;
+        writePreference(new Pair<>(P_APP_QRCODE_SHOW_TIME,qrcode_showtime));
+    }
+
+    public int getQrcode_takttime() {
+        return qrcode_takttime;
+    }
+
+    public void setQrcode_takttime(int qrcode_takttime) {
+        this.qrcode_takttime = qrcode_takttime;
+        writePreference(new Pair<>(P_APP_QRCODE_TAKT_TIME,qrcode_takttime));
+    }
+
     public boolean isHeartbeatMiniNetty() {
         return isHeartbeatMiniNetty;
     }
@@ -1402,6 +1427,8 @@ public class Session {
     public static final String P_APP_BOX_TPMEDIAS = "com.savor.ads.box.tm_medias";
     public static final String P_APP_BOX_QRCODETYPE = "com.savor.ads.box.qrcodeType";
     public static final String P_APP_SIMPLE_UPLOAD_SIZE = "com.savor.ads.simple.uploadSize";
+    public static final String P_APP_QRCODE_SHOW_TIME = "com.savor.ads.qrcode.showtime";
+    public static final String P_APP_QRCODE_TAKT_TIME = "com.savor.ads.qrcode.takttime";
     public static final String P_APP_QRCODE_GIFBG = "com.savor.ads.qrcode.gifbg";
 
     public String getAdsPeriod() {

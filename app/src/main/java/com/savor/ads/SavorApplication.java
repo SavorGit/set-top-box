@@ -1,9 +1,7 @@
 package com.savor.ads;
 
 import android.app.Activity;
-import android.app.Service;
 import android.content.Context;
-import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,10 +9,6 @@ import androidx.multidex.MultiDexApplication;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.jar.savor.box.ServiceUtil;
-import com.jar.savor.box.services.RemoteService;
-import com.savor.ads.activity.AdsPlayerActivity;
-import com.savor.ads.callback.ProjectOperationListener;
 import com.savor.ads.core.ApiRequestListener;
 import com.savor.ads.core.AppApi;
 import com.savor.ads.core.ResponseErrorMessage;
@@ -37,11 +31,17 @@ import com.savor.ads.utils.MiniProgramQrCodeWindowManager;
 import com.savor.ads.utils.QrCodeWindowManager;
 import com.savor.ads.utils.GoodsQrCodeWindowManager;
 import com.savor.ads.utils.ShowMessage;
+import com.shuyu.gsyvideoplayer.player.IjkPlayerManager;
+import com.shuyu.gsyvideoplayer.player.PlayerFactory;
+import com.shuyu.gsyvideoplayer.utils.GSYVideoType;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
 
 import java.io.DataOutputStream;
 import java.io.File;
+
+import tv.danmaku.ijk.media.exo2.Exo2PlayerManager;
+import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
 /**
  * Created by Administrator on 2016/12/9.
@@ -78,6 +78,12 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
         // 启动投屏类操作处理的Service
 //        startScreenProjectionService();
         registerActivityLifecycle();
+        PlayerFactory.setPlayManager(Exo2PlayerManager.class);
+//        PlayerFactory.setPlayManager(IjkPlayerManager.class);
+        GSYVideoType.enableMediaCodec();
+        GSYVideoType.enableMediaCodecTexture();
+        //        //ijk关闭log
+        IjkPlayerManager.setLogLevel(IjkMediaPlayer.IJK_LOG_SILENT);
         // 检测播放时间
         AppUtils.checkPlayTime(SavorApplication.this);
         initPush();

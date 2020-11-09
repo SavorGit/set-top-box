@@ -60,7 +60,7 @@ public class AtlasDialog extends Dialog{
     }
 
     private void setDialogAttributes() {
-        int height = DensityUtil.getScreenWidthOrHeight(mContext,1)/9;
+        int height = DensityUtil.getScreenHeight(mContext)/9;
         Window window = getWindow(); // 得到对话框
         window.getDecorView().setPadding(20, 20, 0, 0);
         WindowManager.LayoutParams wl = window.getAttributes();

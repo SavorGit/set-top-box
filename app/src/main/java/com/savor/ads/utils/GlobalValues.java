@@ -143,4 +143,6 @@ public class GlobalValues <T extends MediaLibBean> {
     public static boolean isDownload;
     /**当前机顶盒下载文件*/
     public static String currentDownlaodFileName;
+
+    public static long bytesNotWrite=0;
 }

@@ -16,6 +16,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
 import java.security.spec.ECField;
 import java.util.ArrayList;
 import java.util.List;
@@ -420,5 +421,25 @@ public class FileUtils {
             flag = false;
         }
         return flag;
+    }
+
+
+    public static void createLengthFile(File file, long length) throws IOException{
+        long start = System.currentTimeMillis();
+        RandomAccessFile r = null;
+        try {
+            r = new RandomAccessFile(file, "rw");
+            r.setLength(length);
+        } finally{
+            if (r != null) {
+                try {
+                    r.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        long end = System.currentTimeMillis();
+        System.out.println(end-start);
     }
 }

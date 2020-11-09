@@ -75,7 +75,7 @@ public class ScanRedEnvelopeQrCodeDialog extends Dialog{
     }
 
     private void setDialogAttributes() {
-        height = DensityUtil.getScreenWidthOrHeight(mContext,1)/4*3;
+        height = DensityUtil.getScreenHeight(mContext)/4*3;
         Window window = getWindow(); // 得到对话框
 //        window.getDecorView().setPadding(0, 20, 20, 0);
         WindowManager.LayoutParams wl = window.getAttributes();
@@ -246,8 +246,8 @@ public class ScanRedEnvelopeQrCodeDialog extends Dialog{
         //调整悬浮窗显示的停靠位置为左侧置顶
         wmParams.gravity = Gravity.CENTER;
         // 以屏幕左上角为原点，设置x、y初始值，相对于gravity
-        int width = DensityUtil.getScreenWidthOrHeight(context,0);
-        int height = DensityUtil.getScreenWidthOrHeight(context,1);
+        int width = DensityUtil.getScreenWidth(context);
+        int height = DensityUtil.getScreenHeight(context);
         wmParams.x = width/2;
         wmParams.y = height/2;
         int viewHeight = height/3*2;

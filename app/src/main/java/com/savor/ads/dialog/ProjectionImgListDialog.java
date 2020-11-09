@@ -65,7 +65,7 @@ public class ProjectionImgListDialog extends Dialog{
     }
 
     private void setDialogAttributes() {
-        height = DensityUtil.getScreenWidthOrHeight(mContext,1)/4;
+        height = DensityUtil.getScreenHeight(mContext)/4;
         Window window = getWindow(); // 得到对话框
         window.getDecorView().setPadding(0, 20, 20, 0);
         WindowManager.LayoutParams wl = window.getAttributes();

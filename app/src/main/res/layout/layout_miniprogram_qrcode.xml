@@ -3,32 +3,37 @@
     android:id="@+id/main_fl_container"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <pl.droidsonroids.gif.GifImageView
-        android:id="@+id/qrcode_gif_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitCenter"/>
-    <ImageView
-        android:id="@+id/qrcode_redian_logo"
-        android:visibility="visible"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:layout_gravity="top"
-        android:src="@mipmap/redian_color_icon"/>
+    android:layout_height="match_parent"
+    android:clipChildren="false">
     <RelativeLayout
+        android:id="@+id/qrcode_anim_layout"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:layout_marginLeft="12dp"
-        android:layout_gravity="center_vertical">
+        android:layout_height="wrap_content">
+        <pl.droidsonroids.gif.GifImageView
+            android:id="@+id/qrcode_gif_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"/>
         <ImageView
-            android:id="@+id/iv_mini_program_qrcode"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:src="@mipmap/xiaolian_redian"
-            android:scaleType="fitCenter"
-            android:layout_gravity="center"/>
+            android:id="@+id/qrcode_redian_logo"
+            android:visibility="visible"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_gravity="top"
+            android:src="@mipmap/redian_color_icon"/>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:layout_marginLeft="12dp"
+            android:layout_centerVertical="true">
+            <ImageView
+                android:id="@+id/iv_mini_program_qrcode"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:src="@mipmap/xiaolian_redian"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center"/>
+        </RelativeLayout>
     </RelativeLayout>
-
 </FrameLayout>

@@ -86,7 +86,7 @@ public final class EventLogger implements Player.EventListener, MetadataOutput,
 
     @Override
     public void onLoadingChanged(boolean isLoading) {
-        Log.d(TAG, "loading [" + isLoading + "]");
+//        Log.d(TAG, "loading [" + isLoading + "]");
     }
 
     @Override

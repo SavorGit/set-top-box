@@ -80,10 +80,24 @@ public class DensityUtil {
     /**
      * 获取屏幕宽高
      * @param context
-     * @param prop 0:宽，1:高
      * @return
      */
-    public static int getScreenWidthOrHeight(Context context,int prop){
+    public static int getScreenWidth(Context context){
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics dm = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(dm);
+        int width = dm.widthPixels;         // 屏幕宽度（像素）
+        int height = dm.heightPixels;       // 屏幕高度（像素）
+        float density = dm.density;         // 屏幕密度（0.75 / 1.0 / 1.5）
+        int densityDpi = dm.densityDpi;     // 屏幕密度dpi（120 / 160 / 240）
+        // 屏幕宽度算法:屏幕宽度（像素）/屏幕密度
+        int screenWidth = (int) (width / density);  // 屏幕宽度(dp)
+        int screenHeight = (int) (height / density);// 屏幕高度(dp)
+        return width;
+
+    }
+
+    public static int getScreenHeight(Context context){
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics dm = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics(dm);
@@ -95,10 +109,7 @@ public class DensityUtil {
         int screenWidth = (int) (width / density);  // 屏幕宽度(dp)
         int screenHeight = (int) (height / density);// 屏幕高度(dp)
 
-        if (prop==0){
-            return width;
-        }else{
-            return height;
-        }
+        return height;
+
     }
 }

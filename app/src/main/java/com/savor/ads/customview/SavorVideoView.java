@@ -976,12 +976,12 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
             return;
         }
         int currentPercent = mVideoPlayer.getCurrentPosition() * 100 / mVideoPlayer.getDuration();
-        LogUtils.v(TAG + "onBufferingUpdate currentPercent=" + currentPercent + " BufferedPercent=" +
-                percent + " duration = " + mVideoPlayer.getDuration() + " "
-                + SavorVideoView.this.hashCode());
-        LogFileUtil.write(TAG + " onBufferingUpdate currentPercent=" + currentPercent +
-                " BufferedPercent=" + percent + " duration = " +
-                mVideoPlayer.getDuration() + " " + SavorVideoView.this.hashCode());
+//        LogUtils.v(TAG + "onBufferingUpdate currentPercent=" + currentPercent + " BufferedPercent=" +
+//                percent + " duration = " + mVideoPlayer.getDuration() + " "
+//                + SavorVideoView.this.hashCode());
+//        LogFileUtil.write(TAG + " onBufferingUpdate currentPercent=" + currentPercent +
+//                " BufferedPercent=" + percent + " duration = " +
+//                mVideoPlayer.getDuration() + " " + SavorVideoView.this.hashCode());
 //                    if (mp.getCurrentPosition() + 400 < mp.getDuration()) {
 //        if (percent < 99 && currentPercent >= percent - 1) {
 //            // 缓冲部分不足时，暂停播放并显示进度圈

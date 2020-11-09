@@ -15,6 +15,9 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.TranslateAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -55,6 +58,7 @@ public class MiniProgramQrCodeWindowManager {
     final WindowManager.LayoutParams wmCallParams = new WindowManager.LayoutParams();
     WindowManager mWindowManager;
     private FrameLayout mFloatLayout;
+    private RelativeLayout qrcodeAnimLayout;
     private GifImageView qrCodeGifView;
     private ImageView qrcodeLogoIV;
     private ImageView qrcodeIV;
@@ -69,10 +73,6 @@ public class MiniProgramQrCodeWindowManager {
     private boolean mIsHandling;
     private String currentTime = null;
     private int QRCodeType=0;
-
-    private AnimatorSet mRightOutSet; // 右出动画
-    private AnimatorSet mLeftInSet; // 左入动画
-    private boolean mIsShowBack;
 
     public MiniProgramQrCodeWindowManager(Context mContext){
         this.context = mContext;
@@ -101,7 +101,7 @@ public class MiniProgramQrCodeWindowManager {
 
         // 以屏幕左上角为原点，设置x、y初始值，相对于gravity
         wmParams.x = DensityUtil.dip2px(context, 30);
-        wmParams.y = DensityUtil.dip2px(context, 1);
+//        wmParams.y = DensityUtil.dip2px(context, 1);
 
         wmNewParams.x = DensityUtil.dip2px(context,50);
         wmNewParams.y = DensityUtil.dip2px(context,50);
@@ -120,6 +120,7 @@ public class MiniProgramQrCodeWindowManager {
         //获取浮动窗口视图所在布局
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         mFloatLayout = (FrameLayout) layoutInflater.inflate(R.layout.layout_miniprogram_qrcode, null);
+        qrcodeAnimLayout = mFloatLayout.findViewById(R.id.qrcode_anim_layout);
         qrCodeGifView = mFloatLayout.findViewById(R.id.qrcode_gif_view);
         qrcodeLogoIV = mFloatLayout.findViewById(R.id.qrcode_redian_logo);
         qrcodeIV = mFloatLayout.findViewById(R.id.iv_mini_program_qrcode);
@@ -128,8 +129,6 @@ public class MiniProgramQrCodeWindowManager {
         qrcodeNewLogoIV = mFloatNewLayout.findViewById(R.id.qrcode_new_logo);
         qrcodeNewTipTV = mFloatNewLayout.findViewById(R.id.qrcode_new_tip);
         mFloatCallLayout = (RelativeLayout) layoutInflater.inflate(R.layout.layout_miniprogram_call_qrcode,null);
-//        setAnimators(); // 设置动画
-//        setCameraDistance(); // 设置镜头距离
     }
 
     public static MiniProgramQrCodeWindowManager get(Context context){
@@ -139,9 +138,74 @@ public class MiniProgramQrCodeWindowManager {
         return mInstance;
 
     }
+    /**设置左侧滑出动画*/
+    private void setLeftToRightAminator(){
+        if (mIsAdded){
+            mWindowManager.removeViewImmediate(mFloatLayout);
+            mWindowManager.addView(mFloatLayout,wmParams);
+        }
+        Animation translateAnimation = new TranslateAnimation(-wmParams.width-wmParams.x, 0, 0, 0);//设置平移的起点和终点
+        translateAnimation.setDuration(3000);//动画持续的时间为10s
+        translateAnimation.setFillEnabled(true);//使其可以填充效果从而不回到原地
+        translateAnimation.setFillAfter(true);//不回到起始位置
+        //如果不添加setFillEnabled和setFillAfter则动画执行结束后会自动回到远点
+        translateAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                mHandler.postDelayed(getToLeftRunnable,session.getQrcode_showtime()*1000);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        qrcodeAnimLayout.setAnimation(translateAnimation);//给imageView添加的动画效果
+        translateAnimation.startNow();//动画开始执行 放在最后即可
+
+    }
+
+    private Runnable getToLeftRunnable = ()->setRightToLeftAminator();
+
+    private void setRightToLeftAminator(){
+        if (mIsAdded){
+            mWindowManager.removeViewImmediate(mFloatLayout);
+            mWindowManager.addView(mFloatLayout,wmParams);
+        }
+        Animation translateAnimation = new TranslateAnimation(0, -wmParams.width-wmParams.x, 0, 0);//设置平移的起点和终点
+        translateAnimation.setDuration(3000);//动画持续的时间为10s
+        translateAnimation.setFillEnabled(true);//使其可以填充效果从而不回到原地
+        translateAnimation.setFillAfter(true);//不回到起始位置
+        //如果不添加setFillEnabled和setFillAfter则动画执行结束后会自动回到远点
+        translateAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                mHandler.postDelayed(getToRightRunnable,session.getQrcode_takttime()*1000);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        qrcodeAnimLayout.setAnimation(translateAnimation);//给imageView添加的动画效果
+        translateAnimation.startNow();//动画开始执行 放在最后即可
+    }
+
+    private Runnable getToRightRunnable = ()->setLeftToRightAminator();
 
     /**
-     * // 设置动画
+     * // 设置发展卡片动画
      *     @SuppressWarnings("ResourceType")
      *     private void setAnimators() {
      *         mRightOutSet = (AnimatorSet) AnimatorInflater.loadAnimator(context, R.anim.anim_out);
@@ -201,7 +265,8 @@ public class MiniProgramQrCodeWindowManager {
        }else{
            qrCodeGifView.setVisibility(View.GONE);
        }
-
+        mHandler.removeCallbacks(getToLeftRunnable);
+        mHandler.removeCallbacks(getToRightRunnable);
         QRCodeType = type;
         if (QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE
@@ -337,6 +402,8 @@ public class MiniProgramQrCodeWindowManager {
 
     public void hideQrCode() {
         mHandler.removeCallbacks(mHideRunnable);
+        mHandler.removeCallbacks(getToLeftRunnable);
+        mHandler.removeCallbacks(getToRightRunnable);
         mHandler.post(mHideRunnable);
 
 
@@ -382,6 +449,13 @@ public class MiniProgramQrCodeWindowManager {
                 mWindowManager.addView(mFloatNewLayout, wmNewParams);
             }else {
                 mWindowManager.addView(mFloatLayout, wmParams);
+                try {
+                    if (session.getQrcode_showtime()>0){
+                        setLeftToRightAminator();
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
             if (QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE){
                 qrcodeLogoIV.setVisibility(View.VISIBLE);
@@ -426,40 +500,4 @@ public class MiniProgramQrCodeWindowManager {
     }
 
 //    private Runnable flipCardRunnable = ()->flipCard();
-
-    /**
-     *
-     * @param id 开始结束成对存在的流水号
-     * @param box_mac 机顶盒mac
-     * @param media_id 当前播放视频id
-     * @param log_time 二维码动作时间
-     * @param action 二维码动作是开始还是结束
-     */
-    private void sendMiniProgramIconShowLog(String id,String box_mac,String media_id,String log_time,String action){
-        HashMap<String,Object> params = new HashMap<>();
-        params.put("id",id);
-        params.put("box_mac",box_mac);
-        params.put("media_id",media_id);
-        params.put("log_time",log_time);
-        params.put("action",action);
-        AppApi.postMiniProgramIconShowLog(context,requestListener,params);
-
-    }
-
-    ApiRequestListener requestListener = new ApiRequestListener() {
-        @Override
-        public void onSuccess(AppApi.Action method, Object obj) {
-
-        }
-
-        @Override
-        public void onError(AppApi.Action method, Object obj) {
-
-        }
-
-        @Override
-        public void onNetworkFailed(AppApi.Action method) {
-
-        }
-    };
 }

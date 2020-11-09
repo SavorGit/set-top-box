@@ -10,6 +10,8 @@ android {
         minSdkVersion MIN_SDK_VERSION as int
         targetSdkVersion TARGET_SDK_VERSION as int
 
+        versionName "1.0"
+
     }
     buildTypes {
         release {

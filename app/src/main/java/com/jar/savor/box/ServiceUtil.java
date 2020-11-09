@@ -5,7 +5,7 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 
 import com.jar.savor.box.interfaces.OnRemoteOperationListener;
-import com.jar.savor.box.services.RemoteService;
+import com.savor.ads.service.RemoteService;
 
 /**
  * Created by zhanghq on 2016/12/22.

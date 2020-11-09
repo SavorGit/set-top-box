@@ -29,7 +29,7 @@ import android.widget.TextView;
 import com.admaster.sdk.api.AdmasterSdk;
 import com.google.protobuf.ByteString;
 import com.jar.savor.box.ServiceUtil;
-import com.jar.savor.box.services.RemoteService;
+import com.savor.ads.service.RemoteService;
 import com.savor.ads.R;
 import com.savor.ads.SavorApplication;
 import com.savor.ads.bean.AdInfo;
@@ -109,6 +109,7 @@ import tianshu.ui.api.TsUiApiV20171122;
 import tianshu.ui.api.ZmtAPI;
 import tianshu.ui.api.ZmtAdRequestUtil;
 import tv.danmaku.ijk.media.exo2.Exo2PlayerManager;
+import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
 import static com.savor.ads.utils.ConstantValues.DSP_DOWNLOADING_FILES;
 
@@ -205,11 +206,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         wxProjectionTipLayout = findViewById(R.id.wx_projection_tip_layout);
         wxProjectionIconTipIV = findViewById(R.id.wx_projection_icon_tip);
         wxProjectionTxtTipTV = findViewById(R.id.wx_projection_nickname_tip);
-        PlayerFactory.setPlayManager(Exo2PlayerManager.class);
-        GSYVideoType.enableMediaCodec();
-        GSYVideoType.enableMediaCodecTexture();
-//        //ijk关闭log
-//        IjkPlayerManager.setLogLevel(IjkMediaPlayer.IJK_LOG_SILENT);
 
         registerDownloadReceiver();
         // 启动投屏类操作处理的Service
@@ -507,8 +503,8 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         param.put("dpidmd5","");
         param.put("os",mSession.getOsVersion());
         param.put("osv",mSession.getBuildVersion());
-        param.put("screen_w",DensityUtil.getScreenWidthOrHeight(this,0));
-        param.put("screen_h",DensityUtil.getScreenWidthOrHeight(this,1));
+        param.put("screen_w",DensityUtil.getScreenWidth(this));
+        param.put("screen_h",DensityUtil.getScreenHeight(this));
         param.put("devicetype",0);
         param.put("carrier",0);
         param.put("connectiontype",0);
@@ -537,8 +533,8 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         param.put("dpidmd5","");
         param.put("os",mSession.getOsVersion());
         param.put("osv",mSession.getBuildVersion());
-        param.put("screen_w",DensityUtil.getScreenWidthOrHeight(this,0));
-        param.put("screen_h",DensityUtil.getScreenWidthOrHeight(this,1));
+        param.put("screen_w",DensityUtil.getScreenWidth(this));
+        param.put("screen_h",DensityUtil.getScreenHeight(this));
         param.put("devicetype",0);
         param.put("carrier",0);
         param.put("connectiontype",0);

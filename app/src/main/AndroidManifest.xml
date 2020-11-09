@@ -153,12 +153,15 @@
             android:exported="false">
         </service>
         <!-- 点播类处理和转发指令的Service -->
-        <service android:name="com.jar.savor.box.services.RemoteService">
+        <service android:name=".service.RemoteService">
             <intent-filter>
                 <action android:name="com.jar.savor.box.REMOTE1"/>
             </intent-filter>
         </service>
-
+        <service
+            android:name=".service.WebSocketService"
+            android:exported="false">
+        </service>
         <!-- 广告播放页面 -->
         <activity
             android:name=".activity.AdsPlayerActivity"

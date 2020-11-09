@@ -27,6 +27,7 @@ import com.savor.ads.log.LogUploadService;
 import com.savor.ads.service.HandleMediaDataService;
 import com.savor.ads.service.HeartbeatService;
 import com.savor.ads.service.ProjectionService;
+import com.savor.ads.service.WebSocketService;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.FileUtils;
@@ -180,6 +181,7 @@ public class MainActivity extends BaseActivity {
             mHandler.postDelayed(() -> startUploadLogService(),1000*25);
             //启动投屏服务
             mHandler.postDelayed(() -> startProjectionService(),1000*10);
+//            mHandler.postDelayed(() -> startWebSocketService(),1000*10);
         }
     }
 
@@ -318,6 +320,11 @@ public class MainActivity extends BaseActivity {
     private void startProjectionService(){
         LogFileUtil.write("MainActivity will start ProjectionService");
         Intent intent = new Intent(mContext, ProjectionService.class);
+        startService(intent);
+    }
+
+    private void startWebSocketService(){
+        Intent intent = new Intent(mContext,WebSocketService.class);
         startService(intent);
     }
 

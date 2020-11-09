@@ -578,6 +578,12 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
 
                             }
                         }
+                        //二维码展示时长
+                        int qrcode_showtime = jsonObject.getInt("qrcode_showtime");
+                        session.setQrcode_showtime(qrcode_showtime);
+                        //二维码间隔时长
+                        int qrcode_takttime = jsonObject.getInt("qrcode_takttime");
+                        session.setQrcode_takttime(qrcode_takttime);
 
                     }catch (Exception e){
                         e.printStackTrace();

@@ -76,8 +76,8 @@ public class PartakeDishDialog extends Dialog{
     }
 
     private void setDialogAttributes() {
-        width = DensityUtil.getScreenWidthOrHeight(mContext,0);
-        height = DensityUtil.getScreenWidthOrHeight(mContext,1);
+        width = DensityUtil.getScreenWidth(mContext);
+        height = DensityUtil.getScreenHeight(mContext);
         Window window = getWindow(); // 得到对话框
 //        window.getDecorView().setPadding(0, 20, 20, 0);
         WindowManager.LayoutParams wl = window.getAttributes();

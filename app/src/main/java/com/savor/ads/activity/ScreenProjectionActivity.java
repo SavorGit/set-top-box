@@ -16,7 +16,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import androidx.viewpager.widget.ViewPager;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -26,7 +25,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.jar.savor.box.services.RemoteService;
+import com.savor.ads.service.RemoteService;
 import com.jar.savor.box.vo.PlayResponseVo;
 import com.jar.savor.box.vo.QueryPosBySessionIdResponseVo;
 import com.jar.savor.box.vo.RotateResponseVo;
@@ -55,9 +54,6 @@ import com.savor.ads.utils.KeyCode;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
 import com.savor.ads.utils.ShowMessage;
-import com.shuyu.gsyvideoplayer.player.PlayerFactory;
-import com.shuyu.gsyvideoplayer.player.SystemPlayerManager;
-import com.shuyu.gsyvideoplayer.utils.GSYVideoType;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -559,7 +555,9 @@ public class ScreenProjectionActivity extends BaseActivity{
             mHandler.removeCallbacks(mCountDownRunnable);
             ArrayList<MediaFileBean> list = new ArrayList<>();
             MediaFileBean bean = new MediaFileBean();
-            bean.setUrl(mMediaUrl);
+            if (!TextUtils.isEmpty(mMediaUrl)){
+                bean.setUrl(mMediaUrl);
+            }
             if (!TextUtils.isEmpty(mMediaPath)){
                 bean.setCacheFile(new File(mMediaPath));
             }
@@ -608,7 +606,9 @@ public class ScreenProjectionActivity extends BaseActivity{
             mHandler.removeCallbacks(mCountDownRunnable);
             ArrayList<MediaFileBean> list = new ArrayList<>();
             MediaFileBean bean = new MediaFileBean();
-            bean.setUrl(mMediaUrl);
+            if (!TextUtils.isEmpty(mMediaUrl)){
+                bean.setUrl(mMediaUrl);
+            }
             if (!TextUtils.isEmpty(mMediaPath)){
                 bean.setCacheFile(new File(mMediaPath));
             }

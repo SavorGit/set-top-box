@@ -255,10 +255,10 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         PartakeDishBean partakeDishBean = gson.fromJson(content, new TypeToken<PartakeDishBean>() {}.getType());
                         this.partakeDishBean = partakeDishBean;
                     }else{
-                        final MiniProgramProjection miniProgramProjection = gson.fromJson(content, new TypeToken<MiniProgramProjection>() {
+                        final MiniProgramProjection mpProjection = gson.fromJson(content, new TypeToken<MiniProgramProjection>() {
                         }.getType());
-                        if (miniProgramProjection!=null&&action!=3&&action!=133&action!=134){
-                            this.miniProgramProjection = miniProgramProjection;
+                        if (mpProjection!=null&&action!=3&&action!=133){
+                            this.miniProgramProjection = mpProjection;
                             headPic = Base64Utils.getFromBase64(miniProgramProjection.getHeadPic());
                             nickName = miniProgramProjection.getNickName();
                             lastOpenid = openid;
@@ -455,9 +455,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         case 134:
                             Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
                             if (activity instanceof AdsPlayerActivity){
-                                if (AppUtils.isSVT()&&GlobalValues.mIsGoneToTv){
-                                    return;
-                                }
+//                                if (AppUtils.isSVT()&&GlobalValues.mIsGoneToTv){
+//                                    return;
+//                                }
                                 onDemandExtensionVideo(miniProgramProjection);
                             }
                             break;
@@ -999,7 +999,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     boolean isBreak = projectionIsBreak(forscreen_id);
                     if (!isBreak){
                         if (isDownloaded){
-                            ProjectOperationListener.getInstance(context).showVideo(basePath,oss_url,true,forscreen_id, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showVideo(path,"",true,forscreen_id, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                         }else{
                             ProjectOperationListener.getInstance(context).showVideo(basePath,oss_url, true,forscreen_id, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                         }
@@ -1207,9 +1207,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         if (listPlayList!=null&&listPlayList.size()>=1){
             ProjectOperationListener.getInstance(context).showVod(fileName, "", 0, false, true,currentAction);
         }else{
-            if (!TextUtils.isEmpty(url)){
-                url = BuildConfig.OSS_ENDPOINT+url;
-            }
+//            if (!TextUtils.isEmpty(url)){
+//                url = BuildConfig.OSS_ENDPOINT+url;
+//            }
             ProjectOperationListener.getInstance(context).showVideo("",url, true,currentAction);
         }
         String names[] = fileName.split("\\.");

@@ -62,7 +62,39 @@ public class IjkPlayerManager extends BasePlayerManager {
                 return true;
             }
         });
-
+        /********************************************************************/
+        //是否允许掉帧 1、允许 0、不允许
+        mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", 50);
+//        mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "fast", 1);
+//        mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", 1);
+////        设置播放前的最大探测时间
+        mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT,"analyzemaxduration",100L);
+//       //设置播放前的探测时间 1,达到首屏秒开效果
+        mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT,"analyzeduration",1);
+        mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "probesize", 1024L*2);
+        //设置是否开启环路过滤: 0开启，画面质量高，解码开销大，48关闭，画面质量差点，解码开销小
+        mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC,"skip_loop_filter",48);
+//        mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC,"skip_frame",0);
+//        //每处理一个packet之后刷新io上下文
+        mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT,"flush_packets",1L);
+        mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "packet-buffering", 0L);
+        mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", 1);
+//        //播放重连次数
+        mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER,"reconnect",5);
+//        //最大缓冲大小,单位kb
+        mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER,"max-buffer-size",100 * 1024);
+//        // 视频的话，设置100帧即开始播放
+//        mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "min-frames", 2);
+//        //最大fps
+        mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER,"max-fps",60);
+//        mediaPlayer.setOption(IjkMediaPlayer.ROPT_CATEGORY_PLAYER,"fps",20);
+//        mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER,"max_cached_duration",30);
+//        mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER,"infbuf",1);
+//        mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT,"fflags","nobuffer");
+//        mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER,"find_stream_info", 0);
+//        mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT,"rtsp_transport", "tcp");
+//        mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER,"render-wait-start", 1 );
+        /********************************************************************/
         GSYModel gsyModel = (GSYModel) msg.obj;
         String url = gsyModel.getUrl();
 
@@ -72,6 +104,10 @@ public class IjkPlayerManager extends BasePlayerManager {
             if (GSYVideoType.isMediaCodec()) {
                 Debuger.printfLog("enable mediaCodec");
                 mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec", 1);
+                mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-avc", 1);
+                mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-mpeg2", 1);
+                mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-mpeg4", 1);
+                mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-hevc", 1);
                 mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-auto-rotate", 1);
                 mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-handle-resolution-change", 1);
             }

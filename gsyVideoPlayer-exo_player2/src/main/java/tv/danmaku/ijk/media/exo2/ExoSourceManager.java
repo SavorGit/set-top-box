@@ -148,9 +148,15 @@ public class ExoSourceManager {
                 break;
             case C.TYPE_OTHER:
             default:
-                mediaSource = new ProgressiveMediaSource.Factory(getDataSourceFactoryCache(mAppContext, cacheEnable,
-                        preview, cacheDir), new DefaultExtractorsFactory())
-                        .createMediaSource(contentUri);
+                if (dataSource.contains("projection")){
+                    DataSource.Factory factory = new MyFileDataSource.Factory();
+                    mediaSource = new ProgressiveMediaSource.Factory(factory).createMediaSource(contentUri);
+                }else{
+                    mediaSource = new ProgressiveMediaSource.Factory(getDataSourceFactoryCache(mAppContext, cacheEnable,
+                            preview, cacheDir), new DefaultExtractorsFactory())
+                            .createMediaSource(contentUri);
+                }
+
                 break;
         }
         if (isLooping) {
