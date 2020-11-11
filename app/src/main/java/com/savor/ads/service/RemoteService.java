@@ -206,13 +206,7 @@ public class RemoteService extends Service {
                     String version = request.getHeader("version");
                     try {
                         String temp = request.getParameter("web");// 是否是h5来的请求
-                        if (!TextUtils.isEmpty(temp)) {
-                            final boolean isWebReq = Boolean.parseBoolean(temp);
-                            // 由于h5不支持改http header，故这里对isWebReq做特殊处理
-                            if ("1.0".equals(version) || isWebReq) {
-                                handleRequestV10(request, response, isWebReq);
-                            }
-                        }
+                        handleRequestV10(request, response);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -242,7 +236,7 @@ public class RemoteService extends Service {
          * @throws IOException
          * @throws ServletException
          */
-        private void handleRequestV10(HttpServletRequest request, HttpServletResponse response, boolean isWebReq) throws IOException, ServletException {
+        private void handleRequestV10(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
             String resJson = "";
             String path = request.getPathInfo();
             LogUtils.d("request:--" + request.toString());
@@ -267,7 +261,7 @@ public class RemoteService extends Service {
                 avatarUrl = request.getParameter("avatarUrl");
                 nickName = request.getParameter("nickName");
                 if (!TextUtils.isEmpty(deviceId)) {
-                    resJson = distributeRequest(request, isWebReq, path, deviceId, deviceName);
+                    resJson = distributeRequest(request, path, deviceId, deviceName);
                 }
             }
 
@@ -277,11 +271,6 @@ public class RemoteService extends Service {
                 baseResponse.setMsg("操作失败");
                 resJson = new Gson().toJson(baseResponse);
             }
-
-            if (isWebReq) {
-                // h5请求的响应需要包裹，否则h5取不到json
-//                resJson = "h5turbine(" + resJson + ")";
-            }
             try{
                 response.getWriter().println(resJson);
             }catch (Exception e){
@@ -290,7 +279,7 @@ public class RemoteService extends Service {
 
         }
 
-        private String distributeRequest(final HttpServletRequest request,boolean isWebReq,String action,final String deviceId,final String deviceName) throws IOException, ServletException {
+        private String distributeRequest(final HttpServletRequest request,String action,final String deviceId,final String deviceName) throws IOException, ServletException {
             String resJson = "";
             // 标识是否强行投屏
             LogUtils.d("enter method request.distributeRequest");

@@ -307,8 +307,13 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         String[] selectionArgs;
         selectionArgs = new String[]{session.getProPeriod(), session.getProDownloadPeriod(), session.getAdvPeriod(), session.getAdvDownloadPeriod()};
         dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.NEWPLAYLIST, selection, selectionArgs);
-
         AppUtils.deleteOldMedia(this,true);
+        //清除用户精选和发现视频数据，腾出空间
+        DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.SELECT_CONTENT,null,null);
+        DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.MEDIA_ITEM,null,null);
+        AppUtils.deleteSelectContentMedia(context);
+
+        AppUtils.deleteProjectionData(context);
     }
 
     /**
@@ -1935,7 +1940,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
     private void notifyToPlay() {
         if (AppUtils.fillPlaylist(this, null, 1)) {
             LogUtils.d("发送通知更新播放列表广播");
-            sendBroadcast(new Intent(ConstantValues.UPDATE_PLAYLIST_ACTION));
+            context.sendBroadcast(new Intent(ConstantValues.UPDATE_PLAYLIST_ACTION));
         }
     }
 

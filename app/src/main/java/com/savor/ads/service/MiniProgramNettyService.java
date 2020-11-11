@@ -518,7 +518,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             if (AppUtils.isSVT()&&GlobalValues.mIsGoneToTv){
                 return;
             }
-            ((AdsPlayerActivity) activity).toCheckMediaIsShowMiniProgramIcon();
+            handler.post(()->((AdsPlayerActivity) activity).toCheckMediaIsShowMiniProgramIcon());
+
         }
     }
 

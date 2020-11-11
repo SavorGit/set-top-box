@@ -547,7 +547,6 @@ public class AppUtils {
         try {
 
             FileInputStream stream = new java.io.FileInputStream(f);
-            LogUtils.i("一次读多个字节,当前文件" + f.getName() + "的字节数是：" + showAvailableBytes(stream));
 //            allTex.append(String.valueOf(showAvailableBytes(stream)));
             int pos = 0;// 从第几个字节开始读
             int len = 200;// 读几个字节

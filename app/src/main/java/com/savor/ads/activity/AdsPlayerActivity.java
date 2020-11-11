@@ -944,9 +944,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             case RESOLUTION_720p:
                 msg = "720P";
                 break;
-            case RESOLUTION_576p:
-                msg = "576P";
-                break;
         }
         ShowMessage.showToast(getApplicationContext(), msg);
     }

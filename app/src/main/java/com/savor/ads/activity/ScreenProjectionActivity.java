@@ -1300,6 +1300,8 @@ public class ScreenProjectionActivity extends BaseActivity{
             ((SavorApplication) getApplication()).showQrCodeWindow(null);
             handled = true;
 
+        } else if (keyCode == KeyCode.KEY_CODE_PLAY_PAUSE) {
+            handled = true;
         }
         return handled || super.onKeyDown(keyCode, event);
     }

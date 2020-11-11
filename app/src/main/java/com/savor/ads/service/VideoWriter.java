@@ -77,6 +77,9 @@ public class VideoWriter implements Runnable {
 
 
             while (!queue.isEmpty() || overTime) {
+                if (!forscreen_id.equals(GlobalValues.CURRRNT_PROJECT_ID)){
+                    break;
+                }
                 VideoQueueParam param = queue.poll();
                 if (param == null) {
 //                    Log.d(TAG,"queue队列为空,等待数据传入，10秒无数据退出线程");
@@ -92,9 +95,6 @@ public class VideoWriter implements Runnable {
                 mHander.removeCallbacks(overTimeRunnable);
                 mHander.postDelayed(overTimeRunnable, 1000 * 30);
 
-                if (!forscreen_id.equals(GlobalValues.CURRRNT_PROJECT_ID)){
-                    break;
-                }
                 String index = param.getIndex();
                 String fileName = param.getFileName();
                 String position = param.getPosition();

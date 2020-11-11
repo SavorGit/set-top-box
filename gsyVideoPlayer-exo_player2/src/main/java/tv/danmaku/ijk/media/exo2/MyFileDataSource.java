@@ -133,6 +133,7 @@ public final class MyFileDataSource extends BaseDataSource {
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
+                    opened = false;
                     e.printStackTrace();
                 }
             }

@@ -3,6 +3,7 @@ package com.savor.ads.utils;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.net.Uri;
@@ -258,13 +259,16 @@ public class MiniProgramQrCodeWindowManager {
             return;
         }
         String gifBgPath = session.getQrcodeGifBgPath();
-       if (!TextUtils.isEmpty(gifBgPath)){
-           qrCodeGifView.setVisibility(View.VISIBLE);
-           File file = new File(gifBgPath);
-           qrCodeGifView.setImageURI(Uri.fromFile(file));
-       }else{
-           qrCodeGifView.setVisibility(View.GONE);
-       }
+        if (!TextUtils.isEmpty(gifBgPath)){
+            qrCodeGifView.setVisibility(View.VISIBLE);
+            File file = new File(gifBgPath);
+            qrCodeGifView.setImageURI(Uri.fromFile(file));
+        }else{
+            qrCodeGifView.setVisibility(View.GONE);
+        }
+//        qrCodeGifView.setVisibility(View.VISIBLE);
+//        qrCodeGifView.setImageResource(R.drawable.qrcode_bg);
+
         mHandler.removeCallbacks(getToLeftRunnable);
         mHandler.removeCallbacks(getToRightRunnable);
         QRCodeType = type;
