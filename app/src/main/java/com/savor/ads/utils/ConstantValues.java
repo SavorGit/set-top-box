@@ -14,9 +14,9 @@ public class ConstantValues {
     public static final int SERVER_REQUEST_PORT = 8080;
     /** 手机端操作响应码*/
     /** 失败*/
-    public static final int SERVER_RESPONSE_CODE_FAILED = -1;
+    public static final int SERVER_RESPONSE_CODE_FAILED = 10010;
     /**box_mac非本机顶盒mac*/
-    public static final int SERVER_RESPONSE_CODE_MAC_ERROR=1001;
+    public static final int SERVER_RESPONSE_CODE_MAC_ERROR=10011;
     /** 视频播放完毕*/
     public static final int SERVER_RESPONSE_CODE_VIDEO_COMPLETE = 1;
     /** 大小图不匹配*/
@@ -262,11 +262,9 @@ public class ConstantValues {
     public static final String PROJECTION_VIDEO_THUMBNAIL_AOTO = "?x-oss-process=video/snapshot,t_3000,f_jpg,m_fast,ar_auto";
 
     /**小程序投屏-标准版**/
-    public static final String SMALL_APP_ID_STANDARD = "1";
+//    public static final String SMALL_APP_ID_STANDARD = "1";
     /**小程序投屏-极简版**/
     public static final String SMALL_APP_ID_SIMPLE = "2";
-    /**小程序投屏-餐厅版**/
-    public static final String SMALL_APP_ID_REST = "4";
 
     /**轮播显示小程序码的视频,视频中显示用户投屏照片视频**/
     public static final String QRCODE_PRO_VIDEO_ID = "19533";

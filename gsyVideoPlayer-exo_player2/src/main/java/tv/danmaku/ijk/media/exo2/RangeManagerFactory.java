@@ -33,6 +33,11 @@ public class RangeManagerFactory {
     }
 
     public boolean hasWroteRange(String fileTag, long start, int len) {
-        return mangerCollection.get(fileTag) != null && mangerCollection.get(fileTag).hasWroteRange(start, len);
+        boolean flag = true;
+        if (mangerCollection.get(fileTag) != null){
+            flag = mangerCollection.get(fileTag).hasWroteRange(start, len);
+        }
+        return flag;
+//        return mangerCollection.get(fileTag) != null && mangerCollection.get(fileTag).hasWroteRange(start, len);
     }
 }

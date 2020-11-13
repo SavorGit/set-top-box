@@ -46,6 +46,7 @@ import com.savor.ads.log.LogParamValues;
 import com.savor.ads.log.LogReportUtil;
 import com.savor.ads.okhttp.coreProgress.download.ProgressDownloader;
 import com.savor.ads.projection.ProjectionManager;
+import com.savor.ads.service.socket.Constant;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.GlobalValues;
@@ -112,6 +113,7 @@ public class RemoteService extends Service {
     //给每一类请求分配一个action，用来区分业务方便操作
     private int currentAction;
     public ControllHandler controllHandler;
+
     public RemoteService() {
     }
 
@@ -167,6 +169,9 @@ public class RemoteService extends Service {
         private Object mLock;
         private String avatarUrl = null;
         private String nickName = null;
+        private String deviceId;
+        private String deviceName;
+        private String device_model;
         private int currentIndex=0;
         /**
          * 投屏时屏幕显示的文字
@@ -216,18 +221,6 @@ public class RemoteService extends Service {
             }
         }
 
-        @NonNull
-        private String getBodyString(HttpServletRequest request) throws IOException {
-            StringBuilder stringBuilder = new StringBuilder();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(request.getInputStream(), Charset.forName("UTF-8")));
-            char[] chars = new char[1024];
-            int length = 0;
-            while ((length = bufferedReader.read(chars, 0, 1024)) != -1) {
-                stringBuilder.append(chars, 0, length);
-            }
-            return stringBuilder.toString();
-        }
-
         /**
          * v1.0接口处理请求的逻辑
          *
@@ -256,18 +249,18 @@ public class RemoteService extends Service {
                 response.getWriter().println(resJson);
                 return;
             }else {
-                String deviceId = request.getParameter("deviceId");
-                String deviceName = request.getParameter("deviceName");
+                deviceId = request.getParameter("deviceId");
+                deviceName = request.getParameter("deviceName");
+                device_model = request.getParameter("device_model");
                 avatarUrl = request.getParameter("avatarUrl");
                 nickName = request.getParameter("nickName");
-                if (!TextUtils.isEmpty(deviceId)) {
-                    resJson = distributeRequest(request, path, deviceId, deviceName);
-                }
+                resJson = distributeRequest(request, path, deviceId, deviceName);
+
             }
 
             if (TextUtils.isEmpty(resJson)) {
                 BaseResponse baseResponse = new BaseResponse();
-                baseResponse.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
+                baseResponse.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
                 baseResponse.setMsg("操作失败");
                 resJson = new Gson().toJson(baseResponse);
             }
@@ -323,7 +316,7 @@ public class RemoteService extends Service {
                     break;
                 case "/h5/restSingleImg":
                     currentAction = 7;
-                    resJson = handleSinglePicRequest(request,deviceId,deviceName,ConstantValues.SMALL_APP_ID_REST);
+                    resJson = handleSinglePicRequest(request,deviceId,deviceName,ConstantValues.SMALL_APP_ID_SIMPLE);
                     break;
                 case "/h5/stop":
                     currentAction = 8;
@@ -534,9 +527,6 @@ public class RemoteService extends Service {
 
                 if (isDownloaded){
                     String media_path = resultFile.getAbsolutePath();
-                    rangeManager = RangeManagerFactory.getInstance().getRangeManger(media_path);
-                    rangeManager.reset();
-                    rangeManager.recordNewPiece(0,resultFile.length());
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -581,7 +571,7 @@ public class RemoteService extends Service {
                             time = Integer.valueOf(play_time);
                         }
                         RemoteService.listener.showRestVideo(resultFile.getAbsolutePath(),true, avatarUrl, nickName,time);
-                        postSimpleMiniProgramProjectionLog(action,duration,null,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,ConstantValues.SMALL_APP_ID_REST);
+                        postSimpleMiniProgramProjectionLog(action,duration,null,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE);
                     }
                     object = new BaseResponse();
                     object.setMsg("上传成功");
@@ -608,8 +598,9 @@ public class RemoteService extends Service {
          */
         private String handleVideoUploadRequest(HttpServletRequest request){
             InputStream inputStream = null;
+            String index = null;
             BaseResponse object;
-            String respJson = null;
+            String respJson;
             String forscreen_id = request.getParameter("forscreen_id");
             if (TextUtils.isEmpty(GlobalValues.CURRRNT_PROJECT_ID)
                     ||!GlobalValues.CURRRNT_PROJECT_ID.equals(forscreen_id)){
@@ -617,38 +608,56 @@ public class RemoteService extends Service {
                 queue.clear();
             }
             try {
+                index = request.getParameter("index");
                 inputStream = request.getInputStream();
-                String index = request.getParameter("index");
-                String fileName = request.getParameter("filename");
+                String action = request.getParameter("action");
+                String duration = request.getParameter("duration");
+                String filename = request.getParameter("filename");
                 String position = request.getParameter("position");
-                String totalSize = request.getParameter("resource_size");
+                String resource_size = request.getParameter("resource_size");
+                String resource_type = request.getParameter("resource_type");
                 String chunkSize = request.getParameter("chunkSize");
                 String totalChunks = request.getParameter("totalChunks");
+                String serial_number = request.getParameter("serial_number");
+                String forscreen_char = "";
                 VideoQueueParam param = new VideoQueueParam();
+                param.setAction(action);
+                param.setDuration(duration);
                 param.setForscreen_id(forscreen_id);
                 param.setIndex(index);
-                param.setFileName(fileName);
+                param.setResource_type(resource_type);
+                param.setFileName(filename);
                 param.setPosition(position);
-                param.setTotalSize(totalSize);
+                param.setTotalSize(resource_size);
                 param.setChunkSize(chunkSize);
                 param.setTotalChunks(totalChunks);
                 param.setInputContent(StreamUtils.toByteArray(inputStream));
+                param.setSerial_number(serial_number);
                 queue.offer(param);
                 Log.d(TAG,"写入队列，数据块index==="+index+"||input=="+param.getInputContent());
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-                String outPath = path + fileName + ".mp4";
-                Log.d(TAG,"本地地址==="+outPath);
+                String outPath = path + filename + ".mp4";
                 if (TextUtils.isEmpty(index)){
                     VideoWriter writer = new VideoWriter(context,forscreen_id,queue,outPath);
                     writer.setUserInfo(avatarUrl,nickName);
+                    writer.setToPlayListener(new ToPlayInterface() {
+                        @Override
+                        public void playProjection() {
+                            postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,outPath,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE);
+                        }
+                    });
                     new Thread(writer).start();
                 }
                 object = new BaseResponse();
                 object.setMsg("上传成功");
                 object.setResult(new JsonObject());
                 object.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
-                respJson = new Gson().toJson(object);
+
             }catch (Exception e){
+                object = new BaseResponse();
+                object.setMsg("上传报错");
+                object.setResult(index);
+                object.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
                 e.printStackTrace();
             }finally {
                 try {
@@ -658,6 +667,7 @@ public class RemoteService extends Service {
                     e.printStackTrace();
                 }
             }
+            respJson = new Gson().toJson(object);
             return respJson;
         }
 
@@ -685,7 +695,7 @@ public class RemoteService extends Service {
 
         }
 
-        private void postSimpleMiniProgramProjectionLog(String action,String duration,String forscreen_char,String forscreen_id,
+        public void postSimpleMiniProgramProjectionLog(String action,String duration,String forscreen_char,String forscreen_id,
                                                         String mobile_brand,String mobile_model,String openid,String resource_id,
                                                         String resource_size,String resource_type,String media_path,String serial_number,
                                                         String small_app_id){
@@ -841,11 +851,9 @@ public class RemoteService extends Service {
                     String media_path = file.getAbsolutePath();
                     LogUtils.d(TAG+":"+"极简下载:fileName="+fileName+"结束下载");
                     GlobalValues.PROJECT_STREAM_IMAGE.add(media_path);
-                    if (currentAction==5){
-                        postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE);
-                    }else{
-                        postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,ConstantValues.SMALL_APP_ID_REST);
-                    }
+
+                    postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE);
+
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -1986,4 +1994,7 @@ public class RemoteService extends Service {
         }
     }
 
+    public interface ToPlayInterface{
+        void playProjection();
+    }
 }

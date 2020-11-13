@@ -72,6 +72,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import cn.savor.small.netty.MiniProNettyClient;
 import cn.savor.small.netty.MiniProNettyClient.MiniNettyMsgCallback;
+import tv.danmaku.ijk.media.exo2.RangeManager;
+import tv.danmaku.ijk.media.exo2.RangeManagerFactory;
 
 /**
  * 启动小程序Netty服务
@@ -126,6 +128,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private AdsBinder adsBinder = new AdsBinder();
     /**增加投屏前置或者后置广告,前置：1，后置：2*/
     private MediaLibBean preOrNextAdsBean=null;
+    private RangeManager rangeManager;
     public MiniProgramNettyService() {
 
     }

@@ -11,6 +11,7 @@ import android.widget.TabHost;
 
 import com.savor.ads.bean.VideoQueueParam;
 import com.savor.ads.callback.ProjectOperationListener;
+import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.GlobalValues;
 
 import org.eclipse.jetty.util.StringUtil;
@@ -43,6 +44,7 @@ public class VideoWriter implements Runnable {
     private String avatarUrl = null;
     private String nickName = null;
     private String forscreen_id;
+    private RemoteService.ToPlayInterface playListener;
     public VideoWriter(Context context,String screen_id, ConcurrentLinkedQueue<VideoQueueParam> q, String outPath) {
         this.mContext = context;
         this.forscreen_id = screen_id;
@@ -62,8 +64,11 @@ public class VideoWriter implements Runnable {
         this.nickName = nickName;
     }
 
-    private Runnable overTimeRunnable = ()->overTime = false;
+    public Runnable overTimeRunnable = ()->overTime = false;
 
+    public void setToPlayListener(RemoteService.ToPlayInterface toPlayListener){
+        this.playListener = toPlayListener;
+    }
 
     @Override
     public void run() {
@@ -96,7 +101,6 @@ public class VideoWriter implements Runnable {
                 mHander.postDelayed(overTimeRunnable, 1000 * 30);
 
                 String index = param.getIndex();
-                String fileName = param.getFileName();
                 String position = param.getPosition();
                 String totalSize = param.getTotalSize();
                 String chunkSize = param.getChunkSize();
@@ -141,6 +145,9 @@ public class VideoWriter implements Runnable {
                     Log.d(TAG,"开始调用播放器，forscreen_id=="+forscreen_id);
                     ProjectOperationListener.getInstance(mContext).showVideo(filePath,true,forscreen_id,avatarUrl,nickName, GlobalValues.FROM_SERVICE_REMOTE);
                     preparedPart = 0;
+                    if (playListener!=null){
+                        this.playListener.playProjection();
+                    }
                 }
                 if (writedParts-1==totalParts){
                     Log.d(TAG,"上传完成，退出while,totalParts="+totalParts+",writedParts="+writedParts);
