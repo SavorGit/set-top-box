@@ -49,7 +49,6 @@ import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
 public class SavorApplication extends MultiDexApplication implements ApiRequestListener {
 
-    private QrCodeWindowManager mQrCodeWindowManager;
     private MiniProgramQrCodeWindowManager miniProgramQrCodeWindowManager;
     private GoodsQrCodeWindowManager goodsQrCodeWindowManager;
     private GoodsCountdownQrCodeWindowManager goodsCountdownQrCodeWindowManager;
@@ -70,7 +69,6 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
         mappingKeyCode();
         session = Session.get(context);
         session.setHeartbeatMiniNetty(false);
-        mQrCodeWindowManager = new QrCodeWindowManager();
         miniProgramQrCodeWindowManager = MiniProgramQrCodeWindowManager.get(this);
         goodsQrCodeWindowManager = GoodsQrCodeWindowManager.get(this);
         goodsCountdownQrCodeWindowManager = new GoodsCountdownQrCodeWindowManager(this);
@@ -342,15 +340,6 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
         AppApi.reportDeviceToken(this, this, deviceToken);
     }
 
-    /**
-     * 显示二维码
-     */
-    public void showQrCodeWindow(String code) {
-        if (TextUtils.isEmpty(code)) {
-            code = Session.get(this).getAuthCode();
-        }
-        mQrCodeWindowManager.showQrCode(this, code);
-    }
 
     /**
      * 显示小程序二维码

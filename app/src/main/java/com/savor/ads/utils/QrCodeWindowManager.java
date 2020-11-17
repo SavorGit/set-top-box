@@ -1,19 +1,21 @@
 package com.savor.ads.utils;
 
 import android.content.Context;
-import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Handler;
 import android.os.Looper;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.savor.ads.R;
@@ -22,37 +24,28 @@ import com.savor.ads.core.Session;
 import java.io.File;
 
 /**
- * Created by zhanghq on 2016/12/10.
+ * Created by zhanghq on 2018/7/9.
  */
 
 public class QrCodeWindowManager {
-
     private Handler mHandler = new Handler();
-
+    private Context context;
+    private static QrCodeWindowManager mInstance;
+    final WindowManager.LayoutParams wmParams = new WindowManager.LayoutParams();
     WindowManager mWindowManager;
-    private RelativeLayout mFloatLayout;
-
-    private boolean mIsAdded;
+    private LinearLayout mFloatLayout;
+    private ImageView qrCodeFrontIV;
+    private TextView qrCodeFrontTipTV;
+    public static boolean mIsAdded;
     private boolean mIsHandling;
 
-    public void showQrCode(final Context context, final String code) {
-        LogUtils.d("showQrCode");
-        if (TextUtils.isEmpty(code)) {
-            LogUtils.e("Code is empty, will not show code window!!");
-            return;
-        }
-        Session.get(context).setAuthCode(code);
-
-        mHandler.removeCallbacks(mHideRunnable);
-        mHandler.postDelayed(mHideRunnable, 10 * 1000);
-        if (mIsAdded || mIsHandling) {
+    public QrCodeWindowManager(Context mContext){
+        this.context = mContext;
+        if (mIsHandling) {
             return;
         }
         mIsHandling = true;
 
-        final String ssid = AppUtils.getShowingSSID(context);
-
-        final WindowManager.LayoutParams wmParams = new WindowManager.LayoutParams();
         //获取WindowManager
         mWindowManager = (WindowManager) context.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
         //设置window type
@@ -62,99 +55,135 @@ public class QrCodeWindowManager {
         //设置浮动窗口不可聚焦（实现操作除浮动窗口外的其他可见窗口的操作）
         wmParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         //调整悬浮窗显示的停靠位置为左侧置顶
-        wmParams.gravity = Gravity.RIGHT | Gravity.BOTTOM;
+        wmParams.gravity = Gravity.LEFT | Gravity.BOTTOM;
+
         // 以屏幕左上角为原点，设置x、y初始值，相对于gravity
-        wmParams.x = DensityUtil.dip2px(context, 40);
-        wmParams.y = DensityUtil.dip2px(context, 40);
+        wmParams.x = DensityUtil.dip2px(context, 30);
+        wmParams.y = DensityUtil.dip2px(context, 25);
 
         //设置悬浮窗口长宽数据
-        wmParams.width = DensityUtil.dip2px(context, 228);
-        wmParams.height = DensityUtil.dip2px(context, 188);
-
+        wmParams.width = DensityUtil.dip2px(context, 168);
+        wmParams.height = DensityUtil.dip2px(context, 168*1.2f);
         //获取浮动窗口视图所在布局
-        mFloatLayout = (RelativeLayout) LayoutInflater.from(context).inflate(R.layout.layout_qrcode, null);
+        LayoutInflater layoutInflater = LayoutInflater.from(context);
+        mFloatLayout = (LinearLayout) layoutInflater.inflate(R.layout.view_miniprogram_qrcode_front, null);
+        qrCodeFrontIV = mFloatLayout.findViewById(R.id.iv_mini_program_qrcode_front);
+        qrCodeFrontTipTV = mFloatLayout.findViewById(R.id.qrcode_front_tip);
+        qrCodeFrontTipTV.setText("扫码投屏");
+        qrCodeFrontTipTV.setTextColor(Color.parseColor("#e61f18"));
+    }
 
-//        final ImageView qrCodeIv = (ImageView) mFloatLayout.findViewById(R.id.iv_qrcode);
-        final TextView wifiNameTv = (TextView) mFloatLayout.findViewById(R.id.tv_wifi_name);
-        final TextView connectCodeTv = (TextView) mFloatLayout.findViewById(R.id.tv_code);
+    public static QrCodeWindowManager get(Context context){
+        if (mInstance==null){
+            mInstance = new QrCodeWindowManager(context);
+        }
+        return mInstance;
 
-        LogUtils.v("QrCodeWindowManager 开始addView");
-        LogFileUtil.write("QrCodeWindowManager 开始addView");
+    }
+
+    /**
+     *
+     * @param context
+     * @param url 小程序码外网地址
+     * @param path 小程序码本地地址
+     */
+    public void showQrCode(final Context context, final String url,final String path) {
+        LogUtils.d("showQrCode");
+        if (TextUtils.isEmpty(url)) {
+            LogUtils.e("Code is empty, will not show code window!!");
+            return;
+        }
         if (Looper.myLooper() == Looper.getMainLooper()) {
-            addToWindow(context, wifiNameTv, connectCodeTv, wmParams, ssid, code);
+            addToWindow(context, url,path, qrCodeFrontIV);
         } else {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    addToWindow(context, wifiNameTv, connectCodeTv, wmParams, ssid, code);
-                }
-            });
+            mHandler.post(()->addToWindow(context, url,path,qrCodeFrontIV));
         }
     }
 
-    private void addToWindow(final Context context, TextView wifiNameTv,
-                             TextView codeTv, final WindowManager.LayoutParams wmParams, String ssid, String code) {
-//        GlideImageLoader.loadImageWithoutCache(context, filePath, qrCodeIv, new RequestListener() {
-//            @Override
-//            public boolean onException(Exception e, Object model, Target target, boolean isFirstResource) {
-//                mIsHandling = false;
-//                ShowMessage.showToast(context, "加载二维码失败");
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onResourceReady(Object resource, Object model, Target target, boolean isFromMemoryCache, boolean isFirstResource) {
-//
-//                if (mFloatLayout.getParent() == null) {
-//                    mWindowManager.addView(mFloatLayout, wmParams);
-//                }
-//
-//                mIsHandling = false;
-//                mIsAdded = true;
-//                return false;
-//            }
-//        });
+    private void addToWindow(final Context context,String url,final String path,final ImageView qrCodeIv) {
 
-        if (!TextUtils.isEmpty(code)) {
-            StringBuilder builder = new StringBuilder();
-            for(int i = 0; i < code.length(); i++) {
-                builder.append(code.charAt(i));
-                if(i + 1 < code.length()) {
-                    builder.append(" ");
-                }
+        boolean isCompletePicture = FileUtils.isCompletePicture(path);
+        File localFile = null;
+        long hour = 0;
+        if (isCompletePicture){
+            localFile = new File(path);
+            long modifyTime = localFile.lastModified();
+            long nowTime = System.currentTimeMillis();
+            hour = (nowTime-modifyTime)/1000/60/60;
+        }
+
+        if (isCompletePicture&&hour<2&&!GlobalValues.isActivity) {
+            GlideImageLoader.loadLocalImage(context,localFile,qrCodeFrontIV);
+            handleWindowLayout();
+        }else{
+            try {
+                GlideImageLoader.loadImageWithoutCache(context, url, qrCodeIv, new RequestListener() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+                        mIsHandling = false;
+                        ShowMessage.showToast(context, "加载二维码失败");
+                        hideQrCode();
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+                        handleWindowLayout();
+                        return false;
+                    }
+                });
+            }catch (Exception e){
+                mHandler.post(()->ShowMessage.showToast(context, "加载二维码失败"));
+                e.printStackTrace();
             }
-            code = builder.toString();
-        }
-        codeTv.setText(code);
 
-        if (AppUtils.isWifiEnabled(context)) {
-            wifiNameTv.setText(ssid);
-        } else {
-            wifiNameTv.setText(ssid);
         }
 
-        if (mFloatLayout.getParent() == null) {
-            mWindowManager.addView(mFloatLayout, wmParams);
-        }
-        mIsHandling = false;
-        mIsAdded = true;
+
     }
 
     private Runnable mHideRunnable = new Runnable() {
         @Override
         public void run() {
-            mIsHandling = false;
-            if (mIsAdded) {
+            try {
+                if (mIsAdded){
+                    mWindowManager.removeViewImmediate(mFloatLayout);
+                }
                 mIsAdded = false;
-                hideQrCode();
+            }catch (Exception e){
+                e.printStackTrace();
             }
+
+
         }
     };
 
     public void hideQrCode() {
-        if (mFloatLayout.getParent() != null) {
-            //移除悬浮窗口
-            mWindowManager.removeViewImmediate(mFloatLayout);
-        }
+        mHandler.removeCallbacks(mHideRunnable);
+        mHandler.post(mHideRunnable);
+
+
+
     }
+
+    private void handleWindowLayout(){
+        try {
+            if (context!=null&&mFloatLayout!=null) {
+                //移除悬浮窗口
+                if (mIsAdded){
+                    mWindowManager.removeViewImmediate(mFloatLayout);
+                    mIsAdded = false;
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        if (mFloatLayout.getParent() == null) {
+            //设置悬浮窗口长宽数据
+            mWindowManager.addView(mFloatLayout, wmParams);
+        }
+        mIsAdded = true;
+        mIsHandling = false;
+    }
+
 }

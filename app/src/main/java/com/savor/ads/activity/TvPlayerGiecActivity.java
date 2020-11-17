@@ -454,11 +454,7 @@ public class TvPlayerGiecActivity extends BaseActivity {
             return true;
 
         boolean handled = false;
-        if (keyCode == KeyCode.KEY_CODE_SHOW_QRCODE) {
-            ((SavorApplication) getApplication()).showQrCodeWindow(null);
-            handled = true;
-
-        } else if (keyCode == KeyCode.KEY_CODE_SHOW_INFO) {// 对话框弹出后会获得焦点，所以这里不需要处理重复点击重复显示的问题
+        if (keyCode == KeyCode.KEY_CODE_SHOW_INFO) {// 对话框弹出后会获得焦点，所以这里不需要处理重复点击重复显示的问题
             showBoxInfo();
             handled = true;
 

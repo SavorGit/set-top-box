@@ -698,13 +698,6 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
     }
 
     @Override
-    public void showCode() {
-        if (mContext instanceof SavorApplication) {
-            ((SavorApplication) mContext).showQrCodeWindow(null);
-        }
-    }
-
-    @Override
     public ResponseT<CodeVerifyBean> verify(String code) {
         ResponseT responseT = new ResponseT();
         Session session = Session.get(mContext);

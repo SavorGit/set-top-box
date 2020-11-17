@@ -1,9 +1,6 @@
 package com.savor.ads.utils;
 
-import android.animation.AnimatorInflater;
-import android.animation.AnimatorSet;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.net.Uri;
@@ -17,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -30,13 +26,11 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.savor.ads.R;
-import com.savor.ads.core.ApiRequestListener;
 import com.savor.ads.core.AppApi;
 import com.savor.ads.core.Session;
 import com.savor.ads.log.LogReportUtil;
 
 import java.io.File;
-import java.util.HashMap;
 
 import pl.droidsonroids.gif.GifImageView;
 
@@ -50,9 +44,11 @@ public class MiniProgramQrCodeWindowManager {
     private Session session;
     private Handler mHandler = new Handler();
     private Context context;
-    private LogReportUtil logReportUtil;
     private String mediaId;
     private String preMediaId;
+    private String qrCodeUrl;
+    private String qrCodePath;
+    private QrCodeWindowManager mQrCodeWindowManager;
     private static MiniProgramQrCodeWindowManager mInstance;
     final WindowManager.LayoutParams wmParams = new WindowManager.LayoutParams();
     final WindowManager.LayoutParams wmNewParams = new WindowManager.LayoutParams();
@@ -78,14 +74,11 @@ public class MiniProgramQrCodeWindowManager {
     public MiniProgramQrCodeWindowManager(Context mContext){
         this.context = mContext;
         session = Session.get(context);
-        logReportUtil = LogReportUtil.get(context);
         if (mIsHandling) {
             return;
         }
         mIsHandling = true;
-
-        final String ssid = AppUtils.getShowingSSID(context);
-
+        mQrCodeWindowManager = QrCodeWindowManager.get(context);
 
         //获取WindowManager
         mWindowManager = (WindowManager) context.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
@@ -139,6 +132,8 @@ public class MiniProgramQrCodeWindowManager {
         return mInstance;
 
     }
+
+    private Runnable getToRightRunnable = ()->setLeftToRightAminator();
     /**设置左侧滑出动画*/
     private void setLeftToRightAminator(){
         if (mIsAdded){
@@ -153,7 +148,7 @@ public class MiniProgramQrCodeWindowManager {
         translateAnimation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-
+                mQrCodeWindowManager.hideQrCode();
             }
 
             @Override
@@ -172,7 +167,7 @@ public class MiniProgramQrCodeWindowManager {
     }
 
     private Runnable getToLeftRunnable = ()->setRightToLeftAminator();
-
+    /**设置滑入动画*/
     private void setRightToLeftAminator(){
         if (mIsAdded){
             mWindowManager.removeViewImmediate(mFloatLayout);
@@ -192,6 +187,7 @@ public class MiniProgramQrCodeWindowManager {
             @Override
             public void onAnimationEnd(Animation animation) {
                 mHandler.postDelayed(getToRightRunnable,session.getQrcode_takttime()*1000);
+                mQrCodeWindowManager.showQrCode(context,qrCodeUrl,qrCodePath);
             }
 
             @Override
@@ -203,7 +199,7 @@ public class MiniProgramQrCodeWindowManager {
         translateAnimation.startNow();//动画开始执行 放在最后即可
     }
 
-    private Runnable getToRightRunnable = ()->setLeftToRightAminator();
+
 
     /**
      * // 设置发展卡片动画
@@ -258,6 +254,9 @@ public class MiniProgramQrCodeWindowManager {
             LogUtils.e("Code is empty, will not show code window!!");
             return;
         }
+        qrCodeUrl = url;
+        qrCodePath = path;
+        mQrCodeWindowManager.hideQrCode();
         String gifBgPath = session.getQrcodeGifBgPath();
         if (!TextUtils.isEmpty(gifBgPath)){
             qrCodeGifView.setVisibility(View.VISIBLE);
@@ -409,7 +408,7 @@ public class MiniProgramQrCodeWindowManager {
         mHandler.removeCallbacks(getToLeftRunnable);
         mHandler.removeCallbacks(getToRightRunnable);
         mHandler.post(mHideRunnable);
-
+        mQrCodeWindowManager.hideQrCode();
 
 
     }

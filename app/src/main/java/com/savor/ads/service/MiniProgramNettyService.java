@@ -306,7 +306,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     switch (action) {
 
                         case 1:
-                            showQrCode(miniProgramProjection.getCode());
                             break;
                         case 2:
                         case 42:
@@ -723,18 +722,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     public interface DownloadProgressListener{
         void getDownloadProgress(long currentSize, long totalSize);
         void getDownloadProgress(String progress);
-    }
-
-    /**
-     * 展示二维码
-     * @param code
-     */
-    private void showQrCode(int code){
-        if (!(ActivitiesManager.getInstance().getCurrentActivity() instanceof MainActivity)) {
-            if (getApplication() instanceof SavorApplication) {
-                ((SavorApplication) getApplication()).showQrCodeWindow(code + "");
-            }
-        }
     }
 
     private void projectionFileImg(final MiniProgramProjection minipp){
@@ -1914,7 +1901,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             }
             switch (currentAction){
                 case 1:
-                    showQrCode(miniProgramProjection.getCode());
                     break;
                 case 2:
                 case 4:

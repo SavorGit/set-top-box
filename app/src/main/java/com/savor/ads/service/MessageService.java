@@ -88,11 +88,11 @@ public class MessageService extends IntentService implements NettyClient.NettyMe
             LogUtils.d("收到显示二维码指令");
             LogFileUtil.write("收到显示二维码指令");
 
-            if (!(ActivitiesManager.getInstance().getCurrentActivity() instanceof MainActivity)) {
-                if (getApplication() instanceof SavorApplication) {
-                    ((SavorApplication) getApplication()).showQrCodeWindow(code);
-                }
-            }
+//            if (!(ActivitiesManager.getInstance().getCurrentActivity() instanceof MainActivity)) {
+//                if (getApplication() instanceof SavorApplication) {
+//                    ((SavorApplication) getApplication()).showQrCodeWindow(code);
+//                }
+//            }
 
         }
     }

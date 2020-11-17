@@ -96,7 +96,6 @@ public interface OnRemoteOperationListener {
 
     Object query(String projectId);
 
-    void showCode();
 
     ResponseT<CodeVerifyBean> verify(String code);
 

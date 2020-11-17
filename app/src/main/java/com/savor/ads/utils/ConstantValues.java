@@ -17,6 +17,8 @@ public class ConstantValues {
     public static final int SERVER_RESPONSE_CODE_FAILED = 10010;
     /**box_mac非本机顶盒mac*/
     public static final int SERVER_RESPONSE_CODE_MAC_ERROR=10011;
+    /**他人抢投*/
+    public static final int SERVER_RESPONSE_CODE_AHEAD=10012;
     /** 视频播放完毕*/
     public static final int SERVER_RESPONSE_CODE_VIDEO_COMPLETE = 1;
     /** 大小图不匹配*/

@@ -864,11 +864,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 }
             },1000*3);
             // 呼出二维码
-        } else if (keyCode == KeyCode.KEY_CODE_SHOW_QRCODE) {
-            ((SavorApplication) getApplication()).showQrCodeWindow(null);
-            handled = true;
-
-            // 暂停、继续播放
         } else if (keyCode == KeyCode.KEY_CODE_PLAY_PAUSE) {
             mSavorVideoView.togglePlay();
             handled = true;

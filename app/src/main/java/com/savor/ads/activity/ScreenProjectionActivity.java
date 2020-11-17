@@ -1295,11 +1295,6 @@ public class ScreenProjectionActivity extends BaseActivity{
             exitProjection();
             handled = true;
 
-            // 呼出二维码
-        } else if (keyCode == KeyCode.KEY_CODE_SHOW_QRCODE) {
-            ((SavorApplication) getApplication()).showQrCodeWindow(null);
-            handled = true;
-
         } else if (keyCode == KeyCode.KEY_CODE_PLAY_PAUSE) {
             handled = true;
         }

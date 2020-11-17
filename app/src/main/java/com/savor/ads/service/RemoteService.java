@@ -255,7 +255,6 @@ public class RemoteService extends Service {
                 avatarUrl = request.getParameter("avatarUrl");
                 nickName = request.getParameter("nickName");
                 resJson = distributeRequest(request, path, deviceId, deviceName);
-
             }
 
             if (TextUtils.isEmpty(resJson)) {
@@ -296,7 +295,7 @@ public class RemoteService extends Service {
                     break;
                 case "/videoUploadSpeed":
                     currentAction = 23;
-                    resJson = handleVideoUploadRequest(request);
+                    resJson = handleVideoUploadSpeedRequest(request);
                     break;
                 case "/pic":
                     currentAction = 4;
@@ -365,10 +364,6 @@ public class RemoteService extends Service {
                 case "/queryStatus":
                     currentAction = 19;
                     resJson = handleQueryStatusRequest();
-                    break;
-                case "/showCode":
-                    currentAction = 20;
-                    resJson = handleShowCodeRequest(deviceId);
                     break;
                 case "/verify":
                     currentAction = 21;
@@ -596,16 +591,29 @@ public class RemoteService extends Service {
         /**
          * 分片上传边写入边播放
          */
-        private String handleVideoUploadRequest(HttpServletRequest request){
+        private String handleVideoUploadSpeedRequest(HttpServletRequest request){
             InputStream inputStream = null;
             String index = null;
             BaseResponse object;
             String respJson;
             String forscreen_id = request.getParameter("forscreen_id");
-            if (TextUtils.isEmpty(GlobalValues.CURRRNT_PROJECT_ID)
-                    ||!GlobalValues.CURRRNT_PROJECT_ID.equals(forscreen_id)){
+            if (TextUtils.isEmpty(GlobalValues.CURRRNT_PROJECT_ID)){
                 clearProjectionMark(forscreen_id);
                 queue.clear();
+            }else {
+                long preProjectId = Long.valueOf(GlobalValues.CURRRNT_PROJECT_ID);
+                long nowProjectId = Long.valueOf(forscreen_id);
+                if (nowProjectId>preProjectId){
+                    clearProjectionMark(forscreen_id);
+                    queue.clear();
+                }else if (nowProjectId<preProjectId){
+                    object = new BaseResponse();
+                    object.setMsg("已被抢投");
+                    object.setResult(new JsonObject());
+                    object.setCode(ConstantValues.SERVER_RESPONSE_CODE_AHEAD);
+                    respJson = new Gson().toJson(object);
+                    return respJson;
+                }
             }
             try {
                 index = request.getParameter("index");
@@ -1324,30 +1332,6 @@ public class RemoteService extends Service {
                 statusVo.setStatus(0);
             }
             resJson = new Gson().toJson(statusVo);
-            return resJson;
-        }
-
-        /**
-         * 处理显示数字码请求
-         *
-         * @param deviceId
-         * @return
-         */
-        private String handleShowCodeRequest(String deviceId) {
-            String resJson;
-            LogUtils.d("enter method listener.showCode");
-            if (!TextUtils.isEmpty(deviceId)) {
-                GlobalValues.CURRENT_PROJECT_DEVICE_ID = deviceId;
-                RemoteService.listener.showCode();
-                ResponseT vo = new ResponseT();
-
-                vo.setCode(10000);
-                resJson = new Gson().toJson(vo);
-            } else {
-                ResponseT vo = new ResponseT();
-                vo.setCode(10001);
-                resJson = new Gson().toJson(vo);
-            }
             return resJson;
         }
 
