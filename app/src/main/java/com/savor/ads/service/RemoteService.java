@@ -169,6 +169,7 @@ public class RemoteService extends Service {
         private Object mLock;
         private String avatarUrl = null;
         private String nickName = null;
+        //openid
         private String deviceId;
         private String deviceName;
         private String device_model;

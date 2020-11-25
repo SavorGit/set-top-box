@@ -120,7 +120,7 @@ public final class MyFileDataSource extends BaseDataSource {
 
     @Override
     public int read(byte[] buffer, int offset, int readLength) throws FileDataSourceException {
-        Log.d(TAG, "read offset=" + offset + " readLength=" + readLength+" position="+position);
+//        Log.d(TAG, "read offset=" + offset + " readLength=" + readLength+" position="+position);
         if (readLength == 0) {
             return 0;
         } else if (bytesRemaining == 0) {
@@ -129,7 +129,7 @@ public final class MyFileDataSource extends BaseDataSource {
             handler.removeCallbacks(exitWaiting);
             handler.postDelayed(exitWaiting,1000*30);
             while (opened && !RangeManagerFactory.getInstance().hasWroteRange(this.uri.getPath(), position, readLength)) {
-                Log.e(TAG, "player read faster than write, will hold.");
+//                Log.e(TAG, "player read faster than write, will hold.");
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
