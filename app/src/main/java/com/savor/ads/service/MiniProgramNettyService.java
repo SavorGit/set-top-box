@@ -231,7 +231,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 134:投屏帮助视频
          * 135:霸王餐抽奖活动推送
          * 136:霸王餐开奖
-         * 140:对服务人员评价完成通知盒子
+         * 140:对服务人员评价打赏后机顶盒展示效果
          * 000:活动广告
          */
         if (ConstantValues.NETTY_MINI_PROGRAM_COMMAND.equals(msg)){
@@ -1793,10 +1793,13 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private void finishEvaluate(final MiniProgramProjection minipp){
         String img_id = minipp.getImg_id();
         String music_id = minipp.getMusic_id();
-        String forscreen_char = minipp.getForscreen_char();
+//        String forscreen_char = minipp.getForscreen_char();
+        String forscreen_char = "";
         String wordsize = minipp.getWordsize();
         String wordcolor = minipp.getColor();
         String font_id = minipp.getFont_id();
+        //满意度级别
+        int satisfaction = minipp.getSatisfaction();
         int play_times = minipp.getPlay_times();
         int rotation = minipp.getRotation();
         String filename = minipp.getFilename();
@@ -1812,7 +1815,15 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         params.put("img_id", img_id);
         params.put("music_id", music_id);
         String basePath = AppUtils.getFilePath(AppUtils.StorageFile.welcome_resource);
-        String resourceId= R.mipmap.eualuate_bg+"";
+        String resourceId= null;
+        if (satisfaction==1){
+            resourceId= R.mipmap.evaluate_n+"";
+        }else if (satisfaction==2){
+            resourceId= R.mipmap.evaluate_m+"";
+        }else if (satisfaction==3){
+            resourceId= R.mipmap.evaluate_g+"";
+        }
+
         String musicPath = null;
         String fontPath = null;
         String selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";

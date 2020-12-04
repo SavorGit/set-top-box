@@ -91,6 +91,8 @@ public class MiniProgramProjection implements Serializable{
     private String partake_name;
     /**活动名称*/
     private String activity_name;
+    /**满意度层级 1:很糟糕 2:一般般 3:太赞了*/
+    private int satisfaction;
 
     public int getAction() {
         return action;
@@ -450,5 +452,13 @@ public class MiniProgramProjection implements Serializable{
 
     public void setActivity_name(String activity_name) {
         this.activity_name = activity_name;
+    }
+
+    public int getSatisfaction() {
+        return satisfaction;
+    }
+
+    public void setSatisfaction(int satisfaction) {
+        this.satisfaction = satisfaction;
     }
 }

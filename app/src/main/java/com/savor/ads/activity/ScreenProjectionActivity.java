@@ -830,7 +830,7 @@ public class ScreenProjectionActivity extends BaseActivity{
             }else{
                 mWelcomeWordsTV.setVisibility(View.GONE);
             }
-            if (mImageType==7){
+            if (mImageType==7||mImageType==8){
                 if (!TextUtils.isEmpty(waiterName)){
                     waiterWelcomeLayout.setVisibility(View.VISIBLE);
                     waiterNameWelcomeTipTV.setText(waiterName+"为您服务");
@@ -839,17 +839,6 @@ public class ScreenProjectionActivity extends BaseActivity{
                     }
                 }else{
                     waiterWelcomeLayout.setVisibility(View.GONE);
-                }
-            }else{
-                if (!TextUtils.isEmpty(waiterName)){
-                    waiterLayout.setVisibility(View.VISIBLE);
-                    waiterNameTipTV.setText(waiterName+"为您服务");
-                    if (!TextUtils.isEmpty(waiterIconUrl)){
-                        GlideImageLoader.loadRoundImage(mContext,waiterIconUrl,waiterIconTipIV,R.mipmap.wxavatar);
-
-                    }
-                }else{
-                    waiterLayout.setVisibility(View.GONE);
                 }
             }
 

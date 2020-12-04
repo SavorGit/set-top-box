@@ -182,7 +182,10 @@ public class RemoteService extends Service {
          * 投屏唯一标示id
          */
         private String forscreenId;
-
+        /**投屏开始时间*/
+        private String res_sup_time;
+        /**投屏结束时间*/
+        private String res_eup_time;
 
         public void handle(String target, Request baseRequest, final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
             synchronized (mLock) {
@@ -420,7 +423,7 @@ public class RemoteService extends Service {
             if (TextUtils.isEmpty(GlobalValues.CURRRNT_PROJECT_ID)
                     ||!GlobalValues.CURRRNT_PROJECT_ID.equals(forscreen_id)){
                 clearProjectionMark(forscreen_id);
-
+                res_sup_time = String.valueOf(System.currentTimeMillis());
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -479,13 +482,7 @@ public class RemoteService extends Service {
                 boolean isDownloaded;
                 if (resultFile.exists()){
                     isDownloaded = true;
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            projectionImgListDialog.setImgDownloadProgress(video_id,"100%");
-                        }
-                    });
-
+                    handler.post(()->projectionImgListDialog.setImgDownloadProgress(video_id,"100%"));
                 }else{
                     int start = 0;
                     long startTime = System.currentTimeMillis();
@@ -522,6 +519,7 @@ public class RemoteService extends Service {
                 }
 
                 if (isDownloaded){
+                    res_eup_time = String.valueOf(System.currentTimeMillis());
                     String media_path = resultFile.getAbsolutePath();
                     handler.post(new Runnable() {
                         @Override
@@ -600,12 +598,14 @@ public class RemoteService extends Service {
             String forscreen_id = request.getParameter("forscreen_id");
             if (TextUtils.isEmpty(GlobalValues.CURRRNT_PROJECT_ID)){
                 clearProjectionMark(forscreen_id);
+                res_sup_time = String.valueOf(System.currentTimeMillis());
                 queue.clear();
             }else {
                 long preProjectId = Long.valueOf(GlobalValues.CURRRNT_PROJECT_ID);
                 long nowProjectId = Long.valueOf(forscreen_id);
                 if (nowProjectId>preProjectId){
                     clearProjectionMark(forscreen_id);
+                    res_sup_time = String.valueOf(System.currentTimeMillis());
                     queue.clear();
                 }else if (nowProjectId<preProjectId){
                     object = new BaseResponse();
@@ -652,6 +652,7 @@ public class RemoteService extends Service {
                     writer.setToPlayListener(new ToPlayInterface() {
                         @Override
                         public void playProjection() {
+                            res_eup_time = String.valueOf(System.currentTimeMillis());
                             postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,outPath,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE);
                         }
                     });
@@ -704,10 +705,10 @@ public class RemoteService extends Service {
 
         }
 
-        public void postSimpleMiniProgramProjectionLog(String action,String duration,String forscreen_char,String forscreen_id,
-                                                        String mobile_brand,String mobile_model,String openid,String resource_id,
-                                                        String resource_size,String resource_type,String media_path,String serial_number,
-                                                        String small_app_id){
+        public void postSimpleMiniProgramProjectionLog(String action,String startTime,String endTime,String duration,String forscreen_char,String forscreen_id,
+                                                       String mobile_brand,String mobile_model,String openid,String resource_id,
+                                                       String resource_size,String resource_type,String media_path,String serial_number,
+                                                       String small_app_id){
             HashMap<String,Object> params = new HashMap<>();
             String create_time = String.valueOf(System.currentTimeMillis());
             params.put("action",action);
@@ -726,6 +727,8 @@ public class RemoteService extends Service {
             params.put("serial_number",serial_number);
             params.put("small_app_id", small_app_id);
             params.put("create_time", create_time);
+            params.put("res_sup_time",startTime);
+            params.put("res_eup_time",endTime);
             AppApi.postSimpleMiniProgramProjectionLog(RemoteService.this,ControllHandler.this,params,forscreen_id);
             ProjectionLogBean bean = new ProjectionLogBean();
             bean.setAction(action);
@@ -744,6 +747,17 @@ public class RemoteService extends Service {
             bean.setSmall_app_id(small_app_id);
             bean.setCreate_time(create_time);
             DBHelper.get(context).insertProjectionLog(bean);
+        }
+
+        public void postSimpleMiniProgramProjectionLog(String action,String duration,String forscreen_char,String forscreen_id,
+                                                        String mobile_brand,String mobile_model,String openid,String resource_id,
+                                                        String resource_size,String resource_type,String media_path,String serial_number,
+                                                        String small_app_id){
+            String startTime = res_sup_time;
+            String endTime = res_eup_time;
+            postSimpleMiniProgramProjectionLog(action,startTime,endTime,duration,forscreen_char,forscreen_id,
+                    mobile_brand,mobile_model,openid,resource_id,
+                    resource_size,resource_type,media_path,serial_number,small_app_id);
         }
 
 
@@ -782,7 +796,8 @@ public class RemoteService extends Service {
         private String downloadStreamImageProjection(HttpServletRequest request,String deviceId, String deviceName){
             String respJson = "";
             try {
-                BaseResponse object = null;
+                BaseResponse object;
+                String startTimee = String.valueOf(System.currentTimeMillis());
                 String action = request.getParameter("action");
                 final String forscreen_nums = request.getParameter("forscreen_nums");
                 final String forscreen_char = request.getParameter("forscreen_char");
@@ -799,13 +814,7 @@ public class RemoteService extends Service {
                 ProjectionImg img = new ProjectionImg();
                 img.setImg_id(img_id);
                 GlobalValues.PROJECT_STREAM_IMAGE_NUMS.add(img);
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        LogUtils.d(TAG+":"+"极简关闭窗口:此处更新");
-                        projectionImgListDialog.setContent(GlobalValues.PROJECT_STREAM_IMAGE_NUMS,TYPE_IMG);
-                    }
-                });
+                handler.post(()->projectionImgListDialog.setContent(GlobalValues.PROJECT_STREAM_IMAGE_NUMS,TYPE_IMG));
 
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
                 String fileName = filename+".jpg";
@@ -857,18 +866,14 @@ public class RemoteService extends Service {
                 }
 
                 if (isDownload) {
+                    String endTime = String.valueOf(System.currentTimeMillis());
                     String media_path = file.getAbsolutePath();
                     LogUtils.d(TAG+":"+"极简下载:fileName="+fileName+"结束下载");
                     GlobalValues.PROJECT_STREAM_IMAGE.add(media_path);
 
-                    postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE);
+                    postSimpleMiniProgramProjectionLog(action,startTimee,endTime,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE);
 
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            projectionImgListDialog.setImgDownloadProgress(img_id,100+"%");
-                        }
-                    });
+                    handler.post(()->projectionImgListDialog.setImgDownloadProgress(img_id,100+"%"));
                     object = new BaseResponse();
                     object.setMsg("上传成功");
                     object.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
@@ -1027,7 +1032,6 @@ public class RemoteService extends Service {
             if (TextUtils.isEmpty(GlobalValues.CURRRNT_PROJECT_ID)
                     ||!GlobalValues.CURRRNT_PROJECT_ID.equals(forscreen_id)){
                 clearProjectionMark(forscreen_id);
-
                 closeProjectionDialog();
             }
             if (request.getContentType().contains("multipart/form-data;")) {
@@ -1040,7 +1044,8 @@ public class RemoteService extends Service {
         private String downloadSingleImageProjection(HttpServletRequest request,String deviceId, String deviceName,String projectionFrom){
             String respJson = "";
             try {
-                BaseResponse object = null;
+                BaseResponse object;
+                String startTimee = String.valueOf(System.currentTimeMillis());
                 String action = request.getParameter("action");
                 String forscreen_char = request.getParameter("forscreen_char");
                 String device_model = request.getParameter("device_model");
@@ -1055,7 +1060,6 @@ public class RemoteService extends Service {
                 minipp.setImg_id(img_id);
                 ArrayList<MiniProgramProjection> list = new ArrayList<>();
                 list.add(minipp);
-
 
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
                 String fileName = filename+".jpg";
@@ -1107,9 +1111,10 @@ public class RemoteService extends Service {
                 }
 
                 if (isDownload) {
+                    String endTime = String.valueOf(System.currentTimeMillis());
                     String media_path = path+fileName;
                     LogUtils.d(TAG+":"+"极简下载:fileName="+fileName+"结束下载");
-                    postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,projectionFrom);
+                    postSimpleMiniProgramProjectionLog(action,startTimee,endTime,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,projectionFrom);
                     GlobalValues.PROJECT_STREAM_IMAGE.add(media_path);
                     object = new BaseResponse();
                     object.setMsg("上传成功");
