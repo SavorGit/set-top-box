@@ -246,7 +246,7 @@ public class AppServiceOk {
                             handler.onError(action, object);
                         } else {
                             if (requestUrl.contains("netty/balancing")){
-                                Log.d("测试netty启动","object"+object.toString());
+                                Log.d("测试netty启动","object");
                             }
                             handler.onSuccess(action, object);
                         }

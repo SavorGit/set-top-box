@@ -13,6 +13,8 @@ import com.savor.ads.bean.BirthdayOndemandBean;
 import com.savor.ads.bean.MediaItemBean;
 import com.savor.ads.bean.MediaLibBean;
 import com.savor.ads.bean.ProjectionLogBean;
+import com.savor.ads.bean.ProjectionLogDetail;
+import com.savor.ads.bean.ProjectionLogHistory;
 import com.savor.ads.bean.SelectContentBean;
 import com.savor.ads.bean.ShopGoodsBean;
 import com.savor.ads.bean.WelcomeOrderBean;
@@ -33,7 +35,6 @@ import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.ACTION;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.AVATAR_URL;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.BOX_MAC;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.CHINESE_NAME;
-import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.COLOR;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.CREATETIME;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.DURATION;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.END_DATE;
@@ -41,8 +42,6 @@ import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.FORSCREEN_CH
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.FORSCREEN_ID;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.GOODS_ID;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.ID;
-import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.IMG_ID;
-import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.IMG_OSS_ADDR;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.IS_STOREBUY;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.LOCATION_ID;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.MD5;
@@ -50,30 +49,28 @@ import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.MEDIAID;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.MEDIANAME;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.MEDIATYPE;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.MEDIA_PATH;
+import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.MEDIA_SCREENSHOT_PATH;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.MOBILE_BRAND;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.MOBILE_MODEL;
-import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.MUSIC_ID;
-import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.MUSIC_OSS_ADDR;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.NICK_NAME;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.OPENID;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.PERIOD;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.PLAY_POSITION;
-import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.PLAY_TIMES;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.PLAY_TYPE;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.PRICE;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.QRCODE_PATH;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.QRCODE_URL;
+import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.REPEAT;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.RESOURCE_ID;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.RESOURCE_SIZE;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.RESOURCE_TYPE;
-import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.ROTATION;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.SERIAL_NUMBER;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.SMALL_APP_ID;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.START_DATE;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.SURFIX;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.TYPE;
+import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.UPLOADED;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.VID;
-import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.WORDSIZE;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.TableName;
 
 /**
@@ -102,6 +99,7 @@ public class DBHelper extends SQLiteOpenHelper {
             public static final String MEDIATYPE = "media_type";
             public static final String RESOURCE_TYPE = "resource_type";
             public static final String MEDIA_PATH = "media_path";
+            public static final String MEDIA_SCREENSHOT_PATH = "media_screenshot_path";
             public static final String QRCODE_PATH = "qrcode_path";
             public static final String QRCODE_URL = "qrcode_url";
             public static final String IS_SAPP_QRCODE = "is_sapp_qrcode";
@@ -134,13 +132,10 @@ public class DBHelper extends SQLiteOpenHelper {
             public static final String NICK_NAME = "nick_name";
             public static final String AVATAR_URL = "avatar_url";
             public static final String TYPE = "type";
-            public static final String WORDSIZE = "wordsize";
-            public static final String COLOR = "color";
-            public static final String IMG_ID = "img_id";
-            public static final String IMG_OSS_ADDR = "img_oss_addr";
-            public static final String MUSIC_ID = "music_id";
-            public static final String MUSIC_OSS_ADDR = "music_oss_addr";
-            public static final String PLAY_TIMES = "play_times";
+            //是否已经上传,0:未上传，1：已上传
+            public static final String UPLOADED = "uploaded";
+            //是否已经上传,0:一投，1：重投
+            public static final String REPEAT = "repeat";
         }
 
         public static class TableName {
@@ -169,7 +164,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "dbsavor.db";
 
 
-    private static final int DB_VERSION = 34;
+    private static final int DB_VERSION = 35;
 
     private Context mContext;
 
@@ -358,6 +353,17 @@ public class DBHelper extends SQLiteOpenHelper {
             }catch (Exception e){
                 e.printStackTrace();
             }
+        }if (oldVersion<35){
+            try{
+                String alterShortcut = "ALTER TABLE " + TableName.PROJECTION_LOG + " ADD " + MEDIA_SCREENSHOT_PATH + " TEXT;";
+                sqLiteDatabase.execSQL(alterShortcut);
+                String alterUpload = "ALTER TABLE " + TableName.PROJECTION_LOG + " ADD " + UPLOADED + " TEXT;";
+                sqLiteDatabase.execSQL(alterUpload);
+                String alterRepeat = "ALTER TABLE " + TableName.PROJECTION_LOG + " ADD " + REPEAT + " TEXT;";
+                sqLiteDatabase.execSQL(alterRepeat);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
     }
 
@@ -542,9 +548,13 @@ public class DBHelper extends SQLiteOpenHelper {
                 + RESOURCE_ID + " TEXT, "
                 + RESOURCE_SIZE + " TEXT, "
                 + RESOURCE_TYPE + " TEXT, "
+                + MEDIA_PATH + " TEXT, "
+                + MEDIA_SCREENSHOT_PATH + " TEXT, "
+                + UPLOADED + " TEXT, "
+                + REPEAT + " TEXT, "
                 + SMALL_APP_ID + " TEXT, "
-                + CREATETIME + " TEXT, "
-                + MEDIA_PATH + " TEXT"+");";
+                + CREATETIME + " TEXT "
+                +");";
         db.execSQL(DATABASE_CREATE);
     }
     /**
@@ -1431,6 +1441,9 @@ public class DBHelper extends SQLiteOpenHelper {
             initialValues.put(RESOURCE_SIZE,bean.getResource_size());
             initialValues.put(RESOURCE_TYPE,bean.getResource_type());
             initialValues.put(MEDIA_PATH,bean.getMedia_path());
+            initialValues.put(MEDIA_SCREENSHOT_PATH,bean.getMedia_screenshot_path());
+            initialValues.put(UPLOADED,bean.getUpload());
+            initialValues.put(REPEAT,bean.getRepeat());
             initialValues.put(SMALL_APP_ID,bean.getSmall_app_id());
             initialValues.put(CREATETIME,bean.getCreate_time());
             long success = db.insert(TableName.PROJECTION_LOG,null,initialValues);
@@ -1444,6 +1457,24 @@ public class DBHelper extends SQLiteOpenHelper {
         return flag;
     }
 
+    public boolean uploadProjectionLog(String forscreen_id,String upload){
+        boolean flag = false;
+        try {
+            String selection = FORSCREEN_ID + "=? ";
+            String[] selectionArgs = new String[]{forscreen_id};
+            ContentValues initialValues = new ContentValues();
+            initialValues.put(FieldName.UPLOADED, upload);
+            long success = db.update(TableName.PROJECTION_LOG,initialValues, selection,selectionArgs);
+            if (success > 0) {
+                flag = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+        }
+
+        return flag;
+    }
     /**
      * 条件查询投屏日志数据
      * @param selection
@@ -1475,6 +1506,7 @@ public class DBHelper extends SQLiteOpenHelper {
                             bean.setResource_size(cursor.getString(cursor.getColumnIndex(RESOURCE_SIZE)));
                             bean.setResource_type(cursor.getString(cursor.getColumnIndex(RESOURCE_TYPE)));
                             bean.setMedia_path(cursor.getString(cursor.getColumnIndex(MEDIA_PATH)));
+                            bean.setMedia_screenshot_path(cursor.getString(cursor.getColumnIndex(MEDIA_SCREENSHOT_PATH)));
                             bean.setSmall_app_id(cursor.getString(cursor.getColumnIndex(SMALL_APP_ID)));
                             bean.setCreate_time(cursor.getString(cursor.getColumnIndex(CREATETIME)));
                             logBeanList.add(bean);
@@ -1495,6 +1527,97 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return logBeanList;
     }
+
+    /**
+     * 查询投屏历史数据，一次投屏行为是一条数据,比如说一次投多图，算作一条数据记录
+     * @param selection
+     * @param selectionArgs
+     * @return
+     */
+    public List<ProjectionLogHistory> findProjectionHistory(String selection, String[] selectionArgs){
+        List<ProjectionLogHistory> historyList = null;
+        synchronized (dbHelper) {
+            Cursor cursor = null;
+            try {
+                cursor = db.query(TableName.PROJECTION_LOG, null,
+                        selection, selectionArgs, FORSCREEN_ID, null, null, null);
+                if (cursor != null) {
+                    if (cursor.moveToFirst()) {
+                        historyList = new ArrayList<>();
+                        do {
+                            ProjectionLogHistory history = new ProjectionLogHistory();
+                            history.setAction(cursor.getString(cursor.getColumnIndex(ACTION)));
+                            history.setSerial_number(cursor.getString(cursor.getColumnIndex(SERIAL_NUMBER)));
+                            history.setBox_mac(cursor.getString(cursor.getColumnIndex(BOX_MAC)));
+                            history.setForscreen_char(cursor.getString(cursor.getColumnIndex(FORSCREEN_CHAR)));
+                            history.setForscreen_id(cursor.getString(cursor.getColumnIndex(FORSCREEN_ID)));
+                            history.setMobile_brand(cursor.getString(cursor.getColumnIndex(MOBILE_BRAND)));
+                            history.setMobile_model(cursor.getString(cursor.getColumnIndex(MOBILE_MODEL)));
+                            history.setOpenid(cursor.getString(cursor.getColumnIndex(OPENID)));
+                            history.setResource_type(cursor.getString(cursor.getColumnIndex(RESOURCE_TYPE)));
+                            selection = FORSCREEN_ID + "=? AND "+REPEAT +" = ? ";
+                            selectionArgs = new String[]{history.getForscreen_id(),"0"};
+                            List<ProjectionLogDetail> listDetail = findProjectionDetail(selection,selectionArgs);
+                            if (listDetail!=null&&listDetail.size()>0){
+                                history.setList(listDetail);
+                            }
+                            historyList.add(history);
+                        } while (cursor.moveToNext());
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (cursor != null && !cursor.isClosed()) {
+                        cursor.close();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return historyList;
+    }
+
+    public List<ProjectionLogDetail> findProjectionDetail(String selection,String[] selectionArgs){
+        List<ProjectionLogDetail> logDetailList = null;
+        synchronized (dbHelper) {
+            Cursor cursor = null;
+            try {
+                cursor = db.query(TableName.PROJECTION_LOG, null,
+                        selection, selectionArgs, null, null, null, null);
+                if (cursor != null) {
+                    if (cursor.moveToFirst()) {
+                        logDetailList = new ArrayList<>();
+                        do {
+                            ProjectionLogDetail bean = new ProjectionLogDetail();
+                            bean.setDuration(cursor.getString(cursor.getColumnIndex(DURATION)));
+                            bean.setResource_id(cursor.getString(cursor.getColumnIndex(RESOURCE_ID)));
+                            bean.setResource_size(cursor.getString(cursor.getColumnIndex(RESOURCE_SIZE)));
+                            bean.setMedia_path(cursor.getString(cursor.getColumnIndex(MEDIA_PATH)));
+                            bean.setMedia_screenshot_path(cursor.getString(cursor.getColumnIndex(MEDIA_SCREENSHOT_PATH)));
+                            bean.setSmall_app_id(cursor.getString(cursor.getColumnIndex(SMALL_APP_ID)));
+                            bean.setCreate_time(cursor.getString(cursor.getColumnIndex(CREATETIME)));
+                            logDetailList.add(bean);
+                        } while (cursor.moveToNext());
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (cursor != null && !cursor.isClosed()) {
+                        cursor.close();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return logDetailList;
+    }
+
 
     /**
      * 接受到活动商品广告入库

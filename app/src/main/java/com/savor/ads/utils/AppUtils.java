@@ -1168,7 +1168,9 @@ public class AppUtils {
                     if (activity instanceof ScreenProjectionActivity){
 
                     }else{
-                        List<ProjectionLogBean> list = DBHelper.get(context).findProjectionLogs(null,null);
+                        String selection = DBHelper.MediaDBInfo.FieldName.UPLOADED + "=? ";
+                        String[] selectionArgs = new String[]{"0"};
+                        List<ProjectionLogBean> list = DBHelper.get(context).findProjectionLogs(selection,selectionArgs);
                         if (list!=null&&list.size()>0){
                             for (ProjectionLogBean bean:list){
                                 final String mediaPath = bean.getMedia_path();
@@ -1183,8 +1185,8 @@ public class AppUtils {
                                 }
                                 File suorcefile = new File(mediaPath);
                                 if (!suorcefile.exists()){
-                                    String selection = DBHelper.MediaDBInfo.FieldName.FORSCREEN_ID + "=? ";
-                                    String[] selectionArgs = new String[]{bean.getForscreen_id()};
+                                    selection = DBHelper.MediaDBInfo.FieldName.FORSCREEN_ID + "=? ";
+                                    selectionArgs = new String[]{bean.getForscreen_id()};
                                     DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.PROJECTION_LOG,selection,selectionArgs);
                                     continue;
                                 }
@@ -1275,10 +1277,9 @@ public class AppUtils {
             @Override
             public void onSuccess(AppApi.Action method, Object obj) {
                 if (obj instanceof String){
+
                     String forscreenId = (String)obj;
-                    String selection = DBHelper.MediaDBInfo.FieldName.FORSCREEN_ID + "=? ";
-                    String[] selectionArgs = new String[]{forscreenId};
-                    DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.PROJECTION_LOG,selection,selectionArgs);
+                    DBHelper.get(context).uploadProjectionLog(forscreenId,"1");
                 }
             }
 

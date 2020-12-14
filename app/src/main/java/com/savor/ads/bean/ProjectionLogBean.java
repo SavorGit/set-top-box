@@ -17,6 +17,11 @@ public class ProjectionLogBean implements Serializable {
     private String resource_size;
     private String resource_type;
     private String media_path;
+    private String media_screenshot_path;
+    //0：未上传，1：已上传
+    private String upload;
+    //0：一投，1：重投
+    private String repeat;
     private String small_app_id;
     private String create_time;
 
@@ -122,6 +127,30 @@ public class ProjectionLogBean implements Serializable {
 
     public void setMedia_path(String media_path) {
         this.media_path = media_path;
+    }
+
+    public String getMedia_screenshot_path() {
+        return media_screenshot_path;
+    }
+
+    public void setMedia_screenshot_path(String media_screenshot_path) {
+        this.media_screenshot_path = media_screenshot_path;
+    }
+
+    public String getUpload() {
+        return upload;
+    }
+
+    public void setUpload(String upload) {
+        this.upload = upload;
+    }
+
+    public String getRepeat() {
+        return repeat;
+    }
+
+    public void setRepeat(String repeat) {
+        this.repeat = repeat;
     }
 
     public String getSmall_app_id() {

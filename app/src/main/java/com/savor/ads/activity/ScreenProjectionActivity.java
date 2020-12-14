@@ -193,7 +193,7 @@ public class ScreenProjectionActivity extends BaseActivity{
 
     private ProjectVideoView mSavorVideoView;
     private RelativeLayout mImageArea;
-    private MyImageView mImageView;
+    private ImageView mImageView;
     private MyImageView welcomeView;
     private TextView mProjectionWordsTV;
     private TextView mWelcomeWordsTV;
@@ -709,7 +709,8 @@ public class ScreenProjectionActivity extends BaseActivity{
                     if (mImageView.getDrawable()!=null){
                         GlideImageLoader.loadImageWithDrawable(mContext,mImagePath,mImageView,mImageView.getDrawable());
                     }else{
-                        GlideImageLoader.loadImage(mContext,mImagePath,mImageView);
+                        File file = new File(mImagePath);
+                        GlideImageLoader.loadLocalImage(mContext,file,mImageView);
                     }
                 }
             }

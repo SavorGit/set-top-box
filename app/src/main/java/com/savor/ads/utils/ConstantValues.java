@@ -15,6 +15,8 @@ public class ConstantValues {
     /** 手机端操作响应码*/
     /** 失败*/
     public static final int SERVER_RESPONSE_CODE_FAILED = 10010;
+    /**查詢數據為空*/
+    public static final int SERVER_RESPONSE_CODE_NULL = 10020;
     /**box_mac非本机顶盒mac*/
     public static final int SERVER_RESPONSE_CODE_MAC_ERROR=10011;
     /**他人抢投*/
