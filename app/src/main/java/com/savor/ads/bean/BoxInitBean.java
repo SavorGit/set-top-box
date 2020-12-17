@@ -42,6 +42,8 @@ public class BoxInitBean {
     private int ads_volume;
     /** 投屏音量*/
     private int project_volume;
+    /**夏新电视投屏音量*/
+    private int forscreen_volume;
     /** 点播音量*/
     private int demand_volume;
     /** 电视节目音量*/
@@ -192,6 +194,14 @@ public class BoxInitBean {
 
     public void setProject_volume(int project_volume) {
         this.project_volume = project_volume;
+    }
+
+    public int getForscreen_volume() {
+        return forscreen_volume;
+    }
+
+    public void setForscreen_volume(int forscreen_volume) {
+        this.forscreen_volume = forscreen_volume;
     }
 
     public int getDemand_volume() {

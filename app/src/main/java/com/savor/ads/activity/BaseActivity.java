@@ -493,8 +493,8 @@ public abstract class BaseActivity extends Activity implements InputBoiteIdDialo
     protected void setVolume(int volume) {
         if (AppUtils.isMstar()) {
             if (mAudioSkin != null) {
-                if (volume > 100)
-                    volume = 100;
+                if (volume > 200)
+                    volume = 200;
                 else if (volume < 0)
                     volume = 0;
                 mAudioSkin.setVolume(volume);
@@ -504,8 +504,8 @@ public abstract class BaseActivity extends Activity implements InputBoiteIdDialo
             if (audioManager != null) {
                 LogUtils.d("System volume:" + audioManager.getStreamMaxVolume(AudioManager.STREAM_SYSTEM));
                 int maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_SYSTEM);
-                if (volume > 100)
-                    volume = 100;
+                if (volume > 200)
+                    volume = 200;
                 else if (volume < 0)
                     volume = 0;
                 audioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, volume * maxVolume / 100, 0);

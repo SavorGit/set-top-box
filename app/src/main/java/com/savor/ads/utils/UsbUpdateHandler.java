@@ -273,7 +273,7 @@ public class UsbUpdateHandler {
                                     mSession.setProjectVolume(boxBean.getProject_volume());
                                 }
                                 if (boxBean.getDemand_volume() > 0) {
-                                    mSession.setVodVolume(boxBean.getDemand_volume());
+                                    mSession.setXiaxinVolume(boxBean.getDemand_volume());
                                 }
                                 if (boxBean.getTv_volume() > 0) {
                                     mSession.setTvVolume(boxBean.getTv_volume());

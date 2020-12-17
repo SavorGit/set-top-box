@@ -209,6 +209,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 8:图片旋转角度
          * 9:手机小程序呼出大码
          * 10:发现，热播，喜欢，公开的多图投屏，通过一个完整json传递all data
+         * 13:商城商品视频点播
          * 101：发起游戏
          * 102:开始游戏
          * 103:加入游戏
@@ -335,6 +336,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             break;
                         case 10:
                             projectionListImg(miniProgramProjection);
+                            break;
+                        case 13:
+                            onDemandGoodsVideo(miniProgramProjection);
                             break;
                         case 31:
                             if (jsonObject.has("change_type")){
@@ -1301,6 +1305,43 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         postProjectionResourceLog(params);
     }
 
+
+    private void onDemandGoodsVideo(MiniProgramProjection miniProgramProjection){
+        forscreen_id = miniProgramProjection.getForscreen_id();
+        updateProjectionState(forscreen_id);
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("box_mac", session.getEthernetMac());
+        params.put("forscreen_id", forscreen_id);
+        params.put("req_id",miniProgramProjection.getReq_id());
+        params.put("openid",openid);
+        params.put("is_break",projectionIdMap.get(forscreen_id));
+        String goods_id = miniProgramProjection.getGoods_id();
+        String url = BuildConfig.OSS_ENDPOINT+miniProgramProjection.getUrl();
+        String qrcode_url = miniProgramProjection.getCodeUrl();
+        String selection = DBHelper.MediaDBInfo.FieldName.GOODS_ID + "=? ";
+        String[] selectionArgs = new String[]{goods_id};
+        List<MediaLibBean> list = DBHelper.get(context).findShopGoodsAdsByWhere(selection,selectionArgs);
+        String basePath = AppUtils.getFilePath(AppUtils.StorageFile.goods_ads);
+        boolean isExit = false;
+        String mediaPath = null;
+        String qrcodePath = null;
+        if (list!=null&&list.size()>0){
+            MediaLibBean bean = list.get(0);
+            mediaPath = bean.getMediaPath();
+            File file = new File(mediaPath);
+            if (file.exists()){
+                isExit = true;
+            }
+        }
+        if (isExit){
+            params.put("is_exist","1");
+            ProjectOperationListener.getInstance(context).showVideo(mediaPath,"", true,currentAction);
+        }else{
+            params.put("is_exist","0");
+            ProjectOperationListener.getInstance(context).showVideo("",url, true,currentAction);
+        }
+        ((SavorApplication) getApplication()).showGoodsQrCodeWindow(qrcode_url,"");
+    }
     /**
      *通过小程序呼出展示大码的视频
      */

@@ -61,7 +61,7 @@ public class BoxInfoDialog extends Dialog {
     private TextView mVolumeTv;
 
     private TextView mProjectVolumeTv;
-    private TextView mVodVolumeTv;
+    private TextView mXiaxinVolumeTv;
     private TextView mTvVolumeTv;
 
     public BoxInfoDialog(Context context) {
@@ -100,7 +100,7 @@ public class BoxInfoDialog extends Dialog {
         mServerIpTv = findViewById(R.id.tv_server_ip);
         mLastPowerOnTimeTv = findViewById(R.id.tv_last_power_on_time);
         mProjectVolumeTv = findViewById(R.id.tv_project_volume);
-        mVodVolumeTv = findViewById(R.id.tv_vod_volume);
+        mXiaxinVolumeTv = findViewById(R.id.tv_vod_volume);
         mTvVolumeTv = findViewById(R.id.tv_tv_volume);
         mBoxNameTv = findViewById(R.id.tv_box_name);
         mAdsDownloadPeriodTv = findViewById(R.id.tv_ads_download_period);
@@ -209,7 +209,7 @@ public class BoxInfoDialog extends Dialog {
             mLastPowerOnTimeTv.setText(TextUtils.isEmpty(session.getLastStartTime()) ? "初次开机" : session.getLastStartTime());
             mVolumeTv.setText(String.valueOf(session.getVolume()));
             mProjectVolumeTv.setText(String.valueOf(session.getProjectVolume()));
-            mVodVolumeTv.setText(String.valueOf(session.getVodVolume()));
+            mXiaxinVolumeTv.setText(String.valueOf(session.getXiaxinVolume()));
             mTvVolumeTv.setText(String.valueOf(session.getTvVolume()));
         }catch (Exception e){
             e.printStackTrace();

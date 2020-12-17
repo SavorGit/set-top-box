@@ -360,7 +360,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         // 应后端统计要求，只要某个音量改变，就产生4条音量的记录
         if (!isProduceLog || boiteBean.getAds_volume() != session.getVolume() ||
                 boiteBean.getProject_volume() != session.getProjectVolume() ||
-                boiteBean.getDemand_volume() != session.getVodVolume() ||
+                boiteBean.getDemand_volume() != session.getXiaxinVolume() ||
                 boiteBean.getTv_volume() != session.getTvVolume()) {
             String volumeUUID = String.valueOf(System.currentTimeMillis());
             //生产电视播放音量日志
@@ -420,7 +420,10 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 session.setProjectVolume(boiteBean.getProject_volume());
             }
             if (boiteBean.getDemand_volume() > 0) {
-                session.setVodVolume(boiteBean.getDemand_volume());
+                session.setXiaxinVolume(boiteBean.getDemand_volume());
+            }
+            if (boiteBean.getForscreen_volume()>0){
+                session.setXxProjectionVolume(boiteBean.getForscreen_volume());
             }
             if (boiteBean.getTv_volume() > 0) {
                 session.setTvVolume(boiteBean.getTv_volume());

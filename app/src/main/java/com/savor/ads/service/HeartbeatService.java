@@ -724,11 +724,10 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                 break;
             case CP_POST_FORSCREEN_GETCONFIG_JSON:
                 LogUtils.d("HeartbeatService doInitConfig初始化接口异常，重新请求");
-                doInitConfig();
+
                 break;
             case CP_GET_NETTY_BALANCING_FORM:
                 LogUtils.d("HeartbeatService getNettyBalancingInfo获取netty地址接口异常，重新请求");
-                getNettyBalancingInfo();
                 break;
         }
     }
@@ -754,11 +753,9 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                 break;
             case CP_POST_FORSCREEN_GETCONFIG_JSON:
                 LogUtils.d("HeartbeatService doInitConfig初始化接口异常，重新请求");
-                doInitConfig();
                 break;
             case CP_GET_NETTY_BALANCING_FORM:
                 LogUtils.d("HeartbeatService getNettyBalancingInfo获取netty地址接口异常，重新请求");
-                getNettyBalancingInfo();
                 break;
         }
     }

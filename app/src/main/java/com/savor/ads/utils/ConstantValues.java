@@ -124,11 +124,11 @@ public class ConstantValues {
     /** 默认电视切换时间*/
     public static final int DEFAULT_SWITCH_TIME = 999;
     /** 默认轮播音量*/
-    public static final int DEFAULT_ADS_VOLUME = 60;
+    public static final int DEFAULT_ADS_VOLUME = 20;
     /** 默认投屏音量*/
     public static final int DEFAULT_PROJECT_VOLUME = 100;
-    /** 默认点播音量*/
-    public static final int DEFAULT_VOD_VOLUME = 90;
+    /** 夏新默认音量*/
+    public static final int DEFAULT_XIAXIN_VOLUME = 20;
     /** 默认电视音量*/
     public static final int DEFAULT_TV_VOLUME = 100;
     /**节目单-节目*/

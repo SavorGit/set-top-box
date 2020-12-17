@@ -381,7 +381,7 @@ public class ScreenProjectionActivity extends BaseActivity{
     private void initVolume() {
         if (!mHasInitializedVolume) {
             if (AppUtils.isSVT()) {
-                mCurrentVolume = mSession.getVodVolume();
+                mCurrentVolume = mSession.getXxProjectionVolume();
             } else {
                 mCurrentVolume = mSession.getProjectVolume();
             }
@@ -1173,8 +1173,8 @@ public class ScreenProjectionActivity extends BaseActivity{
             case 4:
                 // 音量加
                 mCurrentVolume += 5;
-                if (mCurrentVolume > 100) {
-                    mCurrentVolume = 100;
+                if (mCurrentVolume > 200) {
+                    mCurrentVolume = 200;
                 }
                 setVolume(mCurrentVolume);
 

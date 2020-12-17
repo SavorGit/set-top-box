@@ -78,8 +78,10 @@ public class Session {
     private int volume;
     /** 投屏音量 */
     private int projectVolume;
-    /** 点播音量 */
-    private int vodVolume;
+    /** 夏新轮播音量 */
+    private int xiaxinVolume;
+    /** 夏新投屏音量 */
+    private int xxProjectionVolume;
     /** 电视节目音量 */
     private int tvVolume;
     //酒楼名称
@@ -268,7 +270,8 @@ public class Session {
         getApplicationInfo();
         volume = mPreference.loadIntKey(P_APP_VOLUME, ConstantValues.DEFAULT_ADS_VOLUME);
         projectVolume = mPreference.loadIntKey(P_APP_PROJECT_VOLUME, ConstantValues.DEFAULT_PROJECT_VOLUME);
-        vodVolume = mPreference.loadIntKey(P_APP_VOD_VOLUME, ConstantValues.DEFAULT_VOD_VOLUME);
+        xiaxinVolume = mPreference.loadIntKey(P_APP_XIAXIN_VOLUME, ConstantValues.DEFAULT_XIAXIN_VOLUME);
+        xxProjectionVolume = mPreference.loadIntKey(P_APP_XX_PROJECTION_VOLUME, ConstantValues.DEFAULT_XIAXIN_VOLUME);
         tvVolume = mPreference.loadIntKey(P_APP_TV_VOLUME, ConstantValues.DEFAULT_TV_VOLUME);
         boiteName = mPreference.loadStringKey(P_APP_BOITENAME, null);
         boiteId = mPreference.loadStringKey(P_APP_BOITEID, null);
@@ -429,7 +432,8 @@ public class Session {
             mPreference.saveStringKey(key, (String) updateItem.second);
         } else if (P_APP_VOLUME.equals(key) ||
                 P_APP_PROJECT_VOLUME.equals(key) ||
-                P_APP_VOD_VOLUME.equals(key) ||
+                P_APP_XIAXIN_VOLUME.equals(key) ||
+                P_APP_XX_PROJECTION_VOLUME.equals(key) ||
                 P_APP_TV_VOLUME.equals(key) ||
                 P_APP_TV_DEFAULT_CHANNEL.equals(key) ||
                 P_APP_TV_CURRENT_INPUT.equals(key) ||
@@ -733,14 +737,24 @@ public class Session {
         this.projectVolume = volume;
         writePreference(new Pair<>(P_APP_PROJECT_VOLUME, volume));
     }
-    public int getVodVolume() {
-        return vodVolume;
+    public int getXiaxinVolume() {
+        return xiaxinVolume;
     }
 
-    public void setVodVolume(int volume) {
-        this.vodVolume = volume;
-        writePreference(new Pair<>(P_APP_VOD_VOLUME, volume));
+    public void setXiaxinVolume(int xiaxinVolume) {
+        this.xiaxinVolume = xiaxinVolume;
+        writePreference(new Pair<>(P_APP_XIAXIN_VOLUME, xiaxinVolume));
     }
+
+    public int getXxProjectionVolume() {
+        return xxProjectionVolume;
+    }
+
+    public void setXxProjectionVolume(int xxProjectionVolume) {
+        this.xxProjectionVolume = xxProjectionVolume;
+        writePreference(new Pair<>(P_APP_XX_PROJECTION_VOLUME, xxProjectionVolume));
+    }
+
     public int getTvVolume() {
         return tvVolume;
     }
@@ -1318,8 +1332,10 @@ public class Session {
     public static final String P_APP_VOLUME = "com.savor.ads.volume";
     //投屏播放声音
     public static final String P_APP_PROJECT_VOLUME = "com.savor.ads.project_volume";
-    //点播播放声音
-    public static final String P_APP_VOD_VOLUME = "com.savor.ads.vod_volume";
+    //夏新电视播放声音
+    public static final String P_APP_XIAXIN_VOLUME = "com.savor.ads.vod_volume";
+    //夏新电视投屏声音
+    public static final String P_APP_XX_PROJECTION_VOLUME = "com.savor.ads.xxprojection_volume";
     //电视节目播放声音
     public static final String P_APP_TV_VOLUME = "com.savor.ads.tv_volume";
     //酒楼名称

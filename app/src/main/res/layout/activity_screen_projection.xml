@@ -270,7 +270,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:indeterminate="false"
-                android:max="100"
+                android:max="200"
                 android:progress="50"/>
         </LinearLayout>
     </RelativeLayout>

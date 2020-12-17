@@ -48,7 +48,7 @@ public class MiniProgramProjection implements Serializable{
     private String font_path;
     /**投视频ID**/
     private String video_id;
-
+    private String goods_id;
     /**微信头像*/
 //    private String avatarUrl;
     private String headPic;
@@ -204,6 +204,14 @@ public class MiniProgramProjection implements Serializable{
 
     public void setVideo_id(String video_id) {
         this.video_id = video_id;
+    }
+
+    public String getGoods_id() {
+        return goods_id;
+    }
+
+    public void setGoods_id(String goods_id) {
+        this.goods_id = goods_id;
     }
 
     public String getHeadPic() {

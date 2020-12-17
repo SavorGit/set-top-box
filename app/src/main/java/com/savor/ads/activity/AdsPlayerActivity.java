@@ -693,23 +693,13 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         LogFileUtil.write("AdsPlayerActivity onResume " + this.hashCode());
         Log.d("StackTrack", "AdsPlayerActivity::onResume");
         mActivityResumeTime = System.currentTimeMillis();
-        if (!GlobalValues.mIsGoneToTv) {
-            if (AppUtils.isSVT()){
-                if (mAudioManager != null) {
-                    mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mSession.getVodVolume(), 0);
-                }
-            }else {
-                setVolume(mSession.getVolume());
-            }
-        } else {
+        if (AppUtils.isSVT()){
+            setVolume(mSession.getXiaxinVolume());
+        }else {
+            setVolume(mSession.getVolume());
+        }
+        if (GlobalValues.mIsGoneToTv) {
             GlobalValues.IS_BOX_BUSY = true;
-            if (AppUtils.isSVT()){
-                if (mAudioManager != null) {
-                    mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mSession.getVodVolume(), 0);
-                }
-            }else {
-                setVolume(mSession.getVolume());
-            }
             mSavorVideoView.onResume();
             GlobalValues.mIsGoneToTv = false;
             GlobalValues.IS_BOX_BUSY = false;
