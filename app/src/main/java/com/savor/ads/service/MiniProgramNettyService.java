@@ -1324,7 +1324,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         String basePath = AppUtils.getFilePath(AppUtils.StorageFile.goods_ads);
         boolean isExit = false;
         String mediaPath = null;
-        String qrcodePath = null;
         if (list!=null&&list.size()>0){
             MediaLibBean bean = list.get(0);
             mediaPath = bean.getMediaPath();
