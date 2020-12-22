@@ -81,7 +81,6 @@ public class BoxInfoDialog extends Dialog {
         mRomVersionTv = findViewById(R.id.tv_rom_version);
         mAppVersionTv = findViewById(R.id.tv_app_version);
         mSystemTimeTv = findViewById(R.id.tv_sys_time);
-        mVolumeTv = findViewById(R.id.tv_volume);
         mTvSwitchTimeTv = findViewById(R.id.tv_switch_tv_time);
         mRoomNameTv = findViewById(R.id.tv_room_name);
         mEthernetIpTv = findViewById(R.id.tv_eth_ip);
@@ -99,9 +98,11 @@ public class BoxInfoDialog extends Dialog {
         mLoadingPeriodTv = findViewById(R.id.tv_loading_version);
         mServerIpTv = findViewById(R.id.tv_server_ip);
         mLastPowerOnTimeTv = findViewById(R.id.tv_last_power_on_time);
+        mVolumeTv = findViewById(R.id.tv_volume);
         mProjectVolumeTv = findViewById(R.id.tv_project_volume);
-        mXiaxinVolumeTv = findViewById(R.id.tv_vod_volume);
         mTvVolumeTv = findViewById(R.id.tv_tv_volume);
+        //保存字段
+        mXiaxinVolumeTv = findViewById(R.id.tv_vod_volume);
         mBoxNameTv = findViewById(R.id.tv_box_name);
         mAdsDownloadPeriodTv = findViewById(R.id.tv_ads_download_period);
         mAdvDownloadPeriodTv = findViewById(R.id.tv_adv_download_period);
@@ -207,10 +208,16 @@ public class BoxInfoDialog extends Dialog {
                 mServerIpTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
             }
             mLastPowerOnTimeTv.setText(TextUtils.isEmpty(session.getLastStartTime()) ? "初次开机" : session.getLastStartTime());
-            mVolumeTv.setText(String.valueOf(session.getVolume()));
-            mProjectVolumeTv.setText(String.valueOf(session.getProjectVolume()));
-            mXiaxinVolumeTv.setText(String.valueOf(session.getXiaxinVolume()));
-            mTvVolumeTv.setText(String.valueOf(session.getTvVolume()));
+            if (AppUtils.isSVT()){
+                mVolumeTv.setText(String.valueOf(session.getXiaxinVolume()));
+                mProjectVolumeTv.setText(String.valueOf(session.getXxProjectionVolume()));
+                mTvVolumeTv.setText(String.valueOf(session.getXiaxinVolume()));
+            }else {
+                mVolumeTv.setText(String.valueOf(session.getVolume()));
+                mProjectVolumeTv.setText(String.valueOf(session.getProjectVolume()));
+                mTvVolumeTv.setText(String.valueOf(session.getTvVolume()));
+            }
+
         }catch (Exception e){
             e.printStackTrace();
         }

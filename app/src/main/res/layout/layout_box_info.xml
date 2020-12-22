@@ -510,7 +510,7 @@
 
                     <TextView
                         style="@style/box_info_item_label"
-                        android:text="夏新音量"
+                        android:text="保留字段"
                         />
 
                     <TextView
