@@ -747,7 +747,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                     }else if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())) {
                         ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_NEW_TYPE);
                     } else {
-                        ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE);
+                        ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_OFFICIAL_TYPE);
                     }
                 }else{
                     if (ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())){
@@ -773,7 +773,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                     }else if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())) {
                         ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_NEW_TYPE);
                     }else {
-                        ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE);
+                        ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_OFFICIAL_TYPE);
                     }
                 }else {
                     if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())
@@ -1070,7 +1070,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                             }else if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())) {
                                 ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_NEW_TYPE);
                             } else {
-                                ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE);
+                                ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_OFFICIAL_TYPE);
                             }
                         }else{
                             if (ConstantValues.QRCODE_CALL_VIDEO_ID.equals(libBean.getVid())){
@@ -1096,7 +1096,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                             }else if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())) {
                                 ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_NEW_TYPE);
                             }else {
-                                ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE);
+                                ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_OFFICIAL_TYPE);
                             }
                         }else {
                             if (ConstantValues.QRCODE_PRO_VIDEO_ID.equals(libBean.getVid())

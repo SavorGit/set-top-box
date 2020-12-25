@@ -148,6 +148,7 @@ public class AppApi {
         SP_GET_QR_SIMPLE_NEW_JSON,
         SP_GET_QR_SIMPLE_CALL_JSON,
         SP_GET_QR_EXTENSION_JSON,
+        SP_GET_QR_OFFICIAL_JSON,
         CP_GET_NETTY_BALANCING_FORM,
         CP_POST_LOGOUT_GAME_H5_JSON,
         CP_GET_BOX_TPMEDIAS_JSON,
@@ -559,6 +560,18 @@ public class AppApi {
     public static void downloadQRCodeExtensionImg(String url,Context context, ApiRequestListener handler,String filePath){
         final HashMap<String, Object> params = new HashMap<>();
         new AppServiceOk(context, Action.SP_GET_QR_EXTENSION_JSON, handler, params).downLoad(url, filePath);
+    }
+
+    /**
+     * 获取跳转公众号的码
+     * @param url
+     * @param context
+     * @param handler
+     * @param filePath
+     */
+    public static void downloadQRCodeOfficialImg(String url,Context context, ApiRequestListener handler,String filePath){
+        final HashMap<String, Object> params = new HashMap<>();
+        new AppServiceOk(context, Action.SP_GET_QR_OFFICIAL_JSON, handler, params).downLoad(url, filePath);
     }
 
     /**

@@ -35,6 +35,7 @@ import com.savor.ads.bean.ContentInfo;
 import com.savor.ads.bean.MediaItemBean;
 import com.savor.ads.bean.MediaLibBean;
 import com.savor.ads.bean.MiniProgramProjection;
+import com.savor.ads.bean.ProjectionGuideImg;
 import com.savor.ads.bean.ProjectionImg;
 import com.savor.ads.bean.ProjectionLogBean;
 import com.savor.ads.bean.ProjectionLogHistory;
@@ -428,6 +429,14 @@ public class RemoteService extends Service {
             if (TextUtils.isEmpty(GlobalValues.CURRRNT_PROJECT_ID)
                     ||!GlobalValues.CURRRNT_PROJECT_ID.equals(forscreen_id)){
                 clearProjectionMark(forscreen_id);
+                //記錄投屏次數
+                if (GlobalValues.VIDEO_NUM.containsKey(deviceId)){
+                    if (GlobalValues.VIDEO_NUM.get(deviceId)!=-1){
+                        GlobalValues.VIDEO_NUM.put(deviceId,GlobalValues.VIDEO_NUM.get(deviceId)+1);
+                    }
+                }else{
+                    GlobalValues.VIDEO_NUM.put(deviceId,1);
+                }
                 res_sup_time = String.valueOf(System.currentTimeMillis());
                 handler.post(new Runnable() {
                     @Override
@@ -652,6 +661,14 @@ public class RemoteService extends Service {
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
                 String outPath = path + filename + ".mp4";
                 if (TextUtils.isEmpty(index)){
+                    //記錄投屏次數
+                    if (GlobalValues.VIDEO_NUM.containsKey(deviceId)){
+                        if (GlobalValues.VIDEO_NUM.get(deviceId)!=-1){
+                            GlobalValues.VIDEO_NUM.put(deviceId,GlobalValues.VIDEO_NUM.get(deviceId)+1);
+                        }
+                    }else{
+                        GlobalValues.VIDEO_NUM.put(deviceId,1);
+                    }
                     VideoWriter writer = new VideoWriter(context,forscreen_id,queue,outPath);
                     writer.setUserInfo(avatarUrl,nickName);
                     writer.setToPlayListener(new ToPlayInterface() {
@@ -811,7 +828,13 @@ public class RemoteService extends Service {
             if (TextUtils.isEmpty(GlobalValues.CURRRNT_PROJECT_ID)
                     ||!GlobalValues.CURRRNT_PROJECT_ID.equals(forscreen_id)){
                 clearProjectionMark(forscreen_id);
-
+                if (GlobalValues.IMG_NUM.containsKey(deviceId)){
+                    if (GlobalValues.IMG_NUM.get(deviceId)!=-1){
+                        GlobalValues.IMG_NUM.put(deviceId,GlobalValues.IMG_NUM.get(deviceId)+1);
+                    }
+                }else{
+                    GlobalValues.IMG_NUM.put(deviceId,1);
+                }
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -860,11 +883,11 @@ public class RemoteService extends Service {
                 handler.post(()->projectionImgListDialog.setContent(GlobalValues.PROJECT_STREAM_IMAGE_NUMS,TYPE_IMG));
 
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-                String fileName = filename+".jpg";
-                File file = new File(path+fileName);
+//                String fileName = filename+".jpg";小程序自主把文件名補全，modify20201225
+                File file = new File(path+filename);
                 int start = 0;
                 boolean isDownload = false;
-                LogUtils.d(TAG+":"+"极简下载:fileName="+fileName+"开始下载");
+                LogUtils.d(TAG+":"+"极简下载:fileName="+filename+"开始下载");
                 if (file.exists()){
                     repeat = true;
                     isDownload = true;
@@ -912,7 +935,7 @@ public class RemoteService extends Service {
                 if (isDownload) {
                     String endTime = String.valueOf(System.currentTimeMillis());
                     String media_path = file.getAbsolutePath();
-                    LogUtils.d(TAG+":"+"极简下载:fileName="+fileName+"结束下载");
+                    LogUtils.d(TAG+":"+"极简下载:fileName="+filename+"结束下载");
                     GlobalValues.PROJECT_STREAM_IMAGE.add(media_path);
 
                     postSimpleMiniProgramProjectionLog(action,startTimee,endTime,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE,repeat);
@@ -1077,6 +1100,13 @@ public class RemoteService extends Service {
                     ||!GlobalValues.CURRRNT_PROJECT_ID.equals(forscreen_id)){
                 clearProjectionMark(forscreen_id);
                 closeProjectionDialog();
+                if (GlobalValues.IMG_NUM.containsKey(deviceId)){
+                    if (GlobalValues.IMG_NUM.get(deviceId)!=-1){
+                        GlobalValues.IMG_NUM.put(deviceId,GlobalValues.IMG_NUM.get(deviceId)+1);
+                    }
+                }else{
+                    GlobalValues.IMG_NUM.put(deviceId,1);
+                }
             }
             if (request.getContentType().contains("multipart/form-data;")) {
                 resJson = downloadSingleImageProjection(request,deviceId, deviceName,projectionFrom);
@@ -1107,11 +1137,11 @@ public class RemoteService extends Service {
                 list.add(minipp);
 
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-                String fileName = filename+".jpg";
-                File file = new File(path+fileName);
+//                String fileName = filename+".jpg";小程序自主把文件名補全，modify20201225
+                File file = new File(path+filename);
                 int start = 0;
                 boolean isDownload = false;
-                LogUtils.d(TAG+":"+"极简下载:fileName="+fileName+"开始下载");
+                LogUtils.d(TAG+":"+"极简下载:fileName="+filename+"开始下载");
                 if (file.exists()){
                     repeat = true;
                     isDownload = true;
@@ -1158,8 +1188,8 @@ public class RemoteService extends Service {
 
                 if (isDownload) {
                     String endTime = String.valueOf(System.currentTimeMillis());
-                    String media_path = path+fileName;
-                    LogUtils.d(TAG+":"+"极简下载:fileName="+fileName+"结束下载");
+                    String media_path = path+filename;
+                    LogUtils.d(TAG+":"+"极简下载:fileName="+filename+"结束下载");
                     postSimpleMiniProgramProjectionLog(action,startTimee,endTime,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,projectionFrom,repeat);
                     GlobalValues.PROJECT_STREAM_IMAGE.add(media_path);
                     object = new BaseResponse();
@@ -1952,6 +1982,40 @@ public class RemoteService extends Service {
         };
 
         public void startRemoteProjecion(int currentAction,String fid){
+            try {
+                if (GlobalValues.INTERACTION_ADS_PLAY==0){
+                    Session session = Session.get(context);
+                    ProjectionGuideImg guideImg = session.getGuideImg();
+                    int delayTime = guideImg.getShow_time();
+                    int isShow = guideImg.getIs_show();
+                    int forscreenNum = guideImg.getForscreen_num();
+                    if (guideImg!=null&&isShow==1){
+                        if (!TextUtils.isEmpty(deviceId)
+                                &&GlobalValues.IMG_NUM.containsKey(deviceId)
+                                &&GlobalValues.IMG_NUM.get(deviceId)>=forscreenNum){
+                            String videoName = guideImg.getVideo_filename();
+                            String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+videoName;
+                            if (new File(filePath).exists()){
+                                ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                                GlobalValues.IMG_NUM.put(deviceId,-1);
+                                return;
+                            }
+                        }else if (!TextUtils.isEmpty(deviceId)
+                                &&GlobalValues.VIDEO_NUM.containsKey(deviceId)
+                                &&GlobalValues.VIDEO_NUM.get(deviceId)>=forscreenNum){
+                            String imageName = guideImg.getImage_filename();
+                            String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+imageName;
+                            if (new File(filePath).exists()){
+                                ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                                GlobalValues.VIDEO_NUM.put(deviceId,-1);
+                                return;
+                            }
+                        }
+                    }
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
             switch (currentAction){
                 case 2:
                 case 5:

@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.savor.ads.BuildConfig;
 import com.savor.ads.SavorApplication;
@@ -23,8 +24,10 @@ import com.savor.ads.bean.NettyBalancingResult;
 import com.savor.ads.bean.PlaylistDetailRequestBean;
 import com.savor.ads.bean.ProgramBean;
 import com.savor.ads.bean.ProgramBeanResult;
+import com.savor.ads.bean.ProjectionGuideImg;
 import com.savor.ads.bean.ServerInfo;
 import com.savor.ads.bean.SetBoxTopResult;
+import com.savor.ads.bean.UpgradeInfo;
 import com.savor.ads.core.ApiRequestListener;
 import com.savor.ads.core.AppApi;
 import com.savor.ads.core.Session;
@@ -585,6 +588,8 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                         int qrcode_takttime = jsonObject.getInt("qrcode_takttime");
                         session.setQrcode_takttime(qrcode_takttime);
 
+                        String guide = jsonObject.getString("forscreen_help_images");
+                        handleProjectionGuideImg(guide);
                     }catch (Exception e){
                         e.printStackTrace();
                     }
@@ -634,6 +639,36 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                 break;
         }
     }
+
+    private void handleProjectionGuideImg(String guide){
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        ProjectionGuideImg guideImg = gson.fromJson(guide, new TypeToken<ProjectionGuideImg>() {}.getType());
+        String basePath = AppUtils.getFilePath(AppUtils.StorageFile.cache);
+        /******************************************/
+        String image_url = guideImg.getImage_url();
+        String imgName = guideImg.getImage_filename();
+        if (!new File(basePath+imgName).exists()){
+            new Thread(() -> new ProgressDownloader(context,image_url,basePath, imgName).downloadByRange()).start();
+        }
+        String video_url = guideImg.getVideo_url();
+        String videoName = guideImg.getVideo_filename();
+        if (!new File(basePath+videoName).exists()){
+            new Thread(() -> new ProgressDownloader(context,video_url,basePath, videoName).downloadByRange()).start();
+        }
+        String file_url = guideImg.getFile_url();
+        String fileName = guideImg.getFile_filename();
+        if (!new File(basePath+fileName).exists()){
+            new Thread(() -> new ProgressDownloader(context,file_url,basePath, fileName).downloadByRange()).start();
+        }
+        String forscreen_url = guideImg.getForscreen_box_url();
+        String forscreenUrlName = guideImg.getForscreen_box_filename();
+        if (!new File(basePath+forscreenUrlName).exists()){
+            new Thread(() -> new ProgressDownloader(context,forscreen_url,basePath, forscreenUrlName).downloadByRange()).start();
+        }
+        session.setGuideImg(guideImg);
+    }
+
 
     public void startMiniProgramNettyService(){
         LogFileUtil.write("测试netty启动 startMiniProgramNettyService");

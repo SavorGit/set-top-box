@@ -886,7 +886,7 @@ public class ScreenProjectionActivity extends BaseActivity{
 
         if (mSession.getQrcodeType()==2){
             if (AppUtils.isNetworkAvailable(mContext) && mSession.isHeartbeatMiniNetty()) {
-                ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE);
+                ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_OFFICIAL_TYPE);
                 LogUtils.v("MiniProgramNettyService showMiniProgramQrCodeWindow");
             } else {
                 ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE);
@@ -1213,17 +1213,17 @@ public class ScreenProjectionActivity extends BaseActivity{
 
         if (scheduleNewOne) {
             int duration = PROJECT_DURATION;
-            if (2 == mImageType) {
+            if (1==mImageType||5==mImageType||6==mImageType){
+                if (!TextUtils.isEmpty(delayTime)){
+                    duration = Integer.valueOf(delayTime)*1000;
+                }
+            }else if (2 == mImageType) {
                 duration = PROJECT_DURATION_FILE;
             }else if (4==mImageType||ConstantValues.PROJECT_TYPE_VIDEO_REST.equals(mProjectType)){
                 if (projectionTime!=0){
                     duration = projectionTime;
                 }else{
                     duration = REST_PROJECT_DURATION;
-                }
-            }else if (5==mImageType||6==mImageType){
-                if (!TextUtils.isEmpty(delayTime)){
-                    duration = Integer.valueOf(delayTime)*1000;
                 }
             }else if (7==mImageType){
                 if (projectionTime!=0){

@@ -29,6 +29,7 @@ import androidx.core.util.Pair;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import com.savor.ads.bean.ProjectionGuideImg;
 import com.savor.ads.bean.PushRTBItem;
 import com.savor.ads.bean.ServerInfo;
 import com.savor.ads.bean.VersionInfo;
@@ -239,6 +240,9 @@ public class Session {
 	private String tpMedias;
 	/**底部二维码背景*/
 	private String qrcodeGifBgPath;
+    /**是否展示引導嗎*/
+	private ProjectionGuideImg guideImg;
+
     private Session(Context context) {
 
         mContext = context;
@@ -344,6 +348,7 @@ public class Session {
         tpMedias = mPreference.loadStringKey(P_APP_BOX_TPMEDIAS,"");
         qrcodeGifBgPath = mPreference.loadStringKey(P_APP_QRCODE_GIFBG,"");
         qrcodeType = mPreference.loadIntKey(P_APP_BOX_QRCODETYPE,1);
+        guideImg = (ProjectionGuideImg) getObj(P_APP_PROJECTION_GUIDE);
     }
 
     /*
@@ -1328,6 +1333,15 @@ public class Session {
         writePreference(new Pair<>(P_APP_BOX_QRCODETYPE,qrcodeType));
     }
 
+    public ProjectionGuideImg getGuideImg() {
+        return guideImg;
+    }
+
+    public void setGuideImg(ProjectionGuideImg guideImg) {
+        this.guideImg = guideImg;
+        writePreference(new Pair<>(P_APP_PROJECTION_GUIDE,guideImg));
+    }
+
     //轮播播放声音
     public static final String P_APP_VOLUME = "com.savor.ads.volume";
     //投屏播放声音
@@ -1446,6 +1460,7 @@ public class Session {
     public static final String P_APP_QRCODE_SHOW_TIME = "com.savor.ads.qrcode.showtime";
     public static final String P_APP_QRCODE_TAKT_TIME = "com.savor.ads.qrcode.takttime";
     public static final String P_APP_QRCODE_GIFBG = "com.savor.ads.qrcode.gifbg";
+    public static final String P_APP_PROJECTION_GUIDE = "com.savor.ads.projection.guide";
 
     public String getAdsPeriod() {
         return adsPeriod == null ? "" : adsPeriod;

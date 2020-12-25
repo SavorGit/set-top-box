@@ -251,7 +251,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                             //同步获取生日歌相关视频数据
                             getBirthdayOndemandFromCloudPlatform();
                             LogFileUtil.write("HandleMediaDataService will start getInteractionAdsFromCloudPlatform");
-                            //同步获取互动广告媒体数据
+                            //同步获取投屏互动前后广告媒体数据
                             getInteractionAdsFromCloudPlatform();
                             //同步获取活动商品数据（主干版本是优选，销售端是活动商品）
                             getGoodsProgramListFromCloudPlatform();

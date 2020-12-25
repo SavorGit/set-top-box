@@ -70,6 +70,7 @@ public class ProgressDownloader {
         this.url = url;
         this.filePath = filePath;
         this.fileName = fileName;
+        this.standard = false;
         //在下载、暂停后的继续下载中可复用同一个client对象
         client = getProgressClient();
     }

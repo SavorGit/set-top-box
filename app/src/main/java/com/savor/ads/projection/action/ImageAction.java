@@ -35,17 +35,17 @@ public class ImageAction extends ProjectionActionBase implements Serializable {
     private int action;
 
 
-    public ImageAction(Context context, int imageType, int rotation, boolean isThumbnail, String seriesId, boolean isNewDevice,int fromService) {
+    public ImageAction(Context context, int imageType, String imagePath, boolean isThumbnail,String projectionTime,int action,int fromService) {
         super();
 
         mPriority = ProjectPriority.HIGH;
         this.fromService = fromService;
-        mContext = context;
+        this.mContext = context;
         this.imageType = imageType;
-        this.rotation = rotation;
+        this.imagePath = imagePath;
         this.isThumbnail = isThumbnail;
-        this.seriesId = seriesId;
-        this.isNewDevice = isNewDevice;
+        this.delayTime = projectionTime;
+        this.action = action;
     }
 
     public ImageAction(Context context, int imageType, String imagePath,boolean isThumbnail,String forscreenId,String words, String avatarUrl,String nickname,int fromService) {

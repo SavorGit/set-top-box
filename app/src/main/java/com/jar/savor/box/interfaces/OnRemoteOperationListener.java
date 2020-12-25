@@ -24,7 +24,7 @@ public interface OnRemoteOperationListener {
 
     PrepareResponseVoNew showVod(String mediaName, String vodType, int position, boolean isFromWeb, boolean isNewDevice,int fromService);
 
-    PrepareResponseVoNew showImage(int imageType, int rotation, boolean isThumbnail, String seriesId, boolean isNewDevice,int fromService);
+    PrepareResponseVoNew showImage(int imageType, String imagePath, boolean isThumbnail,String delayTime,int action,int fromService);
     PrepareResponseVoNew showImage(int imageType, String imageUrl,boolean isThumbnail,String forscreenId,String words,String avatarUrl,String nickname,int fromService);
     PrepareResponseVoNew showImage(int imageType, String imageUrl,boolean isThumbnail,String forscreenId,String words,String avatarUrl,String nickname,String delayTime,int action,int fromService);
     PrepareResponseVoNew showImage(int imageType, String imageUrl,boolean isThumbnail,String price,int storeSale,String delayTime,int action,int fromService);

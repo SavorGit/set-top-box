@@ -15,6 +15,7 @@ import com.savor.ads.bean.YishouAdLocalBean;
 import com.savor.ads.bean.ZmengAdLocalBean;
 
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by zhanghq on 2017/3/20.
@@ -145,4 +146,13 @@ public class GlobalValues <T extends MediaLibBean> {
     public static String currentDownlaodFileName;
 
     public static long bytesNotWrite=0;
+    /**
+     * 解釋一下判斷邏輯
+     * 如果投圖片三次及以上，就提示視頻引導
+     * 如果投視頻三次及以上，就提示圖片引導
+     * 如果投文件三次及以上，就提示視頻引導
+     */
+    public static ConcurrentHashMap<String,Integer> IMG_NUM= new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String,Integer> VIDEO_NUM= new ConcurrentHashMap<>();;
+    public static ConcurrentHashMap<String,Integer> FILE_NUM= new ConcurrentHashMap<>();;
 }

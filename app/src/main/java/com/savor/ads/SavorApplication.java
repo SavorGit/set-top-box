@@ -73,6 +73,8 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
         goodsQrCodeWindowManager = GoodsQrCodeWindowManager.get(this);
         goodsCountdownQrCodeWindowManager = new GoodsCountdownQrCodeWindowManager(this);
         extensionQrCodeDialog = new ExtensionQrCodeDialog(this);
+        //20191217:从此版本开始，清除小程序码，以后统一全部使用二维码
+        AppUtils.deleteCacheData();
         // 启动投屏类操作处理的Service
 //        startScreenProjectionService();
         registerActivityLifecycle();
@@ -363,6 +365,8 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
             path = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_SQRCODE_BIG_NAME;
         }else if (QRCodeType==21){
             path = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_SQRCODE_CALL_NAME;
+        }else if (QRCodeType==33){
+            path = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_OFFICIAL_NAME;
         }
         String url;
         if (QRCodeType==16

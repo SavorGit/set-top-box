@@ -224,6 +224,7 @@ public class ConstantValues {
      * 29.推广投屏码
      * 30.投屏帮助视频
      * 31.霸王菜活动
+     * 33.跳转公众号
      * **/
 
     public static final int MINI_PROGRAM_QRCODE_SMALL_TYPE = 8;
@@ -237,6 +238,7 @@ public class ConstantValues {
     public static final int MINI_PROGRAM_QRCODE_EXTENSION_TYPE = 29;
     public static final int MINI_PROGRAM_QRCODE_HELP_TYPE = 30;
     public static final int MINI_PROGRAM_QRCODE_PARTAKE_DISH_TYPE = 31;
+    public static final int MINI_PROGRAM_QRCODE_OFFICIAL_TYPE = 33;
 
     /**存储到本地图片的名称**/
     public static final String MINI_PROGRAM_QRCODE_NAME = "get_box_qrcode.jpg";
@@ -247,6 +249,8 @@ public class ConstantValues {
     public static final String MINI_PROGRAM_QRCODE_NEW_TEMP_NAME = "getBoxQrcodeNewTemp.jpg";
     public static final String MINI_PROGRAM_QRCODE_CALL_NAME = "getBoxQrcodeCall.jpg";
     public static final String MINI_PROGRAM_QRCODE_CALL_TEMP_NAME = "getBoxQrcodeCallTemp.jpg";
+    public static final String MINI_PROGRAM_QRCODE_OFFICIAL_NAME = "boxOfficialQrcode.jpg";
+    public static final String MINI_PROGRAM_QRCODE_OFFICIAL_TEMP_NAME = "boxOfficialQrcodeTemp.jpg";
 
     public static final String MINI_PROGRAM_SQRCODE_NAME = "getBoxQrcodeSimple.jpg";
     public static final String MINI_PROGRAM_SQRCODE_TEMP_NAME = "getBoxQrcodeSimpleTemp.jpg";
