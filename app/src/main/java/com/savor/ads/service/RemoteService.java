@@ -362,7 +362,7 @@ public class RemoteService extends Service {
                     break;
                 case "/showMiniProgramCode":
                     currentAction = 17;
-                    resJson = handleShowMiniProgramCode(deviceId);
+                    resJson = handleShowMiniProgramCode(request,deviceId);
                     break;
                 case "/query":
                     currentAction = 18;
@@ -748,7 +748,12 @@ public class RemoteService extends Service {
             params.put("mobile_brand", mobile_brand);
             params.put("mobile_model", mobile_model);
             params.put("openid", openid);
-            params.put("resource_id", resource_id);
+            if (resource_id.contains(".")){
+                String id = resource_id.split("\\.")[0];
+                params.put("resource_id", id);
+            }else{
+                params.put("resource_id", resource_id);
+            }
             params.put("resource_size", resource_size);
             params.put("resource_type", resource_type);
             params.put("serial_number",serial_number);
@@ -1349,15 +1354,16 @@ public class RemoteService extends Service {
             return resJson;
         }
 
-        private String handleShowMiniProgramCode(String deviceId){
+        private String handleShowMiniProgramCode(HttpServletRequest request,String deviceId){
             String resJson;
             if (!TextUtils.isEmpty(deviceId)) {
+                String filename = request.getParameter("filename");
                 GlobalValues.CURRENT_PROJECT_DEVICE_ID = deviceId;
                 GlobalValues.PROJECT_STREAM_IMAGE.clear();
                 GlobalValues.PROJECT_STREAM_FAIL_IMAGE.clear();
                 GlobalValues.PROJECT_STREAM_IMAGE_NUMS.clear();
                 handler.removeCallbacks(new ProjectShowImageRunnable());
-                RemoteService.listener.showMiniProgramCode();
+                RemoteService.listener.showMiniProgramCode(filename,currentAction);
                 BaseResponse vo = new BaseResponse();
 
                 vo.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);

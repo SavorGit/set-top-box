@@ -69,6 +69,7 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
         mappingKeyCode();
         session = Session.get(context);
         session.setHeartbeatMiniNetty(false);
+        GlobalValues.NETTY_FIRST_REGISTER=true;
         miniProgramQrCodeWindowManager = MiniProgramQrCodeWindowManager.get(this);
         goodsQrCodeWindowManager = GoodsQrCodeWindowManager.get(this);
         goodsCountdownQrCodeWindowManager = new GoodsCountdownQrCodeWindowManager(this);

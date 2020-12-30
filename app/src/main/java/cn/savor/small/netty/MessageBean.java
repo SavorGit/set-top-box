@@ -26,6 +26,7 @@ public class MessageBean implements Serializable {
         HEART_SERVER_TO_CLIENT,
         /**客户端心跳包回应*/
         HEART_CLENT_TO_SERVER,
+        HEART_CLIENT_FIRST_REGISTER
     }
 
     private Action cmd = null;

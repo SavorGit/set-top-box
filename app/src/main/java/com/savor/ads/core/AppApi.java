@@ -100,8 +100,6 @@ public class AppApi {
         SP_GET_TV_MATCH_DATA_FROM_JSON,
         SP_GET_TV_MATCH_DATA_FROM_GIEC_JSON,
         SP_GET_UPGRADE_INFO_JSON,
-        SP_GET_LOGO_DOWN,
-        SP_GET_LOADING_IMG_DOWN,
         SP_GET_UPGRADEDOWN,
         CP_GET_HEARTBEAT_PLAIN,
         SP_POST_UPLOAD_PROGRAM_JSON,
@@ -208,7 +206,7 @@ public class AppApi {
             put(Action.AD_POST_YISHOU_JSON,BuildConfig.YISHOU_AD_BASE_URL);
             put(Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON,BuildConfig.BASE_URL+"Smallapp21/index/getBoxQr");
             put(Action.CP_SIMPLE_MINIPROGRAM_DOWNLOAD_QRCODE_JSON,BuildConfig.BASE_URL+"Smallappsimple/index/getBoxQr");
-            put(Action.CP_POST_FORSCREEN_GETCONFIG_JSON,BuildConfig.BASE_URL+"/Box/Forscreen/getConfig");
+            put(Action.CP_POST_FORSCREEN_GETCONFIG_JSON,BuildConfig.BASE_URL+"Box/Forscreen/getConfig");
             put(Action.CP_GET_UPLOAD_LOG_FILE_JSON,BuildConfig.BASE_URL+"box/BoxLog/isUploadLog");
             put(Action.CP_GET_MINIPROGRAM_PROJECTION_RESOURCE_JSON,BuildConfig.BASE_URL+"box/buriedPoint/boxNetLogs");
             put(Action.CP_GET_MINIPROGRAM_PROJECTION_NETTYTIME_JSON,BuildConfig.BASE_URL+"box/buriedPoint/boxReceiveNetty");
@@ -445,16 +443,6 @@ public class AppApi {
         final HashMap<String, Object> params = new HashMap<>();
         params.put("versionCode",versionCode);
         return new AppServiceOk(context, Action.SP_GET_UPGRADE_INFO_JSON, handler, params).syncGet();
-    }
-
-    public static void downloadLOGO(String url,Context context, ApiRequestListener handler,String filePath){
-        final HashMap<String, Object> params = new HashMap<String, Object>();
-        new AppServiceOk(context, Action.SP_GET_LOGO_DOWN, handler, params).downLoad(url, filePath);
-    }
-
-    public static void downloadImg(String url,Context context, ApiRequestListener handler,String filePath){
-        final HashMap<String, Object> params = new HashMap<>();
-        new AppServiceOk(context, Action.SP_GET_LOADING_IMG_DOWN, handler, params).downLoad(url, filePath);
     }
 
     /**

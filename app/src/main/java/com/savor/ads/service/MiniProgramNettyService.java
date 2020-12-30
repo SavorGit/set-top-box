@@ -1371,6 +1371,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private void callBigQrCodeVideo(MiniProgramProjection program){
         String forscreen_id = program.getForscreen_id();
         updateProjectionState(forscreen_id);
+        String filename = program.getFilename();
         long startTime = System.currentTimeMillis();
         HashMap<String, Object> params = new HashMap<>();
         params.put("box_mac", session.getEthernetMac());
@@ -1378,35 +1379,31 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         params.put("req_id",program.getReq_id());
         params.put("openid",openid);
         params.put("resource_id",ConstantValues.QRCODE_CALL_VIDEO_ID);
+        params.put("is_exist","1");
         if (!TextUtils.isEmpty(forscreen_id)){
             params.put("is_break",projectionIdMap.get(forscreen_id));
         }
-        String selection = DBHelper.MediaDBInfo.FieldName.VID + "=? ";
-        String[] selectionArgs = new String[]{ConstantValues.QRCODE_CALL_VIDEO_ID};
-        List<MediaLibBean> listPlayList = DBHelper.get(context).findPlayListByWhere(selection, selectionArgs);
-        if (listPlayList != null && listPlayList.size() > 0) {
-            MediaLibBean bean = listPlayList.get(0);
-            String path = AppUtils.getFilePath(AppUtils.StorageFile.media) + bean.getName();
-            File file = new File(path);
-            if (file.exists()) {
-                params.put("is_exist","1");
-                VodAction vodAction = new VodAction(context, ConstantValues.QRCODE_CALL_VIDEO_ID, path, false, true,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
-                ProjectionManager.getInstance().enqueueAction(vodAction);
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        MiniProgramQrCodeWindowManager.get(context).setCurrentPlayMediaId(ConstantValues.QRCODE_CALL_VIDEO_ID);
-                        if (session.getQrcodeType()==2){
-                            ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE);
-                        }
+        String basePath = AppUtils.getSDCardPath()+AppUtils.Download;
+        String path = basePath+filename;
+        File file = new File(basePath,filename);
+        if (file.exists()) {
 
+            VodAction vodAction = new VodAction(context, ConstantValues.QRCODE_CALL_VIDEO_ID, path, false, true,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+            ProjectionManager.getInstance().enqueueAction(vodAction);
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    MiniProgramQrCodeWindowManager.get(context).setCurrentPlayMediaId(ConstantValues.QRCODE_CALL_VIDEO_ID);
+                    if (session.getQrcodeType()==2){
+                        ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE);
                     }
-                }, 800);
-                long endTime = System.currentTimeMillis();
-                long downloadTime =  endTime- startTime;
-                params.put("used_time",downloadTime);
-                postProjectionResourceLog(params);
-            }
+
+                }
+            }, 800);
+            long endTime = System.currentTimeMillis();
+            long downloadTime =  endTime- startTime;
+            params.put("used_time",downloadTime);
+            postProjectionResourceLog(params);
         }
 
     }

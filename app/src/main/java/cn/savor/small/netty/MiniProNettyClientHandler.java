@@ -20,6 +20,7 @@ import com.savor.ads.core.Session;
 import com.savor.ads.log.LogReportUtil;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
+import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
 
@@ -66,7 +67,12 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
         try{
             // 发送数据给服务端,建立连接
             MessageBean message = new MessageBean();
-            message.setCmd(MessageBean.Action.HEART_CLENT_TO_SERVER);
+            if (GlobalValues.NETTY_FIRST_REGISTER){
+                message.setCmd(MessageBean.Action.HEART_CLIENT_FIRST_REGISTER);
+                GlobalValues.NETTY_FIRST_REGISTER=false;
+            }else {
+                message.setCmd(MessageBean.Action.HEART_CLENT_TO_SERVER);
+            }
             String number = channelId + System.currentTimeMillis();
             message.setSerialnumber(number);
             message.setIp(AppUtils.getLocalIPAddress());

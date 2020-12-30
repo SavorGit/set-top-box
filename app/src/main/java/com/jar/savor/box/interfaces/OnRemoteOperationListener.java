@@ -92,7 +92,7 @@ public interface OnRemoteOperationListener {
     /**
      * 呼出小程序码大码
      */
-    void showMiniProgramCode();
+    void showMiniProgramCode(String fileName,int action);
 
     Object query(String projectId);
 

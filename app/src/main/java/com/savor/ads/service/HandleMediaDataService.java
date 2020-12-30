@@ -506,52 +506,41 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         /**下载启动图*/
         if (!TextUtils.isEmpty(boiteBean.getLogo_url()) && !TextUtils.isEmpty(boiteBean.getLogo_md5()) &&
                 boxInitBean.getLogo_version_list() != null && !boxInitBean.getLogo_version_list().isEmpty()) {
-            String logoBasePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Pictures/";
-            String logoFilePath = Environment.getExternalStorageDirectory().getAbsolutePath()+session.getSplashPath();
-            File logoFile = new File(logoFilePath);
-            String md5 = null;
-            try {
-                if (logoFile.exists()) {
-                    md5 = AppUtils.getMD5(org.apache.commons.io.FileUtils.readFileToByteArray(logoFile));
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (!boiteBean.getLogo_md5().equals(md5)) {
-                logoFile.delete();
-                String[] split = boiteBean.getLogo_url().split("/");
-                String logo_name = split[split.length - 1];
-                logo_md5 = boiteBean.getLogo_md5();
-
+            String logoBasePath = AppUtils.getSDCardPath()+AppUtils.PICTURES;
+            String logoFilePath = session.getSplashPath();
+            logo_md5 = boiteBean.getLogo_md5();
+            String logoUrl = boiteBean.getLogo_url();
+            String[] split = logoUrl.split("/");
+            String logo_name = split[split.length - 1];
+            boolean isExit = AppUtils.isDownloadCompleted(logoFilePath,logo_md5.toUpperCase());
+            if (isExit) {
+                // 做容错，当md5比对一致时设置一次期号
+                session.setSplashVersion(boxInitBean.getLogo_version_list().get(0).getVersion());
+            } else {
+                boolean downloaded=false;
                 String path = logoBasePath + logo_name;
                 if (ConstantValues.VIRTUAL.equals(smallType)){
                     OSSUtils ossUtils = new OSSUtils(context,
                             BuildConfig.OSS_BUCKET_NAME,
-                            boiteBean.getLogo_url(),
+                            logoUrl,
                             new File(path),false);
                     if (ossUtils.syncDownload()){
-                        session.setSplashPath(path);
-                        if (boxInitBean.getLogo_version_list() != null && !boxInitBean.getLogo_version_list().isEmpty()) {
-                            session.setSplashVersion(boxInitBean.getLogo_version_list().get(0).getVersion());
-                        }
+                        downloaded = true;
                     }
                 }else{
                     ServerInfo serverInfo = session.getServerInfo();
                     if (serverInfo != null) {
                         String baseUrl = serverInfo.getDownloadUrl();
-                        String url = baseUrl + boiteBean.getLogo_url();
-                        if (!TextUtils.isEmpty(boiteBean.getLogo_url())) {
-                            File tarFile = new File(path);
-                            if (tarFile.exists()) {
-                                tarFile.delete();
-                            }
-                            AppApi.downloadLOGO(url, context, this, path);
-                        }
+                        String url = baseUrl + logoUrl;
+                        downloaded = new ProgressDownloader(context,url,logoBasePath, logo_name,false).downloadByRange();
                     }
                 }
-            } else {
-                // 做容错，当md5比对一致时设置一次期号
-                session.setSplashVersion(boxInitBean.getLogo_version_list().get(0).getVersion());
+                if (downloaded){
+                    session.setSplashPath(path);
+                    if (boxInitBean.getLogo_version_list() != null && !boxInitBean.getLogo_version_list().isEmpty()) {
+                        session.setSplashVersion(boxInitBean.getLogo_version_list().get(0).getVersion());
+                    }
+                }
             }
         }
 
@@ -2031,66 +2020,6 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                     }
                     tvOperate.setAtvChannels(response.getTvChannelList());
                     session.setTvDefaultChannelNumber(response.getLockingChannelNum());
-                }
-                break;
-            case SP_GET_LOGO_DOWN:
-                if (obj instanceof File) {
-                    File f = (File) obj;
-                    byte[] fRead;
-                    String md5Value = null;
-                    try {
-                        fRead = org.apache.commons.io.FileUtils.readFileToByteArray(f);
-                        md5Value = AppUtils.getMD5(fRead);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    //比较本地文件版本是否与服务器文件一致，如果一致则启动安装
-                    if (md5Value != null && md5Value.equals(logo_md5)) {
-                        try {
-                            File file = new File(Environment.getExternalStorageDirectory(), session.getSplashPath());
-                            if (file.exists()) {
-                                file.delete();
-                            }
-                            String newPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Pictures/" + f.getName();
-                            FileUtils.copyFile(f.getAbsolutePath(), newPath);
-                            session.setSplashPath(newPath);
-                            if (boxInitBean.getLogo_version_list() != null && !boxInitBean.getLogo_version_list().isEmpty()) {
-                                session.setSplashVersion(boxInitBean.getLogo_version_list().get(0).getVersion());
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                break;
-            case SP_GET_LOADING_IMG_DOWN:
-                if (obj instanceof File) {
-                    File f = (File) obj;
-                    byte[] fRead = new byte[0];
-                    String md5Value = null;
-                    try {
-                        fRead = org.apache.commons.io.FileUtils.readFileToByteArray(f);
-                        md5Value = AppUtils.getMD5(fRead);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    //比较本地文件版本是否与服务器文件一致，如果一致则启动安装
-                    if (md5Value != null && md5Value.equals(loading_img_md5)) {
-                        try {
-                            File file = new File(Environment.getExternalStorageDirectory(), session.getLoadingPath());
-                            if (file.exists()) {
-                                file.delete();
-                            }
-                            String newPath = "/Pictures/" + f.getName();
-                            FileUtils.copyFile(f.getAbsolutePath(), Environment.getExternalStorageDirectory().getAbsolutePath() + newPath);
-                            session.setLoadingPath(newPath);
-                            if (boxInitBean.getLoading_version_list() != null && !boxInitBean.getLoading_version_list().isEmpty()) {
-                                session.setLoadingVersion(boxInitBean.getLoading_version_list().get(0).getVersion());
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
                 }
                 break;
             case CP_POST_SDCARD_STATE_JSON:

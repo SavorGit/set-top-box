@@ -559,37 +559,13 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                         session.setQrcodeType(qrcode_type);
                         session.setActivityPlayType(activity_adv_playtype);
                         session.setSimple_upload_size(simple_upload_size);
-                        if (jsonObject.has("qrcode_gif")){
-                            String qrcode_gif_filename=jsonObject.getString("qrcode_gif_filename");
-                            String qrcode_gif_url=jsonObject.getString("qrcode_gif");
-                            String qrcode_gif_md5 = jsonObject.getString("qrcode_gif_md5");
-                            String basePath = AppUtils.getSDCardPath()+"Pictures/";
-                            gifBgPath = basePath+qrcode_gif_filename;
-                            boolean isExit = AppUtils.isDownloadCompleted(gifBgPath,qrcode_gif_md5.toUpperCase());
-                            if (isExit){
-                                session.setQrcodeGifBgPath(gifBgPath);
-                            }else{
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        boolean isDownloaded = new ProgressDownloader(context,qrcode_gif_url,basePath, qrcode_gif_filename,false).downloadByRange();
-                                        if (isDownloaded){
-                                            session.setQrcodeGifBgPath(gifBgPath);
-                                        }
-                                    }
-                                }).start();
-
-                            }
-                        }
-                        //二维码展示时长
-                        int qrcode_showtime = jsonObject.getInt("qrcode_showtime");
-                        session.setQrcode_showtime(qrcode_showtime);
-                        //二维码间隔时长
-                        int qrcode_takttime = jsonObject.getInt("qrcode_takttime");
-                        session.setQrcode_takttime(qrcode_takttime);
-
+                        downloadQrcodeGifBg(jsonObject);
                         String guide = jsonObject.getString("forscreen_help_images");
                         handleProjectionGuideImg(guide);
+                        if (jsonObject.has("forscreen_call_code")){
+                            JSONObject json = jsonObject.getJSONObject("forscreen_call_code");
+                            downloadCallQrcodeVideo(json);
+                        }
                     }catch (Exception e){
                         e.printStackTrace();
                     }
@@ -639,7 +615,42 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                 break;
         }
     }
+    /**处理展示二维码的背景动态图*/
+    private void downloadQrcodeGifBg(JSONObject jsonObject){
+        try {
+            if (jsonObject.has("qrcode_gif")){
+                String qrcode_gif_filename=jsonObject.getString("qrcode_gif_filename");
+                String qrcode_gif_url=jsonObject.getString("qrcode_gif");
+                String qrcode_gif_md5 = jsonObject.getString("qrcode_gif_md5");
+                String basePath = AppUtils.getSDCardPath()+AppUtils.PICTURES;
+                gifBgPath = basePath+qrcode_gif_filename;
+                boolean isExit = AppUtils.isDownloadCompleted(gifBgPath,qrcode_gif_md5.toUpperCase());
+                if (isExit){
+                    session.setQrcodeGifBgPath(gifBgPath);
+                }else{
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            boolean isDownloaded = new ProgressDownloader(context,qrcode_gif_url,basePath, qrcode_gif_filename,false).downloadByRange();
+                            if (isDownloaded){
+                                session.setQrcodeGifBgPath(gifBgPath);
+                            }
+                        }
+                    }).start();
 
+                }
+            }
+            //二维码展示时长
+            int qrcode_showtime = jsonObject.getInt("qrcode_showtime");
+            session.setQrcode_showtime(qrcode_showtime);
+            //二维码间隔时长
+            int qrcode_takttime = jsonObject.getInt("qrcode_takttime");
+            session.setQrcode_takttime(qrcode_takttime);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    /**处理投屏过程中的引导图*/
     private void handleProjectionGuideImg(String guide){
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
@@ -648,27 +659,42 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
         /******************************************/
         String image_url = guideImg.getImage_url();
         String imgName = guideImg.getImage_filename();
-        if (!new File(basePath+imgName).exists()){
+        if (!new File(basePath+imgName).exists()&&!TextUtils.isEmpty(image_url)){
             new Thread(() -> new ProgressDownloader(context,image_url,basePath, imgName).downloadByRange()).start();
         }
         String video_url = guideImg.getVideo_url();
         String videoName = guideImg.getVideo_filename();
-        if (!new File(basePath+videoName).exists()){
+        if (!new File(basePath+videoName).exists()&&!TextUtils.isEmpty(video_url)){
             new Thread(() -> new ProgressDownloader(context,video_url,basePath, videoName).downloadByRange()).start();
         }
         String file_url = guideImg.getFile_url();
         String fileName = guideImg.getFile_filename();
-        if (!new File(basePath+fileName).exists()){
+        if (!new File(basePath+fileName).exists()&&!TextUtils.isEmpty(file_url)){
             new Thread(() -> new ProgressDownloader(context,file_url,basePath, fileName).downloadByRange()).start();
         }
         String forscreen_url = guideImg.getForscreen_box_url();
         String forscreenUrlName = guideImg.getForscreen_box_filename();
-        if (!new File(basePath+forscreenUrlName).exists()){
+        if (!new File(basePath+forscreenUrlName).exists()&&!TextUtils.isEmpty(forscreen_url)){
             new Thread(() -> new ProgressDownloader(context,forscreen_url,basePath, forscreenUrlName).downloadByRange()).start();
         }
         session.setGuideImg(guideImg);
     }
 
+    private void downloadCallQrcodeVideo(JSONObject jsonObject){
+        try{
+            String basePath = AppUtils.getSDCardPath()+AppUtils.Download;
+            String filename = jsonObject.getString("filename");
+            String md5 = jsonObject.getString("md5");
+            String url = jsonObject.getString("url");
+            String filePath = basePath+filename;
+            boolean isExit = AppUtils.isDownloadCompleted(filePath,md5.toUpperCase());
+            if (!isExit){
+                new Thread(() -> new ProgressDownloader(context,url,basePath, filename,false).downloadByRange()).start();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
     public void startMiniProgramNettyService(){
         LogFileUtil.write("测试netty启动 startMiniProgramNettyService");

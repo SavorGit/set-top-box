@@ -153,6 +153,8 @@ public class GlobalValues <T extends MediaLibBean> {
      * 如果投文件三次及以上，就提示視頻引導
      */
     public static ConcurrentHashMap<String,Integer> IMG_NUM= new ConcurrentHashMap<>();
-    public static ConcurrentHashMap<String,Integer> VIDEO_NUM= new ConcurrentHashMap<>();;
-    public static ConcurrentHashMap<String,Integer> FILE_NUM= new ConcurrentHashMap<>();;
+    public static ConcurrentHashMap<String,Integer> VIDEO_NUM= new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String,Integer> FILE_NUM= new ConcurrentHashMap<>();
+    /**netty第一次注册*/
+    public static boolean NETTY_FIRST_REGISTER;
 }

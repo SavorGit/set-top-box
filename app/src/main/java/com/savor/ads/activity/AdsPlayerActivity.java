@@ -1494,34 +1494,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     @Override
     public void onSuccess(AppApi.Action method, Object obj) {
         switch (method) {
-            case SP_GET_LOADING_IMG_DOWN:
-                if (obj instanceof File) {
-                    File f = (File) obj;
-                    byte[] fRead = new byte[0];
-                    String md5Value = null;
-                    try {
-                        fRead = org.apache.commons.io.FileUtils.readFileToByteArray(f);
-                        md5Value = AppUtils.getMD5(fRead);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    //比较本地文件版本是否与服务器文件一致，如果一致则启动安装
-                    if (md5Value != null && md5Value.equals(adMasterResult.getMd5())) {
-                        try {
-                            mContext.deleteFile("admaster_sdkconfig.xml");
-                            String path = AppUtils.getFilePath(AppUtils.StorageFile.cache) + "admaster_sdkconfig.xml";
-                            File tarFile = new File(path);
-//                            AssetManager assetManager = this.getAssets();
-//                            assetManager.
-
-//                            FileUtils.copyFile(path, Environment.getExternalStorageDirectory().getAbsolutePath() + newPath);
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                break;
             case AD_BAIDU_ADS:
                 if (obj instanceof TsUiApiV20171122.TsApiResponse) {
                     TsUiApiV20171122.TsApiResponse tsApiResponse = (TsUiApiV20171122.TsApiResponse) obj;

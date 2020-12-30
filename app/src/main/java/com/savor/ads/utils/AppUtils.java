@@ -111,7 +111,8 @@ import javax.net.ssl.X509TrustManager;
  */
 public class AppUtils {
 
-
+    public static final String PICTURES = "Pictures/";
+    public static final String Download = "Download/";
     public static final String BoxLogDir = "log";
     public static final String BoxlogedDir = "loged";
     public static final String BoxMediaDir = "media";
