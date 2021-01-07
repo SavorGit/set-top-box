@@ -476,26 +476,6 @@ public class ScreenProjectionActivity extends BaseActivity{
 
     }
 
-
-    private void exitProjection() {
-        LogUtils.e(TAG+"will exitProjection " + this.hashCode());
-        mSavorVideoView.setLooping(false);
-        if (mMusicPlayer!=null){
-            mMusicPlayer.setLooping(false);
-        }
-
-        mIsBeenStopped = true;
-        finish();
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                MiniProgramNettyService.projectionIdMap.clear();
-            }
-        },1000*60*10);
-//        MiniProgramNettyService.projectionIdMap.clear();
-        LogUtils.w("finish done " + this.hashCode());
-    }
-
     /**
      * 处理投屏
      * 根据不同的投屏类型
@@ -929,27 +909,6 @@ public class ScreenProjectionActivity extends BaseActivity{
         handleNewProjection(bundle);
     }
 
-    private void handleProjectionEndResult(){
-        downloadLog(true);
-        LogUtils.d(TAG+"handleProjectionEndResult " + ScreenProjectionActivity.this.hashCode());
-        if (miniProgramNettyService!=null&&from_service == GlobalValues.FROM_SERVICE_MINIPROGRAM){
-            LogUtils.d("handleImgAndVideo=000>>>currentAction="+currentAction+"&mForscreenId="+mForscreenId);
-            miniProgramNettyService.startProjection(currentAction,mForscreenId);
-
-        }else if (remoteJettyService!=null&&from_service==GlobalValues.FROM_SERVICE_REMOTE){
-            if (remoteJettyService.controllHandler!=null){
-                remoteJettyService.controllHandler.startRemoteProjecion(currentAction,mForscreenId);
-            }
-        }
-
-        mMediaPath = null;
-        mMediaUrl = null;
-        AppApi.notifyStop(mContext, apiRequestListener, 2, "");
-        resetGlobalFlag();
-        exitProjection();
-
-    }
-
     private void mappingLogType() {
         // 每次点播都生成新的UUID，投屏生成子UUID当做mediaId作为后台数据统计标识
         if (TextUtils.isEmpty(mUUID) || ConstantValues.PROJECT_TYPE_VIDEO_VOD.equals(mProjectType)) {
@@ -1221,7 +1180,8 @@ public class ScreenProjectionActivity extends BaseActivity{
                 duration = PROJECT_DURATION_FILE;
             }else if (4==mImageType||ConstantValues.PROJECT_TYPE_VIDEO_REST.equals(mProjectType)){
                 if (projectionTime!=0){
-                    duration = projectionTime;
+//                    duration = projectionTime;
+                    duration = 1000*60*5;
                 }else{
                     duration = REST_PROJECT_DURATION;
                 }
@@ -1241,6 +1201,63 @@ public class ScreenProjectionActivity extends BaseActivity{
 
             mHandler.postDelayed(mExitProjectionRunnable, duration);
         }
+    }
+
+
+
+    private void handleProjectionEndResult(){
+        downloadLog(true);
+        LogUtils.d(TAG+"handleProjectionEndResult " + ScreenProjectionActivity.this.hashCode());
+        if (miniProgramNettyService!=null&&from_service == GlobalValues.FROM_SERVICE_MINIPROGRAM){
+            LogUtils.d("handleImgAndVideo=000>>>currentAction="+currentAction+"&mForscreenId="+mForscreenId);
+            miniProgramNettyService.startProjection(currentAction,mForscreenId);
+
+        }else if (remoteJettyService!=null&&from_service==GlobalValues.FROM_SERVICE_REMOTE){
+            if (remoteJettyService.controllHandler!=null){
+                remoteJettyService.controllHandler.startRemoteProjecion(currentAction,mForscreenId);
+            }
+        }
+
+        mMediaPath = null;
+        mMediaUrl = null;
+        AppApi.notifyStop(mContext, apiRequestListener, 2, "");
+        resetGlobalFlag();
+        exitProjection();
+
+    }
+    /**
+     * 重置全局变量
+     */
+    private void resetGlobalFlag() {
+        /**如果销售端投图片，是通过固定时间来显示轮播图片的，时间到了以后，需要终止轮播*/
+        if (4==mImageType){
+            GlobalValues.PROJECT_IMAGES.clear();
+        }
+        GlobalValues.LAST_PROJECT_DEVICE_ID = GlobalValues.CURRENT_PROJECT_DEVICE_ID;
+        GlobalValues.LAST_PROJECT_ID = GlobalValues.CURRENT_PROJECT_ID;
+        GlobalValues.CURRENT_PROJECT_DEVICE_ID = null;
+        GlobalValues.CURRENT_PROJECT_DEVICE_IP = null;
+        GlobalValues.CURRENT_PROJECT_DEVICE_NAME = null;
+        GlobalValues.CURRENT_PROJECT_IMAGE_ID = null;
+        GlobalValues.CURRENT_PROJECT_ID = null;
+    }
+    private void exitProjection() {
+        LogUtils.e(TAG+"will exitProjection " + this.hashCode());
+        mSavorVideoView.setLooping(false);
+        if (mMusicPlayer!=null){
+            mMusicPlayer.setLooping(false);
+        }
+
+        mIsBeenStopped = true;
+        finish();
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                MiniProgramNettyService.projectionIdMap.clear();
+            }
+        },1000*60*10);
+//        MiniProgramNettyService.projectionIdMap.clear();
+        LogUtils.w("finish done " + this.hashCode());
     }
 
     /**
@@ -1336,19 +1353,6 @@ public class ScreenProjectionActivity extends BaseActivity{
         }
         GlobalValues.INTERACTION_ADS_PLAY = 0;
         super.onDestroy();
-    }
-
-    /**
-     * 重置全局变量
-     */
-    private void resetGlobalFlag() {
-        GlobalValues.LAST_PROJECT_DEVICE_ID = GlobalValues.CURRENT_PROJECT_DEVICE_ID;
-        GlobalValues.LAST_PROJECT_ID = GlobalValues.CURRENT_PROJECT_ID;
-        GlobalValues.CURRENT_PROJECT_DEVICE_ID = null;
-        GlobalValues.CURRENT_PROJECT_DEVICE_IP = null;
-        GlobalValues.CURRENT_PROJECT_DEVICE_NAME = null;
-        GlobalValues.CURRENT_PROJECT_IMAGE_ID = null;
-        GlobalValues.CURRENT_PROJECT_ID = null;
     }
 
     private ProjectVideoView.PlayStateCallback mPlayStateCallback = new ProjectVideoView.PlayStateCallback() {
