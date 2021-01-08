@@ -19,7 +19,7 @@ import com.savor.ads.BuildConfig;
 import com.savor.ads.R;
 import com.savor.ads.SavorApplication;
 import com.savor.ads.activity.AdsPlayerActivity;
-import com.savor.ads.activity.MainActivity;
+import com.savor.ads.dialog.BusinessCardDialog;
 import com.savor.ads.activity.MonkeyGameActivity;
 import com.savor.ads.activity.PartakeDishDrawActivity;
 import com.savor.ads.activity.ScreenProjectionActivity;
@@ -28,6 +28,7 @@ import com.savor.ads.bean.BirthdayOndemandBean;
 import com.savor.ads.bean.JsonBean;
 import com.savor.ads.bean.PartakeDishBean;
 import com.savor.ads.bean.ProjectionGuideImg;
+import com.savor.ads.dialog.BusinessFileDialog;
 import com.savor.ads.dialog.PartakeDishDialog;
 import com.savor.ads.log.LogParamValues;
 import com.savor.ads.bean.MediaLibBean;
@@ -48,7 +49,6 @@ import com.savor.ads.okhttp.coreProgress.download.ProgressDownloader;
 import com.savor.ads.oss.OSSUtils;
 import com.savor.ads.projection.ProjectionManager;
 import com.savor.ads.projection.action.VodAction;
-import com.savor.ads.service.socket.Global;
 import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.Base64Utils;
@@ -63,7 +63,6 @@ import com.umeng.analytics.MobclickAgent;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,7 +74,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import cn.savor.small.netty.MiniProNettyClient;
 import cn.savor.small.netty.MiniProNettyClient.MiniNettyMsgCallback;
 import tv.danmaku.ijk.media.exo2.RangeManager;
-import tv.danmaku.ijk.media.exo2.RangeManagerFactory;
+
+import static com.savor.ads.utils.GlobalValues.FROM_SERVICE_MINIPROGRAM;
 
 /**
  * 启动小程序Netty服务
@@ -121,12 +121,19 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private String forscreen_id;
     private String serial_number;
     private String words;
+    private String wordSize;
+    private String wordColor;
+    private String fontPath;
     Handler handler=new Handler(Looper.getMainLooper());
     public static ConcurrentHashMap<String,String> projectionIdMap = new ConcurrentHashMap<>();
     private int currentAction;
     private ExtensionQrCodeDialog extensionQrCodeDialog = null;
     private PartakeDishDialog partakeDishDialog = null;
     private ScanRedEnvelopeQrCodeDialog scanRedEnvelopeQrCodeDialog =null;
+    /**商務宴請-個人名片推送*/
+    private BusinessCardDialog cardDialog = null;
+    /**商务宴请-商业文件分享*/
+    private BusinessFileDialog fileDialog = null;
     private AdsBinder adsBinder = new AdsBinder();
     /**增加投屏前置或者后置广告,前置：1，后置：2*/
     private MediaLibBean preOrNextAdsBean=null;
@@ -145,6 +152,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         extensionQrCodeDialog = new ExtensionQrCodeDialog(context);
         partakeDishDialog = new PartakeDishDialog(context);
         scanRedEnvelopeQrCodeDialog = new ScanRedEnvelopeQrCodeDialog(context);
+        cardDialog = new BusinessCardDialog(context);
+        fileDialog = new BusinessFileDialog(context);
     }
 
     @Override
@@ -234,8 +243,11 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 134:投屏帮助视频
          * 135:霸王餐抽奖活动推送
          * 136:霸王餐开奖
+         * 137：商务宴请-欢迎词(这个跟销售端欢迎词的区别是，销售端是单张图片，这个商务宴请的欢迎词是多张图片的)
          * 140:对服务人员评价打赏后机顶盒展示效果
          * 150:小程序连接机顶盒成功后推送引导投屏图
+         * 160：商务宴请-個人名片推送
+         * 170：商务宴请-文件分享
          * 000:活动广告
          */
         if (ConstantValues.NETTY_MINI_PROGRAM_COMMAND.equals(msg)){
@@ -315,9 +327,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         case 42:
                             new Thread(()->projectionVideo(miniProgramProjection)).start();
                             break;
-                        case 3:
-                            exitProjection();
-                            break;
+//                        case 3:
+//                            exitProjection();
+//                            break;
                         case 4:
                         case 44:
                             new Thread(()->projectionMoreImg(miniProgramProjection,action)).start();
@@ -488,11 +500,38 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                                 partakedishResult(partakeDishBean);
                             }
                             break;
+                        case 137:
+                            activity = ActivitiesManager.getInstance().getCurrentActivity();
+                            if (activity instanceof AdsPlayerActivity) {
+                                if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
+                                    return;
+                                }
+                                businessWelcome();
+                            }
+                            break;
                         case 140:
                             finishEvaluate(miniProgramProjection);
                             break;
                         case 150:
                             guideImage();
+                            break;
+                        case 160:
+                            activity = ActivitiesManager.getInstance().getCurrentActivity();
+                            if (activity instanceof AdsPlayerActivity) {
+                                if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
+                                    return;
+                                }
+                                showBusinessCard();
+                            }
+                            break;
+                        case 3:
+                            activity = ActivitiesManager.getInstance().getCurrentActivity();
+                            if (activity instanceof AdsPlayerActivity) {
+                                if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
+                                    return;
+                                }
+                                showBusinessFile();
+                            }
                             break;
                         case 999:
                             testNetDownload(miniProgramProjection);
@@ -550,9 +589,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             &&PROJECTION_STATE_PLAY.equals(projectionIdMap.get(forscreen_id))){
                         String uri = GlobalValues.PROJECT_IMAGES.get(currentIndex);
                         if (currentIndex==0){
-                            ProjectOperationListener.getInstance(context).showImage(1,uri,false,forscreen_id,words,avatarUrl,nickName,"",currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showImage(1,uri,false,forscreen_id,words,avatarUrl,nickName,"",currentAction, FROM_SERVICE_MINIPROGRAM);
                         }else{
-                            ProjectOperationListener.getInstance(context).showImage(1,uri,true,forscreen_id,words,avatarUrl,nickName,"",currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showImage(1,uri,true,forscreen_id,words,avatarUrl,nickName,"",currentAction, FROM_SERVICE_MINIPROGRAM);
                         }
                         DOWNLOAD_TIME = 0;
                     }
@@ -579,7 +618,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
 
                 }
 
-            }else if (currentAction==44){
+            }else if (currentAction==44||currentAction==137){
                 LogUtils.d("playTimes=="+playTimes+"|投屏="+currentIndex);
                 if (playTimes>0){
                     if (currentIndex>=GlobalValues.PROJECT_IMAGES.size()){
@@ -601,7 +640,11 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         &&projectionIdMap.containsKey(forscreen_id)
                         &&PROJECTION_STATE_PLAY.equals(projectionIdMap.get(forscreen_id))){
                     String uri = GlobalValues.PROJECT_IMAGES.get(currentIndex);
-                    ProjectOperationListener.getInstance(context).showRestImage(4,uri,0,false,words,avatarUrl,nickName,playTimes,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                    if (currentAction==44){
+                        ProjectOperationListener.getInstance(context).showRestImage(4,uri,0,false,words,avatarUrl,nickName,playTimes, FROM_SERVICE_MINIPROGRAM);
+                    }else if (currentAction==137){
+                        ProjectOperationListener.getInstance(context).showBusinessImage(9,uri,false,words,wordSize,wordColor,fontPath, playTimes,FROM_SERVICE_MINIPROGRAM);
+                    }
                 }
 
                 if (img_nums>1){
@@ -871,7 +914,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     }
                 }
             });
-            ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,"", headPic, nickName,"",currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+            ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,"", headPic, nickName,"",currentAction, FROM_SERVICE_MINIPROGRAM);
         } else {
             params.put("is_exist", 2);
             long endTime = System.currentTimeMillis();
@@ -990,9 +1033,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         String adspath = preOrNextAdsBean.getMediaPath();
                         String duration = preOrNextAdsBean.getDuration();
                         if (preOrNextAdsBean.getMedia_type()==1){
-                            ProjectOperationListener.getInstance(context).showVideo(adspath, true,forscreen_id, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showVideo(adspath, true,forscreen_id, headPic, nickName,duration,currentAction, FROM_SERVICE_MINIPROGRAM);
                         }else{
-                            ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, words, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, words, headPic, nickName,duration,currentAction, FROM_SERVICE_MINIPROGRAM);
                         }
                         postForscreenAdsLog(preOrNextAdsBean.getVid());
                         preOrNextAdsBean = null;
@@ -1000,9 +1043,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     }else if (preOrNextAdsBean.getPlay_position()==2){
                         GlobalValues.PROJECTION_VIDEO_PATH = null;
                         if (isDownloaded){
-                            ProjectOperationListener.getInstance(context).showVideo(basePath,oss_url,true,forscreen_id, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showVideo(basePath,oss_url,true,forscreen_id, headPic, nickName, FROM_SERVICE_MINIPROGRAM);
                         }else{
-                            ProjectOperationListener.getInstance(context).showVideo(basePath,oss_url, true,forscreen_id, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showVideo(basePath,oss_url, true,forscreen_id, headPic, nickName, FROM_SERVICE_MINIPROGRAM);
                         }
                     }
                 }else{
@@ -1012,9 +1055,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     boolean isBreak = projectionIsBreak(forscreen_id);
                     if (!isBreak){
                         if (isDownloaded){
-                            ProjectOperationListener.getInstance(context).showVideo(path,"",true,forscreen_id, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showVideo(path,"",true,forscreen_id, headPic, nickName, FROM_SERVICE_MINIPROGRAM);
                         }else{
-                            ProjectOperationListener.getInstance(context).showVideo(basePath,oss_url, true,forscreen_id, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showVideo(basePath,oss_url, true,forscreen_id, headPic, nickName, FROM_SERVICE_MINIPROGRAM);
                         }
                     }
                 }
@@ -1068,7 +1111,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         if (action==44){
             playTimes =mpp.getPlay_times();
             LogUtils.d("playTimes=="+playTimes+"|缩略图");
-            ProjectOperationListener.getInstance(context).showRestImage(4,url,0,true,words,headPic,nickName,playTimes,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+            ProjectOperationListener.getInstance(context).showRestImage(4,url,0,true,words,headPic,nickName,playTimes, FROM_SERVICE_MINIPROGRAM);
         }else{
             if (GlobalValues.IMG_NUM.containsKey(openid)){
                 if (GlobalValues.IMG_NUM.get(openid)!=-1){
@@ -1078,7 +1121,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 GlobalValues.IMG_NUM.put(openid,1);
             }
             if (!session.isOpenInteractscreenad()){
-                ProjectOperationListener.getInstance(context).showImage(1, url, true,forscreen_id, words, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                ProjectOperationListener.getInstance(context).showImage(1, url, true,forscreen_id, words, headPic, nickName, FROM_SERVICE_MINIPROGRAM);
             }
         }
         String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
@@ -1110,9 +1153,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     String adspath = preOrNextAdsBean.getMediaPath();
                     String duration = preOrNextAdsBean.getDuration();
                     if (preOrNextAdsBean.getMedia_type()==1){
-                        ProjectOperationListener.getInstance(context).showVideo(adspath,  true,forscreen_id, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                        ProjectOperationListener.getInstance(context).showVideo(adspath,  true,forscreen_id, headPic, nickName,duration,currentAction, FROM_SERVICE_MINIPROGRAM);
                     }else{
-                        ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, words, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                        ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, words, headPic, nickName,duration,currentAction, FROM_SERVICE_MINIPROGRAM);
                     }
                     postForscreenAdsLog(preOrNextAdsBean.getVid());
                     preOrNextAdsBean = null;
@@ -1294,6 +1337,154 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
+    /**商务宴请欢迎词*/
+    private void businessWelcome(){
+        if (miniProgramProjection == null || miniProgramProjection.getImg_list()==null||miniProgramProjection.getImg_list().size()==0) {
+            return;
+        }
+        List<ProjectionImg> imgList = miniProgramProjection.getImg_list();
+        img_nums = imgList.size();
+        if (img_nums == 0) {
+            return;
+        }
+        playTimes = miniProgramProjection.getPlay_times();
+        words = miniProgramProjection.getForscreen_char();
+        wordSize = miniProgramProjection.getWordsize();
+        wordColor = miniProgramProjection.getColor();
+        forscreen_id = miniProgramProjection.getId()+"";
+        String font_id = miniProgramProjection.getFont_id();
+        String basePath = AppUtils.getFilePath(AppUtils.StorageFile.welcome_resource);
+        if (!TextUtils.isEmpty(font_id)){
+            String selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
+            String[] selectionArgs = new String[]{font_id};
+            List<WelcomeResourceBean> typefaceList = dbHelper.findWelcomeResourceList(selection,selectionArgs);
+            if (typefaceList!=null&&typefaceList.size()>0){
+                WelcomeResourceBean bean = typefaceList.get(0);
+                File file = new File(basePath+bean.getName());
+                if (file.exists()){
+                    fontPath = basePath+bean.getName();
+                }
+            }
+        }
+        //更新投屏状态
+        updateProjectionState(forscreen_id);
+        GlobalValues.PROJECTION_WORDS = words;
+        GlobalValues.PROJECTION_VIDEO_PATH = null;
+        GlobalValues.PROJECT_IMAGES.clear();
+        GlobalValues.PROJECT_FAIL_IMAGES.clear();
+        GlobalValues.CURRENT_OPEN_ID = openid;
+        GlobalValues.CURRRNT_PROJECT_ID = forscreen_id;
+        handler.removeCallbacks(mProjectShowImageRunnable);
+        isDownloadRunnable = false;
+        isPPTRunnable = false;
+        ProjectionImg img = imgList.get(0);
+        String url = BuildConfig.OSS_ENDPOINT+img.getUrl()+ConstantValues.PROJECTION_IMG_THUMBNAIL_PARAM;
+        ProjectOperationListener.getInstance(context).showBusinessImage(9,url,true,words,wordSize,wordColor,fontPath, playTimes,FROM_SERVICE_MINIPROGRAM);
+        handler.removeCallbacks(downloadFileRunnable);
+        handler.removeCallbacks(downloadWelcomeFileRunnable);
+        new Thread(()->downloadFileNoDialog(downloadIndex)).start();
+    }
+
+    private void downloadFileNoDialog(int downloadIndex){
+        boolean isDownloaded=false;
+        if (miniProgramProjection==null){
+            return;
+        }
+        try{
+            MiniProgramProjection projection = this.miniProgramProjection;
+            if (projection.getImg_list()==null||projection.getImg_list().size()==0){
+                return;
+            }
+            ProjectionImg img = projection.getImg_list().get(downloadIndex);
+            final HashMap params = new HashMap<>();
+            params.put("req_id",projection.getReq_id());
+            params.put("box_mac", session.getEthernetMac());
+            params.put("forscreen_id", projection.getForscreen_id());
+            params.put("openid", projection.getOpenid());
+            params.put("resource_id", img.getImg_id());
+            String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+            String fileName = img.getFilename();
+            String path = basePath + fileName;
+            File file = new File(path);
+            if (file.exists()) {
+                isDownloaded = true;
+            } else {
+                try {
+                    String oss_url = BuildConfig.OSS_ENDPOINT+img.getUrl();
+                    ProgressDownloader downloader = new ProgressDownloader(context,oss_url, basePath,fileName,true,serial_number);
+                    isDownloaded = downloader.downloadByRange();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+            if (isDownloaded) {
+                boolean isBreaks = projectionIsBreak(projection.getForscreen_id());
+                if (!GlobalValues.PROJECT_IMAGES.contains(path)&&!isBreaks) {
+                    GlobalValues.PROJECT_IMAGES.add(path);
+                }
+                if (GlobalValues.PROJECT_IMAGES.size()==1){
+                    postProjectionResourceLog(params);
+                }
+                LogUtils.d("img_nums:="+img_nums
+                        +"|||PROJECT_IMAGES:="+GlobalValues.PROJECT_IMAGES
+                        +"|||PROJECT_FAIL_IMAGES:="+GlobalValues.PROJECT_FAIL_IMAGES);
+                if (!isPPTRunnable){
+                    handler.removeCallbacks(mProjectShowImageRunnable);
+                    currentIndex =0;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            LogUtils.d("projectShowImage:第一张forscreen_id="+projection.getForscreen_id());
+                            projectShowImage(currentIndex, words, headPic, nickName);
+                        }
+                    }).start();
+                }
+                if (projectionIdMap != null && projectionIdMap.containsKey(projection.getForscreen_id())) {
+                    String isBreak = projectionIdMap.get(projection.getForscreen_id());
+                    params.put("is_break", isBreak);
+                    if (isBreak.equals(PROJECTION_STATE_BREAK)){
+                        postProjectionResourceLog(params);
+                    }
+                }
+            } else {
+                boolean isBreaks = projectionIsBreak(projection.getForscreen_id());
+                if (!GlobalValues.PROJECT_FAIL_IMAGES.contains(path)&&!isBreaks) {
+                    GlobalValues.PROJECT_FAIL_IMAGES.add(path);
+                }
+                LogUtils.d("img_nums:="+img_nums
+                        +"|||PROJECT_IMAGES:="+GlobalValues.PROJECT_IMAGES
+                        +"|||PROJECT_FAIL_IMAGES:="+GlobalValues.PROJECT_FAIL_IMAGES);
+                params.put("is_exist", 2);
+                if (projectionIdMap != null && projectionIdMap.containsKey(projection.getForscreen_id())) {
+                    String isBreak = projectionIdMap.get(projection.getForscreen_id());
+                    params.put("is_break", isBreak);
+                    if (isBreak.equals(PROJECTION_STATE_BREAK)){
+                        postProjectionResourceLog(params);
+                    }
+                }
+            }
+            if (GlobalValues.PROJECT_IMAGES.size()+GlobalValues.PROJECT_FAIL_IMAGES.size()==img_nums){
+                handler.removeCallbacks(downloadWelcomeFileRunnable);
+            }else{
+                handler.postDelayed(downloadWelcomeFileRunnable,500);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 下载文件
+     * @return
+     */
+    private Runnable downloadWelcomeFileRunnable = new Runnable() {
+        @Override
+        public void run() {
+            LogUtils.d("下载测试----进入线程");
+            downloadIndex ++;
+            new Thread(()->downloadFileNoDialog(downloadIndex)).start();
+        }
+    };
 
     /**
      * 点播生日歌相关
@@ -1320,11 +1511,11 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             File file = new File(path);
             if (file.exists()){
                 params.put("is_exist","1");
-                ProjectOperationListener.getInstance(context).showVideoBirthday(null,path,forscreen_id, currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                ProjectOperationListener.getInstance(context).showVideoBirthday(null,path,forscreen_id, currentAction, FROM_SERVICE_MINIPROGRAM);
             }
         }else{
             params.put("is_exist","0");
-            ProjectOperationListener.getInstance(context).showVideoBirthday(url,basePath,forscreen_id, currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+            ProjectOperationListener.getInstance(context).showVideoBirthday(url,basePath,forscreen_id, currentAction, FROM_SERVICE_MINIPROGRAM);
         }
         postProjectionResourceLog(params);
     }
@@ -1388,7 +1579,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         File file = new File(basePath,filename);
         if (file.exists()) {
 
-            VodAction vodAction = new VodAction(context, ConstantValues.QRCODE_CALL_VIDEO_ID, path, false, true,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+            VodAction vodAction = new VodAction(context, ConstantValues.QRCODE_CALL_VIDEO_ID, path, false, true,currentAction, FROM_SERVICE_MINIPROGRAM);
             ProjectionManager.getInstance().enqueueAction(vodAction);
             handler.postDelayed(new Runnable() {
                 @Override
@@ -1744,9 +1935,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             File file = new File(path);
             if (file.exists()){
                 if (bean.getMedia_type()==1){
-                    ProjectOperationListener.getInstance(context).showVideo(path, true,bean.getPrice(),bean.getIs_storebuy(),bean.getDuration(), currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                    ProjectOperationListener.getInstance(context).showVideo(path, true,bean.getPrice(),bean.getIs_storebuy(),bean.getDuration(), currentAction, FROM_SERVICE_MINIPROGRAM);
                 }else if (bean.getMedia_type()==2){
-                    ProjectOperationListener.getInstance(context).showImage(6, path, true,bean.getPrice(),bean.getIs_storebuy(),bean.getDuration(),currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                    ProjectOperationListener.getInstance(context).showImage(6, path, true,bean.getPrice(),bean.getIs_storebuy(),bean.getDuration(),currentAction, FROM_SERVICE_MINIPROGRAM);
                 }
                 ((SavorApplication) getApplication()).showGoodsQrCodeWindow(qrcode_url,"");
             }else{
@@ -1824,9 +2015,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         GlobalValues.WELCOME_ID = minipp.getId();
         postWelcomePlayLog(minipp.getId()+"");
         if (type==1){
-            ProjectOperationListener.getInstance(context).showRestImage(7,imgPath,rotation,musicPath,forscreen_char,wordsize,wordcolor,fontPath,play_times,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+            ProjectOperationListener.getInstance(context).showRestImage(7,imgPath,rotation,musicPath,forscreen_char,wordsize,wordcolor,fontPath,play_times, FROM_SERVICE_MINIPROGRAM);
         }else{
-            ProjectOperationListener.getInstance(context).showRestImage(7,imgPath,rotation,musicPath,forscreen_char,wordsize,wordcolor,fontPath,waiterIconUrl,waiterName,play_times,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+            ProjectOperationListener.getInstance(context).showRestImage(7,imgPath,rotation,musicPath,forscreen_char,wordsize,wordcolor,fontPath,waiterIconUrl,waiterName,play_times, FROM_SERVICE_MINIPROGRAM);
         }
 
     }
@@ -1932,7 +2123,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         //记录当前欢迎词投屏ID
         GlobalValues.WELCOME_ID = minipp.getId();
 
-        ProjectOperationListener.getInstance(context).showRestImage(8,resourceId,rotation,musicPath,forscreen_char,wordsize,wordcolor,fontPath,waiterIconUrl,waiterName,play_times,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+        ProjectOperationListener.getInstance(context).showRestImage(8,resourceId,rotation,musicPath,forscreen_char,wordsize,wordcolor,fontPath,waiterIconUrl,waiterName,play_times, FROM_SERVICE_MINIPROGRAM);
     }
 
     /**手機連接機頂盒以後引導圖*/
@@ -1943,11 +2134,48 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             int delayTime = guideImg.getShow_time();
             String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+fileName;
             if (new File(filePath).exists()){
-                ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),currentAction, FROM_SERVICE_MINIPROGRAM);
             }
         }
     }
-
+    /**分享展示名片*/
+    private void showBusinessCard(){
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (cardDialog.isShowing()){
+                    cardDialog.dismiss();
+                }
+                cardDialog = new BusinessCardDialog(context);
+                cardDialog.show();
+                String jobTitle = null;//miniProgramProjection.getJob();
+                String mobile = null;//miniProgramProjection.getMobile();
+                String company = null;//miniProgramProjection.getCompany();
+                String cardQrcodeUrl = null;//miniProgramProjection.getCodeUrl();
+//              int countdownTime = miniProgramProjection.getCountdown();
+                int countdownTime = 30;
+                cardDialog.setDatas(headPic,nickName,jobTitle,mobile,company,cardQrcodeUrl,countdownTime);
+            }
+        });
+    }
+    /**分享展示商業文件*/
+    private void showBusinessFile(){
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (fileDialog.isShowing()){
+                    fileDialog.dismiss();
+                }
+                fileDialog = new BusinessFileDialog(context);
+                fileDialog.show();
+                String fileName = null;//miniProgramProjection.getJob();
+                String cardQrcodeUrl = null;//miniProgramProjection.getCodeUrl();
+//              int countdownTime = miniProgramProjection.getCountdown();
+                int countdownTime = 30;
+                fileDialog.setDatas(headPic,nickName,fileName,cardQrcodeUrl,countdownTime);
+            }
+        });
+    }
     /**每次投屏开始，设置一下当前投屏动作的状态*/
     private void updateProjectionState(String forscreen_id){
         //map的value值,如果为0正常投屏，如果为1则为打断的投屏
@@ -1996,7 +2224,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         String videoName = guideImg.getVideo_filename();
                         String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+videoName;
                         if (new File(filePath).exists()){
-                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),currentAction, FROM_SERVICE_MINIPROGRAM);
                             GlobalValues.IMG_NUM.put(openid,-1);
                             return;
                         }
@@ -2006,7 +2234,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         String imageName = guideImg.getImage_filename();
                         String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+imageName;
                         if (new File(filePath).exists()){
-                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),currentAction, FROM_SERVICE_MINIPROGRAM);
                             GlobalValues.VIDEO_NUM.put(openid,-1);
                             return;
                         }
@@ -2016,7 +2244,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         String videoName = guideImg.getVideo_filename();
                         String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+videoName;
                         if (new File(filePath).exists()){
-                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),currentAction, FROM_SERVICE_MINIPROGRAM);
                             GlobalValues.FILE_NUM.put(openid,-1);
                             return;
                         }
@@ -2085,7 +2313,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     }
                     ProjectOperationListener.getInstance(context).showRestVideo(GlobalValues.PROJECTION_VIDEO_PATH,true, headPic, nickName,time);
                 }else {
-                    ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH,true,forscreenId, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                    ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH,true,forscreenId, headPic, nickName, FROM_SERVICE_MINIPROGRAM);
                 }
             }
             GlobalValues.INTERACTION_ADS_PLAY=0;
@@ -2116,7 +2344,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         }
                         ProjectOperationListener.getInstance(context).showRestVideo(GlobalValues.PROJECTION_VIDEO_PATH,true, headPic, nickName,time);
                     }else {
-                        ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH,true,forscreenId, headPic, nickName,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                        ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH,true,forscreenId, headPic, nickName, FROM_SERVICE_MINIPROGRAM);
                     }
                 }
             }
@@ -2127,9 +2355,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 String path = preOrNextAdsBean.getMediaPath();
                 String duration = preOrNextAdsBean.getDuration();
                 if (preOrNextAdsBean.getMedia_type()==1){
-                    ProjectOperationListener.getInstance(context).showVideo(path, true,forscreenId, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                    ProjectOperationListener.getInstance(context).showVideo(path, true,forscreenId, headPic, nickName,duration,currentAction, FROM_SERVICE_MINIPROGRAM);
                 }else{
-                    ProjectOperationListener.getInstance(context).showImage(5, path, true,forscreenId, words, headPic, nickName,duration,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                    ProjectOperationListener.getInstance(context).showImage(5, path, true,forscreenId, words, headPic, nickName,duration,currentAction, FROM_SERVICE_MINIPROGRAM);
                 }
                 postForscreenAdsLog(preOrNextAdsBean.getVid());
                 GlobalValues.INTERACTION_ADS_PLAY=2;

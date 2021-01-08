@@ -111,12 +111,7 @@ public class PartakeDishDialog extends Dialog{
     }
 
     //倒计时线程
-    private Runnable mCountDownRunnable = new Runnable() {
-        @Override
-        public void run() {
-            wxPayCountDown();
-        }
-    };
+    private Runnable mCountDownRunnable = () -> wxPayCountDown();
 
     private void wxPayCountDown(){
         delayTime = delayTime-1;

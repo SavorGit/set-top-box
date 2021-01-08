@@ -50,10 +50,15 @@ public class MiniProgramProjection implements Serializable{
     private String video_id;
     private String goods_id;
     /**微信头像*/
-//    private String avatarUrl;
     private String headPic;
     /**微信昵称*/
     private String nickName;
+    /**手機號*/
+    private String mobile;
+    /**職位*/
+    private String job;
+    /**公司名称*/
+    private String company;
     /**二维码地址*/
     private String codeUrl;
     /**小程序餐厅端投屏时长,单位为秒,如果为0就是单次**/
@@ -228,6 +233,30 @@ public class MiniProgramProjection implements Serializable{
 
     public void setNickName(String nickName) {
         this.nickName = nickName;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
+
+    public String getJob() {
+        return job;
+    }
+
+    public void setJob(String job) {
+        this.job = job;
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
     }
 
     public String getCodeUrl() {

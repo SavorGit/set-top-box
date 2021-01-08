@@ -303,6 +303,28 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
     }
 
     @Override
+    public PrepareResponseVoNew showBusinessImage(int imageType, String imageUrl, boolean isThumbnail, String words, String wordsSize, String wordsColor, String fontPath, int projectionTime, int fromService) {
+        PrepareResponseVoNew localResult = new PrepareResponseVoNew();
+        if (isThumbnail) {
+            if (!TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_ID)) {
+                GlobalValues.LAST_PROJECT_ID = GlobalValues.CURRENT_PROJECT_ID;
+            }
+
+            localResult.setProjectId(GlobalValues.CURRENT_PROJECT_ID = UUID.randomUUID().toString());
+        } else {
+            // 大图的时候不生成新的ProjectId
+            localResult.setProjectId(GlobalValues.CURRENT_PROJECT_ID);
+        }
+        localResult.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
+        localResult.setMsg("加载成功！");
+
+        ImageWelcomeAction welcomeAction = new ImageWelcomeAction(mContext,imageType,imageUrl,words,wordsSize,wordsColor,fontPath,projectionTime,fromService);
+        ProjectionManager.getInstance().enqueueAction(welcomeAction);
+
+        return localResult;
+    }
+
+    @Override
     public PrepareResponseVoNew showRestImage(int imageType, String imagePath,int rotation, boolean isThumbnail, String words, String avatarUrl, String nickname, int projectionTime,int fromService) {
         PrepareResponseVoNew localResult = new PrepareResponseVoNew();
         if (isThumbnail) {

@@ -847,6 +847,52 @@ public class ScreenProjectionActivity extends BaseActivity{
             }
 
 
+        }else if (mProjectType.equals(ConstantValues.PROJECT_TYPE_BUSINESS_WELCOME)){
+            // 小程序用戶端售端欢迎词投屏
+            mSavorVideoView.setVisibility(View.GONE);
+            mSavorVideoView.release();
+            mImageArea.setVisibility(View.VISIBLE);
+            mImageView.setVisibility(View.GONE);
+            mHandler.removeCallbacks(mShowMiniProgramQrCodeRunnable);
+            mHandler.removeCallbacks(mCountDownRunnable);
+            if (!TextUtils.isEmpty(mImagePath)){
+                if (mImagePath.endsWith("gif")){
+
+                    imageGifView.setImageURI(Uri.fromFile(new File(mImagePath)));
+                    imageGifView.setVisibility(View.VISIBLE);
+                    welcomeView.setVisibility(View.GONE);
+                }else{
+                    imageGifView.setVisibility(View.GONE);
+                    welcomeView.setVisibility(View.VISIBLE);
+                    //最后一个参数传Drawable是为了解决图片切换闪烁问题
+                    if (welcomeView.getDrawable()!=null){
+                        GlideImageLoader.loadImageWithDrawable(mContext,mImagePath,welcomeView,welcomeView.getDrawable());
+                    }else{
+                        GlideImageLoader.loadImage(mContext,mImagePath,welcomeView);
+                    }
+                }
+            }
+
+            if (!TextUtils.isEmpty(mProjectionWords)){
+                mWelcomeWordsTV.setText(mProjectionWords);
+                mWelcomeWordsTV.setVisibility(View.VISIBLE);
+                if (!TextUtils.isEmpty(mProjectionWordsColor)){
+                    mWelcomeWordsTV.setTextColor(Color.parseColor(mProjectionWordsColor));
+                }
+                if (!TextUtils.isEmpty(mProjectionWordsSize)){
+                    mWelcomeWordsTV.setTextSize(Float.parseFloat(mProjectionWordsSize));
+                }
+            }else{
+                mWelcomeWordsTV.setVisibility(View.GONE);
+            }
+
+            mHandler.postDelayed(()->initSounds(),500);
+            welcomeView.setRotation(0);
+            welcomeView.setScaleX(1);
+            welcomeView.setScaleY(1);
+            if (mIsThumbnail){
+                rescheduleToExit(true);
+            }
         }
         if (!mProjectType.startsWith("rstr_")) {
             if (!ConstantValues.PROJECT_TYPE_PICTURE.equals(mProjectType) || mIsThumbnail) {
@@ -1178,10 +1224,9 @@ public class ScreenProjectionActivity extends BaseActivity{
                 }
             }else if (2 == mImageType) {
                 duration = PROJECT_DURATION_FILE;
-            }else if (4==mImageType||ConstantValues.PROJECT_TYPE_VIDEO_REST.equals(mProjectType)){
+            }else if (4==mImageType||9==mImageType||ConstantValues.PROJECT_TYPE_VIDEO_REST.equals(mProjectType)){
                 if (projectionTime!=0){
-//                    duration = projectionTime;
-                    duration = 1000*60*5;
+                    duration = projectionTime;
                 }else{
                     duration = REST_PROJECT_DURATION;
                 }
@@ -1230,7 +1275,7 @@ public class ScreenProjectionActivity extends BaseActivity{
      */
     private void resetGlobalFlag() {
         /**如果销售端投图片，是通过固定时间来显示轮播图片的，时间到了以后，需要终止轮播*/
-        if (4==mImageType){
+        if (4==mImageType||9==mImageType){
             GlobalValues.PROJECT_IMAGES.clear();
         }
         GlobalValues.LAST_PROJECT_DEVICE_ID = GlobalValues.CURRENT_PROJECT_DEVICE_ID;

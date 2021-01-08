@@ -31,7 +31,11 @@ public class ImageWelcomeAction extends ProjectionActionBase implements Serializ
     private String waiterName;
     private int projectionTime;
 
-    public ImageWelcomeAction(Context context, int imageType, String imagePath,int rotation, String musicPath, String words,String wordsize,String color,String fontPath,int projectionTime, int fromService) {
+    public ImageWelcomeAction(Context context, int imageType, String imagePath, String words, String wordsize, String color, String fontPath, int projectionTime, int fromService) {
+        this(context, imageType, imagePath, 0, "", words, wordsize, color, fontPath, projectionTime, fromService);
+    }
+
+    public ImageWelcomeAction(Context context, int imageType, String imagePath, int rotation, String musicPath, String words, String wordsize, String color, String fontPath, int projectionTime, int fromService) {
         super();
         mPriority = ProjectPriority.HIGH;
         this.fromService = fromService;
@@ -71,7 +75,11 @@ public class ImageWelcomeAction extends ProjectionActionBase implements Serializ
 
         // 跳转或将参数设置到ScreenProjectionActivity
         Bundle data = new Bundle();
-        data.putString(ScreenProjectionActivity.EXTRA_TYPE, ConstantValues.PROJECT_TYPE_WELCOME_PICTURE);
+        if (imageType==9){
+            data.putString(ScreenProjectionActivity.EXTRA_TYPE, ConstantValues.PROJECT_TYPE_BUSINESS_WELCOME);
+        }else {
+            data.putString(ScreenProjectionActivity.EXTRA_TYPE, ConstantValues.PROJECT_TYPE_WELCOME_PICTURE);
+        }
         data.putInt(ScreenProjectionActivity.EXTRA_IMAGE_TYPE, imageType);
         data.putString(ScreenProjectionActivity.EXTRA_IMAGE_PATH,imagePath);
         data.putString(ScreenProjectionActivity.EXTRA_MUSIC_PATH,musicPath);

@@ -62,6 +62,8 @@ public class ConstantValues {
      *投屏类型：小程序餐厅销售端欢迎词
      */
     public static final String PROJECT_TYPE_WELCOME_PICTURE = "pic_welcome";
+    /**投屏类型：小程序用户端-商务宴请欢迎词*/
+    public static final String PROJECT_TYPE_BUSINESS_WELCOME = "business_welcome";
 
     /**
      * 投屏类型:小程序视频
