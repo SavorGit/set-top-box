@@ -648,7 +648,11 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 }
 
                 if (img_nums>1){
-                    handler.postDelayed(mProjectShowImageRunnable,REST_INTERVAL_TIME);
+                    if (currentAction==137){
+                        handler.postDelayed(mProjectShowImageRunnable,INTERVAL_TIME);
+                    }else {
+                        handler.postDelayed(mProjectShowImageRunnable,REST_INTERVAL_TIME);
+                    }
                 }
 
             }
@@ -2148,17 +2152,21 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         handler.post(new Runnable() {
             @Override
             public void run() {
-                if (cardDialog.isShowing()){
-                    cardDialog.dismiss();
+                try {
+                    if (cardDialog.isShowing()){
+                        cardDialog.dismiss();
+                    }
+                    cardDialog = new BusinessCardDialog(context);
+                    cardDialog.show();
+                    String jobTitle = miniProgramProjection.getJob();
+                    String mobile = miniProgramProjection.getMobile();
+                    String company = miniProgramProjection.getCompany();
+                    String cardQrcodeUrl = miniProgramProjection.getCodeUrl();
+                    int countdownTime = miniProgramProjection.getCountdown();
+                    cardDialog.setDatas(nickName,jobTitle,mobile,company,cardQrcodeUrl,countdownTime);
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
-                cardDialog = new BusinessCardDialog(context);
-                cardDialog.show();
-                String jobTitle = miniProgramProjection.getJob();
-                String mobile = miniProgramProjection.getMobile();
-                String company = miniProgramProjection.getCompany();
-                String cardQrcodeUrl = miniProgramProjection.getCodeUrl();
-              int countdownTime = miniProgramProjection.getCountdown();
-                cardDialog.setDatas(nickName,jobTitle,mobile,company,cardQrcodeUrl,countdownTime);
             }
         });
     }
@@ -2167,15 +2175,19 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         handler.post(new Runnable() {
             @Override
             public void run() {
-                if (fileDialog.isShowing()){
-                    fileDialog.dismiss();
+                try {
+                    if (fileDialog.isShowing()){
+                        fileDialog.dismiss();
+                    }
+                    fileDialog = new BusinessFileDialog(context);
+                    fileDialog.show();
+                    String fileName = miniProgramProjection.getFilename();
+                    String cardQrcodeUrl = miniProgramProjection.getCodeUrl();
+                    int countdownTime = miniProgramProjection.getCountdown();
+                    fileDialog.setDatas(headPic,nickName,fileName,cardQrcodeUrl,countdownTime);
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
-                fileDialog = new BusinessFileDialog(context);
-                fileDialog.show();
-                String fileName = miniProgramProjection.getFilename();
-                String cardQrcodeUrl = miniProgramProjection.getCodeUrl();
-              int countdownTime = miniProgramProjection.getCountdown();
-                fileDialog.setDatas(headPic,nickName,fileName,cardQrcodeUrl,countdownTime);
             }
         });
     }

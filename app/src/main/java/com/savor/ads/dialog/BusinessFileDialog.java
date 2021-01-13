@@ -72,8 +72,8 @@ public class BusinessFileDialog extends Dialog {
         int width = DensityUtil.getScreenWidth(mContext);
         int height = DensityUtil.getScreenHeight(mContext);
         ViewGroup.LayoutParams layoutParams = fileLayout.getLayoutParams();
-        layoutParams.width = width/7*4;
-        layoutParams.height = height/7*4;
+        layoutParams.width = width/7*5;
+        layoutParams.height = height/7*5;
         fileLayout.setLayoutParams(layoutParams);
     }
 

@@ -28,12 +28,12 @@
                     android:id="@+id/avatar_icon"
                     android:src="@mipmap/wxavatar"
                     android:background="@drawable/bg_shape_welcome_head"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"/>
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"/>
                 <TextView
                     android:id="@+id/nick_name"
                     android:text="张三三"
-                    android:textSize="50dp"
+                    android:textSize="25dp"
                     android:textStyle="bold"
                     android:lines="1"
                     android:gravity="center"
@@ -47,7 +47,7 @@
                 android:id="@+id/filename"
                 android:layout_marginTop="5dp"
                 android:text="分享了文件《胆小鬼.ppt》"
-                android:textSize="35dp"
+                android:textSize="24dp"
                 android:lines="3"
                 android:textColor="@color/color_black"
                 android:layout_width="match_parent"
@@ -63,8 +63,8 @@
             android:layout_weight="1">
             <ImageView
                 android:id="@+id/file_qrcode"
-                android:layout_width="280dp"
-                android:layout_height="280dp"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
                 android:src="@mipmap/avatar"/>
         </LinearLayout>
     </LinearLayout>

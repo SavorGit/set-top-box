@@ -61,7 +61,7 @@
                 android:textSize="35dp"
                 android:text="拉萨经济技术开发区热点信息技术有限公司北京分公司"
                 android:textColor="@color/color_white"
-                android:lines="1"
+                android:lines="2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
@@ -70,12 +70,13 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:layout_gravity="center"
+            android:layout_marginRight="20dp"
             android:layout_weight="1">
             <ImageView
                 android:id="@+id/card_qrcode"
                 android:layout_gravity="center"
-                android:layout_width="280dp"
-                android:layout_height="280dp"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
                 android:src="@mipmap/avatar"/>
         </LinearLayout>
     </LinearLayout>
