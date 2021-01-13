@@ -64,7 +64,7 @@ public class BusinessFileDialog extends Dialog {
     }
     private void initViews() {
         fileLayout = findViewById(R.id.file_layout);
-        avatarIconIV = findViewById(R.id.card_avatar);
+        avatarIconIV = findViewById(R.id.avatar_icon);
         nickNameTV = findViewById(R.id.nick_name);
         fileNameTV = findViewById(R.id.filename);
         fileQrcodeIV = findViewById(R.id.file_qrcode);
@@ -72,8 +72,8 @@ public class BusinessFileDialog extends Dialog {
         int width = DensityUtil.getScreenWidth(mContext);
         int height = DensityUtil.getScreenHeight(mContext);
         ViewGroup.LayoutParams layoutParams = fileLayout.getLayoutParams();
-        layoutParams.width = width/7*3;
-        layoutParams.height = height/7*3;
+        layoutParams.width = width/7*4;
+        layoutParams.height = height/7*4;
         fileLayout.setLayoutParams(layoutParams);
     }
 
@@ -86,11 +86,12 @@ public class BusinessFileDialog extends Dialog {
             nickNameTV.setText(nickName);
         }
         if (!TextUtils.isEmpty(fileName)){
-            fileNameTV.setText(fileName);
+            String name = "分享了文件《"+fileName+"》";
+            fileNameTV.setText(name);
         }
 
         if (!TextUtils.isEmpty(cardQrcodeUrl)){
-            GlideImageLoader.loadImage(mContext,cardAvatarUrl,fileQrcodeIV);
+            GlideImageLoader.loadImage(mContext,cardQrcodeUrl,fileQrcodeIV);
         }
         this.countdownTime = countdownTime;
         mHandler.removeCallbacks(mCountDownRunnable);

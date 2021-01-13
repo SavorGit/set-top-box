@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="top"
             android:orientation="vertical"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="40dp"
             android:layout_weight="1">
             <LinearLayout
                 android:id="@+id/person_info"
@@ -28,13 +28,15 @@
                     android:id="@+id/avatar_icon"
                     android:src="@mipmap/wxavatar"
                     android:background="@drawable/bg_shape_welcome_head"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"/>
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"/>
                 <TextView
                     android:id="@+id/nick_name"
                     android:text="张三三"
-                    android:textSize="25dp"
+                    android:textSize="50dp"
                     android:textStyle="bold"
+                    android:lines="1"
+                    android:gravity="center"
                     android:layout_gravity="center"
                     android:layout_marginLeft="10dp"
                     android:textColor="@color/color_black"
@@ -45,23 +47,24 @@
                 android:id="@+id/filename"
                 android:layout_marginTop="5dp"
                 android:text="分享了文件《胆小鬼.ppt》"
-                android:textSize="20dp"
-                android:lines="1"
+                android:textSize="35dp"
+                android:lines="3"
                 android:textColor="@color/color_black"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:layout_gravity="center"
+            android:layout_marginTop="40dp"
+            android:layout_marginRight="20dp"
             android:layout_weight="1">
             <ImageView
                 android:id="@+id/file_qrcode"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                android:layout_marginTop="20dp"
+                android:layout_width="280dp"
+                android:layout_height="280dp"
                 android:src="@mipmap/avatar"/>
         </LinearLayout>
     </LinearLayout>

@@ -63,6 +63,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class HeartbeatService extends IntentService implements ApiRequestListener {
     private Context context;
+    /**获取netty的IP和端口的接口异常，重试3次,间隔时间30s*/
+//    private int retryCount;
     /**
      * 心跳周期，5分钟
      */
@@ -151,13 +153,11 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                     httpGetIp();
                 }
             }
-
             // 心跳周期到达，向云平台发送心跳
             if (mHeartbeatElapsedTime >= HEARTBEAT_DURATION) {
                 mHeartbeatElapsedTime = 0;
-
-                doHeartbeat();
                 doInitConfig();
+                doHeartbeat();
                 getUploadLogFileType();
                 try {
                     reportMediaDetail();
@@ -189,7 +189,6 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
             mHeartbeatElapsedTime += ONE_CYCLE_TIME;
             mServerInfoCheckElapsedTime += ONE_CYCLE_TIME;
         }
@@ -547,6 +546,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                         }
                         if (is_open_netty==1){
                             Log.d("HeartbeatService","开始请求netty的ip地址和端口号");
+//                            retryCount =0;
                             getNettyBalancingInfo();
                         }
                         if (is_open_interactscreenad==1){
@@ -597,7 +597,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                                     session.setNettyPort(Integer.valueOf(port));
                                 }
                             }
-
+//                            retryCount =0;
                             if (start){
                                 startMiniProgramNettyService();
                             }
@@ -687,7 +687,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
             String md5 = jsonObject.getString("md5");
             String url = jsonObject.getString("url");
             String filePath = basePath+filename;
-            boolean isExit = AppUtils.isDownloadCompleted(filePath,md5.toUpperCase());
+            boolean isExit = AppUtils.isDownloadEasyCompleted(filePath,md5.toLowerCase());
             if (!isExit){
                 new Thread(() -> new ProgressDownloader(context,url,basePath, filename,false).downloadByRange()).start();
             }
@@ -788,6 +788,12 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
 
                 break;
             case CP_GET_NETTY_BALANCING_FORM:
+                try {
+                    Thread.sleep(1000*30);
+                    getNettyBalancingInfo();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 LogUtils.d("HeartbeatService getNettyBalancingInfo获取netty地址接口异常，重新请求");
                 break;
         }
@@ -816,7 +822,13 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                 LogUtils.d("HeartbeatService doInitConfig初始化接口异常，重新请求");
                 break;
             case CP_GET_NETTY_BALANCING_FORM:
-                LogUtils.d("HeartbeatService getNettyBalancingInfo获取netty地址接口异常，重新请求");
+                try {
+                    Thread.sleep(1000*30);
+                    getNettyBalancingInfo();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                LogUtils.d("HeartbeatService getNettyBalancingInfo获取netty地址网络异常，重新请求");
                 break;
         }
     }

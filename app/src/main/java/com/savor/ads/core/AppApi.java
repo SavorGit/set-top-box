@@ -915,7 +915,7 @@ public class AppApi {
     public static void getNettyBalancingInfo(Context context,ApiRequestListener hanler,HashMap<String,String> param){
         try {
             String reqid = param.get("req_id");
-            new AppServiceOk(context,Action.CP_GET_NETTY_BALANCING_FORM,hanler,param,reqid).requestPostByAsynWithForm(param);
+            new AppServiceOk(context,Action.CP_GET_NETTY_BALANCING_FORM,hanler,param,reqid).postByAsynWithForm();
         }catch (Exception e){
             e.printStackTrace();
         }

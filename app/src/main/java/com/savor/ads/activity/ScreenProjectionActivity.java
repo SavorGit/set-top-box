@@ -127,14 +127,15 @@ public class ScreenProjectionActivity extends BaseActivity{
     private boolean mIsThumbnail;
     /**
      * 图片类型
-     * 1：普通图片；
-     * 2：文件图片；
-     * 3：幻灯片图片；
-     * 4:小程序餐厅端投图片
-     * 5:前置后置广告图片
-     * 6:活动商品广告图片
-     * 7:小程序销售端投欢迎词
-     * 8:评价完服务人员显示的欢迎词
+     * 1：用户端普通图片；
+     * 2：用户端文件图片；
+     * 3：用户端幻灯片图片；
+     * 4: 销售端投图片
+     * 5: 用户端前置后置广告图片
+     * 6: 用户端活动商品广告图片
+     * 7: 销售端投欢迎词
+     * 8: 用户端评价完服务人员显示的欢迎词
+     * 9: 用户端欢迎词图片（多图）
      */
     private int mImageType;
     private String mImagePath;

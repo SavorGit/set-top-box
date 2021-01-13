@@ -33,12 +33,6 @@ public class BusinessCardDialog extends Dialog {
     private ImageView cardQrcodeIV;
     private TextView cardCountdowTipTV;
 
-    private String cardAvatarUrl;
-    private String nickName;
-    private String jobTitle;
-    private String mobile;
-    private String company;
-    private String cardQrcodeUrl;
     private int countdownTime;
     private Handler mHandler = new Handler();
 
@@ -73,7 +67,7 @@ public class BusinessCardDialog extends Dialog {
     }
     private void initViews() {
         cardLayout = findViewById(R.id.card_layout);
-        cardAvatarIV = findViewById(R.id.card_avatar);
+//        cardAvatarIV = findViewById(R.id.card_avatar);
         nickNameTV = findViewById(R.id.nick_name);
         jobTitleTV = findViewById(R.id.job_title);
         mobileTV = findViewById(R.id.mobile);
@@ -83,16 +77,13 @@ public class BusinessCardDialog extends Dialog {
         int width = DensityUtil.getScreenWidth(mContext);
         int height = DensityUtil.getScreenHeight(mContext);
         ViewGroup.LayoutParams layoutParams = cardLayout.getLayoutParams();
-        layoutParams.width = width/7*3;
-        layoutParams.height = height/7*3;
+        layoutParams.width = width/7*4;
+        layoutParams.height = height/7*4;
         cardLayout.setLayoutParams(layoutParams);
     }
 
 
-    public void setDatas(String cardAvatarUrl,String nickName,String jobTitle,String mobile,String company,String cardQrcodeUrl,int countdownTime) {
-        if(!TextUtils.isEmpty(cardAvatarUrl)){
-            GlideImageLoader.loadRoundImage(mContext,cardAvatarUrl,cardAvatarIV,R.mipmap.wxavatar);
-        }
+    public void setDatas(String nickName,String jobTitle,String mobile,String company,String cardQrcodeUrl,int countdownTime) {
         if (!TextUtils.isEmpty(nickName)){
             nickNameTV.setText(nickName);
         }
@@ -106,7 +97,7 @@ public class BusinessCardDialog extends Dialog {
             companyTV.setText(company);
         }
         if (!TextUtils.isEmpty(cardQrcodeUrl)){
-            GlideImageLoader.loadImage(mContext,cardAvatarUrl,cardAvatarIV);
+            GlideImageLoader.loadImage(mContext,cardQrcodeUrl,cardQrcodeIV);
         }
         this.countdownTime = countdownTime;
         mHandler.removeCallbacks(mCountDownRunnable);

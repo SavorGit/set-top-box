@@ -265,7 +265,7 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
             loop.schedule(() -> {
                 LogUtils.i("Reconnecting to: " + session.getNettyUrl() + ':' + session.getNettyPort());
                 client.start();
-            }, 60L, TimeUnit.SECONDS);
+            }, 30L, TimeUnit.SECONDS);
             String mUUID = String.valueOf(System.currentTimeMillis());
             LogReportUtil.get(mContext).downloadLog(mUUID,LogParamValues.reconn,LogParamValues.netty,"");
         } catch (Exception ex) {

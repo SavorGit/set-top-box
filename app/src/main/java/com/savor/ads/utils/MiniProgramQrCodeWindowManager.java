@@ -345,7 +345,7 @@ public class MiniProgramQrCodeWindowManager {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
                         mIsHandling = false;
-                        ShowMessage.showToast(context, "加载二维码失败");
+                        ShowMessage.showToast(context, "加载二维码失败,请检查网络！");
                         hideQrCode();
                         return false;
                     }

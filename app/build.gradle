@@ -18,8 +18,8 @@ android {
         targetSdkVersion TARGET_SDK_VERSION as int
 
         //noinspection HighAppVersionCode
-        versionCode 2021010701
-        versionName "2.1.6"
+        versionCode 2021011303
+        versionName "2.1.7"
         multiDexEnabled true
     }
     compileOptions {
@@ -91,7 +91,7 @@ android {
             dimension "savor"
             buildConfigField("String", "BASE_URL", "\"http://mobile.littlehotspot.com/\"")
             buildConfigField("String", "VIRTUAL_SP_HOST", "\"vsmall.littlehotspot.com\"")
-            buildConfigField("String", "BALANCING_NETTY_BASE", "\"https://api-nzb.littlehotspot.com\"")
+            buildConfigField("String", "BALANCING_NETTY_BASE", "\"http://39.105.217.203\"")
             buildConfigField("String", "BAIDU_AD_BASE_URL", "\"https://jpad.baidu.com/api_6\"")
             buildConfigField("String", "ZMENG_AD_BASE_URL", "\"http://ssp.zmeng123.com/zmt/api/ad/getAd.do\"")
             buildConfigField("String", "JDMOMEDIA_AD_BASE_URL", "\"https://api.jdmomedia.com/\"")

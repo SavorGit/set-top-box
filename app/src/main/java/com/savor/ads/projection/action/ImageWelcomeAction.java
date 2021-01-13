@@ -21,6 +21,7 @@ public class ImageWelcomeAction extends ProjectionActionBase implements Serializ
     private transient Context mContext;
     private int imageType;
     private String imagePath;
+    private boolean isThumbnail;
     private int rotation;
     private String musicPath;
     private String projectionWords;
@@ -31,11 +32,29 @@ public class ImageWelcomeAction extends ProjectionActionBase implements Serializ
     private String waiterName;
     private int projectionTime;
 
-    public ImageWelcomeAction(Context context, int imageType, String imagePath, String words, String wordsize, String color, String fontPath, int projectionTime, int fromService) {
-        this(context, imageType, imagePath, 0, "", words, wordsize, color, fontPath, projectionTime, fromService);
+    public ImageWelcomeAction(Context context, int imageType, boolean isThumbnail, String imagePath, String words, String wordsize, String color, String fontPath, int projectionTime, int fromService) {
+        this(context, imageType,isThumbnail,imagePath, 0, "", words, wordsize, color, fontPath, projectionTime, fromService);
     }
 
-    public ImageWelcomeAction(Context context, int imageType, String imagePath, int rotation, String musicPath, String words, String wordsize, String color, String fontPath, int projectionTime, int fromService) {
+    public ImageWelcomeAction(Context context, int imageType, boolean isThumbnail, String imagePath, int rotation, String musicPath, String words, String wordsize, String color, String fontPath, int projectionTime, int fromService) {
+        super();
+        mPriority = ProjectPriority.HIGH;
+        this.fromService = fromService;
+        this.mContext = context;
+        this.imageType = imageType;
+        this.isThumbnail = isThumbnail;
+        this.imagePath = imagePath;
+        this.rotation = rotation;
+        this.musicPath = musicPath;
+        this.projectionWords = words;
+        this.wordsize = wordsize;
+        this.color = color;
+        this.fontPath = fontPath;
+        this.projectionTime = projectionTime;
+    }
+
+
+    public ImageWelcomeAction(Context context, int imageType,String imagePath, int rotation, String musicPath, String words, String wordsize, String color, String fontPath, int projectionTime, int fromService) {
         super();
         mPriority = ProjectPriority.HIGH;
         this.fromService = fromService;
@@ -51,7 +70,7 @@ public class ImageWelcomeAction extends ProjectionActionBase implements Serializ
         this.projectionTime = projectionTime;
     }
 
-    public ImageWelcomeAction(Context context, int imageType, String imagePath,int rotation, String musicPath, String words,String wordsize,String color,String fontPath,String waiterIconUrl,String waiterName,int projectionTime, int fromService) {
+    public ImageWelcomeAction(Context context, int imageType, String imagePath,int rotation, String musicPath, String words, String wordsize, String color, String fontPath, String waiterIconUrl, String waiterName,int projectionTime, int fromService) {
         super();
         mPriority = ProjectPriority.HIGH;
         this.fromService = fromService;
@@ -81,6 +100,7 @@ public class ImageWelcomeAction extends ProjectionActionBase implements Serializ
             data.putString(ScreenProjectionActivity.EXTRA_TYPE, ConstantValues.PROJECT_TYPE_WELCOME_PICTURE);
         }
         data.putInt(ScreenProjectionActivity.EXTRA_IMAGE_TYPE, imageType);
+        data.putBoolean(ScreenProjectionActivity.EXTRA_IS_THUMBNAIL, isThumbnail);
         data.putString(ScreenProjectionActivity.EXTRA_IMAGE_PATH,imagePath);
         data.putString(ScreenProjectionActivity.EXTRA_MUSIC_PATH,musicPath);
         data.putInt(ScreenProjectionActivity.EXTRA_IMAGE_ROTATION,rotation);

@@ -237,7 +237,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 120:支付红包二维码(---废弃---)
          * 121:抢红包小程序码
          * 122:接收到弹幕
-         * 130:小程序销售端欢迎词推送
+         * 130:销售端欢迎词推送
          * 131|132:退出欢迎词播放
          * 133:推广渠道投屏码
          * 134:投屏帮助视频
@@ -327,9 +327,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         case 42:
                             new Thread(()->projectionVideo(miniProgramProjection)).start();
                             break;
-//                        case 3:
-//                            exitProjection();
-//                            break;
+                        case 3:
+                            exitProjection();
+                            break;
                         case 4:
                         case 44:
                             new Thread(()->projectionMoreImg(miniProgramProjection,action)).start();
@@ -524,7 +524,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                                 showBusinessCard();
                             }
                             break;
-                        case 3:
+                        case 170:
                             activity = ActivitiesManager.getInstance().getCurrentActivity();
                             if (activity instanceof AdsPlayerActivity) {
                                 if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
@@ -643,7 +643,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     if (currentAction==44){
                         ProjectOperationListener.getInstance(context).showRestImage(4,uri,0,false,words,avatarUrl,nickName,playTimes, FROM_SERVICE_MINIPROGRAM);
                     }else if (currentAction==137){
-                        ProjectOperationListener.getInstance(context).showBusinessImage(9,uri,false,words,wordSize,wordColor,fontPath, playTimes,FROM_SERVICE_MINIPROGRAM);
+                        ProjectOperationListener.getInstance(context).showBusinessImage(9,false,uri,words,wordSize,wordColor,fontPath, playTimes,FROM_SERVICE_MINIPROGRAM);
                     }
                 }
 
@@ -1347,10 +1347,15 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         if (img_nums == 0) {
             return;
         }
-        playTimes = miniProgramProjection.getPlay_times();
+        playTimes = miniProgramProjection.getPlay_times()*1000;
         words = miniProgramProjection.getForscreen_char();
         wordSize = miniProgramProjection.getWordsize();
         wordColor = miniProgramProjection.getColor();
+        /**
+         * 注意：由于用户端欢迎词没有返回forscreen_id
+         * 故在使用过程中通过id来当做forscreen_id
+         * 在下面的这行代码全局赋值给forscreen_id
+         * */
         forscreen_id = miniProgramProjection.getId()+"";
         String font_id = miniProgramProjection.getFont_id();
         String basePath = AppUtils.getFilePath(AppUtils.StorageFile.welcome_resource);
@@ -1379,7 +1384,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         isPPTRunnable = false;
         ProjectionImg img = imgList.get(0);
         String url = BuildConfig.OSS_ENDPOINT+img.getUrl()+ConstantValues.PROJECTION_IMG_THUMBNAIL_PARAM;
-        ProjectOperationListener.getInstance(context).showBusinessImage(9,url,true,words,wordSize,wordColor,fontPath, playTimes,FROM_SERVICE_MINIPROGRAM);
+        ProjectOperationListener.getInstance(context).showBusinessImage(9,true,url,words,wordSize,wordColor,fontPath, playTimes,FROM_SERVICE_MINIPROGRAM);
         handler.removeCallbacks(downloadFileRunnable);
         handler.removeCallbacks(downloadWelcomeFileRunnable);
         new Thread(()->downloadFileNoDialog(downloadIndex)).start();
@@ -1399,7 +1404,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             final HashMap params = new HashMap<>();
             params.put("req_id",projection.getReq_id());
             params.put("box_mac", session.getEthernetMac());
-            params.put("forscreen_id", projection.getForscreen_id());
+            params.put("forscreen_id", forscreen_id);
             params.put("openid", projection.getOpenid());
             params.put("resource_id", img.getImg_id());
             String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
@@ -1418,7 +1423,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 }
             }
             if (isDownloaded) {
-                boolean isBreaks = projectionIsBreak(projection.getForscreen_id());
+                boolean isBreaks = projectionIsBreak(forscreen_id);
                 if (!GlobalValues.PROJECT_IMAGES.contains(path)&&!isBreaks) {
                     GlobalValues.PROJECT_IMAGES.add(path);
                 }
@@ -1439,15 +1444,15 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         }
                     }).start();
                 }
-                if (projectionIdMap != null && projectionIdMap.containsKey(projection.getForscreen_id())) {
-                    String isBreak = projectionIdMap.get(projection.getForscreen_id());
+                if (projectionIdMap != null && projectionIdMap.containsKey(forscreen_id)) {
+                    String isBreak = projectionIdMap.get(forscreen_id);
                     params.put("is_break", isBreak);
                     if (isBreak.equals(PROJECTION_STATE_BREAK)){
                         postProjectionResourceLog(params);
                     }
                 }
             } else {
-                boolean isBreaks = projectionIsBreak(projection.getForscreen_id());
+                boolean isBreaks = projectionIsBreak(forscreen_id);
                 if (!GlobalValues.PROJECT_FAIL_IMAGES.contains(path)&&!isBreaks) {
                     GlobalValues.PROJECT_FAIL_IMAGES.add(path);
                 }
@@ -1455,8 +1460,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         +"|||PROJECT_IMAGES:="+GlobalValues.PROJECT_IMAGES
                         +"|||PROJECT_FAIL_IMAGES:="+GlobalValues.PROJECT_FAIL_IMAGES);
                 params.put("is_exist", 2);
-                if (projectionIdMap != null && projectionIdMap.containsKey(projection.getForscreen_id())) {
-                    String isBreak = projectionIdMap.get(projection.getForscreen_id());
+                if (projectionIdMap != null && projectionIdMap.containsKey(forscreen_id)) {
+                    String isBreak = projectionIdMap.get(forscreen_id);
                     params.put("is_break", isBreak);
                     if (isBreak.equals(PROJECTION_STATE_BREAK)){
                         postProjectionResourceLog(params);
@@ -2148,13 +2153,12 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 }
                 cardDialog = new BusinessCardDialog(context);
                 cardDialog.show();
-                String jobTitle = null;//miniProgramProjection.getJob();
-                String mobile = null;//miniProgramProjection.getMobile();
-                String company = null;//miniProgramProjection.getCompany();
-                String cardQrcodeUrl = null;//miniProgramProjection.getCodeUrl();
-//              int countdownTime = miniProgramProjection.getCountdown();
-                int countdownTime = 30;
-                cardDialog.setDatas(headPic,nickName,jobTitle,mobile,company,cardQrcodeUrl,countdownTime);
+                String jobTitle = miniProgramProjection.getJob();
+                String mobile = miniProgramProjection.getMobile();
+                String company = miniProgramProjection.getCompany();
+                String cardQrcodeUrl = miniProgramProjection.getCodeUrl();
+              int countdownTime = miniProgramProjection.getCountdown();
+                cardDialog.setDatas(nickName,jobTitle,mobile,company,cardQrcodeUrl,countdownTime);
             }
         });
     }
@@ -2168,10 +2172,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 }
                 fileDialog = new BusinessFileDialog(context);
                 fileDialog.show();
-                String fileName = null;//miniProgramProjection.getJob();
-                String cardQrcodeUrl = null;//miniProgramProjection.getCodeUrl();
-//              int countdownTime = miniProgramProjection.getCountdown();
-                int countdownTime = 30;
+                String fileName = miniProgramProjection.getFilename();
+                String cardQrcodeUrl = miniProgramProjection.getCodeUrl();
+              int countdownTime = miniProgramProjection.getCountdown();
                 fileDialog.setDatas(headPic,nickName,fileName,cardQrcodeUrl,countdownTime);
             }
         });

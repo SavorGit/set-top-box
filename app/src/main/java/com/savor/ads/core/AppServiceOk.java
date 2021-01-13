@@ -17,6 +17,7 @@ import com.savor.ads.okhttp.coreProgress.ProgressHelper;
 import com.savor.ads.okhttp.coreProgress.download.UIProgressResponseListener;
 import com.savor.ads.okhttp.coreProgress.upload.UIProgressRequestListener;
 import com.savor.ads.okhttp.request.GetRequest;
+import com.savor.ads.okhttp.request.PostFormRequest;
 import com.savor.ads.okhttp.request.PostProtoBufferRequest;
 import com.savor.ads.okhttp.request.PostStringRequest;
 import com.savor.ads.okhttp.request.RequestCall;
@@ -63,7 +64,6 @@ public class AppServiceOk {
     protected Session appSession;
     private String req_id;
 
-    private String uploadFileName = "";
     private static long cacheSize = 1024 * 1024 * 5;
 
     private static int CONNTIMEOUT = 60*1000;
@@ -214,14 +214,81 @@ public class AppServiceOk {
         }
     }
 
+    /**
+     * 获取netty服务器IP和端口专用方法
+     */
+    public void postByAsynWithForm() {
+        try {
+            Map<String, String> params = null;
+            if (mParameter instanceof HashMap) {
+                params = (Map<String, String>) mParameter;
+            }
+            String requestUrl = AppApi.API_URLS.get(action);
+
+            Log.d("测试netty启动",requestUrl);
+            Log.d("测试netty启动","paramsMap"+params.toString());
+
+            final Map<String, String> headers = new HashMap<>();
+            headers.put("traceinfo", appSession.getDeviceInfo());
+            LogUtils.d("url-->" + requestUrl);
+            headers.put("boxMac", appSession.getEthernetMac());
+            headers.put("hotelId", appSession.getBoiteId());
+            headers.put("Connection", "keep-alive");
+            headers.put("platform", "2");
+            headers.put("phoneModel", Build.MODEL);
+            headers.put("systemVersion", Build.VERSION.RELEASE);
+            headers.put("appVersion", "3.2.0");
+
+            Callback<Object> callback = new Callback<Object>() {
+
+                @Override
+                public Object parseNetworkResponse(Response response) {
+                    Object object = null;
+                    try {
+                        object = ApiResponseFactory.getResponse(mContext, action, response, "", req_id);
+                        LogUtils.d(object.toString() + "");
+                        response.close();
+                    } catch (Exception e) {
+                    }
+                    return object;
+                }
+
+                @Override
+                public void onError(Call call, Exception e) {
+                    Log.d("测试netty启动异常",action+e.getMessage());
+                    if (handler != null) {
+                        handler.onNetworkFailed(action);
+                    }
+                }
+
+                @Override
+                public void onResponse(Object response) {
+                    Log.d("测试netty启动","action="+action+"response="+response);
+                    if (handler != null) {
+                        if (response instanceof ResponseErrorMessage) {
+                            handler.onError(action, response);
+                        } else {
+                            handler.onSuccess(action, response);
+                        }
+                    }
+                }
+
+            };
+            PostFormRequest formRequest = new PostFormRequest(requestUrl, action, params, headers);
+            RequestCall requestCall = new RequestCall(formRequest);
+            requestCall.connTimeOut(CONNTIMEOUT);
+            requestCall.readTimeOut(READTIMEOUT);
+            requestCall.writeTimeOut(WRITETIMEOUT);
+            requestCall.execute(callback);
+        } catch (Exception e) {
+            LogUtils.d(e.toString());
+        }
+    }
 
     public void requestPostByAsynWithForm(HashMap<String, String> paramsMap) {
         try {
             String requestUrl = AppApi.API_URLS.get(action);
-            if (requestUrl.contains("netty/balancing")){
-                Log.d("测试netty启动",requestUrl);
-                Log.d("测试netty启动","paramsMap"+paramsMap.toString());
-            }
+
             FormBody.Builder builder = new FormBody.Builder();
             for (String key : paramsMap.keySet()) {
                 builder.add(key, paramsMap.get(key));
@@ -233,21 +300,16 @@ public class AppServiceOk {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     handler.onNetworkFailed(action);
-                    Log.d("测试netty启动异常",action+e.getMessage());
                 }
 
                 @Override
                 public void onResponse(Call call, Response response){
-                    Log.d("测试netty启动","action="+action+"response="+response);
+
                     Object object = ApiResponseFactory.getResponse(mContext, action, response, "", req_id);
                     if (handler != null) {
                         if (object instanceof ResponseErrorMessage) {
-
                             handler.onError(action, object);
                         } else {
-                            if (requestUrl.contains("netty/balancing")){
-                                Log.d("测试netty启动","object");
-                            }
                             handler.onSuccess(action, object);
                         }
                     }
@@ -255,7 +317,6 @@ public class AppServiceOk {
             });
 
         } catch (Exception e) {
-            Log.d("测试netty启动异常",action.toString());
             Log.e("AppServiceOk", e.toString());
         }
     }
@@ -509,89 +570,6 @@ public class AppServiceOk {
                 .url(url)
                 .build();
         ProgressHelper.addProgressResponseListener(client, uiProgressResponseListener,targetFile).newCall(request).enqueue(callback2);
-    }
-
-    /**
-     * 上传文件
-     *
-     */
-    public void uploadFile(final String uploadFileName,String archive) {
-        this.uploadFileName = uploadFileName;
-        final File srcFile = new File(archive);
-        if (archive==null||!srcFile.exists()){
-            return;
-        }
-
-        //这个是ui线程回调，可直接操作UI
-        final UIProgressRequestListener uiProgressRequestListener = new UIProgressRequestListener() {
-            @Override
-            public void onUIRequestProgress(long bytesWrite, long contentLength, boolean done) {
-                LogUtils.e("TAG" + "bytesWrite:" + bytesWrite);
-                LogUtils.e("TAG" + "contentLength" + contentLength);
-                LogUtils.e("TAG" + (100 * bytesWrite) / contentLength + " % done ");
-                LogUtils.e("TAG" + "done:" + done);
-                LogUtils.e("TAG" + "======================");
-                //ui层回调
-                FileDownProgress fileDownProgress = new FileDownProgress();
-                fileDownProgress.setTotal(contentLength);
-                fileDownProgress.setNow(bytesWrite);
-                fileDownProgress.setLoading(done);
-//                handler.onSuccess(action, fileDownProgress);
-            }
-        };
-        String uri = AppApi.API_URLS.get(action);
-        if (mParameter instanceof Map && ((Map) mParameter).size() > 0) {
-            uri = uri+"?";
-            @SuppressWarnings("unchecked")
-            Map<String, Object> map = (Map<String, Object>) mParameter;
-            Set<Map.Entry<String, Object>> params = map.entrySet();
-            for (Map.Entry<String, Object> param : params) {
-                String key = param.getKey();
-                Object val = param.getValue();
-                uri = uri + key + "=" + val + "&";
-            }
-        }
-        try {
-
-            okhttp3.Callback callback = new okhttp3.Callback() {
-
-                @Override
-                public void onFailure(Call var1, IOException e) {
-                    LogUtils.e("上传", e);
-                }
-
-                @Override
-                public void onResponse(Call var1, Response response) throws IOException {
-//                    LogUtils.d(response.body().string());
-
-                    Object object = ApiResponseFactory.getResponse(mContext, action, response, uploadFileName, "");
-                    if (handler != null) {
-                        handler.onSuccess(action,object);
-                    }
-                }
-            };
-            //构造上传请求，类似web表单
-
-            RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                    .addFormDataPart("hello", "android")
-                    .addFormDataPart("zip", srcFile.getName(), RequestBody.create(null, srcFile))
-                    .addPart(Headers.of("Content-Disposition", "form-data; name=\"another\";filename=\"another.dex\""),
-                            RequestBody.create(MediaType.parse("application/octet-stream"), srcFile))
-                    .build();
-
-            //进行包装，使其支持进度回调
-            final Request request = new Request
-                    .Builder()
-                    .url(uri)
-                    .addHeader("Savor-Box-MAC",appSession.getEthernetMac())
-                    .post(ProgressHelper.addProgressRequestListener(requestBody, uiProgressRequestListener))
-                    .build();
-            //开始请求
-            client.newCall(request).enqueue(callback);
-
-        } catch (Exception e) {
-            LogUtils.d(e.toString());
-        }
     }
 
     public void postProto(ZmtAPI.ZmAdRequest message) {
