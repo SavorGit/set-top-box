@@ -849,7 +849,7 @@ public class ScreenProjectionActivity extends BaseActivity{
 
 
         }else if (mProjectType.equals(ConstantValues.PROJECT_TYPE_BUSINESS_WELCOME)){
-            // 小程序用戶端售端欢迎词投屏
+            // 小程序用戶端欢迎词投屏
             mSavorVideoView.setVisibility(View.GONE);
             mSavorVideoView.release();
             mImageArea.setVisibility(View.VISIBLE);
@@ -869,7 +869,12 @@ public class ScreenProjectionActivity extends BaseActivity{
                     if (welcomeView.getDrawable()!=null){
                         GlideImageLoader.loadImageWithDrawable(mContext,mImagePath,welcomeView,welcomeView.getDrawable());
                     }else{
-                        GlideImageLoader.loadImage(mContext,mImagePath,welcomeView);
+                        if (mImagePath.contains("http")){
+                            GlideImageLoader.loadImage(mContext,mImagePath,welcomeView);
+                        }else{
+                            File file = new File(mImagePath);
+                            GlideImageLoader.loadLocalImage(mContext,file,welcomeView);
+                        }
                     }
                 }
             }
