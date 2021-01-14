@@ -104,6 +104,11 @@ public class BusinessCardDialog extends Dialog {
         showCountDown();
     }
 
+    @Override
+    public void dismiss() {
+        mHandler.removeCallbacks(mCountDownRunnable);
+        super.dismiss();
+    }
 
     //倒计时线程
     private Runnable mCountDownRunnable = ()->showCountDown();

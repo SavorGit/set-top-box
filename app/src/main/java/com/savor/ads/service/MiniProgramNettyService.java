@@ -288,10 +288,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     }
 
                     /*******************************/
-                    //一旦有netty请求进来，就关闭引导用户互动的码和视频
-                    if (extensionQrCodeDialog!=null&&extensionQrCodeDialog.isShowing()){
-                        extensionQrCodeDialog.dismiss();
-                    }
+                    removeDialog();
                     /*******************************/
                     if (action != 101 && action != 102 && action != 103 && action != 105
                             && ActivitiesManager.getInstance().getCurrentActivity() instanceof MonkeyGameActivity) {
@@ -513,25 +510,33 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             finishEvaluate(miniProgramProjection);
                             break;
                         case 150:
+                            activity = ActivitiesManager.getInstance().getCurrentActivity();
+                            if (activity instanceof ScreenProjectionActivity){
+                                return;
+                            }
                             guideImage();
                             break;
                         case 160:
                             activity = ActivitiesManager.getInstance().getCurrentActivity();
-                            if (activity instanceof AdsPlayerActivity) {
-                                if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
-                                    return;
-                                }
-                                showBusinessCard();
+                            if (activity instanceof ScreenProjectionActivity) {
+                                exitProjection();
                             }
+                            Thread.sleep(500);
+                            if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
+                                return;
+                            }
+                            showBusinessCard();
                             break;
                         case 170:
                             activity = ActivitiesManager.getInstance().getCurrentActivity();
-                            if (activity instanceof AdsPlayerActivity) {
-                                if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
-                                    return;
-                                }
-                                showBusinessFile();
+                            if (activity instanceof ScreenProjectionActivity) {
+                                exitProjection();
                             }
+                            Thread.sleep(500);
+                            if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
+                                return;
+                            }
+                            showBusinessFile();
                             break;
                         case 999:
                             testNetDownload(miniProgramProjection);
@@ -545,6 +550,19 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             }
         }
     }
+    /**一旦有netty请求进来，就关闭正在展示的dialog*/
+    private void removeDialog(){
+        if (extensionQrCodeDialog!=null&&extensionQrCodeDialog.isShowing()){
+            extensionQrCodeDialog.dismiss();
+        }
+        if (cardDialog!=null&&cardDialog.isShowing()){
+            cardDialog.dismiss();
+        }
+        if (fileDialog!=null&&fileDialog.isShowing()){
+            fileDialog.dismiss();
+        }
+    }
+
     /**如果当前用户正在投屏，则不允许销售端打断**/
     private boolean checkIsUserProjection(int action){
         boolean flag=false;
@@ -1188,7 +1206,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
 
         ProjectOperationListener.getInstance(context).stop(GlobalValues.CURRENT_PROJECT_ID);
         Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
-        if (this.miniProgramProjection!=null){
+        if (this.miniProgramProjection!=null&&!TextUtils.isEmpty(forscreen_id)){
             projectionIdMap.put(miniProgramProjection.getForscreen_id(),PROJECTION_STATE_BREAK);
         }
         if (activity instanceof ScreenProjectionActivity&&this.miniProgramProjection!=null){
@@ -1391,6 +1409,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         ProjectOperationListener.getInstance(context).showBusinessImage(9,true,url,words,wordSize,wordColor,fontPath, playTimes,FROM_SERVICE_MINIPROGRAM);
         handler.removeCallbacks(downloadFileRunnable);
         handler.removeCallbacks(downloadWelcomeFileRunnable);
+        downloadIndex = 0;
         new Thread(()->downloadFileNoDialog(downloadIndex)).start();
     }
 

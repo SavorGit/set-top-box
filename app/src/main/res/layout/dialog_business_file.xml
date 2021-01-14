@@ -32,7 +32,7 @@
                     android:layout_height="60dp"/>
                 <TextView
                     android:id="@+id/nick_name"
-                    android:text="张三三"
+                    android:text=""
                     android:textSize="25dp"
                     android:textStyle="bold"
                     android:lines="1"
@@ -46,7 +46,7 @@
             <TextView
                 android:id="@+id/filename"
                 android:layout_marginTop="5dp"
-                android:text="分享了文件《胆小鬼.ppt》"
+                android:text=""
                 android:textSize="24dp"
                 android:lines="3"
                 android:textColor="@color/color_black"
