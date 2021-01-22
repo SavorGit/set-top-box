@@ -19,6 +19,7 @@ import com.savor.ads.BuildConfig;
 import com.savor.ads.R;
 import com.savor.ads.SavorApplication;
 import com.savor.ads.activity.AdsPlayerActivity;
+import com.savor.ads.bean.MediaFileBean;
 import com.savor.ads.dialog.BusinessCardDialog;
 import com.savor.ads.activity.MonkeyGameActivity;
 import com.savor.ads.activity.PartakeDishDrawActivity;
@@ -248,6 +249,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 150:小程序连接机顶盒成功后推送引导投屏图
          * 160：商务宴请-個人名片推送
          * 170：商务宴请-文件分享
+         * 171: 预下载投屏资源（含图片，视频，文件）
          * 000:活动广告
          */
         if (ConstantValues.NETTY_MINI_PROGRAM_COMMAND.equals(msg)){
@@ -297,6 +299,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     }
                     handler.removeCallbacks(mProjectShowImageRunnable);
                     handler.removeCallbacks(downloadFileRunnable);
+                    handler.removeCallbacks(downloadFileNoDialogRunnable);
+                    handler.post(mProjectExitDownloadRunnable);
                     if (action!=110){
                         Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
                         if (activity instanceof WebviewGameActivity){
@@ -498,13 +502,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             }
                             break;
                         case 137:
-                            activity = ActivitiesManager.getInstance().getCurrentActivity();
-                            if (activity instanceof AdsPlayerActivity) {
-                                if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
-                                    return;
-                                }
-                                businessWelcome();
-                            }
+                            businessWelcome();
                             break;
                         case 140:
                             finishEvaluate(miniProgramProjection);
@@ -537,6 +535,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                                 return;
                             }
                             showBusinessFile();
+                            break;
+                        case 171:
+                            new Thread(this::preDownloadResource).start();
                             break;
                         case 999:
                             testNetDownload(miniProgramProjection);
@@ -984,8 +985,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         //更新投屏状态
         updateProjectionState(forscreen_id);
 
-        handler.removeCallbacks(mProjectExitDownloadRunnable);
-        handler.post(mProjectExitDownloadRunnable);
         int rotation = minipp.getRotation();
         LogUtils.d("12345+miniProgramProjection="+minipp);
         LogUtils.d("12345+downloadVideoIdMap="+projectionIdMap);
@@ -1026,8 +1025,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         LogUtils.d("12345+:postProjectionResourceLog="+params);
 
         MobclickAgent.onEvent(context, "screenProjctionDownloadSuccess" + file.getName());
-        GlobalValues.PROJECT_IMAGES.clear();
-        GlobalValues.PROJECT_FAIL_IMAGES.clear();
+        resetConstant();
         if (currentAction==42){
             if (isDownloaded){
                 ProjectOperationListener.getInstance(context).showRestVideo(basePath,oss_url,true, headPic, nickName,minipp.getPlay_times());
@@ -1103,16 +1101,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         if (img_nums == 0) {
             return;
         }
-        GlobalValues.PROJECTION_WORDS = words;
-        GlobalValues.PROJECTION_VIDEO_PATH = null;
-        GlobalValues.PROJECT_IMAGES.clear();
-        GlobalValues.PROJECT_FAIL_IMAGES.clear();
-        GlobalValues.CURRENT_OPEN_ID = openid;
-        GlobalValues.CURRRNT_PROJECT_ID = forscreen_id;
-        handler.removeCallbacks(mProjectShowImageRunnable);
 
-        isDownloadRunnable = false;
-        isPPTRunnable = false;
+        resetConstant();
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -1189,6 +1179,130 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         new Thread(()->downloadFile(downloadIndex)).start();
     }
 
+    private void downloadFile(int downloadIndex){
+        boolean isDownloaded=false;
+        if (miniProgramProjection==null){
+            return;
+        }
+        try{
+            MiniProgramProjection projection = this.miniProgramProjection;
+            if (projection.getImg_list()==null||projection.getImg_list().size()==0){
+                return;
+            }
+            ProjectionImg img = projection.getImg_list().get(downloadIndex);
+            final HashMap params = new HashMap<>();
+            params.put("req_id",projection.getReq_id());
+            params.put("box_mac", session.getEthernetMac());
+            params.put("forscreen_id", projection.getForscreen_id());
+            params.put("openid", projection.getOpenid());
+            params.put("resource_id", img.getImg_id());
+            String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+            String fileName = img.getFilename();
+            long resourceSize = img.getResource_size();
+            String path = basePath + fileName;
+            File file = new File(path);
+            if (file.exists()) {
+//                params.put("is_exist", 1);
+                isDownloaded = true;
+                handler.post(()->pImgListDialog.setImgDownloadProgress(img.getImg_id(), "100%"));
+            } else {
+//                params.put("is_exist", 0);
+                try {
+                    String oss_url = BuildConfig.OSS_ENDPOINT+img.getUrl();
+                    ProgressDownloader downloader = new ProgressDownloader(context,oss_url, basePath,fileName,resourceSize,true,serial_number);
+                    downloader.setDownloadProgressListener(new DownloadProgressListener() {
+                        @Override
+                        public void getDownloadProgress(long currentSize, long totalSize) {
+                        }
+                        @Override
+                        public void getDownloadProgress(String progress) {
+                            handler.post(()->pImgListDialog.setImgDownloadProgress(img.getImg_id(),progress));
+                        }
+                    });
+                    isDownloaded = downloader.downloadByRange();
+                    if (resourceSize==0&&isDownloaded){
+                        handler.post(()->pImgListDialog.setImgDownloadProgress(img.getImg_id(), "100%"));
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+            if (isDownloaded) {
+                boolean isBreaks = projectionIsBreak(projection.getForscreen_id());
+                if (!GlobalValues.PROJECT_IMAGES.contains(path)&&!isBreaks) {
+                    GlobalValues.PROJECT_IMAGES.add(path);
+                }
+                if (GlobalValues.PROJECT_IMAGES.size()==1){
+                    postProjectionResourceLog(params);
+                }
+                LogUtils.d("img_nums:="+img_nums
+                        +"|||PROJECT_IMAGES:="+GlobalValues.PROJECT_IMAGES
+                        +"|||PROJECT_FAIL_IMAGES:="+GlobalValues.PROJECT_FAIL_IMAGES);
+                if (!isPPTRunnable&&GlobalValues.INTERACTION_ADS_PLAY==0){
+                    handler.removeCallbacks(mProjectShowImageRunnable);
+                    currentIndex =0;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            LogUtils.d("projectShowImage:第一张forscreen_id="+projection.getForscreen_id());
+                            projectShowImage(currentIndex, words, headPic, nickName);
+                        }
+                    }).start();
+                }
+                if (projectionIdMap != null && projectionIdMap.containsKey(projection.getForscreen_id())) {
+                    String isBreak = projectionIdMap.get(projection.getForscreen_id());
+                    params.put("is_break", isBreak);
+                    if (isBreak.equals(PROJECTION_STATE_BREAK)){
+                        postProjectionResourceLog(params);
+                    }
+                }
+            } else {
+                boolean isBreaks = projectionIsBreak(projection.getForscreen_id());
+                if (!GlobalValues.PROJECT_FAIL_IMAGES.contains(path)&&!isBreaks) {
+                    GlobalValues.PROJECT_FAIL_IMAGES.add(path);
+                }
+                LogUtils.d("img_nums:="+img_nums
+                        +"|||PROJECT_IMAGES:="+GlobalValues.PROJECT_IMAGES
+                        +"|||PROJECT_FAIL_IMAGES:="+GlobalValues.PROJECT_FAIL_IMAGES);
+                params.put("is_exist", 2);
+                if (projectionIdMap != null && projectionIdMap.containsKey(projection.getForscreen_id())) {
+                    String isBreak = projectionIdMap.get(projection.getForscreen_id());
+                    params.put("is_break", isBreak);
+                    if (isBreak.equals(PROJECTION_STATE_BREAK)){
+                        postProjectionResourceLog(params);
+                    }
+                }
+            }
+            if (GlobalValues.PROJECT_IMAGES.size()+GlobalValues.PROJECT_FAIL_IMAGES.size()==img_nums){
+                handler.removeCallbacks(downloadFileRunnable);
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (pImgListDialog!=null&&pImgListDialog.isShowing()){
+                            pImgListDialog.clearContent();
+                            pImgListDialog.dismiss();
+                        }
+                    }
+                },1000);
+            }else{
+                handler.postDelayed(downloadFileRunnable,500);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    /**
+     * 下载文件
+     * @return
+     */
+    private Runnable downloadFileRunnable = new Runnable() {
+        @Override
+        public void run() {
+            LogUtils.d("下载测试----进入线程");
+            downloadIndex ++;
+            new Thread(()->downloadFile(downloadIndex)).start();
+        }
+    };
     /**
      * 退出投屏
      */
@@ -1243,6 +1357,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         }
         String forscreen_id = miniProgramProjection.getForscreen_id();
         updateProjectionState(forscreen_id);
+        resetConstant();
         HashMap<String, Object> params = new HashMap<>();
         params.put("box_mac", session.getEthernetMac());
         params.put("forscreen_id", forscreen_id);
@@ -1395,20 +1510,11 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         }
         //更新投屏状态
         updateProjectionState(forscreen_id);
-        GlobalValues.PROJECTION_WORDS = words;
-        GlobalValues.PROJECTION_VIDEO_PATH = null;
-        GlobalValues.PROJECT_IMAGES.clear();
-        GlobalValues.PROJECT_FAIL_IMAGES.clear();
-        GlobalValues.CURRENT_OPEN_ID = openid;
-        GlobalValues.CURRRNT_PROJECT_ID = forscreen_id;
-        handler.removeCallbacks(mProjectShowImageRunnable);
-        isDownloadRunnable = false;
-        isPPTRunnable = false;
+        resetConstant();
+
         ProjectionImg img = imgList.get(0);
         String url = BuildConfig.OSS_ENDPOINT+img.getUrl()+ConstantValues.PROJECTION_IMG_THUMBNAIL_PARAM;
         ProjectOperationListener.getInstance(context).showBusinessImage(9,true,url,words,wordSize,wordColor,fontPath, playTimes,FROM_SERVICE_MINIPROGRAM);
-        handler.removeCallbacks(downloadFileRunnable);
-        handler.removeCallbacks(downloadWelcomeFileRunnable);
         downloadIndex = 0;
         new Thread(()->downloadFileNoDialog(downloadIndex)).start();
     }
@@ -1492,9 +1598,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 }
             }
             if (GlobalValues.PROJECT_IMAGES.size()+GlobalValues.PROJECT_FAIL_IMAGES.size()==img_nums){
-                handler.removeCallbacks(downloadWelcomeFileRunnable);
+                handler.removeCallbacks(downloadFileNoDialogRunnable);
             }else{
-                handler.postDelayed(downloadWelcomeFileRunnable,500);
+                handler.postDelayed(downloadFileNoDialogRunnable,500);
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -1505,7 +1611,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
      * 下载文件
      * @return
      */
-    private Runnable downloadWelcomeFileRunnable = new Runnable() {
+    private Runnable downloadFileNoDialogRunnable = new Runnable() {
         @Override
         public void run() {
             LogUtils.d("下载测试----进入线程");
@@ -1521,6 +1627,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private void onDemandBirthdayVideo(MiniProgramProjection miniProgramProjection){
         forscreen_id = miniProgramProjection.getForscreen_id();
         updateProjectionState(forscreen_id);
+        resetConstant();
         long startTime = System.currentTimeMillis();
         HashMap<String, Object> params = new HashMap<>();
         params.put("box_mac", session.getEthernetMac());
@@ -1637,13 +1744,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         String req_id = program.getReq_id();
         words = program.getForscreen_char();
         img_nums = program.getImg_nums();
-        GlobalValues.PROJECTION_VIDEO_PATH = null;
-        GlobalValues.PROJECT_IMAGES.clear();
-        GlobalValues.PROJECT_FAIL_IMAGES.clear();
-        GlobalValues.CURRENT_OPEN_ID = openid;
-        GlobalValues.CURRRNT_PROJECT_ID = forscreen_id;
-
-        handler.removeCallbacks(mProjectShowImageRunnable);
+        resetConstant();
         if (GlobalValues.IMG_NUM.containsKey(openid)){
             if (GlobalValues.IMG_NUM.get(openid)!=-1){
                 GlobalValues.IMG_NUM.put(openid,GlobalValues.IMG_NUM.get(openid)+1);
@@ -1651,8 +1752,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         }else{
             GlobalValues.IMG_NUM.put(openid,1);
         }
-        isDownloadRunnable = false;
-        isPPTRunnable = false;
         ArrayList<ProjectionImg> imgList = new ArrayList<>();
         imgList.addAll(program.getImg_list());
         ProjectionImg img = imgList.get(0);
@@ -1674,7 +1773,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 }
             });
         }
-        handler.removeCallbacks(downloadFileRunnable);
         downloadIndex =0;
         new Thread(()->downloadFile(downloadIndex)).start();
 
@@ -1793,132 +1891,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         if (ossUtils.syncNativeOSSDownload()) {
             params.put("used_time", System.currentTimeMillis() - startTime);
             postProjectionResourceLog(params);
-        }
-    }
-
-    /**
-     * 下载文件
-     * @return
-     */
-    private Runnable downloadFileRunnable = new Runnable() {
-        @Override
-        public void run() {
-            LogUtils.d("下载测试----进入线程");
-            downloadIndex ++;
-            new Thread(()->downloadFile(downloadIndex)).start();
-        }
-    };
-
-    private void downloadFile(int downloadIndex){
-        boolean isDownloaded=false;
-        if (miniProgramProjection==null){
-            return;
-        }
-        try{
-            MiniProgramProjection projection = this.miniProgramProjection;
-            if (projection.getImg_list()==null||projection.getImg_list().size()==0){
-                return;
-            }
-            ProjectionImg img = projection.getImg_list().get(downloadIndex);
-            final HashMap params = new HashMap<>();
-            params.put("req_id",projection.getReq_id());
-            params.put("box_mac", session.getEthernetMac());
-            params.put("forscreen_id", projection.getForscreen_id());
-            params.put("openid", projection.getOpenid());
-            params.put("resource_id", img.getImg_id());
-            String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-            String fileName = img.getFilename();
-            long resourceSize = img.getResource_size();
-            String path = basePath + fileName;
-            File file = new File(path);
-            if (file.exists()) {
-//                params.put("is_exist", 1);
-                isDownloaded = true;
-                handler.post(()->pImgListDialog.setImgDownloadProgress(img.getImg_id(), "100%"));
-            } else {
-//                params.put("is_exist", 0);
-                try {
-                    String oss_url = BuildConfig.OSS_ENDPOINT+img.getUrl();
-                    ProgressDownloader downloader = new ProgressDownloader(context,oss_url, basePath,fileName,resourceSize,true,serial_number);
-                    downloader.setDownloadProgressListener(new DownloadProgressListener() {
-                        @Override
-                        public void getDownloadProgress(long currentSize, long totalSize) {
-                        }
-                        @Override
-                        public void getDownloadProgress(String progress) {
-                            handler.post(()->pImgListDialog.setImgDownloadProgress(img.getImg_id(),progress));
-                        }
-                    });
-                    isDownloaded = downloader.downloadByRange();
-                    if (resourceSize==0&&isDownloaded){
-                        handler.post(()->pImgListDialog.setImgDownloadProgress(img.getImg_id(), "100%"));
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-            if (isDownloaded) {
-                boolean isBreaks = projectionIsBreak(projection.getForscreen_id());
-                if (!GlobalValues.PROJECT_IMAGES.contains(path)&&!isBreaks) {
-                    GlobalValues.PROJECT_IMAGES.add(path);
-                }
-                if (GlobalValues.PROJECT_IMAGES.size()==1){
-                    postProjectionResourceLog(params);
-                }
-                LogUtils.d("img_nums:="+img_nums
-                        +"|||PROJECT_IMAGES:="+GlobalValues.PROJECT_IMAGES
-                        +"|||PROJECT_FAIL_IMAGES:="+GlobalValues.PROJECT_FAIL_IMAGES);
-                if (!isPPTRunnable&&GlobalValues.INTERACTION_ADS_PLAY==0){
-                    handler.removeCallbacks(mProjectShowImageRunnable);
-                    currentIndex =0;
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            LogUtils.d("projectShowImage:第一张forscreen_id="+projection.getForscreen_id());
-                            projectShowImage(currentIndex, words, headPic, nickName);
-                        }
-                    }).start();
-                }
-                if (projectionIdMap != null && projectionIdMap.containsKey(projection.getForscreen_id())) {
-                    String isBreak = projectionIdMap.get(projection.getForscreen_id());
-                    params.put("is_break", isBreak);
-                    if (isBreak.equals(PROJECTION_STATE_BREAK)){
-                        postProjectionResourceLog(params);
-                    }
-                }
-            } else {
-                boolean isBreaks = projectionIsBreak(projection.getForscreen_id());
-                if (!GlobalValues.PROJECT_FAIL_IMAGES.contains(path)&&!isBreaks) {
-                    GlobalValues.PROJECT_FAIL_IMAGES.add(path);
-                }
-                LogUtils.d("img_nums:="+img_nums
-                        +"|||PROJECT_IMAGES:="+GlobalValues.PROJECT_IMAGES
-                        +"|||PROJECT_FAIL_IMAGES:="+GlobalValues.PROJECT_FAIL_IMAGES);
-                params.put("is_exist", 2);
-                if (projectionIdMap != null && projectionIdMap.containsKey(projection.getForscreen_id())) {
-                    String isBreak = projectionIdMap.get(projection.getForscreen_id());
-                    params.put("is_break", isBreak);
-                    if (isBreak.equals(PROJECTION_STATE_BREAK)){
-                        postProjectionResourceLog(params);
-                    }
-                }
-            }
-            if (GlobalValues.PROJECT_IMAGES.size()+GlobalValues.PROJECT_FAIL_IMAGES.size()==img_nums){
-                handler.removeCallbacks(downloadFileRunnable);
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (pImgListDialog!=null&&pImgListDialog.isShowing()){
-                            pImgListDialog.clearContent();
-                            pImgListDialog.dismiss();
-                        }
-                    }
-                },1000);
-            }else{
-                handler.postDelayed(downloadFileRunnable,500);
-            }
-        }catch (Exception e){
-            e.printStackTrace();
         }
     }
 
@@ -2210,6 +2182,29 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             }
         });
     }
+    /**预下载资源*/
+    private void preDownloadResource(){
+        if (miniProgramProjection!=null&&miniProgramProjection.getResource_list()!=null){
+            List<MediaFileBean> list = miniProgramProjection.getResource_list();
+            for (MediaFileBean bean:list){
+                String url = bean.getUrl();
+                String filename = bean.getFilename();
+                if (TextUtils.isEmpty(url)||TextUtils.isEmpty(filename)) {
+                    return;
+                }
+                String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+                String path = AppUtils.getFilePath(AppUtils.StorageFile.projection) + filename;
+                File file = new File(path);
+                if (file.exists()){
+                    file.delete();
+                }
+                String oss_url = BuildConfig.OSS_ENDPOINT+url;
+                ProgressDownloader downloader = new ProgressDownloader(context,oss_url, basePath,filename);
+                downloader.downloadByRange();
+            }
+        }
+
+    }
     /**每次投屏开始，设置一下当前投屏动作的状态*/
     private void updateProjectionState(String forscreen_id){
         //map的value值,如果为0正常投屏，如果为1则为打断的投屏
@@ -2224,6 +2219,16 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         if (!TextUtils.isEmpty(forscreen_id)){
             projectionIdMap.put(forscreen_id,PROJECTION_STATE_PLAY);
         }
+    }
+    /**新的投屏动作进来，就重置上一次投屏动作的常量*/
+    private void resetConstant(){
+        GlobalValues.PROJECTION_VIDEO_PATH = null;
+        GlobalValues.PROJECT_IMAGES.clear();
+        GlobalValues.PROJECT_FAIL_IMAGES.clear();
+        GlobalValues.CURRENT_OPEN_ID = openid;
+        GlobalValues.CURRRNT_PROJECT_ID = forscreen_id;
+        isDownloadRunnable = false;
+        isPPTRunnable = false;
     }
 
     /**

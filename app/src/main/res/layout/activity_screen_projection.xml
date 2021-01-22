@@ -19,12 +19,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="visible">
-        <com.savor.ads.customview.MyImageView
+        <ImageView
             android:id="@+id/welcome_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="fitCenter"
-            android:adjustViewBounds="true"/>
+            android:scaleType="fitCenter"/>
         <ImageView
             android:id="@+id/image_view"
             android:layout_width="match_parent"

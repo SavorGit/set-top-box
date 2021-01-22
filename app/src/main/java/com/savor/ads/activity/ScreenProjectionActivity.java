@@ -195,7 +195,7 @@ public class ScreenProjectionActivity extends BaseActivity{
     private ProjectVideoView mSavorVideoView;
     private RelativeLayout mImageArea;
     private ImageView mImageView;
-    private MyImageView welcomeView;
+    private ImageView welcomeView;
     private TextView mProjectionWordsTV;
     private TextView mWelcomeWordsTV;
     private MediaPlayer mMusicPlayer;

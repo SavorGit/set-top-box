@@ -96,7 +96,7 @@ public class GlobalValues <T extends MediaLibBean> {
     /**本次投屏操作的唯一标示ID**/
     public static String CURRRNT_PROJECT_ID;
     /**本次投屏文字**/
-    public static String PROJECTION_WORDS;
+//    public static String PROJECTION_WORDS;
     /**当前netty接收到的图片投屏人投的并且下载成功的照片集合**/
     public static ArrayList<String> PROJECT_IMAGES=new ArrayList<>();
     /**当前netty接收到的图片投屏人投的但是下载失败的照片集合**/

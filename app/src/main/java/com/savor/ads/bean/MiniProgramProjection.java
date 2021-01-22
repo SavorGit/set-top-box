@@ -63,7 +63,10 @@ public class MiniProgramProjection implements Serializable{
     private String codeUrl;
     /**小程序餐厅端投屏时长,单位为秒,如果为0就是单次**/
     private int play_times;
+    /**1.视频 2.图片 3.文件*/
     private int resource_type;
+    /**预下载资源文件到本地*/
+    private List<MediaFileBean> resource_list;
     /**文件大小*/
     private long resource_size;
     private String resource_id;
@@ -281,6 +284,14 @@ public class MiniProgramProjection implements Serializable{
 
     public void setResource_type(int resource_type) {
         this.resource_type = resource_type;
+    }
+
+    public List<MediaFileBean> getResource_list() {
+        return resource_list;
+    }
+
+    public void setResource_list(List<MediaFileBean> resource_list) {
+        this.resource_list = resource_list;
     }
 
     public long getResource_size() {
