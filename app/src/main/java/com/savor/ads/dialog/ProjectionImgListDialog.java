@@ -173,7 +173,9 @@ public class ProjectionImgListDialog extends Dialog{
 
     }
     public void clearContent(){
-        projectionImgLayout.removeAllViews();
+        if(projectionImgLayout!=null){
+            projectionImgLayout.removeAllViews();
+        }
         if (imgMap!=null){
             imgMap.clear();
         }
