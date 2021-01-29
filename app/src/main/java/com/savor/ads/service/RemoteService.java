@@ -2002,7 +2002,7 @@ public class RemoteService extends Service {
                             String videoName = guideImg.getVideo_filename();
                             String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+videoName;
                             if (new File(filePath).exists()){
-                                ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                                ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),null,null,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                                 GlobalValues.IMG_NUM.put(deviceId,-1);
                                 return;
                             }
@@ -2012,7 +2012,7 @@ public class RemoteService extends Service {
                             String imageName = guideImg.getImage_filename();
                             String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+imageName;
                             if (new File(filePath).exists()){
-                                ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                                ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),null,null,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                                 GlobalValues.VIDEO_NUM.put(deviceId,-1);
                                 return;
                             }

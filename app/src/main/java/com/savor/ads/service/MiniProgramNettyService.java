@@ -662,7 +662,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     if (currentAction==44){
                         ProjectOperationListener.getInstance(context).showRestImage(4,uri,0,false,words,avatarUrl,nickName,playTimes, FROM_SERVICE_MINIPROGRAM);
                     }else if (currentAction==137){
-                        ProjectOperationListener.getInstance(context).showBusinessImage(9,false,uri,words,wordSize,wordColor,fontPath, playTimes,FROM_SERVICE_MINIPROGRAM);
+                        ProjectOperationListener.getInstance(context).showBusinessImage(9,false,uri,words,wordSize,wordColor,fontPath,null, playTimes,FROM_SERVICE_MINIPROGRAM);
                     }
                 }
 
@@ -1497,8 +1497,10 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 故在使用过程中通过id来当做forscreen_id
          * 在下面的这行代码全局赋值给forscreen_id
          * */
+        String musicPath = null;
         forscreen_id = miniProgramProjection.getId()+"";
         String font_id = miniProgramProjection.getFont_id();
+        String music_id = miniProgramProjection.getMusic_id();
         String basePath = AppUtils.getFilePath(AppUtils.StorageFile.welcome_resource);
         if (!TextUtils.isEmpty(font_id)){
             String selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
@@ -1512,13 +1514,26 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 }
             }
         }
+        if (!TextUtils.isEmpty(music_id)&&!"0".equals(music_id)){
+            String selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
+            String[] selectionArgs = new String[]{music_id};
+            List<WelcomeResourceBean> musicList = dbHelper.findWelcomeResourceList(selection,selectionArgs);
+            if (musicList!=null&&musicList.size()>0){
+                WelcomeResourceBean bean = musicList.get(0);
+                musicPath = basePath+bean.getName();
+                File file = new File(musicPath);
+                if (!file.exists()){
+                    musicPath = BuildConfig.OSS_ENDPOINT+miniProgramProjection.getMusic_oss_addr();
+                }
+            }
+        }
         //更新投屏状态
         updateProjectionState(forscreen_id);
         resetConstant();
 
         ProjectionImg img = imgList.get(0);
         String url = BuildConfig.OSS_ENDPOINT+img.getUrl()+ConstantValues.PROJECTION_IMG_THUMBNAIL_PARAM;
-        ProjectOperationListener.getInstance(context).showBusinessImage(9,true,url,words,wordSize,wordColor,fontPath, playTimes,FROM_SERVICE_MINIPROGRAM);
+        ProjectOperationListener.getInstance(context).showBusinessImage(9,true,url,words,wordSize,wordColor,fontPath,musicPath, playTimes,FROM_SERVICE_MINIPROGRAM);
         downloadIndex = 0;
         new Thread(()->downloadFileNoDialog(downloadIndex)).start();
     }
@@ -2138,7 +2153,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             int delayTime = guideImg.getShow_time();
             String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+fileName;
             if (new File(filePath).exists()){
-                ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),currentAction, FROM_SERVICE_MINIPROGRAM);
+                ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),headPic,nickName,currentAction, FROM_SERVICE_MINIPROGRAM);
             }
         }
     }
@@ -2267,7 +2282,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         String videoName = guideImg.getVideo_filename();
                         String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+videoName;
                         if (new File(filePath).exists()){
-                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),currentAction, FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),headPic,nickName,currentAction, FROM_SERVICE_MINIPROGRAM);
                             GlobalValues.IMG_NUM.put(openid,-1);
                             return;
                         }
@@ -2277,7 +2292,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         String imageName = guideImg.getImage_filename();
                         String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+imageName;
                         if (new File(filePath).exists()){
-                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),currentAction, FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),headPic,nickName,currentAction, FROM_SERVICE_MINIPROGRAM);
                             GlobalValues.VIDEO_NUM.put(openid,-1);
                             return;
                         }
@@ -2287,7 +2302,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         String videoName = guideImg.getVideo_filename();
                         String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+videoName;
                         if (new File(filePath).exists()){
-                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),currentAction, FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),headPic,nickName,currentAction, FROM_SERVICE_MINIPROGRAM);
                             GlobalValues.FILE_NUM.put(openid,-1);
                             return;
                         }

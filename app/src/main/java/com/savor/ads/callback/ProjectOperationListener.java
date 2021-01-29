@@ -215,7 +215,7 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
     }
 
     @Override
-    public PrepareResponseVoNew showImage(int imageType, String imgagePath,boolean isThumbnail,String delayTime,int action,int fromService) {
+    public PrepareResponseVoNew showImage(int imageType, String imgagePath,boolean isThumbnail,String delayTime,String avatarUrl,String nickname,int action,int fromService) {
         PrepareResponseVoNew localResult = new PrepareResponseVoNew();
         if (isThumbnail) {
             if (!TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_ID)) {
@@ -230,7 +230,7 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
         localResult.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
         localResult.setMsg("加载成功！");
 
-        ImageAction imageAction = new ImageAction(mContext, imageType,imgagePath, isThumbnail,delayTime,action,fromService);
+        ImageAction imageAction = new ImageAction(mContext, imageType,imgagePath, isThumbnail,delayTime,avatarUrl,nickname,action,fromService);
         ProjectionManager.getInstance().enqueueAction(imageAction);
 
         return localResult;
@@ -303,7 +303,7 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
     }
 
     @Override
-    public PrepareResponseVoNew showBusinessImage(int imageType,boolean isThumbnail, String imageUrl, String words, String wordsSize, String wordsColor, String fontPath, int projectionTime, int fromService) {
+    public PrepareResponseVoNew showBusinessImage(int imageType,boolean isThumbnail, String imageUrl, String words, String wordsSize, String wordsColor, String fontPath, String musicPath,int projectionTime, int fromService) {
         PrepareResponseVoNew localResult = new PrepareResponseVoNew();
         if (isThumbnail) {
             if (!TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_ID)) {
@@ -318,7 +318,7 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
         localResult.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
         localResult.setMsg("加载成功！");
 
-        ImageWelcomeAction welcomeAction = new ImageWelcomeAction(mContext,imageType,isThumbnail,imageUrl,words,wordsSize,wordsColor,fontPath,projectionTime,fromService);
+        ImageWelcomeAction welcomeAction = new ImageWelcomeAction(mContext,imageType,isThumbnail,imageUrl,words,wordsSize,wordsColor,fontPath,musicPath,projectionTime,fromService);
         ProjectionManager.getInstance().enqueueAction(welcomeAction);
 
         return localResult;

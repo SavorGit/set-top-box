@@ -23,13 +23,13 @@ import java.util.List;
 public interface OnRemoteOperationListener {
 
     PrepareResponseVoNew showVod(String mediaName, String vodType, int position, boolean isFromWeb, boolean isNewDevice,int fromService);
-
-    PrepareResponseVoNew showImage(int imageType, String imagePath, boolean isThumbnail,String delayTime,int action,int fromService);
+    /**投屏引导图*/
+    PrepareResponseVoNew showImage(int imageType, String imagePath, boolean isThumbnail,String delayTime,String avatarUrl,String nickname,int action,int fromService);
     PrepareResponseVoNew showImage(int imageType, String imageUrl,boolean isThumbnail,String forscreenId,String words,String avatarUrl,String nickname,int fromService);
     PrepareResponseVoNew showImage(int imageType, String imageUrl,boolean isThumbnail,String forscreenId,String words,String avatarUrl,String nickname,String delayTime,int action,int fromService);
     PrepareResponseVoNew showImage(int imageType, String imageUrl,boolean isThumbnail,String price,int storeSale,String delayTime,int action,int fromService);
     /**商务宴请-欢迎词*/
-    PrepareResponseVoNew showBusinessImage(int imageType,boolean isThumbnail, String imageUrl,String words,String wordsSize,String wordsColor,String fontPath,int projectionTime,int fromService);
+    PrepareResponseVoNew showBusinessImage(int imageType,boolean isThumbnail, String imageUrl,String words,String wordsSize,String wordsColor,String fontPath,String musicPath,int projectionTime,int fromService);
 
     PrepareResponseVoNew showVideo(String videoPath,String videoUrl, boolean isNewDevice,int fromService);
     PrepareResponseVoNew showVideo(String videoPath, boolean isNewDevice,String price,int storeSale,String delayTime,int action,int fromService);

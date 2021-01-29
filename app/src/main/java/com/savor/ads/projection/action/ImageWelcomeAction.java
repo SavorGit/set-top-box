@@ -32,8 +32,8 @@ public class ImageWelcomeAction extends ProjectionActionBase implements Serializ
     private String waiterName;
     private int projectionTime;
 
-    public ImageWelcomeAction(Context context, int imageType, boolean isThumbnail, String imagePath, String words, String wordsize, String color, String fontPath, int projectionTime, int fromService) {
-        this(context, imageType,isThumbnail,imagePath, 0, "", words, wordsize, color, fontPath, projectionTime, fromService);
+    public ImageWelcomeAction(Context context, int imageType, boolean isThumbnail, String imagePath, String words, String wordsize, String color, String fontPath, String musicPath,int projectionTime, int fromService) {
+        this(context, imageType,isThumbnail,imagePath, 0, musicPath, words, wordsize, color, fontPath, projectionTime, fromService);
     }
 
     public ImageWelcomeAction(Context context, int imageType, boolean isThumbnail, String imagePath, int rotation, String musicPath, String words, String wordsize, String color, String fontPath, int projectionTime, int fromService) {
