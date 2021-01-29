@@ -19,7 +19,7 @@
             android:layout_weight="1">
             <TextView
                 android:id="@+id/lottery_time"
-                android:text="今日12:00"
+                android:text=""
                 android:textColor="@color/color_white"
                 android:layout_marginTop="94dp"
                 android:paddingRight="40dp"

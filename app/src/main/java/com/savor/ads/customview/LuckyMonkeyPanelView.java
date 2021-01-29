@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -66,8 +67,8 @@ public class LuckyMonkeyPanelView extends FrameLayout {
     }
 
     private void setupView() {
-        bg_1 = (ImageView) findViewById(R.id.bg_1);
-        bg_2 = (ImageView) findViewById(R.id.bg_2);
+        bg_1 = findViewById(R.id.bg_1);
+        bg_2 = findViewById(R.id.bg_2);
         itemView1 = (PanelItemView) findViewById(R.id.item1);
         itemView2 = (PanelItemView) findViewById(R.id.item2);
         itemView3 = (PanelItemView) findViewById(R.id.item3);
@@ -201,30 +202,39 @@ public class LuckyMonkeyPanelView extends FrameLayout {
         switch (action){
             case 1:
                 itemView4.setImageViewSrc(uri);
+                itemView4.setPadding(5,5,5,5);
                 break;
             case 2:
                 itemView1.setImageViewSrc(uri);
+                itemView1.setPadding(5,5,5,5);
                 break;
             case 3:
                 itemView2.setImageViewSrc(uri);
+                itemView2.setPadding(5,5,5,5);
                 break;
             case 4:
                 itemView3.setImageViewSrc(uri);
+                itemView3.setPadding(5,5,5,5);
                 break;
             case 5:
                 itemView6.setImageViewSrc(uri);
+                itemView6.setPadding(5,5,5,5);
                 break;
             case 6:
                 itemView9.setImageViewSrc(uri);
+                itemView9.setPadding(5,5,5,5);
                 break;
             case 7:
                 itemView8.setImageViewSrc(uri);
+                itemView8.setPadding(5,5,5,5);
                 break;
             case 8:
                 itemView7.setImageViewSrc(uri);
+                itemView7.setPadding(5,5,5,5);
                 break;
             case 9:
                 itemView5.setImageViewSrc(uri);
+                itemView5.setPadding(5,5,5,5);
                 break;
         }
     }

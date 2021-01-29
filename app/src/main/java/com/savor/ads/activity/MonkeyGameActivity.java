@@ -69,13 +69,13 @@ public class MonkeyGameActivity extends BaseActivity {
     }
 
     private void getViews(){
-        lucky_panel = (LuckyMonkeyPanelView) findViewById(R.id.lucky_panel);
+        lucky_panel = findViewById(R.id.lucky_panel);
 
-        btn_action = (Button) findViewById(R.id.btn_action);
-        winningPrizeLayout = (LinearLayout) findViewById(R.id.winning_prize_layout);
-        winningWeixinHeadIV = (ImageView) findViewById(R.id.winning_weixin_head);
-        winningTextTV = (TextView) findViewById(R.id.winning_text);
-        winningImgIV = (ImageView) findViewById(R.id.winning_img);
+        btn_action = findViewById(R.id.btn_action);
+        winningPrizeLayout = findViewById(R.id.winning_prize_layout);
+        winningWeixinHeadIV = findViewById(R.id.winning_weixin_head);
+        winningTextTV = findViewById(R.id.winning_text);
+        winningImgIV = findViewById(R.id.winning_img);
     }
 
     private void initContent(){

@@ -37,7 +37,7 @@ public class PanelItemView extends FrameLayout implements ItemView{
         inflate(context, R.layout.view_panel_item, this);
         mContext = context;
         overlay = findViewById(R.id.overlay);
-        weixinHeadTV = (ImageView) findViewById(R.id.weixin_head);
+        weixinHeadTV = findViewById(R.id.weixin_head);
     }
 
     @Override

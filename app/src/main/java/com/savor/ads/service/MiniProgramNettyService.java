@@ -1429,6 +1429,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         String partake_name = mpp.getPartake_name();
         String activity_name = mpp.getActivity_name();
         String partake_filename = mpp.getPartake_filename();
+        String codeUrl = mpp.getCodeUrl();
         String basePath = AppUtils.getFilePath(AppUtils.StorageFile.lottery);
         String filePath = basePath+partake_filename;
         File file = new File(filePath);
@@ -1447,7 +1448,10 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         partakeDishDialog.dismiss();
                     }
                     partakeDishDialog = new PartakeDishDialog(context);
-                    String qrcodeurl = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ session.getEthernetMac()+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_PARTAKE_DISH_TYPE;
+                    String qrcodeurl = codeUrl;
+                    if (TextUtils.isEmpty(qrcodeurl)){
+                        qrcodeurl = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ session.getEthernetMac()+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_PARTAKE_DISH_TYPE;
+                    }
                     partakeDishDialog.show();
                     partakeDishDialog.setPartakeDishBg(filePath);
                     partakeDishDialog.showPartakeDishWindow(context,qrcodeurl,countdown,lottery_time,partake_name,activity_name);
