@@ -379,8 +379,10 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             launchMonkeyGame(action,miniProgramProjection);
                             break;
                         case 102:
-                        case 105:
                             startMonkeyGame(action,miniProgramProjection);
+                            break;
+                        case 105:
+                            repeatMonkeyGame(action,miniProgramProjection);
                             break;
                         case 103:
                             addMonkeyGame(action,miniProgramProjection);
@@ -1808,6 +1810,23 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             if (action != 105) {
                 postMiniProgramGameParam(action, miniProgramProjection);
             }
+        }
+    }
+    /**
+     * 再开一局
+     * */
+    private void repeatMonkeyGame(int action,MiniProgramProjection miniProgramProjection){
+        Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+        if (activity instanceof MonkeyGameActivity){
+            MonkeyGameActivity monkeyGameActivity = (MonkeyGameActivity)activity;
+            monkeyGameActivity.startGame();
+        }else{
+            GlobalValues.INTERACTION_ADS_PLAY = 0;
+            Intent intent = new Intent(context, MonkeyGameActivity.class);
+            intent.putExtra("miniProgramProjection", miniProgramProjection);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            postMiniProgramGameParam(action, miniProgramProjection);
         }
     }
 

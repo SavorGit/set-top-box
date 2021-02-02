@@ -20,7 +20,9 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.savor.ads.R;
 import com.savor.ads.SavorApplication;
 import com.savor.ads.bean.MiniProgramProjection;
+import com.savor.ads.bean.PartakeUser;
 import com.savor.ads.customview.LuckyMonkeyPanelView;
+import com.savor.ads.utils.Base64Utils;
 import com.savor.ads.utils.GlideImageLoader;
 import com.savor.ads.utils.ShowMessage;
 
@@ -39,6 +41,7 @@ public class MonkeyGameActivity extends BaseActivity {
     private TextView winningTextTV;
     private ImageView winningImgIV;
     private List<MiniProgramProjection> avatarList = new ArrayList<>();
+    private List<PartakeUser> listUsers = new ArrayList<>();
     boolean isGameOver = true;
     private MiniProgramProjection miniProgramProjection;
     private Handler handler = new Handler(){
@@ -46,13 +49,25 @@ public class MonkeyGameActivity extends BaseActivity {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
 
-                 Message message = msg;
-                 String avatarurl = (String) message.obj;
-                 int action = message.what;
+            Message message = msg;
+            int action = message.what;
+            if (action==0){
+                listUsers = (List<PartakeUser>) msg.obj;
+                int i=1;
+                for (PartakeUser user:listUsers){
+                    if (i==9){
+                        return;
+                    }
+                    String avatarurl = Base64Utils.getFromBase64(user.getAvatarUrl());
+                    lucky_panel.setImageViewSrc(i,avatarurl);
+                    i++;
+                }
+                startGame();
 
-                  lucky_panel.setImageViewSrc(action,avatarurl);
-
-
+            }else {
+                String avatarurl = (String) message.obj;
+                lucky_panel.setImageViewSrc(action,avatarurl);
+            }
         }
     };
 
@@ -85,14 +100,19 @@ public class MonkeyGameActivity extends BaseActivity {
         Intent intent = getIntent();
         miniProgramProjection = (MiniProgramProjection)intent.getSerializableExtra("miniProgramProjection");
         if (miniProgramProjection!=null&&!TextUtils.isEmpty(miniProgramProjection.getGamecode())){
-
             GlideImageLoader.loadImage(context,miniProgramProjection.getGamecode(),winningWeixinHeadIV,winningWeixinHeadIV.getDrawable());
-
         }
-        if (miniProgramProjection!=null&&!TextUtils.isEmpty(miniProgramProjection.getAvatarurl())){
+        if (miniProgramProjection==null){
+            return;
+        }
+        if (miniProgramProjection.getTurntable_user()!=null&&miniProgramProjection.getTurntable_user().size()>0){
+            Message message = new Message();
+            message.obj = miniProgramProjection.getTurntable_user();
+            message.what = 0;
+            handler.sendMessage(message);
+        }else if(!TextUtils.isEmpty(miniProgramProjection.getAvatarurl())){
             avatarList.add(miniProgramProjection);
             Message message = new Message();
-
             message.obj = miniProgramProjection.getAvatarurl();
             message.what = avatarList.size();
             handler.sendMessage(message);
@@ -163,7 +183,12 @@ public class MonkeyGameActivity extends BaseActivity {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    int stayIndex = new Random().nextInt(avatarList.size());
+                    int stayIndex=0;
+                    if (avatarList!=null&&avatarList.size()>0){
+                        stayIndex = new Random().nextInt(avatarList.size());
+                    }else if (listUsers!=null&&listUsers.size()>0){
+                        stayIndex = new Random().nextInt(listUsers.size());
+                    }
                     Log.e("LuckyMonkeyPanelView", "====stay===" + stayIndex);
                     lucky_panel.tryToStop(stayIndex);
                 }

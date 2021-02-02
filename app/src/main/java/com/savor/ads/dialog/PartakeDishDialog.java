@@ -56,6 +56,8 @@ public class PartakeDishDialog extends Dialog{
     private TextView lotteryTimeTV;
     private TextView partakeDishCountDownTv;
 
+    private String lotteryTime;
+
 
     private boolean mIsAdded;
     private boolean mIsHandling;
@@ -129,7 +131,7 @@ public class PartakeDishDialog extends Dialog{
         @Override
         public void run() {
             Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
-            if (activity instanceof AdsPlayerActivity){
+            if (activity instanceof AdsPlayerActivity&&!TextUtils.isEmpty(lotteryTime)){
                 AdsPlayerActivity adsPlayerActivity = (AdsPlayerActivity) activity;
                 adsPlayerActivity.isClosePartakeDishHead(false);
             }
@@ -154,6 +156,7 @@ public class PartakeDishDialog extends Dialog{
         if (delayTime!=0){
             this.delayTime = delayTime;
         }
+        lotteryTime = lotter_time;
         if (!TextUtils.isEmpty(lotter_time)){
             lotteryTimeTV.setText("今日"+lotter_time);
         }
