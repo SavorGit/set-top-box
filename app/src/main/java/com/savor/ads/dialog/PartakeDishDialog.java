@@ -126,6 +126,13 @@ public class PartakeDishDialog extends Dialog{
         }
     }
 
+    @Override
+    public void dismiss() {
+        mHandler.removeCallbacks(mExitRunnable);
+        mHandler.removeCallbacks(mCountDownRunnable);
+        super.dismiss();
+    }
+
     //退出线程
     private Runnable mExitRunnable = new Runnable() {
         @Override
