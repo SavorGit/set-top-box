@@ -379,8 +379,10 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             launchMonkeyGame(action,miniProgramProjection);
                             break;
                         case 102:
-                        case 105:
                             startMonkeyGame(action,miniProgramProjection);
+                            break;
+                        case 105:
+                            repeatMonkeyGame(action,miniProgramProjection);
                             break;
                         case 103:
                             addMonkeyGame(action,miniProgramProjection);
@@ -485,13 +487,17 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             break;
                         case 135:
                            activity = ActivitiesManager.getInstance().getCurrentActivity();
-                            if (activity instanceof AdsPlayerActivity) {
-                                if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
-                                    return;
-                                }
-                                involvementPartakedish(miniProgramProjection);
-                            }
-                            break;
+                           if (activity instanceof AdsPlayerActivity||activity instanceof PartakeDishDrawActivity) {
+                               if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
+                                   return;
+                               }
+                               if (activity instanceof PartakeDishDrawActivity){
+                                   activity.finish();
+                               }
+                               involvementPartakedish(miniProgramProjection);
+
+                           }
+                           break;
                         case 136:
                             activity = ActivitiesManager.getInstance().getCurrentActivity();
                             if (activity instanceof AdsPlayerActivity) {
@@ -561,6 +567,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         }
         if (fileDialog!=null&&fileDialog.isShowing()){
             fileDialog.dismiss();
+        }
+        if (partakeDishDialog!=null&&partakeDishDialog.isShowing()){
+            partakeDishDialog.dismiss();
         }
     }
 
@@ -1472,11 +1481,16 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     /**霸王餐开奖**/
     private void partakedishResult(PartakeDishBean pdb){
         GlobalValues.isActivity = false;
+        Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+        if (activity instanceof PartakeDishDrawActivity){
+            activity.finish();
+        }
         Intent intent =new Intent();
         intent.setClass(context, PartakeDishDrawActivity.class);
         intent.putExtra("pdb",pdb);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+
     }
     /**商务宴请欢迎词*/
     private void businessWelcome(){
@@ -1823,6 +1837,23 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             if (action != 105) {
                 postMiniProgramGameParam(action, miniProgramProjection);
             }
+        }
+    }
+    /**
+     * 再开一局
+     * */
+    private void repeatMonkeyGame(int action,MiniProgramProjection miniProgramProjection){
+        Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+        if (activity instanceof MonkeyGameActivity){
+            MonkeyGameActivity monkeyGameActivity = (MonkeyGameActivity)activity;
+            monkeyGameActivity.startGame();
+        }else{
+            GlobalValues.INTERACTION_ADS_PLAY = 0;
+            Intent intent = new Intent(context, MonkeyGameActivity.class);
+            intent.putExtra("miniProgramProjection", miniProgramProjection);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            postMiniProgramGameParam(action, miniProgramProjection);
         }
     }
 

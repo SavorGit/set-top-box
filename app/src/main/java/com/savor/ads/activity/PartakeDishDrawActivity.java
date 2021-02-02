@@ -137,6 +137,10 @@ public class PartakeDishDrawActivity extends BaseActivity{
         autoRoll();
     }
 
+    public void repeatGame(){
+        initRecyclerView(recyclerView, new CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL, true));
+    }
+
 
     int currentItem=0;
     private Runnable autoRollRunnable = ()->autoRoll();
