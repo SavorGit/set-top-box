@@ -508,12 +508,16 @@ public class ScreenProjectionActivity extends BaseActivity{
         waiterWelcomeLayout.setVisibility(View.GONE);
         //有新的投屏进来，如果有正在轮播的欢迎词，就打断播放,并且停止背景音乐 20191212
         GlobalValues.mpprojection = null;
-        if (mMusicPlayer!=null&&mMusicPlayer.isPlaying()){
-            mMusicPlayer.setLooping(false);
-            mMusicPlayer.stop();
-            mMusicPlayer.release();
-            mMusicPlayer = null;
+        if (!ConstantValues.PROJECT_TYPE_BUSINESS_WELCOME.equals(mProjectType)
+                ||(ConstantValues.PROJECT_TYPE_BUSINESS_WELCOME.equals(mProjectType)&&mIsThumbnail)){
+            if (mMusicPlayer!=null&&mMusicPlayer.isPlaying()){
+                mMusicPlayer.setLooping(false);
+                mMusicPlayer.stop();
+                mMusicPlayer.release();
+                mMusicPlayer = null;
+            }
         }
+
         if (!TextUtils.isEmpty(nickname)
                 &&!TextUtils.isEmpty(avatar_url)
                 &&!ConstantValues.PROJECT_TYPE_REST_PICTURE.equals(mProjectType)
