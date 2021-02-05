@@ -896,11 +896,11 @@ public class ScreenProjectionActivity extends BaseActivity{
                 mWelcomeWordsTV.setVisibility(View.GONE);
             }
 
-            mHandler.postDelayed(()->initSounds(),500);
             welcomeView.setRotation(0);
             welcomeView.setScaleX(1);
             welcomeView.setScaleY(1);
             if (mIsThumbnail){
+                mHandler.postDelayed(()->initSounds(),500);
                 rescheduleToExit(true);
             }
         }

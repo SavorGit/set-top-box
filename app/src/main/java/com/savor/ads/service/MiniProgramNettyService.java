@@ -125,6 +125,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private String wordSize;
     private String wordColor;
     private String fontPath;
+    private String musicPath;
     Handler handler=new Handler(Looper.getMainLooper());
     public static ConcurrentHashMap<String,String> projectionIdMap = new ConcurrentHashMap<>();
     private int currentAction;
@@ -671,7 +672,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     if (currentAction==44){
                         ProjectOperationListener.getInstance(context).showRestImage(4,uri,0,false,words,avatarUrl,nickName,playTimes, FROM_SERVICE_MINIPROGRAM);
                     }else if (currentAction==137){
-                        ProjectOperationListener.getInstance(context).showBusinessImage(9,false,uri,words,wordSize,wordColor,fontPath,null, playTimes,FROM_SERVICE_MINIPROGRAM);
+                        ProjectOperationListener.getInstance(context).showBusinessImage(9,false,uri,words,wordSize,wordColor,fontPath,musicPath, playTimes,FROM_SERVICE_MINIPROGRAM);
                     }
                 }
 
@@ -1511,8 +1512,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 故在使用过程中通过id来当做forscreen_id
          * 在下面的这行代码全局赋值给forscreen_id
          * */
-        String musicPath = null;
         forscreen_id = miniProgramProjection.getId()+"";
+        miniProgramProjection.setForscreen_id(forscreen_id);
         String font_id = miniProgramProjection.getFont_id();
         String music_id = miniProgramProjection.getMusic_id();
         String basePath = AppUtils.getFilePath(AppUtils.StorageFile.welcome_resource);
