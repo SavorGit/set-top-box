@@ -365,7 +365,9 @@ public class ScreenProjectionActivity extends BaseActivity{
     private void initSounds(){
         try{
             if (!TextUtils.isEmpty(mMusicPath)){
-                mMusicPlayer = new MediaPlayer();
+                if (mMusicPlayer==null){
+                    mMusicPlayer = new MediaPlayer();
+                }
                 mMusicPlayer.setDataSource(mMusicPath);
                 mMusicPlayer.prepare();
                 mMusicPlayer.start();
