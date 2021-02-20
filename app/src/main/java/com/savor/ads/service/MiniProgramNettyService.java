@@ -221,7 +221,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 7:文件单图投屏
          * 8:图片旋转角度
          * 9:手机小程序呼出大码
-         * 10:发现，热播，喜欢，公开的多图投屏，通过一个完整json传递all data
+         * 10:发现，喜欢，公开的多图投屏，通过一个完整json传递all data
+         * 11:热播内容投图片
+         * 12:热播内容投视频
          * 13:商城商品视频点播
          * 101：发起游戏
          * 102:开始游戏
@@ -327,6 +329,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             break;
                         case 2:
                         case 42:
+                        case 12:
                             new Thread(()->projectionVideo(miniProgramProjection)).start();
                             break;
                         case 3:
@@ -352,6 +355,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             callBigQrCodeVideo(miniProgramProjection);
                             break;
                         case 10:
+                        case 11:
                             projectionListImg(miniProgramProjection);
                             break;
                         case 13:
@@ -606,7 +610,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private void projectShowImage(int currentIndex,String words,String avatarUrl,String nickName){
         isPPTRunnable = true;
         if (GlobalValues.PROJECT_IMAGES!=null&&GlobalValues.PROJECT_IMAGES.size()>0){
-            if (currentAction==4||currentAction==10){
+            if (currentAction==4||currentAction==10||currentAction==11){
                 boolean flag = true;
                 LogUtils.d("PROJECT_IMAGES:flag=true|currentIndex="+currentIndex);
                 if (GlobalValues.PROJECT_IMAGES.size()>currentIndex){
@@ -1011,7 +1015,12 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         params.put("forscreen_id", forscreen_id);
         params.put("resource_id", minipp.getVideo_id());
         params.put("openid", openid);
-        String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+        String basePath;
+        if (currentAction==12){
+            basePath = AppUtils.getFilePath(AppUtils.StorageFile.hot_content);
+        }else{
+            basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+        }
         String path = basePath + fileName;
         File file = new File(path);
         String oss_url = BuildConfig.OSS_ENDPOINT+url;
@@ -1188,6 +1197,55 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         downloadIndex =0;
         new Thread(()->downloadFile(downloadIndex)).start();
     }
+    /**发现，热播，喜欢，公开的多图投屏*/
+    private void projectionListImg(MiniProgramProjection program){
+        if (program == null || program.getImg_list()==null||program.getImg_list().size()==0) {
+            return;
+        }
+        String forscreen_id = program.getForscreen_id();
+        //更新投屏状态
+        updateProjectionState(forscreen_id);
+        String req_id = program.getReq_id();
+        words = program.getForscreen_char();
+        img_nums = program.getImg_nums();
+        resetConstant();
+        if (GlobalValues.IMG_NUM.containsKey(openid)){
+            if (GlobalValues.IMG_NUM.get(openid)!=-1){
+                GlobalValues.IMG_NUM.put(openid,GlobalValues.IMG_NUM.get(openid)+1);
+            }
+        }else{
+            GlobalValues.IMG_NUM.put(openid,1);
+        }
+        ArrayList<ProjectionImg> imgList = new ArrayList<>();
+        imgList.addAll(program.getImg_list());
+        ProjectionImg img = imgList.get(0);
+        String basePath;
+        if (currentAction==11){
+            basePath = AppUtils.getFilePath(AppUtils.StorageFile.hot_content);
+        }else{
+            basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+        }
+        String fileName = img.getFilename();
+        String imgpath = basePath + fileName;
+        if (img_nums>1||(img_nums==1&&!new File(imgpath).exists())){
+
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (pImgListDialog!=null){
+                        if (!pImgListDialog.isShowing()){
+                            pImgListDialog.show();
+                            pImgListDialog.setProjectionPersonInfo(headPic,nickName);
+                        }
+                        pImgListDialog.setContent(imgList,TYPE_IMG);
+                    }
+                }
+            });
+        }
+        downloadIndex =0;
+        new Thread(()->downloadFile(downloadIndex)).start();
+
+    }
 
     private void downloadFile(int downloadIndex){
         boolean isDownloaded=false;
@@ -1206,7 +1264,12 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             params.put("forscreen_id", projection.getForscreen_id());
             params.put("openid", projection.getOpenid());
             params.put("resource_id", img.getImg_id());
-            String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+            String basePath;
+            if (currentAction==11){
+                basePath = AppUtils.getFilePath(AppUtils.StorageFile.hot_content);
+            }else{
+                basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+            }
             String fileName = img.getFilename();
             long resourceSize = img.getResource_size();
             String path = basePath + fileName;
@@ -1765,50 +1828,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             params.put("used_time",downloadTime);
             postProjectionResourceLog(params);
         }
-
-    }
-    /**发现，热播，喜欢，公开的多图投屏*/
-    private void projectionListImg(MiniProgramProjection program){
-        if (program == null || program.getImg_list()==null||program.getImg_list().size()==0) {
-            return;
-        }
-        String forscreen_id = program.getForscreen_id();
-        //更新投屏状态
-        updateProjectionState(forscreen_id);
-        String req_id = program.getReq_id();
-        words = program.getForscreen_char();
-        img_nums = program.getImg_nums();
-        resetConstant();
-        if (GlobalValues.IMG_NUM.containsKey(openid)){
-            if (GlobalValues.IMG_NUM.get(openid)!=-1){
-                GlobalValues.IMG_NUM.put(openid,GlobalValues.IMG_NUM.get(openid)+1);
-            }
-        }else{
-            GlobalValues.IMG_NUM.put(openid,1);
-        }
-        ArrayList<ProjectionImg> imgList = new ArrayList<>();
-        imgList.addAll(program.getImg_list());
-        ProjectionImg img = imgList.get(0);
-        String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-        String fileName = img.getFilename();
-        String imgpath = basePath + fileName;
-        if (img_nums>1||(img_nums==1&&!new File(imgpath).exists())){
-
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (pImgListDialog!=null){
-                        if (!pImgListDialog.isShowing()){
-                            pImgListDialog.show();
-                            pImgListDialog.setProjectionPersonInfo(headPic,nickName);
-                        }
-                        pImgListDialog.setContent(imgList,TYPE_IMG);
-                    }
-                }
-            });
-        }
-        downloadIndex =0;
-        new Thread(()->downloadFile(downloadIndex)).start();
 
     }
 

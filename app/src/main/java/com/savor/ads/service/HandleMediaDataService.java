@@ -259,6 +259,8 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                             getShopGoodsListFromCloudPlatform();
                             //同步获取用户精选内容上大屏数据
                             getSelectContentFromCloudPlatform();
+                            //同步获取用户热播内容预下载
+                            getHotContentFromCloudPlatform();
                             //同步获取用户发现内容数据
                             getDiscoverContentFromCloudPlatform();
                             //同步获取欢迎词资源数据(含封面和mp3音乐)
@@ -921,7 +923,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         }
     }
     /**
-     * 获取用户精选内容(热播内容)数据
+     * 获取用户精选内容(热播内容)数据（暂时不用）
      */
     private void getSelectContentFromCloudPlatform(){
         try{
@@ -1011,6 +1013,90 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 session.setSelectContentPeriod(result.getPeriod());
             }
         }
+    }
+    /***
+     * 获取用户热播内容预下载
+     */
+    private void getHotContentFromCloudPlatform(){
+        try{
+            JsonBean jsonBean = AppApi.getHotContentFromCloudfrom(context,this,session.getEthernetMac());
+            JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
+            if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
+                return;
+            }
+            SelectContentResult result = gson.fromJson(jsonObject.get("result").toString(), new TypeToken<SelectContentResult>() {
+            }.getType());
+            if (!isFirstRun&&result.getPeriod().equals(session.getHotContentPeriod())){
+                return;
+            }
+            if (result.getDatalist()==null||result.getDatalist().size()==0){
+                String basePath = AppUtils.getFilePath(AppUtils.StorageFile.hot_content);
+                File[] files = new File(basePath).listFiles();
+                if (files.length>0){
+                    for (File file:files){
+                        file.delete();
+                    }
+                }
+                return;
+            }
+            handleHotContentData(result);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void handleHotContentData(SelectContentResult result){
+        List<SelectContentBean> list = result.getDatalist();
+        List<String> fileSize = new ArrayList<>();
+        List<String> fileNames = new ArrayList<>();
+        String basePath = AppUtils.getFilePath(AppUtils.StorageFile.hot_content);
+        for (SelectContentBean bean:list){
+            if (bean.getSubdata()!=null&&bean.getSubdata().size()>0){
+
+                for (MediaItemBean item:bean.getSubdata()){
+                    boolean isDownloaded = false;
+                    String fileName = item.getName();
+                    fileSize.add(fileName);
+                    String path = basePath + item.getName();
+                    if (bean.getMedia_type()==1){
+                        isDownloaded = AppUtils.isDownloadEasyCompleted(path, item.getMd5());
+                    }else if (bean.getMedia_type()==2||bean.getMedia_type()==21){
+                        isDownloaded = AppUtils.isDownloadCompleted(path, item.getMd5().toUpperCase());
+                    }
+                    if (!isDownloaded){
+                        String url = BuildConfig.OSS_ENDPOINT+item.getOss_path();
+                        isDownloaded = new ProgressDownloader(context,url,basePath,fileName,true).downloadByRange();
+                        if (isDownloaded
+                                && (AppUtils.isDownloadEasyCompleted(path, item.getMd5())
+                                ||AppUtils.isDownloadCompleted(path, item.getMd5().toUpperCase()))) {
+                            isDownloaded = true;
+                        }else{
+                            isDownloaded = false;
+                        }
+                    }
+                    if (isDownloaded){
+                        fileNames.add(item.getName());
+                    }
+                }
+            }
+        }
+        if (fileSize.size()==fileNames.size()){
+            //精选内容下载完成
+            session.setHotContentPeriod(result.getPeriod());
+            File[] files = new File(basePath).listFiles();
+            if (files.length>0){
+                for (File file:files){
+                    String name = file.getName();
+                    if (fileNames.contains(name)){
+                        continue;
+                    }else {
+                        file.delete();
+                        LogUtils.d("删除热播内容文件======" + file.getName());
+                    }
+                }
+            }
+        }
+
     }
 
     /**

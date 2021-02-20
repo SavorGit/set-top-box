@@ -133,6 +133,7 @@ public class AppUtils {
     public static final String BoxSelectContentDir = "select_content";
     public static final String cacheDir = "cache";
     public static final String welcomdeResourceDir = "welcome_resource";
+    public static final String HotContentDir = "hot_content";
     // UTF-8 encoding
     private static final String ENCODING_UTF8 = "UTF-8";
 
@@ -213,7 +214,9 @@ public class AppUtils {
         /**
          * 欢迎词资源
          */
-        welcome_resource
+        welcome_resource,
+        /**互动首页-热播内容*/
+        hot_content
 
     }
 
@@ -397,6 +400,10 @@ public class AppUtils {
         if (!welcomeResourceFile.exists()){
             welcomeResourceFile.mkdir();
         }
+        File hotContentFile = new File(path+File.separator,HotContentDir);
+        if (!hotContentFile.exists()){
+            hotContentFile.mkdir();
+        }
         if (mode == StorageFile.log) {
             path = targetLogFile.getAbsolutePath() + File.separator;
         } else if (mode == StorageFile.loged) {
@@ -429,6 +436,8 @@ public class AppUtils {
             path = userSelectFile.getAbsolutePath() +File.separator;
         } else if (mode == StorageFile.welcome_resource){
             path = welcomeResourceFile.getAbsolutePath()+File.separator;
+        } else if (mode == StorageFile.hot_content){
+            path = hotContentFile.getAbsolutePath()+File.separator;
         }
         return path;
     }

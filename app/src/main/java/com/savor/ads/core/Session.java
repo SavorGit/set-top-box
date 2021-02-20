@@ -138,6 +138,8 @@ public class Session {
     private String shopGoodsAdsPeriod;
     /**用户精选内容期号*/
     private String selectContentPeriod;
+    /**热播内容期号*/
+    private String hotContentPeriod;
     private String discoverContentPeriod;
     /**欢迎词内容期号*/
     private String welcomeResourcePeriod;
@@ -305,6 +307,7 @@ public class Session {
         activityAdsPeriod = mPreference.loadStringKey(P_APP_ACTIVITY_ADS_PERIOD,"");
         shopGoodsAdsPeriod = mPreference.loadStringKey(P_APP_SHOP_GOODS_ADS_PERIOD,"");
         selectContentPeriod = mPreference.loadStringKey(P_APP_SELECT_CONTENT_PERIOD,"");
+        hotContentPeriod = mPreference.loadStringKey(P_APP_HOT_CONTENT_PERIOD,"");
         discoverContentPeriod = mPreference.loadStringKey(P_APP_DISCOVER_CONTENT_PERIOD,"");
         welcomeResourcePeriod = mPreference.loadStringKey(P_APP_WELCOME_RESOURCE_PERIOD,"");
         startTime = mPreference.loadStringKey(P_APP_STARTTIME, null);
@@ -430,6 +433,7 @@ public class Session {
                 || P_APP_QRCODE_GIFBG.equals(key)
                 || P_APP_ACTIVITY_ADS_PERIOD.equals(key)
                 || P_APP_SELECT_CONTENT_PERIOD.equals(key)
+                || P_APP_HOT_CONTENT_PERIOD.equals(key)
                 || P_APP_DISCOVER_CONTENT_PERIOD.equals(key)
                 || P_APP_WELCOME_RESOURCE_PERIOD.equals(key)
                 || P_APP_SHOP_GOODS_ADS_PERIOD.equals(key)) {
@@ -1164,6 +1168,15 @@ public class Session {
         writePreference(new Pair<>(P_APP_SELECT_CONTENT_PERIOD,selectContentPeriod));
     }
 
+    public String getHotContentPeriod() {
+        return hotContentPeriod;
+    }
+
+    public void setHotContentPeriod(String hotContentPeriod) {
+        this.hotContentPeriod = hotContentPeriod;
+        writePreference(new Pair<>(P_APP_HOT_CONTENT_PERIOD,hotContentPeriod));
+    }
+
     public String getDiscoverContentPeriod() {
         return discoverContentPeriod;
     }
@@ -1394,6 +1407,8 @@ public class Session {
     public static final String P_APP_SHOP_GOODS_ADS_PERIOD = "com.savor.ads.shop_goods_ads_period";
     /**用户精选内容期号KEY*/
     public static final String P_APP_SELECT_CONTENT_PERIOD = "com.savor.ads.select_content_period";
+    /**用户热播内容期号KEY*/
+    public static final String P_APP_HOT_CONTENT_PERIOD = "com.savor.ads.hot_content_period";
     /**用户发现内容期号KEY*/
     public static final String P_APP_DISCOVER_CONTENT_PERIOD = "com.savor.ads.discover_content_period";
     /**欢迎词内容期号KEY*/

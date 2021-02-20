@@ -92,6 +92,7 @@ public class AppApi {
         CP_GET_GOODS_PROGRAMLIST_FROM_JSON,
         CP_GET_SHOP_GOODS_LIST_FROM_JSON,
         CP_POST_SELECT_CONTENT_FROM_JSON,
+        CP_GET_HOT_CONTENT_FROM_JSON,
         CP_GET_DISCOVER_CONTENT_FROM_JSON,
         CP_GET_WELCOMERESOURCE_FROM_JSON,
         SP_GET_PROGRAM_DATA_FROM_JSON,
@@ -170,6 +171,7 @@ public class AppApi {
             put(Action.CP_GET_GOODS_PROGRAMLIST_FROM_JSON,BuildConfig.BASE_URL+"box/program/getGoodsProgramList");
             put(Action.CP_GET_SHOP_GOODS_LIST_FROM_JSON,BuildConfig.BASE_URL+"box/program/getShopgoodsProgramList");
             put(Action.CP_POST_SELECT_CONTENT_FROM_JSON,BuildConfig.BASE_URL+"box/program/getSelectcontentProgramList");
+            put(Action.CP_GET_HOT_CONTENT_FROM_JSON,BuildConfig.BASE_URL+"box/program/getHotPlayProgramList");
             put(Action.CP_GET_DISCOVER_CONTENT_FROM_JSON,BuildConfig.BASE_URL+"box/program/getFindcontentProgramList");
             put(Action.CP_GET_WELCOMERESOURCE_FROM_JSON,BuildConfig.BASE_URL+"box/program/getWelcomeResource");
             put(Action.SP_GET_PROGRAM_DATA_FROM_JSON,SP_BASE_URL+"small/api/download/vod/config/v2");
@@ -304,6 +306,20 @@ public class AppApi {
         final HashMap<String, Object> params = new HashMap<>();
         params.put("box_mac",boxMac);
         return new AppServiceOk(context,Action.CP_POST_SELECT_CONTENT_FROM_JSON,handler,params).syncGet();
+    }
+
+    /**
+     * 获取小程序互动首页热播内容
+     * @param context
+     * @param handler
+     * @param boxMac
+     * @return
+     * @throws IOException
+     */
+    public static JsonBean getHotContentFromCloudfrom(Context context,ApiRequestListener handler,String boxMac) throws IOException{
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("box_mac",boxMac);
+        return new AppServiceOk(context,Action.CP_GET_HOT_CONTENT_FROM_JSON,handler,params).syncGet();
     }
 
     /**
