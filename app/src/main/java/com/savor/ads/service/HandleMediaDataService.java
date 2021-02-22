@@ -1083,18 +1083,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         if (fileSize.size()==fileNames.size()){
             //精选内容下载完成
             session.setHotContentPeriod(result.getPeriod());
-            File[] files = new File(basePath).listFiles();
-            if (files.length>0){
-                for (File file:files){
-                    String name = file.getName();
-                    if (fileNames.contains(name)){
-                        continue;
-                    }else {
-                        file.delete();
-                        LogUtils.d("删除热播内容文件======" + file.getName());
-                    }
-                }
-            }
+            AppUtils.deleteHotContentMedia(fileNames);
         }
 
     }

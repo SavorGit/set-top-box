@@ -43,6 +43,7 @@ import com.savor.ads.bean.MeiAdLocalBean;
 import com.savor.ads.bean.OOHLinkAdLocalBean;
 import com.savor.ads.bean.ProjectionLogBean;
 import com.savor.ads.bean.PushRTBItem;
+import com.savor.ads.bean.SelectContentBean;
 import com.savor.ads.bean.ShopGoodsBean;
 import com.savor.ads.bean.VersionInfo;
 import com.savor.ads.bean.WelcomeResourceBean;
@@ -1049,6 +1050,27 @@ public class AppUtils {
                     LogUtils.e("删除视频失败",e);
                 }
 
+            }
+        }).start();
+    }
+
+    public static void deleteHotContentMedia(final List<String> fileNames){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String basePath = AppUtils.getFilePath(AppUtils.StorageFile.hot_content);
+                File[] files = new File(basePath).listFiles();
+                if (files.length>0){
+                    for (File file:files){
+                        String name = file.getName();
+                        if (fileNames.contains(name)){
+                            continue;
+                        }else {
+                            file.delete();
+                            LogUtils.d("删除热播内容文件======" + file.getName());
+                        }
+                    }
+                }
             }
         }).start();
     }

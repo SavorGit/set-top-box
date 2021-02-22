@@ -29,16 +29,16 @@ public static final int *;
 
 
 #keep entity for gson
--keep class com.savor.ads.bean.** { *; }
--keep class com.jar.savor.box.** { *; }
--keep class cn.savor.small.** { *; }
+-keep class com.savor.ads.bean.*.* { *; }
+-keep class com.jar.savor.box.*.* { *; }
+-keep class cn.savor.small.*.* { *; }
 
 #Proguard for netty begin
 -keepattributes Signature,InnerClasses
--keepclasseswithmembers class io.netty.** {
+-keepclasseswithmembers class io.netty.*.* {
     *;
 }
--keepnames class io.netty.** {
+-keepnames class io.netty.*.* {
     *;
 }
 -dontwarn io.netty.**
@@ -48,7 +48,7 @@ public static final int *;
 #Proguard for Glide begin
 -keep public class * implements com.bumptech.glide.module.AppGlideModule
 -keep public class * implements com.bumptech.glide.module.LibraryGlideModule
--keep class com.bumptech.glide.** { *; }
+-keep class com.bumptech.glide.*.* { *; }
 -keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
   **[] $VALUES;
   public *;
@@ -58,14 +58,14 @@ public static final int *;
 #Proguard for okhttp3 begin
 -keepattributes Signature
 -keepattributes Annotation
--keep class okhttp3.** { *; }
+-keep class okhttp3.*.* { *; }
 -keep interface okhttp3.* { *; }
 -dontwarn okhttp3.*
 -dontwarn okio.**
 #Proguard for okhttp3 end
 
 #友盟混淆开始
--keep class com.umeng.commonsdk.** {*;}
+-keep class com.umeng.commonsdk.*.* {*;}
 
 -dontwarn com.taobao.**
 -dontwarn anet.channel.**
@@ -77,17 +77,17 @@ public static final int *;
 
 -keepattributes *Annotation*
 
--keep class com.taobao.** {*;}
--keep class org.android.** {*;}
--keep class anet.channel.** {*;}
--keep class com.umeng.** {*;}
--keep class com.xiaomi.** {*;}
--keep class com.huawei.** {*;}
--keep class org.apache.thrift.** {*;}
+-keep class com.taobao.*.* {*;}
+-keep class org.android.*.* {*;}
+-keep class anet.channel.*.* {*;}
+-keep class com.umeng.*.* {*;}
+-keep class com.xiaomi.*.* {*;}
+-keep class com.huawei.*.* {*;}
+-keep class org.apache.thrift.*.* {*;}
 
--keep class com.alibaba.sdk.android.**{*;}
--keep class com.ut.**{*;}
--keep class com.ta.**{*;}
+-keep class com.alibaba.sdk.android.*.*{*;}
+-keep class com.ut.*.*{*;}
+-keep class com.ta.*.*{*;}
 
 -keep public class **.R$*{
    public static final int *;
@@ -96,58 +96,58 @@ public static final int *;
 
 #admaster混淆开始
 -dontwarn com.admaster.**
--keep class com.admaster.** {
+-keep class com.admaster.*.* {
 *;
 }
 #admaster混淆结束
 
 #aliyun混淆开始
 -dontwarn com.alibaba.sdk.**
--keep class com.alibaba.sdk.** {
+-keep class com.alibaba.sdk.*.* {
 *;
 }
 #aliyun混淆结束
 
 
 -dontwarn org.apache.commons.**
--keep class org.apache.commons.** {
+-keep class org.apache.commons.*.* {
 *;
 }
 
 -dontwarn org.eclipse.jetty.**
--keep class org.eclipse.jetty.** {
+-keep class org.eclipse.jetty.*.* {
 *;
 }
 
 -dontwarn com.amlogic.update.**
--keep class com.amlogic.update.** {
+-keep class com.amlogic.update.*.* {
 *;
 }
 
 -dontwarn javax.servlet.**
--keep class javax.servlet.** {
+-keep class javax.servlet.*.* {
 *;
 }
 
 -dontwarn com.mstar.tv.service.**
--keep class com.mstar.tv.service.** {
+-keep class com.mstar.tv.service.*.* {
 *;
 }
 
 -dontwarn com.droidlogic.app.**
--keep class com.droidlogic.app.** {
+-keep class com.droidlogic.app.*.* {
 *;
 }
 
 #播放器混淆开始
 
--keep class com.shuyu.gsyvideoplayer.video.** { *; }
+-keep class com.shuyu.gsyvideoplayer.video.*.* { *; }
 -dontwarn com.shuyu.gsyvideoplayer.video.**
--keep class com.shuyu.gsyvideoplayer.video.base.** { *; }
+-keep class com.shuyu.gsyvideoplayer.video.base.*.* { *; }
 -dontwarn com.shuyu.gsyvideoplayer.video.base.**
--keep class com.shuyu.gsyvideoplayer.utils.** { *; }
+-keep class com.shuyu.gsyvideoplayer.utils.*.* { *; }
 -dontwarn com.shuyu.gsyvideoplayer.utils.**
--keep class tv.danmaku.ijk.** { *; }
+-keep class tv.danmaku.ijk.*.* { *; }
 -dontwarn tv.danmaku.ijk.**
 
 -keep public class * extends android.view.View{
