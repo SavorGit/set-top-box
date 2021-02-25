@@ -187,7 +187,8 @@ public class MiniProgramQrCodeWindowManager {
             @Override
             public void onAnimationEnd(Animation animation) {
                 mHandler.postDelayed(getToRightRunnable,session.getQrcode_takttime()*1000);
-                mQrCodeWindowManager.showQrCode(context,qrCodeUrl,qrCodePath);
+                mQrCodeWindowManager.setCurrentPlayMediaId(mediaId);
+                mQrCodeWindowManager.showQrCode(context,qrCodeUrl,qrCodePath,QRCodeType);
             }
 
             @Override
@@ -410,9 +411,6 @@ public class MiniProgramQrCodeWindowManager {
         mHandler.removeCallbacks(getToLeftRunnable);
         mHandler.removeCallbacks(getToRightRunnable);
         mHandler.post(mHideRunnable);
-        mQrCodeWindowManager.hideQrCode();
-
-
     }
 
     private void handleWindowLayout(){

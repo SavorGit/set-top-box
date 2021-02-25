@@ -544,7 +544,8 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                         }else{
                             session.setShowSimpleMiniProgramIcon(false);
                         }
-                        if (is_open_netty==1){
+                        session.setShowAnimQRcode(false);
+                        if (is_open_netty==1&&!session.isHeartbeatMiniNetty()){
                             Log.d("HeartbeatService","开始请求netty的ip地址和端口号");
 //                            retryCount =0;
                             getNettyBalancingInfo();
@@ -788,12 +789,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
 
                 break;
             case CP_GET_NETTY_BALANCING_FORM:
-                try {
-                    Thread.sleep(1000*30);
-                    getNettyBalancingInfo();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                mHandler.postDelayed(this::getNettyBalancingInfo,1000*30);
                 LogUtils.d("HeartbeatService getNettyBalancingInfo获取netty地址接口异常，重新请求");
                 break;
         }
@@ -822,12 +818,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                 LogUtils.d("HeartbeatService doInitConfig初始化接口异常，重新请求");
                 break;
             case CP_GET_NETTY_BALANCING_FORM:
-                try {
-                    Thread.sleep(1000*30);
-                    getNettyBalancingInfo();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                mHandler.postDelayed(() -> getNettyBalancingInfo(), 1000 * 30);
                 LogUtils.d("HeartbeatService getNettyBalancingInfo获取netty地址网络异常，重新请求");
                 break;
         }

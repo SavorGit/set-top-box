@@ -50,6 +50,7 @@ import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 public class SavorApplication extends MultiDexApplication implements ApiRequestListener {
 
     private MiniProgramQrCodeWindowManager miniProgramQrCodeWindowManager;
+    private QrCodeWindowManager qrCodeWindowManager;
     private GoodsQrCodeWindowManager goodsQrCodeWindowManager;
     private GoodsCountdownQrCodeWindowManager goodsCountdownQrCodeWindowManager;
     private ExtensionQrCodeDialog extensionQrCodeDialog;
@@ -71,6 +72,7 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
         session.setHeartbeatMiniNetty(false);
         GlobalValues.NETTY_FIRST_REGISTER=true;
         miniProgramQrCodeWindowManager = MiniProgramQrCodeWindowManager.get(this);
+        qrCodeWindowManager = QrCodeWindowManager.get(this);
         goodsQrCodeWindowManager = GoodsQrCodeWindowManager.get(this);
         goodsCountdownQrCodeWindowManager = new GoodsCountdownQrCodeWindowManager(this);
         extensionQrCodeDialog = new ExtensionQrCodeDialog(this);
@@ -381,13 +383,20 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
         LogUtils.i("showMiniProgramQrCodeWindow.................."+url);
         LogFileUtil.write("showMiniProgramQrCodeWindow.................."+url);
         if (!TextUtils.isEmpty(url)){
-            miniProgramQrCodeWindowManager.showQrCode(this,url,path,QRCodeType);
+            if (session.isShowAnimQRcode()){
+                qrCodeWindowManager.hideQrCode();
+                miniProgramQrCodeWindowManager.showQrCode(this,url,path,QRCodeType);
+            }else{
+                miniProgramQrCodeWindowManager.hideQrCode();
+                qrCodeWindowManager.showQrCode(this,url,path,QRCodeType);
+            }
         }
     }
 
     public void hideMiniProgramQrCodeWindow() {
         LogUtils.i("closeMiniProgramQrCodeWindow..................");
         miniProgramQrCodeWindowManager.hideQrCode();
+        qrCodeWindowManager.hideQrCode();
     }
 
     /**

@@ -58,6 +58,7 @@ import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
 import com.savor.ads.utils.MiniProgramQrCodeWindowManager;
+import com.savor.ads.utils.QrCodeWindowManager;
 import com.savor.ads.utils.ShowMessage;
 import com.umeng.analytics.MobclickAgent;
 
@@ -1489,7 +1490,11 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             return;
         }
         String mediaId = names[0];
-        MiniProgramQrCodeWindowManager.get(context).setCurrentPlayMediaId(mediaId);
+        if (session.isShowAnimQRcode()){
+            MiniProgramQrCodeWindowManager.get(context).setCurrentPlayMediaId(mediaId);
+        }else{
+            QrCodeWindowManager.get(context).setCurrentPlayMediaId(mediaId);
+        }
         ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_HELP_TYPE);
     }
     /**霸王餐参与抽奖窗口展示**/
@@ -1816,7 +1821,11 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    MiniProgramQrCodeWindowManager.get(context).setCurrentPlayMediaId(ConstantValues.QRCODE_CALL_VIDEO_ID);
+                    if (session.isShowAnimQRcode()){
+                        MiniProgramQrCodeWindowManager.get(context).setCurrentPlayMediaId(ConstantValues.QRCODE_CALL_VIDEO_ID);
+                    }else{
+                        QrCodeWindowManager.get(context).setCurrentPlayMediaId(ConstantValues.QRCODE_CALL_VIDEO_ID);
+                    }
                     if (session.getQrcodeType()==2){
                         ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE);
                     }

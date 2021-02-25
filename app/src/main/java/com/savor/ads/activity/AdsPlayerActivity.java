@@ -80,6 +80,7 @@ import com.savor.ads.utils.KeyCode;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
 import com.savor.ads.utils.MiniProgramQrCodeWindowManager;
+import com.savor.ads.utils.QrCodeWindowManager;
 import com.savor.ads.utils.ShellUtils;
 import com.savor.ads.utils.ShowMessage;
 import com.savor.ads.utils.TimeUtils;
@@ -731,7 +732,11 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     }
 
     private void isShowMiniProgramIcon(MediaLibBean libBean){
-        MiniProgramQrCodeWindowManager.get(this).setCurrentPlayMediaId(libBean.getVid());
+        if (mSession.isShowAnimQRcode()){
+            MiniProgramQrCodeWindowManager.get(this).setCurrentPlayMediaId(libBean.getVid());
+        }else{
+            QrCodeWindowManager.get(this).setCurrentPlayMediaId(libBean.getVid());
+        }
         if (libBean.getIs_sapp_qrcode() == 1
                 && !libBean.getType().equals(ConstantValues.POLY_ADS)
                 && !libBean.getType().equals(ConstantValues.POLY_ADS_ONLINE)
@@ -1054,7 +1059,11 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                     scanRedEnvelopeQrCodeDialog.dismiss();
                 }
             }
-            MiniProgramQrCodeWindowManager.get(this).setCurrentPlayMediaId(libBean.getVid());
+            if (mSession.isShowAnimQRcode()){
+                MiniProgramQrCodeWindowManager.get(this).setCurrentPlayMediaId(libBean.getVid());
+            }else{
+                QrCodeWindowManager.get(this).setCurrentPlayMediaId(libBean.getVid());
+            }
             if (libBean.getIs_sapp_qrcode() == 1
                     && !libBean.getType().equals(ConstantValues.POLY_ADS)
                     && !libBean.getType().equals(ConstantValues.POLY_ADS_ONLINE)

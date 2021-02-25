@@ -245,6 +245,17 @@ public class Session {
     /**是否展示引導嗎*/
 	private ProjectionGuideImg guideImg;
 
+    public boolean isShowAnimQRcode() {
+        return isShowAnimQRcode;
+    }
+
+    public void setShowAnimQRcode(boolean showAnimQRcode) {
+        isShowAnimQRcode = showAnimQRcode;
+    }
+
+    //是展示动画二维码还是展示普通二维码
+	private boolean isShowAnimQRcode;
+
     private Session(Context context) {
 
         mContext = context;
