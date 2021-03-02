@@ -544,7 +544,9 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                         }else{
                             session.setShowSimpleMiniProgramIcon(false);
                         }
-                        session.setShowAnimQRcode(false);
+                        if (jsonObject.has("isShowAnimQRcode")){
+                            session.setShowAnimQRcode(jsonObject.getBoolean("isShowAnimQRcode"));
+                        }
                         if (is_open_netty==1&&!session.isHeartbeatMiniNetty()){
                             Log.d("HeartbeatService","开始请求netty的ip地址和端口号");
 //                            retryCount =0;

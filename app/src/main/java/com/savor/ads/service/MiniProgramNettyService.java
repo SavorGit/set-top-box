@@ -2208,11 +2208,12 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     /**手機連接機頂盒以後引導圖*/
     private void guideImage(){
         ProjectionGuideImg guideImg = session.getGuideImg();
-        if (guideImg!=null){
+        if (guideImg!=null&&session.isFirstWelcomeImg()){
             String fileName = guideImg.getForscreen_box_filename();
             int delayTime = guideImg.getShow_time();
             String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+fileName;
             if (new File(filePath).exists()){
+                session.setFirstWelcomeImg(false);
                 ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),headPic,nickName,currentAction, FROM_SERVICE_MINIPROGRAM);
             }
         }

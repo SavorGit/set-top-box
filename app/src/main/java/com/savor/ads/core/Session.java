@@ -245,16 +245,19 @@ public class Session {
     /**是否展示引導嗎*/
 	private ProjectionGuideImg guideImg;
 
-    public boolean isShowAnimQRcode() {
-        return isShowAnimQRcode;
-    }
-
-    public void setShowAnimQRcode(boolean showAnimQRcode) {
-        isShowAnimQRcode = showAnimQRcode;
-    }
-
     //是展示动画二维码还是展示普通二维码
 	private boolean isShowAnimQRcode;
+
+    public boolean isFirstWelcomeImg() {
+        return isFirstWelcomeImg;
+    }
+
+    public void setFirstWelcomeImg(boolean firstWelcomeImg) {
+        isFirstWelcomeImg = firstWelcomeImg;
+    }
+
+    //每次開機只有第一個掃碼的人展示歡迎圖片，重啟復位
+    private boolean isFirstWelcomeImg;
 
     private Session(Context context) {
 
@@ -363,6 +366,7 @@ public class Session {
         qrcodeGifBgPath = mPreference.loadStringKey(P_APP_QRCODE_GIFBG,"");
         qrcodeType = mPreference.loadIntKey(P_APP_BOX_QRCODETYPE,1);
         guideImg = (ProjectionGuideImg) getObj(P_APP_PROJECTION_GUIDE);
+        isShowAnimQRcode = mPreference.loadBooleanKey(P_APP_SHOW_ANIM,true);
     }
 
     /*
@@ -472,7 +476,8 @@ public class Session {
                 P_APP_4G_NETWORK.equals(key)||
                 P_APP_SHOW_MIMIPROGRAM.equals(key)||
                 P_APP_SHOW_SIMPLE_MIMIPROGRAM.equals(key)||
-                P_APP_OPEN_INTERACTSCREENAD.equals(key)) {
+                P_APP_OPEN_INTERACTSCREENAD.equals(key)||
+                P_APP_SHOW_ANIM.equals(key)) {
             mPreference.saveBooleanKey(key, (boolean) updateItem.second);
         } else {
             String string = ObjectToString(updateItem.second);
@@ -1366,6 +1371,15 @@ public class Session {
         writePreference(new Pair<>(P_APP_PROJECTION_GUIDE,guideImg));
     }
 
+    public boolean isShowAnimQRcode() {
+        return isShowAnimQRcode;
+    }
+
+    public void setShowAnimQRcode(boolean showAnimQRcode) {
+        isShowAnimQRcode = showAnimQRcode;
+        writePreference(new Pair<>(P_APP_SHOW_ANIM,showAnimQRcode));
+    }
+
     //轮播播放声音
     public static final String P_APP_VOLUME = "com.savor.ads.volume";
     //投屏播放声音
@@ -1487,6 +1501,7 @@ public class Session {
     public static final String P_APP_QRCODE_TAKT_TIME = "com.savor.ads.qrcode.takttime";
     public static final String P_APP_QRCODE_GIFBG = "com.savor.ads.qrcode.gifbg";
     public static final String P_APP_PROJECTION_GUIDE = "com.savor.ads.projection.guide";
+    public static final String P_APP_SHOW_ANIM = "com.savor.ads.show.anim";
 
     public String getAdsPeriod() {
         return adsPeriod == null ? "" : adsPeriod;
