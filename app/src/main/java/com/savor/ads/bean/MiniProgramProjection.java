@@ -103,6 +103,8 @@ public class MiniProgramProjection implements Serializable{
     private int satisfaction;
     /**喝酒游戏-参与用户头像昵称*/
     private List<PartakeUser> turntable_user;
+    /**通过内容提示*/
+    private String content;
 
     public int getAction() {
         return action;
@@ -518,5 +520,13 @@ public class MiniProgramProjection implements Serializable{
 
     public void setTurntable_user(List<PartakeUser> turntable_user) {
         this.turntable_user = turntable_user;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 }

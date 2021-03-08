@@ -676,9 +676,14 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
             new Thread(() -> new ProgressDownloader(context,file_url,basePath, fileName).downloadByRange()).start();
         }
         String forscreen_url = guideImg.getForscreen_box_url();
-        String forscreenUrlName = guideImg.getForscreen_box_filename();
-        if (!new File(basePath+forscreenUrlName).exists()&&!TextUtils.isEmpty(forscreen_url)){
-            new Thread(() -> new ProgressDownloader(context,forscreen_url,basePath, forscreenUrlName).downloadByRange()).start();
+        String forscreenName = guideImg.getForscreen_box_filename();
+        if (!new File(basePath+forscreenName).exists()&&!TextUtils.isEmpty(forscreen_url)){
+            new Thread(() -> new ProgressDownloader(context,forscreen_url,basePath, forscreenName).downloadByRange()).start();
+        }
+        String bonusUrl = guideImg.getBonus_forscreen_url();
+        String bonusFilename = guideImg.getBonus_forscreen_filename();
+        if (!new File(basePath+bonusFilename).exists()&&!TextUtils.isEmpty(bonusUrl)){
+            new Thread(() -> new ProgressDownloader(context,bonusUrl,basePath, bonusFilename).downloadByRange()).start();
         }
         session.setGuideImg(guideImg);
     }

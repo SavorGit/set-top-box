@@ -411,11 +411,12 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                                         ((AdsPlayerActivity) activity).setScanRedEnvelopeQrCodeDialogListener(scanRedEnvelopeQrCodeDialog);
                                     }
                                     String scanRedEnvelopeUrl = miniProgramProjection.getCodeUrl();
+                                    String content = miniProgramProjection.getContent();
                                     if (scanRedEnvelopeQrCodeDialog !=null){
                                         scanRedEnvelopeQrCodeDialog.dismiss();
                                         scanRedEnvelopeQrCodeDialog = new ScanRedEnvelopeQrCodeDialog(context);
                                         scanRedEnvelopeQrCodeDialog.show();
-                                        scanRedEnvelopeQrCodeDialog.setRedEnvelopeInfo(headPic,nickName,scanRedEnvelopeUrl);
+                                        scanRedEnvelopeQrCodeDialog.setRedEnvelopeInfo(headPic,nickName,scanRedEnvelopeUrl,content);
 
                                     }
                                 }

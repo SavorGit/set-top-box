@@ -13,6 +13,8 @@ public class ProjectionGuideImg {
     private String file_url;
     private String forscreen_box_filename;
     private String forscreen_box_url;
+    private String bonus_forscreen_url;
+    private String bonus_forscreen_filename;
 
     public int getIs_show() {
         return is_show;
@@ -100,5 +102,21 @@ public class ProjectionGuideImg {
 
     public void setForscreen_box_url(String forscreen_box_url) {
         this.forscreen_box_url = forscreen_box_url;
+    }
+
+    public String getBonus_forscreen_url() {
+        return bonus_forscreen_url;
+    }
+
+    public void setBonus_forscreen_url(String bonus_forscreen_url) {
+        this.bonus_forscreen_url = bonus_forscreen_url;
+    }
+
+    public String getBonus_forscreen_filename() {
+        return bonus_forscreen_filename;
+    }
+
+    public void setBonus_forscreen_filename(String bonus_forscreen_filename) {
+        this.bonus_forscreen_filename = bonus_forscreen_filename;
     }
 }

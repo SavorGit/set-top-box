@@ -157,4 +157,8 @@ public class GlobalValues <T extends MediaLibBean> {
     public static ConcurrentHashMap<String,Integer> FILE_NUM= new ConcurrentHashMap<>();
     /**netty第一次注册*/
     public static boolean NETTY_FIRST_REGISTER;
+    /**当前轮播视频的VID*/
+    public static String currentVid;
+    /**当前是否在展示红包弹出窗口*/
+    public static boolean isOpenRedEnvelopeWin;
 }

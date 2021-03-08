@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -26,15 +27,26 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.mstar.tv.service.skin.AudioSkin;
 import com.savor.ads.R;
+import com.savor.ads.SavorApplication;
 import com.savor.ads.activity.AdsPlayerActivity;
+import com.savor.ads.bean.ProjectionGuideImg;
+import com.savor.ads.callback.ProjectOperationListener;
 import com.savor.ads.core.Session;
 import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
+import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.DensityUtil;
 import com.savor.ads.utils.GlideImageLoader;
+import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
+import com.savor.ads.utils.MiniProgramQrCodeWindowManager;
+import com.savor.ads.utils.QrCodeWindowManager;
 import com.savor.ads.utils.ShowMessage;
+
+import java.io.File;
+
+import static com.savor.ads.utils.GlobalValues.FROM_SERVICE_MINIPROGRAM;
 
 /**
  * Created by zhanghq on 2016/12/10.
@@ -44,11 +56,11 @@ public class ScanRedEnvelopeQrCodeDialog extends Dialog{
 
     private Handler mHandler = new Handler();
     private Context mContext;
-
     private ImageView scanAvatarIconIv;
     private TextView scanNickNameTv;
     private ImageView scanQrCodeIv;
     private TextView scanWxCountDownTv;
+    private TextView redEnvelopeTipTv;
     WindowManager mWindowManager;
     private LinearLayout mFloatLayout;
 
@@ -95,6 +107,7 @@ public class ScanRedEnvelopeQrCodeDialog extends Dialog{
         scanNickNameTv = findViewById(R.id.tv_scan_wx_nickname);
         scanWxCountDownTv = findViewById(R.id.tv_scan_wx_countdown);
         scanQrCodeIv = findViewById(R.id.iv_scan_qrcode);
+        redEnvelopeTipTv = findViewById(R.id.red_envelope_tip);
     }
 
     private void loadSound() {
@@ -108,12 +121,18 @@ public class ScanRedEnvelopeQrCodeDialog extends Dialog{
 
     }
 
-    public void setRedEnvelopeInfo(String wxAvatarUrl,String wxNickname,String redEnvelopeUrl){
+    public void setRedEnvelopeInfo(String wxAvatarUrl,String wxNickname,String redEnvelopeUrl,String content){
         if (!TextUtils.isEmpty(wxAvatarUrl)){
             GlideImageLoader.loadRoundImage(mContext,wxAvatarUrl,scanAvatarIconIv,R.mipmap.wxavatar);
         }
         if (!TextUtils.isEmpty(wxNickname)){
             scanNickNameTv.setText(wxNickname);
+        }
+        if (!TextUtils.isEmpty(content)){
+            redEnvelopeTipTv.setText(content);
+            redEnvelopeTipTv.setVisibility(View.VISIBLE);
+        }else{
+            redEnvelopeTipTv.setVisibility(View.GONE);
         }
         if (!TextUtils.isEmpty(redEnvelopeUrl)){
             GlideImageLoader.loadImageWithoutCache(mContext, redEnvelopeUrl, scanQrCodeIv, new RequestListener() {
@@ -137,18 +156,15 @@ public class ScanRedEnvelopeQrCodeDialog extends Dialog{
                     scanWxCountDownTv.setText(delayTime/1000+"");
                     mHandler.postDelayed(mCountDownRunnable,1000);
                     mHandler.post(redEnvelopeSoundRunnable);
+                    ((SavorApplication) mContext.getApplicationContext()).hideMiniProgramQrCodeWindow();
+                    GlobalValues.isOpenRedEnvelopeWin = true;
                     return false;
                 }
             });
         }
     }
     //倒计时线程
-    private Runnable mCountDownRunnable = new Runnable() {
-        @Override
-        public void run() {
-            wxScanCountDown();
-        }
-    };
+    private Runnable mCountDownRunnable = () -> wxScanCountDown();
 
     private void wxScanCountDown(){
         delayTime = delayTime-1000;
@@ -163,6 +179,26 @@ public class ScanRedEnvelopeQrCodeDialog extends Dialog{
         @Override
         public void run() {
             dismiss();
+            GlobalValues.isOpenRedEnvelopeWin = false;
+//            if (!TextUtils.isEmpty(GlobalValues.currentVid)){
+//                if (Session.get(mContext).isShowAnimQRcode()){
+//                    MiniProgramQrCodeWindowManager.get(mContext).setCurrentPlayMediaId(GlobalValues.currentVid);
+//                }else{
+//                    QrCodeWindowManager.get(mContext).setCurrentPlayMediaId(GlobalValues.currentVid);
+//                }
+//                if (ConstantValues.QRCODE_CALL_VIDEO_ID.equals(GlobalValues.currentVid)){
+//                    ((SavorApplication) mContext.getApplicationContext()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_BIG_TYPE);
+//                }else {
+//                    ((SavorApplication) mContext.getApplicationContext()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_OFFICIAL_TYPE);
+//                }
+//            }
+            ProjectionGuideImg guideImg = Session.get(mContext).getGuideImg();
+            if (guideImg!=null){
+                String fileName = guideImg.getBonus_forscreen_filename();
+                String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+fileName;
+                if (new File(filePath).exists())
+                ProjectOperationListener.getInstance(mContext).showImage(1,filePath,true,String.valueOf(45),null,null,-1, FROM_SERVICE_MINIPROGRAM);
+            }
         }
     };
 

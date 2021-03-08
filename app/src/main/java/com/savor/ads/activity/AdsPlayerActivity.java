@@ -738,6 +738,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             QrCodeWindowManager.get(this).setCurrentPlayMediaId(libBean.getVid());
         }
         if (libBean.getIs_sapp_qrcode() == 1
+                &&!GlobalValues.isOpenRedEnvelopeWin
                 && !libBean.getType().equals(ConstantValues.POLY_ADS)
                 && !libBean.getType().equals(ConstantValues.POLY_ADS_ONLINE)
                 && !libBean.getType().equals(ConstantValues.ACTGOODS_OPTI)
@@ -1048,6 +1049,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     public boolean onMediaPrepared(int index) {
         if (mPlayList != null && (!TextUtils.isEmpty(mPlayList.get(index).getVid()))) {
             MediaLibBean libBean = mPlayList.get(index);
+            GlobalValues.currentVid = libBean.getVid();
             if (libBean.getType().equals(ConstantValues.ADS)
                     ||libBean.getType().equals(ConstantValues.POLY_ADS)
                     ||libBean.getType().equals(ConstantValues.POLY_ADS_ONLINE)
@@ -1065,6 +1067,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 QrCodeWindowManager.get(this).setCurrentPlayMediaId(libBean.getVid());
             }
             if (libBean.getIs_sapp_qrcode() == 1
+                    &&!GlobalValues.isOpenRedEnvelopeWin
                     && !libBean.getType().equals(ConstantValues.POLY_ADS)
                     && !libBean.getType().equals(ConstantValues.POLY_ADS_ONLINE)
                     && !libBean.getType().equals(ConstantValues.ACTGOODS_OPTI)
