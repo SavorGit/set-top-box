@@ -55,15 +55,18 @@
             android:layout_height="60dp"
             android:background="@drawable/bg_shape_white_line"/>
     </RelativeLayout>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:lines="1"
-        android:text="红包来啦"
         android:layout_gravity="center"
         android:layout_marginTop="8sp"
+        android:lines="1"
+        android:text="红包来啦"
+        android:typeface="serif"
         android:textColor="#f6edc4"
-        android:textSize="45sp"/>
+        android:textSize="45sp" />
+
     <ImageView
         android:id="@+id/iv_scan_qrcode"
         android:layout_gravity="center"
@@ -78,9 +81,10 @@
         android:layout_height="wrap_content"
         android:lines="1"
         android:visibility="visible"
-        android:text="快,使用热点投屏,大屏分享更快乐!"
+        android:text="靓照上电视 大屏分享更快乐"
+        android:typeface="serif"
         android:layout_gravity="center"
         android:paddingBottom="10dp"
         android:textColor="#f6edc4"
-        android:textSize="30sp"/>
+        android:textSize="35sp"/>
 </LinearLayout>

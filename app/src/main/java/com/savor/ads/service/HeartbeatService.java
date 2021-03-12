@@ -40,6 +40,7 @@ import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.FileUtils;
+import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
 
@@ -378,7 +379,9 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                 }
             }
             playlistDetailRequestBean.setList(playlist);
-
+            if (GlobalValues.getInstance().HOT_CONTENT_LIST!=null){
+                playlistDetailRequestBean.setHotplay(GlobalValues.getInstance().HOT_CONTENT_LIST);
+            }
             AppApi.reportPlaylist(this, this, playlistDetailRequestBean);
         }
     }

@@ -1037,6 +1037,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                         file.delete();
                     }
                 }
+                GlobalValues.getInstance().HOT_CONTENT_LIST = null;
                 return;
             }
             handleHotContentData(result);
@@ -1049,6 +1050,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         List<SelectContentBean> list = result.getDatalist();
         List<String> fileSize = new ArrayList<>();
         List<String> fileNames = new ArrayList<>();
+        ArrayList<String> contentIds = new ArrayList<>();
         String basePath = AppUtils.getFilePath(AppUtils.StorageFile.hot_content);
         for (SelectContentBean bean:list){
             if (bean.getSubdata()!=null&&bean.getSubdata().size()>0){
@@ -1079,11 +1081,15 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                     }
                 }
             }
+            contentIds.add(bean.getId()+"");
         }
         if (fileSize.size()==fileNames.size()){
             //精选内容下载完成
             session.setHotContentPeriod(result.getPeriod());
             AppUtils.deleteHotContentMedia(fileNames);
+            if (contentIds!=null&&contentIds.size()>0){
+                GlobalValues.getInstance().HOT_CONTENT_LIST = contentIds;
+            }
         }
 
     }

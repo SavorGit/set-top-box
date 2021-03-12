@@ -2,6 +2,7 @@ package com.savor.ads.bean;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by bichao on 2016/12/12.
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 public class PlaylistDetailRequestBean implements Serializable {
     private String menu_num;
     private ArrayList<MediaPlaylistBean> list;
+    private List<String> hotplay;
 
     public String getMenu_num() {
         return menu_num;
@@ -25,6 +27,14 @@ public class PlaylistDetailRequestBean implements Serializable {
 
     public void setList(ArrayList<MediaPlaylistBean> list) {
         this.list = list;
+    }
+
+    public List<String> getHotplay() {
+        return hotplay;
+    }
+
+    public void setHotplay(List<String> hotplay) {
+        this.hotplay = hotplay;
     }
 }
 

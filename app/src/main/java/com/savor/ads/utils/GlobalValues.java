@@ -39,6 +39,8 @@ public class GlobalValues <T extends MediaLibBean> {
 
     /** 播放列表*/
     public ArrayList<T> PLAY_LIST;
+    /**热播内容ID集合*/
+    public ArrayList<String> HOT_CONTENT_LIST;
     /** 请求到的百度聚屏广告集合，填充节目单时会用到*/
     public static ArrayList<BaiduAdLocalBean> POLY_BAIDU_ADS_PLAY_LIST;
     public static ArrayList<MeiAdLocalBean> POLY_MEI_ADS_PLAY_LIST;

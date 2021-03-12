@@ -1,6 +1,5 @@
 package com.savor.ads.dialog;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.PixelFormat;
@@ -9,8 +8,6 @@ import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -21,6 +18,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
@@ -28,20 +28,15 @@ import com.bumptech.glide.request.target.Target;
 import com.mstar.tv.service.skin.AudioSkin;
 import com.savor.ads.R;
 import com.savor.ads.SavorApplication;
-import com.savor.ads.activity.AdsPlayerActivity;
 import com.savor.ads.bean.ProjectionGuideImg;
 import com.savor.ads.callback.ProjectOperationListener;
 import com.savor.ads.core.Session;
-import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
-import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.DensityUtil;
 import com.savor.ads.utils.GlideImageLoader;
 import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
-import com.savor.ads.utils.MiniProgramQrCodeWindowManager;
-import com.savor.ads.utils.QrCodeWindowManager;
 import com.savor.ads.utils.ShowMessage;
 
 import java.io.File;
@@ -51,8 +46,8 @@ import static com.savor.ads.utils.GlobalValues.FROM_SERVICE_MINIPROGRAM;
 /**
  * Created by zhanghq on 2016/12/10.
  */
-
-public class ScanRedEnvelopeQrCodeDialog extends Dialog{
+@Deprecated
+public class ScanRedEnvelopeQrCodeDialogBak extends Dialog{
 
     private Handler mHandler = new Handler();
     private Context mContext;
@@ -72,7 +67,7 @@ public class ScanRedEnvelopeQrCodeDialog extends Dialog{
     private SoundPool mSoundPool;
     private int soundNum;
     private AudioSkin mAudioSkin;
-    public ScanRedEnvelopeQrCodeDialog(@NonNull Context context) {
+    public ScanRedEnvelopeQrCodeDialogBak(@NonNull Context context) {
         super(context, R.style.miniProgramImagesDialog);
         this.mContext = context;
     }
