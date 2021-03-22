@@ -91,6 +91,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private Context context;
     private Session session;
     private DBHelper dbHelper;
+    private String box_downstime;
     ProjectionImgListDialog pImgListDialog = null;
     //标准版轮播图片时长
     private int INTERVAL_TIME=1000*10;
@@ -140,7 +141,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private AdsBinder adsBinder = new AdsBinder();
     /**增加投屏前置或者后置广告,前置：1，后置：2*/
     private MediaLibBean preOrNextAdsBean=null;
-    private RangeManager rangeManager;
     public MiniProgramNettyService() {
 
     }
@@ -268,7 +268,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     currentAction = action;
                     if (jsonObject.has("req_id")){
                         String req_id = jsonObject.getString("req_id");
-                        JsonBean jsonBean = AppApi.getProjectionNettyTime(context,apiRequestListener,req_id);
+                        box_downstime = System.currentTimeMillis()+"";
+                        JsonBean jsonBean = AppApi.getProjectionNettyTime(context,apiRequestListener,req_id,box_downstime);
                         JSONObject json = new JSONObject(jsonBean.getConfigJson());
                         if (json.getInt("code")==AppApi.HTTP_RESPONSE_STATE_SUCCESS){}
                     }
@@ -789,6 +790,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
      * @param params
      */
     private void postProjectionResourceLog(HashMap<String,Object> params){
+        String box_downetime = System.currentTimeMillis()+"";
+        params.put("box_downstime",box_downstime);
+        params.put("box_downetime",box_downetime);
         AppApi.postProjectionResourceParam(context,apiRequestListener,params);
     }
 

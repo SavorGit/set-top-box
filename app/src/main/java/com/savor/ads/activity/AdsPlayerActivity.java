@@ -176,7 +176,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                     Long countdownTime = msg.getData().getLong("countdownTime");
                     if (countdownTime!=0){
                         ((SavorApplication) getApplication()).showGoodsCountdownQrCodeWindow(qrcode_url,qrcode_path,countdownTime);
-
                     }else {
                         ((SavorApplication) getApplication()).showGoodsQrCodeWindow(qrcode_url,qrcode_path);
                     }

@@ -875,9 +875,10 @@ public class AppApi {
      * @return
      * @throws IOException
      */
-    public static JsonBean getProjectionNettyTime(Context context,ApiRequestListener handler,String req_id) throws IOException{
+    public static JsonBean getProjectionNettyTime(Context context,ApiRequestListener handler,String req_id,String box_downstime) throws IOException{
         HashMap<String,Object> params = new HashMap<>();
         params.put("req_id",req_id);
+        params.put("box_downstime",box_downstime);
         return new AppServiceOk(context,Action.CP_GET_MINIPROGRAM_PROJECTION_NETTYTIME_JSON,handler,params).syncGet();
     }
     /**
