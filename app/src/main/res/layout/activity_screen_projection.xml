@@ -110,6 +110,8 @@
             android:id="@+id/welcome_words"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
             android:gravity="center"
             android:shadowRadius="1"
             android:shadowDx="5"
