@@ -1087,11 +1087,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         GlobalValues.PROJECTION_VIDEO_PATH = path;
                     }else if (preOrNextAdsBean.getPlay_position()==2){
                         GlobalValues.PROJECTION_VIDEO_PATH = null;
-                        if (isDownloaded){
-                            ProjectOperationListener.getInstance(context).showVideo(basePath,oss_url,true,forscreen_id, headPic, nickName, FROM_SERVICE_MINIPROGRAM);
-                        }else{
-                            ProjectOperationListener.getInstance(context).showVideo(basePath,oss_url, true,forscreen_id, headPic, nickName, FROM_SERVICE_MINIPROGRAM);
-                        }
+                        ProjectOperationListener.getInstance(context).showVideo(basePath,oss_url,true,forscreen_id, headPic, nickName, FROM_SERVICE_MINIPROGRAM);
                     }
                 }else{
                     GlobalValues.INTERACTION_ADS_PLAY = 0;

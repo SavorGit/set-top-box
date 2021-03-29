@@ -73,3 +73,7 @@
 #v2.2.5</br>
 #1.商品視頻二維碼位置修改</br>
 #2.修改投屏日志上报接口时间参数</br>
+#v2.2.6</br>
+#1.增加请求本地生活接口box/lifeAds/getAdsList</br>
+#2.增加本地生活资源目录LocalLife</br>
+#3.增加数据库表local_life_ads_table</br>

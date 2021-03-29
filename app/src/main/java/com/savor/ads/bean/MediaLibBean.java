@@ -11,6 +11,8 @@ public class MediaLibBean implements Serializable {
     private long id;
     //视频ID
     private String vid;
+    //广告id
+    private String ads_id;
     //商品ID
     private int goods_id;
     //视频检验值
@@ -93,6 +95,14 @@ public class MediaLibBean implements Serializable {
 
     public void setVid(String vid) {
         this.vid = vid;
+    }
+
+    public String getAds_id() {
+        return ads_id;
+    }
+
+    public void setAds_id(String ads_id) {
+        this.ads_id = ads_id;
     }
 
     public int getGoods_id() {

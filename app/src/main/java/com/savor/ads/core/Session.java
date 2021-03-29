@@ -143,6 +143,8 @@ public class Session {
     private String discoverContentPeriod;
     /**欢迎词内容期号*/
     private String welcomeResourcePeriod;
+    /**本地生活广告期号*/
+    private String localLifeAdsPeriod;
 
     //开机时间
     private String startTime;
@@ -324,6 +326,7 @@ public class Session {
         hotContentPeriod = mPreference.loadStringKey(P_APP_HOT_CONTENT_PERIOD,"");
         discoverContentPeriod = mPreference.loadStringKey(P_APP_DISCOVER_CONTENT_PERIOD,"");
         welcomeResourcePeriod = mPreference.loadStringKey(P_APP_WELCOME_RESOURCE_PERIOD,"");
+        localLifeAdsPeriod = mPreference.loadStringKey(P_APP_LOCAL_LIFE_ADS_PERIOD,"");
         startTime = mPreference.loadStringKey(P_APP_STARTTIME, null);
         lastStartTime = mPreference.loadStringKey(P_APP_LASTSTARTTIME, null);
         switchTime = mPreference.loadIntKey(P_APP_SWITCHTIME, ConstantValues.DEFAULT_SWITCH_TIME);
@@ -451,7 +454,8 @@ public class Session {
                 || P_APP_HOT_CONTENT_PERIOD.equals(key)
                 || P_APP_DISCOVER_CONTENT_PERIOD.equals(key)
                 || P_APP_WELCOME_RESOURCE_PERIOD.equals(key)
-                || P_APP_SHOP_GOODS_ADS_PERIOD.equals(key)) {
+                || P_APP_SHOP_GOODS_ADS_PERIOD.equals(key)
+                || P_APP_LOCAL_LIFE_ADS_PERIOD.equals(key)) {
 
             mPreference.saveStringKey(key, (String) updateItem.second);
         } else if (P_APP_VOLUME.equals(key) ||
@@ -1211,6 +1215,15 @@ public class Session {
         writePreference(new Pair<>(P_APP_WELCOME_RESOURCE_PERIOD,welcomeResourcePeriod));
     }
 
+    public String getLocalLifeAdsPeriod() {
+        return localLifeAdsPeriod;
+    }
+
+    public void setLocalLifeAdsPeriod(String localLifeAdsPeriod) {
+        this.localLifeAdsPeriod = localLifeAdsPeriod;
+        writePreference(new Pair<>(P_APP_LOCAL_LIFE_ADS_PERIOD,localLifeAdsPeriod));
+    }
+
     public String getNetSpeed() {
         return netSpeed;
     }
@@ -1438,6 +1451,8 @@ public class Session {
     public static final String P_APP_DISCOVER_CONTENT_PERIOD = "com.savor.ads.discover_content_period";
     /**欢迎词内容期号KEY*/
     public static final String P_APP_WELCOME_RESOURCE_PERIOD = "com.savor.ads.welcome_resource_period";
+    /**本地生活广告期号KEY*/
+    public static final String P_APP_LOCAL_LIFE_ADS_PERIOD = "com.savor.ads.local_life_ads_period";
     //开机时间
     public static final String P_APP_STARTTIME = "com.savor.ads.startTime";
     public static final String P_APP_LASTSTARTTIME = "com.savor.ads.laststartTime";

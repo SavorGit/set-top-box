@@ -1021,6 +1021,9 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             if (ConstantValues.SELECT_CONTENT.equals(item.getType())){
                 AppApi.reportSelectContentPlayLog(this,this,item.getVid());
             }
+            if (ConstantValues.LOCAL_LIFE.equals(item.getType())){
+                AppApi.postForscreenAdsLog(this,this,item.getAds_id(),mSession.getEthernetMac());
+            }
         }
 
         if (mNeedUpdatePlaylist) {

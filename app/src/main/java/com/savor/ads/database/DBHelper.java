@@ -32,6 +32,7 @@ import java.util.List;
 
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.ACTION;
+import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.ADS_ID;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.AVATAR_URL;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.BOX_MAC;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.CHINESE_NAME;
@@ -92,6 +93,7 @@ public class DBHelper extends SQLiteOpenHelper {
             public static final String PERIOD = "period";
             public static final String ADS_ORDER = "ads_order";
             public static final String VID = "vid";
+            public static final String ADS_ID = "ads_id";
             public static final String GOODS_ID = "goods_id";
             public static final String MD5 = "md5";
             public static final String MEDIAID = "media_id";
@@ -155,6 +157,7 @@ public class DBHelper extends SQLiteOpenHelper {
             public static final String SELECT_CONTENT = "select_content_table";
             public static final String MEDIA_ITEM = "media_item_table";
             public static final String WELCOME_RESOURCE = "welcome_resource_table";
+            public static final String LOCAL_LIFE_ADS = "local_life_ads_table";
         }
     }
 
@@ -164,7 +167,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "dbsavor.db";
 
 
-    private static final int DB_VERSION = 35;
+    private static final int DB_VERSION = 36;
 
     private Context mContext;
 
@@ -219,6 +222,8 @@ public class DBHelper extends SQLiteOpenHelper {
         createTable_welcomeResource(db);
 
         createTable_shopgoodsAds(db);
+
+        createTable_localLifeAds(db);
     }
 
     @Override
@@ -353,7 +358,8 @@ public class DBHelper extends SQLiteOpenHelper {
             }catch (Exception e){
                 e.printStackTrace();
             }
-        }if (oldVersion<35){
+        }
+        if (oldVersion<35){
             try{
                 String alterShortcut = "ALTER TABLE " + TableName.PROJECTION_LOG + " ADD " + MEDIA_SCREENSHOT_PATH + " TEXT;";
                 sqLiteDatabase.execSQL(alterShortcut);
@@ -361,6 +367,17 @@ public class DBHelper extends SQLiteOpenHelper {
                 sqLiteDatabase.execSQL(alterUpload);
                 String alterRepeat = "ALTER TABLE " + TableName.PROJECTION_LOG + " ADD " + REPEAT + " TEXT;";
                 sqLiteDatabase.execSQL(alterRepeat);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        if (oldVersion<36){
+            try{
+                try{
+                    createTable_localLifeAds(sqLiteDatabase);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -665,6 +682,32 @@ public class DBHelper extends SQLiteOpenHelper {
                 + CREATETIME + " TEXT " + ");";
         db.execSQL(DATABASE_CREATE);
 
+    }
+
+    /**
+     * 创建本地生活广告数据表
+     * @param db
+     */
+    private void createTable_localLifeAds(SQLiteDatabase db){
+        String DATABASE_CREATE = "create table "
+                + TableName.LOCAL_LIFE_ADS
+                + " (" + FieldName.ID + " INTEGER PRIMARY KEY, "
+                + VID + " TEXT, "
+                + ADS_ID + " TEXT, "
+                + MD5 + " TEXT, "
+                + CHINESE_NAME + " TEXT, "
+                + MEDIA_PATH + " TEXT, "
+                + DURATION + " TEXT, "
+                + SURFIX + " TEXT, "
+                + START_DATE + " TEXT, "
+                + END_DATE + " TEXT, "
+                + RESOURCE_TYPE + " INTEGER, "
+                + TYPE + " INTEGER, "
+                + LOCATION_ID + " TEXT, "
+                + MEDIANAME + " TEXT, "
+                + PERIOD + " TEXT, "
+                + CREATETIME + " TEXT " + ");";
+        db.execSQL(DATABASE_CREATE);
     }
 
     /**
@@ -1982,6 +2025,82 @@ public class DBHelper extends SQLiteOpenHelper {
                             bean.setDuration(cursor.getString(cursor.getColumnIndex(DURATION)));
                             bean.setQrcode_path(cursor.getString(cursor.getColumnIndex(QRCODE_PATH)));
                             bean.setQrcode_url(cursor.getString(cursor.getColumnIndex(QRCODE_URL)));
+                            bean.setPeriod(cursor.getString(cursor.getColumnIndex(PERIOD)));
+                            bean.setCreateTime(cursor.getString(cursor.getColumnIndex(CREATETIME)));
+                            list.add(bean);
+                        } while (cursor.moveToNext());
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (cursor != null && !cursor.isClosed()) {
+                        cursor.close();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return list;
+    }
+
+    public boolean insertLocalLifeAds(MediaLibBean bean){
+        if (bean == null) {
+            return false;
+        }
+        boolean flag = false;
+        try {
+            ContentValues initialValues = new ContentValues();
+            initialValues.put(VID, bean.getGoods_id());
+            initialValues.put(ADS_ID, bean.getGoods_id());
+            initialValues.put(MD5,bean.getMd5());
+            initialValues.put(CHINESE_NAME, bean.getChinese_name());
+            initialValues.put(MEDIA_PATH,bean.getMediaPath());
+            initialValues.put(DURATION,bean.getDuration());
+            initialValues.put(SURFIX,bean.getSuffix());
+            initialValues.put(START_DATE,bean.getStart_date());
+            initialValues.put(END_DATE,bean.getEnd_date());
+            initialValues.put(RESOURCE_TYPE,bean.getMedia_type());
+            initialValues.put(TYPE,bean.getType());
+            initialValues.put(MEDIANAME,bean.getName());
+            initialValues.put(PERIOD,bean.getPeriod());
+            initialValues.put(CREATETIME,bean.getCreateTime());
+            long success = db.insert(TableName.LOCAL_LIFE_ADS,null,initialValues);
+            if (success>0){
+                flag = true;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return flag;
+    }
+
+    public List<MediaLibBean> findLocalLifeAdsByWhere(String selection, String[] selectionArgs){
+        List<MediaLibBean> list = null;
+        synchronized (dbHelper) {
+            Cursor cursor = null;
+            try {
+                cursor = db.query(TableName.LOCAL_LIFE_ADS, null,
+                        selection, selectionArgs, null, null, null, null);
+                if (cursor != null) {
+                    if (cursor.moveToFirst()) {
+                        list = new ArrayList<>();
+                        do {
+                            MediaLibBean bean = new MediaLibBean();
+                            bean.setVid(cursor.getString(cursor.getColumnIndex(VID)));
+                            bean.setAds_id(cursor.getString(cursor.getColumnIndex(ADS_ID)));
+                            bean.setMd5(cursor.getString(cursor.getColumnIndex(MD5)));
+                            bean.setChinese_name(cursor.getString(cursor.getColumnIndex(CHINESE_NAME)));
+                            bean.setMediaPath(cursor.getString(cursor.getColumnIndex(MEDIA_PATH)));
+                            bean.setDuration(cursor.getString(cursor.getColumnIndex(DURATION)));
+                            bean.setSuffix(cursor.getString(cursor.getColumnIndex(SURFIX)));
+                            bean.setStart_date(cursor.getString(cursor.getColumnIndex(START_DATE)));
+                            bean.setEnd_date(cursor.getString(cursor.getColumnIndex(END_DATE)));
+                            bean.setMedia_type(cursor.getInt(cursor.getColumnIndex(RESOURCE_TYPE)));
+                            bean.setType(cursor.getString(cursor.getColumnIndex(TYPE)));
+                            bean.setName(cursor.getString(cursor.getColumnIndex(MEDIANAME)));
                             bean.setPeriod(cursor.getString(cursor.getColumnIndex(PERIOD)));
                             bean.setCreateTime(cursor.getString(cursor.getColumnIndex(CREATETIME)));
                             list.add(bean);

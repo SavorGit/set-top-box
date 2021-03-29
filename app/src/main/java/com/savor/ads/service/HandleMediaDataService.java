@@ -25,6 +25,7 @@ import com.savor.ads.bean.BoxInitBean;
 import com.savor.ads.bean.BoxInitResult;
 import com.savor.ads.bean.InteractionAdsResult;
 import com.savor.ads.bean.JsonBean;
+import com.savor.ads.bean.LocalLifeAdsResult;
 import com.savor.ads.bean.MediaItemBean;
 import com.savor.ads.bean.MediaLibBean;
 import com.savor.ads.bean.ProgramBean;
@@ -265,6 +266,8 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                             getDiscoverContentFromCloudPlatform();
                             //同步获取欢迎词资源数据(含封面和mp3音乐)
                             getWelcomeResourceFromCloudPlatform();
+                            //同步获取本地生活广告数据
+                            getLifeAdsDataFromCloudPlatform();
                             // 同步获取轮播节目媒体数据
                             getProgramDataFromSmallPlatform();
                             LogFileUtil.write("HandleMediaDataService will start getAdvDataFromSmallPlatform");
@@ -276,7 +279,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                             LogFileUtil.write("HandleMediaDataService will start getAdsDataFromSmallPlatform");
                             //同步获取广告片媒体数据
                             getAdsDataFromSmallPlatform();
-
+                            //同步获取本地生活广告列表
                             LogFileUtil.write("HandleMediaDataService will start getTVMatchDataFromSmallPlatform");
                             // 异步获取电视节目信息
                             getTVMatchDataFromSmallPlatform();
@@ -1263,6 +1266,83 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 session.setWelcomeResourcePeriod(result.getPeriod());
                 AppUtils.deleteWelcomeResource(context);
             }
+        }
+    }
+
+    /**
+     * 获取本地生活广告数据
+     */
+    private void getLifeAdsDataFromCloudPlatform(){
+        try{
+            JsonBean jsonBean = AppApi.getLifeAdsListFromCloudfrom(context,this,session.getEthernetMac());
+            JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
+            if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
+                return;
+            }
+            LocalLifeAdsResult result = gson.fromJson(jsonObject.get("result").toString(), new TypeToken<LocalLifeAdsResult>() {
+            }.getType());
+            if (!isFirstRun&&result.getPeriod().equals(session.getLocalLifeAdsPeriod())){
+                return;
+            }
+            if (result.getMedia_list()==null||result.getMedia_list().size()==0){
+                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.LOCAL_LIFE_ADS,null,null);
+                AppUtils.deleteLocalLifeData(context);
+                notifyToPlay();
+                return;
+            }
+            handleLocalLifeAdsData(result);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void handleLocalLifeAdsData(LocalLifeAdsResult result) {
+        List<MediaLibBean> libBeans = result.getMedia_list();
+        String lifeAdsPeriod = result.getPeriod();
+        if (!isAdsFirstRun && session.getAdsPeriod().equals(lifeAdsPeriod)) {
+            return;
+        }
+        // 清空life_ads下载表
+        dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.LOCAL_LIFE_ADS, null, null);
+        List<String> fileNames = new ArrayList<>();
+        for (MediaLibBean bean:libBeans){
+            boolean isDownloaded = false;
+            String basePath = AppUtils.getFilePath(AppUtils.StorageFile.local_life);
+            String fileName = bean.getName();
+            String path = basePath + fileName;
+            int media_type = bean.getMedia_type();
+            if (media_type==1){
+                isDownloaded = AppUtils.isDownloadEasyCompleted(path, bean.getMd5());
+            }else if (media_type==2){
+                isDownloaded = AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase());
+            }
+            if (!isDownloaded){
+                String url = BuildConfig.OSS_ENDPOINT+bean.getOss_path();
+                isDownloaded = new ProgressDownloader(context,url,basePath,fileName,true).downloadByRange();
+                if (isDownloaded
+                        && (AppUtils.isDownloadEasyCompleted(path, bean.getMd5())
+                        ||AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase()))) {
+                    isDownloaded = true;
+                }else{
+                    isDownloaded = false;
+                }
+            }
+            if (isDownloaded){
+                //下载成功以后将本地路径set到bean里，入库时使用
+                bean.setMediaPath(path);
+                bean.setPeriod(result.getPeriod());
+                bean.setCreateTime(System.currentTimeMillis()+"");
+                if (dbHelper.insertLocalLifeAds(bean)){
+                    fileNames.add(bean.getName());
+                }
+
+            }
+        }
+        if (fileNames.size()==libBeans.size()){
+            //精选内容下载完成
+            session.setLocalLifeAdsPeriod(result.getPeriod());
+            AppUtils.deleteLocalLifeData(context);
+            notifyToPlay();
         }
     }
     /**

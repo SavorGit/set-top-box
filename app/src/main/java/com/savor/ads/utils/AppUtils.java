@@ -135,6 +135,7 @@ public class AppUtils {
     public static final String cacheDir = "cache";
     public static final String welcomdeResourceDir = "welcome_resource";
     public static final String HotContentDir = "hot_content";
+    public static final String localLifeDir = "LocalLife";
     // UTF-8 encoding
     private static final String ENCODING_UTF8 = "UTF-8";
 
@@ -217,7 +218,9 @@ public class AppUtils {
          */
         welcome_resource,
         /**互动首页-热播内容*/
-        hot_content
+        hot_content,
+        /**本地生活*/
+        local_life
 
     }
 
@@ -405,6 +408,10 @@ public class AppUtils {
         if (!hotContentFile.exists()){
             hotContentFile.mkdir();
         }
+        File localLifeFile = new File(path+File.separator,localLifeDir);
+        if (!localLifeFile.exists()){
+            localLifeFile.mkdir();
+        }
         if (mode == StorageFile.log) {
             path = targetLogFile.getAbsolutePath() + File.separator;
         } else if (mode == StorageFile.loged) {
@@ -439,6 +446,8 @@ public class AppUtils {
             path = welcomeResourceFile.getAbsolutePath()+File.separator;
         } else if (mode == StorageFile.hot_content){
             path = hotContentFile.getAbsolutePath()+File.separator;
+        } else if (mode==StorageFile.local_life){
+            path = localLifeFile.getAbsolutePath()+File.separator;
         }
         return path;
     }
@@ -742,11 +751,6 @@ public class AppUtils {
         return dfTemp.format(new Date());// new Date()为获取当前系统时间
     }
 
-    public static Date parseDate(String dateStr) throws ParseException {
-        SimpleDateFormat df = new SimpleDateFormat(DATEFORMAT_YYMMDD_HHMMSS);//设置日期格式
-        return df.parse(dateStr);
-    }
-
     public static int calculateMonthDiff(String dateSmall, String dateBig, String format) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat(format);
         Calendar bef = Calendar.getInstance();
@@ -756,6 +760,11 @@ public class AppUtils {
         int result = aft.get(Calendar.MONTH) - bef.get(Calendar.MONTH);
         int month = (aft.get(Calendar.YEAR) - bef.get(Calendar.YEAR)) * 12;
         return month + result;
+    }
+
+    public static Date parseDate(String dateStr) throws ParseException {
+        SimpleDateFormat df = new SimpleDateFormat(DATEFORMAT_YYMMDD_HHMMSS);//设置日期格式
+        return df.parse(dateStr);
     }
 
     /**
@@ -1145,6 +1154,40 @@ public class AppUtils {
         }).start();
     }
 
+    public static void deleteLocalLifeData(final Context context){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    LogUtils.d("删除广告视频");
+                    String selection = null;
+                    String[] selectionArgs = null;
+                    List<MediaLibBean> localLifeAdsList = DBHelper.get(context).findLocalLifeAdsByWhere(selection,selectionArgs);
+                    String localLife = AppUtils.getFilePath(StorageFile.local_life);
+                    File[] localLifeFile = new File(localLife).listFiles();
+                    if (localLifeAdsList==null){
+                        for (File file:localLifeFile){
+                            if (file.isFile()){
+                                file.delete();
+                            }
+                        }
+                    }else{
+                        for(File file:localLifeFile){
+                            String name = file.getName();
+                            selection = DBHelper.MediaDBInfo.FieldName.MEDIANAME + "=?";
+                            selectionArgs = new String[]{name};
+                            List<MediaLibBean> beans = DBHelper.get(context).findLocalLifeAdsByWhere(selection,selectionArgs);
+                            if (beans==null){
+                                file.delete();
+                            }
+                        }
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
 
     public static void clearAllCache(final Context context) {
 
@@ -2338,41 +2381,28 @@ public class AppUtils {
         }
 
         DBHelper dbHelper = DBHelper.get(context);
+        /**完整节目单（含插口）**/
         ArrayList<MediaLibBean> playList = dbHelper.getOrderedPlayList();
-
-//        ArrayList<MediaLibBean> rtbMedias = new ArrayList<>();
-//        ArrayList<Long> rtbEndTimes = new ArrayList<>();
-//        if (Session.get(context).getRTBPushItems() != null) {
-//            for (PushRTBItem item : Session.get(context).getRTBPushItems()) {
-//                String selection = DBHelper.MediaDBInfo.FieldName.VID + "=? ";
-//                String[] selectionArgs = new String[]{item.getId()};
-//                List<MediaLibBean> list = dbHelper.findRtbadsMediaLibByWhere(selection, selectionArgs);
-//                if (list != null) {
-//                    rtbMedias.add(list.get(0));
-//                    rtbEndTimes.add(item.getRemain_time());
-//                }
-//            }
-//        }
         String selection = DBHelper.MediaDBInfo.FieldName.PLAY_TYPE + "=? ";
-        //1为插入节目单，2为没有插入节目单
         String[] selectionArgs = new String[]{"1"};
         List<MediaLibBean> activityAdsList = dbHelper.findActivityAdsByWhere(selection,selectionArgs);
+        /**用户精选数据:type|类型 1热播内容(上大屏内容) 2发现内容**/
         selection = DBHelper.MediaDBInfo.FieldName.TYPE + "=? ";
-        //type:类型 1热播内容(上大屏内容) 2发现内容
         selectionArgs = new String[]{"1"};
         List<MediaLibBean> selectContentList = dbHelper.findSelectContentList(selection,selectionArgs);
-        List<MediaLibBean> shopGoodsAdsList = dbHelper.findShopGoodsAdsByWhere(new String(),new String[]{});
+
+        /**本地生活广告数据**/
+        List<MediaLibBean> localLifeAdsList = dbHelper.findLocalLifeAdsByWhere(new String(),new String[]{});
         if (playList != null && !playList.isEmpty()) {
-            int rtbIndex = 0;
-            int polyIndex = 0;
-            int actIndex = 0;
-            int scIndex = 0;
+            int activityIndex = 0;
+            int selectContentIndex = 0;
+            int localLifeIndex = 0;
             for (int i = 0; i < playList.size(); i++) {
                 MediaLibBean bean = playList.get(i);
-
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                // 特殊处理ads数据
-                if (bean.getType().equals(ConstantValues.ADS)) {
+                /**通过location_id作对应将广告插入插口定义开始**/
+                //普通广告
+                if (ConstantValues.ADS.equals(bean.getType())) {
+                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     selection = DBHelper.MediaDBInfo.FieldName.LOCATION_ID + "=? ";
                     selectionArgs = new String[]{bean.getLocation_id()};
                     List<MediaLibBean> list = dbHelper.findAdsByWhere(selection, selectionArgs);
@@ -2408,33 +2438,41 @@ public class AppUtils {
                         }
                     }
                 }
-//                if (ConstantValues.RTB_ADS.equals(bean.getType())) {
-//                    if (!rtbMedias.isEmpty()) {
-//                        if (rtbIndex < rtbEndTimes.size() &&
-//                                rtbEndTimes.get(rtbIndex) > System.currentTimeMillis()) {
-//                            MediaLibBean rtbItem = rtbMedias.get(rtbIndex);
-//                            bean.setName(rtbItem.getName());
-//                            bean.setMediaPath(rtbItem.getMediaPath());
-//                            bean.setAdmaster_sin(rtbItem.getAdmaster_sin());
-//                            bean.setChinese_name(rtbItem.getChinese_name());
-//                            bean.setDuration(rtbItem.getDuration());
-//                            bean.setVid(rtbItem.getVid());
-//                            bean.setMd5(rtbItem.getMd5());
-//                            bean.setPeriod(rtbItem.getPeriod());
-//                            bean.setEnd_date(format.format(new Date(rtbEndTimes.get(rtbIndex))));
-//                        }
-//
-//                        rtbIndex = (++rtbIndex) % rtbMedias.size();
-//                    }
-//                }
-                //活动广告数据
+                //商城商品上大屏
+                if (ConstantValues.SHOP_GOODS_ADS.equals(bean.getType())){
+                    /**商城商品数据**/
+                    List<MediaLibBean> shopGoodsAdsList = dbHelper.findShopGoodsAdsByWhere(new String(),new String[]{});
+                    String location_id = bean.getLocation_id();
+                    if (shopGoodsAdsList==null||shopGoodsAdsList.isEmpty()){
+                        bean.setVid("");
+                    }else{
+                        for (MediaLibBean goods:shopGoodsAdsList){
+                            String lid = goods.getLocation_id();
+                            if (lid.equals(location_id)){
+                                bean.setVid(goods.getVid());
+                                bean.setGoods_id(goods.getGoods_id());
+                                bean.setName(goods.getName());
+                                bean.setChinese_name(goods.getChinese_name());
+                                bean.setMedia_type(goods.getMedia_type());
+                                bean.setMd5(goods.getMd5());
+                                bean.setDuration(goods.getDuration());
+                                bean.setMediaPath(goods.getMediaPath());
+                                bean.setQrcode_path(goods.getQrcode_path());
+                                bean.setQrcode_url(goods.getQrcode_url());
+                                bean.setCreateTime(goods.getCreateTime());
+                            }
+                        }
+                    }
+                }
+                /**通过location_id作对应将广告插入插口定义结束**/
+                /**通过节目单中顺序广告位置依次插入插口开始*/
                 //活动商品上大屏
                 if (ConstantValues.ACTGOODS.equals(bean.getType())){
                     if (activityAdsList!=null&&!activityAdsList.isEmpty()){
-                        if (actIndex>=activityAdsList.size()){
-                            actIndex = 0;
+                        if (activityIndex>=activityAdsList.size()){
+                            activityIndex = 0;
                         }
-                        MediaLibBean actAdsItem = activityAdsList.get(actIndex);
+                        MediaLibBean actAdsItem = activityAdsList.get(activityIndex);
                         try {
                             long nowTime = System.currentTimeMillis();
                             Date dateStart = AppUtils.parseDate(actAdsItem.getStart_date());
@@ -2464,44 +2502,20 @@ public class AppUtils {
                                 dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.ACTIVITY_ADS,selection,selectionArgs);
                                 activityAdsList.remove(actAdsItem);
                             }
-                            actIndex++;
+                            activityIndex++;
                         }catch (Exception e){
                             e.printStackTrace();
                         }
 
                     }
                 }
-                //商城商品上大屏
-                if (ConstantValues.SHOP_GOODS_ADS.equals(bean.getType())){
-                    String location_id = bean.getLocation_id();
-                    if (shopGoodsAdsList==null||shopGoodsAdsList.isEmpty()){
-                        bean.setVid("");
-                    }else{
-                        for (MediaLibBean goods:shopGoodsAdsList){
-                            String lid = goods.getLocation_id();
-                            if (lid.equals(location_id)){
-                                bean.setVid(goods.getVid());
-                                bean.setGoods_id(goods.getGoods_id());
-                                bean.setName(goods.getName());
-                                bean.setChinese_name(goods.getChinese_name());
-                                bean.setMedia_type(goods.getMedia_type());
-                                bean.setMd5(goods.getMd5());
-                                bean.setDuration(goods.getDuration());
-                                bean.setMediaPath(goods.getMediaPath());
-                                bean.setQrcode_path(goods.getQrcode_path());
-                                bean.setQrcode_url(goods.getQrcode_url());
-                                bean.setCreateTime(goods.getCreateTime());
-                            }
-                        }
-                    }
-                }
-                //精选内容上大屏数据
+                //精选内容上大屏
                 if (ConstantValues.SELECT_CONTENT.equals(bean.getType())){
                     if (selectContentList!=null&&!selectContentList.isEmpty()){
-                        if (scIndex>=selectContentList.size()){
-                            scIndex = 0;
+                        if (selectContentIndex>=selectContentList.size()){
+                            selectContentIndex = 0;
                         }
-                        MediaLibBean scItem = selectContentList.get(scIndex);
+                        MediaLibBean scItem = selectContentList.get(selectContentIndex);
                         try {
                             selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
                             selectionArgs = new String[]{String.valueOf(scItem.getId())};
@@ -2555,33 +2569,74 @@ public class AppUtils {
                                 dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.MEDIA_ITEM,selection,selectionArgs);
                                 selectContentList.remove(scItem);
                             }
-                            scIndex++;
+                            selectContentIndex++;
                         }catch (Exception e){
                             e.printStackTrace();
                         }
 
                     }
                 }
-                boolean fileCheck=true;
+                //本地生活广告上大屏
+                if (ConstantValues.LOCAL_LIFE.equals(bean.getType())){
+                    if (localLifeAdsList!=null&&localLifeAdsList.size()>0){
+                        if (localLifeIndex>=localLifeAdsList.size()){
+                            localLifeIndex =0;
+                        }
+                        MediaLibBean localLifeBean = localLifeAdsList.get(localLifeIndex);
+                        try {
+                            long nowTime = System.currentTimeMillis();
+                            Date dateStart = AppUtils.parseDate(localLifeBean.getStart_date());
+                            Date dateEnd = AppUtils.parseDate(localLifeBean.getEnd_date());
+                            long startTime = dateStart.getTime();
+                            long endTime = dateEnd.getTime();
+                            if (nowTime>startTime&&nowTime<endTime){
+                                bean.setVid(localLifeBean.getVid());
+                                bean.setAds_id(localLifeBean.getAds_id());
+                                bean.setMd5(localLifeBean.getMd5());
+                                bean.setChinese_name(localLifeBean.getChinese_name());
+                                bean.setMediaPath(localLifeBean.getMediaPath());
+                                bean.setDuration(localLifeBean.getDuration());
+                                bean.setStart_date(localLifeBean.getStart_date());
+                                bean.setEnd_date(localLifeBean.getEnd_date());
+                                bean.setMedia_type(localLifeBean.getMedia_type());
+                                bean.setType(localLifeBean.getType());
+                                bean.setName(localLifeBean.getName());
+                                bean.setCreateTime(localLifeBean.getCreateTime());
+                            }else if (nowTime>endTime){
+                                selection = DBHelper.MediaDBInfo.FieldName.VID + "=? ";
+                                selectionArgs = new String[]{localLifeBean.getVid()};
+                                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.LOCAL_LIFE_ADS,selection,selectionArgs);
+                                localLifeAdsList.remove(localLifeBean);
+                            }
+                            localLifeIndex++;
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                /**通过节目单中顺序广告位置依次插入插口结束*/
+                boolean checkFail=true;
                 File mediaFile = null;
                 if (!TextUtils.isEmpty(bean.getMediaPath())){
                     if (bean.getMedia_type()==21){
-                        fileCheck = false;
+                        checkFail = false;
                     }else{
                         mediaFile = new File(bean.getMediaPath());
-                        if (!TextUtils.isEmpty(bean.getMd5()) &&
-                                !TextUtils.isEmpty(bean.getMediaPath()) &&
-                                mediaFile.exists()) {
-                            if (bean.getMd5().equals(AppUtils.getEasyMd5(mediaFile))
-                                    ||bean.getMd5().toUpperCase().equals(AppUtils.getMD5(mediaFile))) {
-                                fileCheck = false;
+                        if (!TextUtils.isEmpty(bean.getMd5()) &&mediaFile.exists()) {
+                            if (bean.getMedia_type()==1){
+                                if (bean.getMd5().equals(AppUtils.getEasyMd5(mediaFile))){
+                                    checkFail = false;
+                                }
+                            }else if (bean.getMedia_type()==2){
+                                if (bean.getMd5().toUpperCase().equals(AppUtils.getMD5(mediaFile))){
+                                    checkFail = false;
+                                }
                             }
                         }
                     }
 
                 }
-
-                if (fileCheck) {
+                if (checkFail) {
                     if (!TextUtils.isEmpty(bean.getVid())) {
                         LogUtils.e("媒体文件校验失败! vid:" + bean.getVid());
                     }
@@ -2592,8 +2647,8 @@ public class AppUtils {
                     }
                 }
             }
-
-
+            /****************************聚屏广告插入开始********************************************/
+            int polyIndex = 0;
             // 填充百度聚屏数据
             if (GlobalValues.POLY_BAIDU_ADS_PLAY_LIST != null && !GlobalValues.POLY_BAIDU_ADS_PLAY_LIST.isEmpty()) {
                 boolean stopIterator = false;
@@ -2742,6 +2797,7 @@ public class AppUtils {
                 }
                 GlobalValues.DSP_YISHOU_ADS_PLAY_LIST.clear();
             }
+            /****************************聚屏广告插入结束********************************************/
         }
 
         if (playList != null && !playList.isEmpty()) {

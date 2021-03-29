@@ -154,6 +154,9 @@ public class ConstantValues {
     public static final String ACTGOODS_COUNTDOWN= "40";
     /**节目单-精选内容*/
     public static final String SELECT_CONTENT= "selectcontent";
+    /**节目单-本地生活*/
+    public static final String LOCAL_LIFE= "life";
+
     /**百度广告类型**/
     public static final String DSP_MEDIA_TYPE_BAIDU = "1";
     /**钛镁广告类型**/
