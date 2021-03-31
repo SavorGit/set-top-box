@@ -226,6 +226,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 11:热播内容投图片
          * 12:热播内容投视频
          * 13:商城商品视频点播
+         * 14:本地生活图片点播
+         * 15:本地生活视频点播
          * 101：发起游戏
          * 102:开始游戏
          * 103:加入游戏
@@ -332,6 +334,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         case 2:
                         case 42:
                         case 12:
+                        case 15:
                             new Thread(()->projectionVideo(miniProgramProjection)).start();
                             break;
                         case 3:
@@ -358,6 +361,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             break;
                         case 10:
                         case 11:
+                        case 14:
                             projectionListImg(miniProgramProjection);
                             break;
                         case 13:
@@ -613,7 +617,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private void projectShowImage(int currentIndex,String words,String avatarUrl,String nickName){
         isPPTRunnable = true;
         if (GlobalValues.PROJECT_IMAGES!=null&&GlobalValues.PROJECT_IMAGES.size()>0){
-            if (currentAction==4||currentAction==10||currentAction==11){
+            if (currentAction==4||currentAction==10||currentAction==11||currentAction==14){
                 boolean flag = true;
                 LogUtils.d("PROJECT_IMAGES:flag=true|currentIndex="+currentIndex);
                 if (GlobalValues.PROJECT_IMAGES.size()>currentIndex){
@@ -1024,6 +1028,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         String basePath;
         if (currentAction==12){
             basePath = AppUtils.getFilePath(AppUtils.StorageFile.hot_content);
+        }else if (currentAction == 15){
+            basePath = AppUtils.getFilePath(AppUtils.StorageFile.local_life);
         }else{
             basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
         }
@@ -1224,6 +1230,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         String basePath;
         if (currentAction==11){
             basePath = AppUtils.getFilePath(AppUtils.StorageFile.hot_content);
+        }else if (currentAction==14){
+            basePath = AppUtils.getFilePath(AppUtils.StorageFile.local_life);
         }else{
             basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
         }
@@ -1269,6 +1277,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             String basePath;
             if (currentAction==11){
                 basePath = AppUtils.getFilePath(AppUtils.StorageFile.hot_content);
+            }else if (currentAction==14){
+                basePath = AppUtils.getFilePath(AppUtils.StorageFile.local_life);
             }else{
                 basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
             }
@@ -1277,11 +1287,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             String path = basePath + fileName;
             File file = new File(path);
             if (file.exists()) {
-//                params.put("is_exist", 1);
                 isDownloaded = true;
                 handler.post(()->pImgListDialog.setImgDownloadProgress(img.getImg_id(), "100%"));
             } else {
-//                params.put("is_exist", 0);
                 try {
                     String oss_url = BuildConfig.OSS_ENDPOINT+img.getUrl();
                     ProgressDownloader downloader = new ProgressDownloader(context,oss_url, basePath,fileName,resourceSize,true,serial_number);

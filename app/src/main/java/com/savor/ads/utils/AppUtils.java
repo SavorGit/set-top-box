@@ -2428,6 +2428,7 @@ public class AppUtils {
                                 bean.setMd5(item.getMd5());
                                 bean.setName(item.getName());
                                 bean.setMediaPath(item.getMediaPath());
+                                bean.setMedia_type(item.getMedia_type());
                                 bean.setSuffix(item.getSuffix());
                                 bean.setChinese_name(item.getChinese_name());
                                 bean.setStart_date(item.getStart_date());

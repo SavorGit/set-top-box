@@ -2053,8 +2053,8 @@ public class DBHelper extends SQLiteOpenHelper {
         boolean flag = false;
         try {
             ContentValues initialValues = new ContentValues();
-            initialValues.put(VID, bean.getGoods_id());
-            initialValues.put(ADS_ID, bean.getGoods_id());
+            initialValues.put(VID, bean.getVid());
+            initialValues.put(ADS_ID, bean.getAds_id());
             initialValues.put(MD5,bean.getMd5());
             initialValues.put(CHINESE_NAME, bean.getChinese_name());
             initialValues.put(MEDIA_PATH,bean.getMediaPath());
