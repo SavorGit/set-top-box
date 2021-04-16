@@ -110,6 +110,9 @@ public class ProjectionImgListDialog extends Dialog{
         }
     }
     public void setContent(ArrayList<ProjectionImg> list,int type){
+        setContent(list,type,null);
+    }
+    public void setContent(ArrayList<ProjectionImg> list,int type,String progess){
         synchronized(ProjectionImgListDialog.class){
             for (int i =0;i<list.size();i++){
                 int childCount = projectionImgLayout.getChildCount();
@@ -132,7 +135,11 @@ public class ProjectionImgListDialog extends Dialog{
                         imgMap.put(img.getVideo_id(),view);
                     }
                     TextView projection_progress = view.findViewById(R.id.projection_progress);
-                    projection_progress.setText("未下载");
+                    if (!TextUtils.isEmpty(progess)){
+                        projection_progress.setText(progess);
+                    }else {
+                        projection_progress.setText("未下载");
+                    }
                     projection_progress.setTextSize(20);
                     final ImageView projection_img =  view.findViewById(R.id.projection_img);
                     if (!TextUtils.isEmpty(url)){

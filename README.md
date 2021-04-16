@@ -77,3 +77,6 @@
 #1.增加请求本地生活接口box/lifeAds/getAdsList</br>
 #2.增加本地生活资源目录LocalLife</br>
 #3.增加数据库表local_life_ads_table</br>
+#v2.2.7</br>
+#1.极简版大图片加速投屏解决方案</br>
+#2.图片投屏单张轨迹上报</br>

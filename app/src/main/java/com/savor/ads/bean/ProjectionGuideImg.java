@@ -1,6 +1,8 @@
 package com.savor.ads.bean;
 
-public class ProjectionGuideImg {
+import java.io.Serializable;
+
+public class ProjectionGuideImg implements Serializable {
     //0：不展示，1：展示
     private int is_show;
     private int show_time;

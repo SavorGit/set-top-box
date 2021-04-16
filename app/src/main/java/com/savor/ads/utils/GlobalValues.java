@@ -111,6 +111,8 @@ public class GlobalValues <T extends MediaLibBean> {
     public static ArrayList<String> PROJECT_STREAM_IMAGE = new ArrayList<>();
     /**极简版投图片下载失败集合**/
     public static ArrayList<String> PROJECT_STREAM_FAIL_IMAGE = new ArrayList<>();
+    /**极简版投图片下载成功集合**/
+    public static ArrayList<String> PROJECT_THUMBNIAL_IMAGE = new ArrayList<>();
     /**极简版dialog显示下载列表个数使用**/
     public static ArrayList<ProjectionImg> PROJECT_STREAM_IMAGE_NUMS = new ArrayList<>();
 

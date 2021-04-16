@@ -32,6 +32,7 @@ import com.jar.savor.box.vo.VolumeResponseVo;
 import com.savor.ads.BuildConfig;
 import com.savor.ads.bean.BirthdayOndemandBean;
 import com.savor.ads.bean.ContentInfo;
+import com.savor.ads.bean.ImgQueueParam;
 import com.savor.ads.bean.MediaItemBean;
 import com.savor.ads.bean.MediaLibBean;
 import com.savor.ads.bean.MiniProgramProjection;
@@ -51,6 +52,7 @@ import com.savor.ads.log.LogReportUtil;
 import com.savor.ads.okhttp.coreProgress.download.ProgressDownloader;
 import com.savor.ads.projection.ProjectionManager;
 import com.savor.ads.service.socket.Constant;
+import com.savor.ads.service.socket.Global;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.GlideImageLoader;
@@ -103,6 +105,7 @@ public class RemoteService extends Service {
     private Context context;
     ProjectionImgListDialog projectionImgListDialog = null;
     static ConcurrentLinkedQueue<VideoQueueParam> queue = new ConcurrentLinkedQueue<>();
+    static ConcurrentLinkedQueue<ImgQueueParam> imgQueue = new ConcurrentLinkedQueue<>();
     //投图片
     private int TYPE_IMG = 1;
     //投视频
@@ -110,7 +113,8 @@ public class RemoteService extends Service {
 
     //是否正在播放ppt
     private boolean isPPTRunnable = false;
-    private RangeManager rangeManager;
+    //是否正在进行某一次投屏任务
+    private boolean isTasking = false;
 
     private int delayTime = 1000*3;
 
@@ -303,10 +307,6 @@ public class RemoteService extends Service {
                     currentAction = 3;
                     resJson = handleVideoH5Request(request,deviceId,deviceName,resJson);
                     break;
-                case "/videoUploadSpeed":
-                    currentAction = 23;
-                    resJson = handleVideoUploadSpeedRequest(request);
-                    break;
                 case "/pic":
                     currentAction = 4;
                     break;
@@ -375,6 +375,14 @@ public class RemoteService extends Service {
                 case "/verify":
                     currentAction = 21;
                     resJson = handleVerifyCodeRequest(request, deviceId);
+                    break;
+                case "/bigImgPartUpload":
+                    currentAction = 22;
+                    resJson = handleBigImgPartUploadRequest(request);
+                    break;
+                case "/videoUploadSpeed":
+                    currentAction = 23;
+                    resJson = handleVideoPartUploadRequest(request);
                     break;
                 case "/restaurant/stop":
                     currentAction = 26;
@@ -535,15 +543,7 @@ public class RemoteService extends Service {
                 if (isDownloaded){
                     res_eup_time = String.valueOf(System.currentTimeMillis());
                     String media_path = resultFile.getAbsolutePath();
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (projectionImgListDialog!=null&&projectionImgListDialog.isShowing()){
-                                projectionImgListDialog.clearContent();
-                                projectionImgListDialog.dismiss();
-                            }
-                        }
-                    });
+                    handler.post(this::closeDownloadWindow);
 
                     GlobalValues.CURRENT_PROJECT_DEVICE_ID = deviceId;
                     GlobalValues.CURRENT_PROJECT_DEVICE_NAME = deviceName;
@@ -589,22 +589,14 @@ public class RemoteService extends Service {
                 respJson = new Gson().toJson(object);
             }catch (Exception e){
                 e.printStackTrace();
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (projectionImgListDialog!=null&&projectionImgListDialog.isShowing()){
-                            projectionImgListDialog.clearContent();
-                            projectionImgListDialog.dismiss();
-                        }
-                    }
-                });
+                handler.post(this::closeDownloadWindow);
             }
             return respJson;
         }
         /**
          * 分片上传边写入边播放
          */
-        private String handleVideoUploadSpeedRequest(HttpServletRequest request){
+        private String handleVideoPartUploadRequest(HttpServletRequest request){
             InputStream inputStream = null;
             String index = null;
             BaseResponse object;
@@ -673,12 +665,188 @@ public class RemoteService extends Service {
                     writer.setUserInfo(avatarUrl,nickName);
                     writer.setToPlayListener(new ToPlayInterface() {
                         @Override
-                        public void playProjection() {
+                        public void playProjection(Object object) {
                             res_eup_time = String.valueOf(System.currentTimeMillis());
                             postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,outPath,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE,false);
                         }
                     });
                     new Thread(writer).start();
+                }
+                object = new BaseResponse();
+                object.setMsg("上传成功");
+                object.setResult(new JsonObject());
+                object.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
+
+            }catch (Exception e){
+                object = new BaseResponse();
+                object.setMsg("上传报错");
+                object.setResult(index);
+                object.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
+                e.printStackTrace();
+            }finally {
+                try {
+                    if (inputStream != null)
+                        inputStream.close();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
+            respJson = new Gson().toJson(object);
+            return respJson;
+        }
+        /**
+         * 分片上传大图片
+         */
+        private String handleBigImgPartUploadRequest(HttpServletRequest request){
+            InputStream inputStream = null;
+            String index = null;
+            BaseResponse object;
+            String respJson;
+            String forscreen_id = request.getParameter("forscreen_id");
+            String forscreen_nums = request.getParameter("forscreen_nums");
+            if (TextUtils.isEmpty(GlobalValues.CURRRNT_PROJECT_ID)){
+                clearProjectionMark(forscreen_id);
+                res_sup_time = String.valueOf(System.currentTimeMillis());
+                imgQueue.clear();
+            }else {
+                long preProjectId = Long.valueOf(GlobalValues.CURRRNT_PROJECT_ID);
+                long nowProjectId = Long.valueOf(forscreen_id);
+                if (nowProjectId>preProjectId){
+                    clearProjectionMark(forscreen_id);
+                    res_sup_time = String.valueOf(System.currentTimeMillis());
+                    imgQueue.clear();
+                }else if (nowProjectId<preProjectId){
+                    object = new BaseResponse();
+                    object.setMsg("已被抢投");
+                    object.setResult(new JsonObject());
+                    object.setCode(ConstantValues.SERVER_RESPONSE_CODE_AHEAD);
+                    respJson = new Gson().toJson(object);
+                    return respJson;
+                }
+            }
+            try {
+                index = request.getParameter("index");
+                inputStream = request.getInputStream();
+                String action = request.getParameter("action");
+                String filename = request.getParameter("filename");
+                String position = request.getParameter("position");
+                String resource_size = request.getParameter("resource_size");
+                String resource_type = request.getParameter("resource_type");
+                String chunkSize = request.getParameter("chunkSize");
+                String totalChunks = request.getParameter("totalChunks");
+                String serial_number = request.getParameter("serial_number");
+                String forscreen_char = request.getParameter("words");
+                //0:原图，1:缩略图
+                String thumbnail = request.getParameter("thumbnail");
+                ImgQueueParam param = new ImgQueueParam();
+                param.setAction(action);
+                param.setForscreen_id(forscreen_id);
+                param.setIndex(index);
+                param.setResource_type(resource_type);
+                param.setFileName(filename);
+                param.setPosition(position);
+                param.setTotalSize(resource_size);
+                param.setChunkSize(chunkSize);
+                param.setTotalChunks(totalChunks);
+                param.setInputContent(StreamUtils.toByteArray(inputStream));
+                param.setSerial_number(serial_number);
+                param.setThumbnail(thumbnail);
+                param.setForscreen_nums(forscreen_nums);
+                imgQueue.offer(param);
+                Log.d(TAG,"IMG|写入队列，数据块index==="+index+"||filename=="+filename);
+                String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+                if (!isTasking){
+                    //記錄投屏次數
+                    if (GlobalValues.IMG_NUM.containsKey(deviceId)){
+                        if (GlobalValues.IMG_NUM.get(deviceId)!=-1){
+                            GlobalValues.IMG_NUM.put(deviceId,GlobalValues.IMG_NUM.get(deviceId)+1);
+                        }
+                    }else{
+                        GlobalValues.IMG_NUM.put(deviceId,1);
+                    }
+                    showDownloadWindow();
+                    BigImgWriter writer = new BigImgWriter(forscreen_id,imgQueue,path);
+                    writer.setToPlayListener(new ToPlayInterface() {
+                        @Override
+                        public void playProjection(Object object) {
+                            ImgQueueParam imgQueue = null;
+                            if (object instanceof ImgQueueParam){
+                                imgQueue = (ImgQueueParam)object;
+                            }
+                            String filePath = imgQueue.getFilePath();
+                            if (!TextUtils.isEmpty(imgQueue.getThumbnail())&&imgQueue.getThumbnail().equals("0")){
+                               GlobalValues.PROJECT_STREAM_IMAGE.add(filePath);
+//                                LogUtils.d("IMG|图片下载完成-大图,filePath="+filePath);
+                                String thumbnailPath = GlobalValues.PROJECT_THUMBNIAL_IMAGE.get(currentIndex);
+                                String[] names = thumbnailPath.split("/");
+                                String name = names[names.length-1];
+                                String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+                                String originalImgPath = path+name.substring(2);
+                                if (GlobalValues.PROJECT_STREAM_IMAGE.contains(originalImgPath)){
+//                                   LogUtils.d("IMG|大图替换正在展示的小图,filePath="+filePath);
+                                   RemoteService.listener.showImage(1,originalImgPath,true,forscreen_id,words,avatarUrl,nickName,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                               }
+                           }else{
+                               GlobalValues.PROJECT_THUMBNIAL_IMAGE.add(filePath);
+//                               LogUtils.d("IMG|图片下载完成-小图,filePath="+filePath);
+                               final String img_id = System.currentTimeMillis()+"";
+                               ProjectionImg img = new ProjectionImg();
+                               img.setImg_id(img_id);
+                               GlobalValues.PROJECT_STREAM_IMAGE_NUMS.add(img);
+                               handler.post(()->projectionImgListDialog.setContent(GlobalValues.PROJECT_STREAM_IMAGE_NUMS,TYPE_IMG,"100%"));
+                           }
+                           if (GlobalValues.PROJECT_THUMBNIAL_IMAGE.size()==Integer.valueOf(forscreen_nums)){
+                               handler.postDelayed(()->closeDownloadWindow(),1000);
+                           }
+                           if (GlobalValues.PROJECT_THUMBNIAL_IMAGE.size()==Integer.valueOf(forscreen_nums)
+                                   &&GlobalValues.PROJECT_STREAM_IMAGE.size()==Integer.valueOf(forscreen_nums)){
+                               isTasking = false;
+                           }
+                            res_eup_time = String.valueOf(System.currentTimeMillis());
+                            String outPath = path+imgQueue.getFileName();
+                            postSimpleMiniProgramProjectionLog(action,"",forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,outPath,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE,false);
+                            if (!isPPTRunnable){
+                                currentIndex=0;
+                                int time = 0;
+                                if (currentAction==6&&GlobalValues.PROJECT_STREAM_IMAGE.size()==1){
+                                    String timeStr = request.getParameter("play_times");
+                                    if (!TextUtils.isEmpty(timeStr)&&!timeStr.equals("0")){
+                                        time = Integer.valueOf(timeStr);
+                                    }
+                                    final int t = time;
+                                    String url = GlobalValues.PROJECT_STREAM_IMAGE.get(currentIndex);
+                                    RemoteService.listener.showRestImage(4,url,0,true,forscreen_char,avatarUrl,nickName,time,GlobalValues.FROM_SERVICE_REMOTE);
+                                    currentIndex=1;
+                                    handler.postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            projectShowImage(forscreen_char,forscreen_id,t);
+                                        }
+                                    },1000*30);
+                                }else if (currentAction==22&&GlobalValues.INTERACTION_ADS_PLAY==0){
+                                    preOrNextAdsBean = AppUtils.getInteractionAds(context);
+                                    if (preOrNextAdsBean!=null&&preOrNextAdsBean.getPlay_position()==1){
+                                        GlobalValues.INTERACTION_ADS_PLAY = 1;
+                                        final String adspath = preOrNextAdsBean.getMediaPath();
+                                        final String adsduration = preOrNextAdsBean.getDuration();
+
+                                        if (preOrNextAdsBean.getMedia_type()==1){
+                                            ProjectOperationListener.getInstance(context).showVideo(adspath,true,forscreen_id, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                                        }else {
+                                            ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, words, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                                        }
+                                        preOrNextAdsBean = null;
+                                    }else{
+                                        projectShowImage(forscreen_char,forscreen_id,time);
+                                    }
+                                }
+
+
+                            }
+                        }
+                    });
+                    new Thread(writer).start();
+                    isTasking = true;
                 }
                 object = new BaseResponse();
                 object.setMsg("上传成功");
@@ -825,6 +993,32 @@ public class RemoteService extends Service {
                     resource_size,resource_type,media_path,serial_number,small_app_id,repeat);
         }
 
+        //展示下载时大屏右侧的窗口列表
+        private void showDownloadWindow(){
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (projectionImgListDialog!=null){
+                        if (projectionImgListDialog.isShowing()){
+                            LogUtils.d(TAG+":"+"极简关闭窗口:初始化");
+                            projectionImgListDialog.clearContent();
+                            projectionImgListDialog.dismiss();
+                        }
+
+                        projectionImgListDialog.show();
+                        projectionImgListDialog.setProjectionPersonInfo(avatarUrl,nickName);
+                    }
+                }
+            });
+        }
+        //关闭下载时大屏右侧的窗口列表
+        private void closeDownloadWindow(){
+            if (projectionImgListDialog!=null&&projectionImgListDialog.isShowing()){
+                LogUtils.d(TAG+":"+"极简关闭窗口:没有获取到投屏数关闭");
+                projectionImgListDialog.clearContent();
+                projectionImgListDialog.dismiss();
+            }
+        }
 
         private String handlePicH5Request(final HttpServletRequest request,final String deviceId, final String deviceName){
             String resJson = null;
@@ -840,21 +1034,7 @@ public class RemoteService extends Service {
                 }else{
                     GlobalValues.IMG_NUM.put(deviceId,1);
                 }
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (projectionImgListDialog!=null){
-                            if (projectionImgListDialog.isShowing()){
-                                LogUtils.d(TAG+":"+"极简关闭窗口:初始化");
-                                projectionImgListDialog.clearContent();
-                                projectionImgListDialog.dismiss();
-                            }
-
-                            projectionImgListDialog.show();
-                            projectionImgListDialog.setProjectionPersonInfo(avatarUrl,nickName);
-                        }
-                    }
-                });
+                showDownloadWindow();
             }
             LogUtils.d(TAG+":"+"极简图片下载:forscreen_id="+forscreen_id);
             resJson = downloadStreamImageProjection(request,deviceId, deviceName);
@@ -962,30 +1142,12 @@ public class RemoteService extends Service {
                     object.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
                 }
                 if (TextUtils.isEmpty(forscreen_nums)){
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (projectionImgListDialog!=null&&projectionImgListDialog.isShowing()){
-                                LogUtils.d(TAG+":"+"极简关闭窗口:没有获取到投屏数关闭");
-                                projectionImgListDialog.clearContent();
-                                projectionImgListDialog.dismiss();
-                            }
-                        }
-                    },delayTime);
+                    handler.postDelayed(()->closeDownloadWindow(),delayTime);
                 }else {
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            int nums = Integer.valueOf(forscreen_nums);
-                            if (GlobalValues.PROJECT_STREAM_IMAGE.size()+GlobalValues.PROJECT_STREAM_FAIL_IMAGE.size()==nums){
-                                if (projectionImgListDialog!=null&&projectionImgListDialog.isShowing()){
-                                    LogUtils.d(TAG+":"+"极简关闭窗口:下载完成关闭");
-                                    projectionImgListDialog.clearContent();
-                                    projectionImgListDialog.dismiss();
-                                }
-                            }
-                        }
-                    },delayTime);
+                    int nums = Integer.valueOf(forscreen_nums);
+                    if (GlobalValues.PROJECT_STREAM_IMAGE.size()+GlobalValues.PROJECT_STREAM_FAIL_IMAGE.size()==nums){
+                        handler.postDelayed(()->closeDownloadWindow(),delayTime);
+                    }
                 }
 
                 if (!isPPTRunnable){
@@ -1042,9 +1204,31 @@ public class RemoteService extends Service {
                     isGo = true;
                     String url = GlobalValues.PROJECT_STREAM_IMAGE.get(currentIndex);
                     if (currentIndex==0){
-                        RemoteService.listener.showImage(1,url,false,forscreenId,words,avatarUrl,nickName,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
-                    }else{
                         RemoteService.listener.showImage(1,url,true,forscreenId,words,avatarUrl,nickName,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                    }else{
+                        RemoteService.listener.showImage(1,url,false,forscreenId,words,avatarUrl,nickName,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                    }
+                }
+                if (isGo){
+                    handler.postDelayed(new ProjectShowImageRunnable(words,forscreenId,time),INTERVAL_TIME);
+                }else{
+                    closeProjectionDialog();
+                }
+            }else if (currentAction==22){
+                if (GlobalValues.PROJECT_THUMBNIAL_IMAGE.size()>currentIndex){
+                    isGo = true;
+                    String url = GlobalValues.PROJECT_THUMBNIAL_IMAGE.get(currentIndex);
+                    String[] names = url.split("/");
+                    String name = names[names.length-1];
+                    String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+                    String originalImgPath = path+name.substring(2);
+                    if (GlobalValues.PROJECT_STREAM_IMAGE.contains(originalImgPath)){
+                        url = originalImgPath;
+                    }
+                    if (currentIndex==0){
+                        RemoteService.listener.showImage(1,url,true,forscreenId,words,avatarUrl,nickName,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                    }else{
+                        RemoteService.listener.showImage(1,url,false,forscreenId,words,avatarUrl,nickName,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                     }
                 }
                 if (isGo){
@@ -1883,11 +2067,14 @@ public class RemoteService extends Service {
         private void clearProjectionMark(String forscreen_id){
             GlobalValues.PROJECT_STREAM_IMAGE.clear();
             GlobalValues.PROJECT_STREAM_FAIL_IMAGE.clear();
+            GlobalValues.PROJECT_THUMBNIAL_IMAGE.clear();
             GlobalValues.PROJECT_STREAM_IMAGE_NUMS.clear();
             GlobalValues.PROJECTION_VIDEO_PATH = null;
             GlobalValues.CURRRNT_PROJECT_ID = forscreen_id;
             handler.removeCallbacks(new ProjectShowImageRunnable());
             isPPTRunnable = false;
+            isTasking = false;
+            handler.post(()->closeDownloadWindow());
             //清除一下多余视频当空间不足的时候
             if (AppUtils.getAvailableExtSize() < ConstantValues.EXTSD_LEAST_AVAILABLE_SPACE/2) {
                 AppUtils.deleteOldMedia(RemoteService.this,false);
@@ -2118,6 +2305,6 @@ public class RemoteService extends Service {
     }
 
     public interface ToPlayInterface{
-        void playProjection();
+        void playProjection(Object o);
     }
 }

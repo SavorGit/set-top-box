@@ -221,7 +221,6 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
             if (!TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_ID)) {
                 GlobalValues.LAST_PROJECT_ID = GlobalValues.CURRENT_PROJECT_ID;
             }
-
             localResult.setProjectId(GlobalValues.CURRENT_PROJECT_ID = UUID.randomUUID().toString());
         } else {
             // 大图的时候不生成新的ProjectId
@@ -239,11 +238,10 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
     @Override
     public PrepareResponseVoNew showImage(int imageType, String imagePath,boolean isThumbnail,String forscreenId,String words,String avatarUrl,String nickname,int fromService) {
         PrepareResponseVoNew localResult = new PrepareResponseVoNew();
-        if (!isThumbnail) {
+        if (isThumbnail) {
             if (!TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_ID)) {
                 GlobalValues.LAST_PROJECT_ID = GlobalValues.CURRENT_PROJECT_ID;
             }
-
             localResult.setProjectId(GlobalValues.CURRENT_PROJECT_ID = UUID.randomUUID().toString());
         } else {
             // 大图的时候不生成新的ProjectId
@@ -261,11 +259,10 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
     @Override
     public PrepareResponseVoNew showImage(int imageType, String imageUrl, boolean isThumbnail, String forscreenId, String words, String avatarUrl, String nickname, String delayTime,int action,int fromService) {
         PrepareResponseVoNew localResult = new PrepareResponseVoNew();
-        if (!isThumbnail) {
+        if (isThumbnail) {
             if (!TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_ID)) {
                 GlobalValues.LAST_PROJECT_ID = GlobalValues.CURRENT_PROJECT_ID;
             }
-
             localResult.setProjectId(GlobalValues.CURRENT_PROJECT_ID = UUID.randomUUID().toString());
         } else {
             // 大图的时候不生成新的ProjectId
@@ -283,11 +280,10 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
     @Override
     public PrepareResponseVoNew showImage(int imageType, String imageUrl, boolean isThumbnail, String price,int storeSale,String delayTime,int action,int fromService) {
         PrepareResponseVoNew localResult = new PrepareResponseVoNew();
-        if (!isThumbnail) {
+        if (isThumbnail) {
             if (!TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_ID)) {
                 GlobalValues.LAST_PROJECT_ID = GlobalValues.CURRENT_PROJECT_ID;
             }
-
             localResult.setProjectId(GlobalValues.CURRENT_PROJECT_ID = UUID.randomUUID().toString());
         } else {
             // 大图的时候不生成新的ProjectId

@@ -629,9 +629,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             &&PROJECTION_STATE_PLAY.equals(projectionIdMap.get(forscreen_id))){
                         String uri = GlobalValues.PROJECT_IMAGES.get(currentIndex);
                         if (currentIndex==0){
-                            ProjectOperationListener.getInstance(context).showImage(1,uri,false,forscreen_id,words,avatarUrl,nickName,"",currentAction, FROM_SERVICE_MINIPROGRAM);
-                        }else{
                             ProjectOperationListener.getInstance(context).showImage(1,uri,true,forscreen_id,words,avatarUrl,nickName,"",currentAction, FROM_SERVICE_MINIPROGRAM);
+                        }else{
+                            ProjectOperationListener.getInstance(context).showImage(1,uri,false,forscreen_id,words,avatarUrl,nickName,"",currentAction, FROM_SERVICE_MINIPROGRAM);
                         }
                         DOWNLOAD_TIME = 0;
                     }
@@ -1254,7 +1254,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         }
         downloadIndex =0;
         new Thread(()->downloadFile(downloadIndex)).start();
-
     }
 
     private void downloadFile(int downloadIndex){
@@ -1284,6 +1283,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             }
             String fileName = img.getFilename();
             long resourceSize = img.getResource_size();
+            box_downstime = System.currentTimeMillis()+"";
             String path = basePath + fileName;
             File file = new File(path);
             if (file.exists()) {
@@ -1315,9 +1315,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 if (!GlobalValues.PROJECT_IMAGES.contains(path)&&!isBreaks) {
                     GlobalValues.PROJECT_IMAGES.add(path);
                 }
-                if (GlobalValues.PROJECT_IMAGES.size()==1){
-                    postProjectionResourceLog(params);
-                }
+                //每下载一张图片就上报一次
+                postProjectionResourceLog(params);
+
                 LogUtils.d("img_nums:="+img_nums
                         +"|||PROJECT_IMAGES:="+GlobalValues.PROJECT_IMAGES
                         +"|||PROJECT_FAIL_IMAGES:="+GlobalValues.PROJECT_FAIL_IMAGES);
@@ -2352,7 +2352,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         String videoName = guideImg.getVideo_filename();
                         String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+videoName;
                         if (new File(filePath).exists()){
-                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),headPic,nickName,currentAction, FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),null,null,currentAction, FROM_SERVICE_MINIPROGRAM);
                             GlobalValues.IMG_NUM.put(openid,-1);
                             return;
                         }
@@ -2362,7 +2362,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         String imageName = guideImg.getImage_filename();
                         String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+imageName;
                         if (new File(filePath).exists()){
-                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),headPic,nickName,currentAction, FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),null,null,currentAction, FROM_SERVICE_MINIPROGRAM);
                             GlobalValues.VIDEO_NUM.put(openid,-1);
                             return;
                         }
@@ -2372,7 +2372,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         String videoName = guideImg.getVideo_filename();
                         String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+videoName;
                         if (new File(filePath).exists()){
-                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),headPic,nickName,currentAction, FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),null,null,currentAction, FROM_SERVICE_MINIPROGRAM);
                             GlobalValues.FILE_NUM.put(openid,-1);
                             return;
                         }

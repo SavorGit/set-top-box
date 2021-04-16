@@ -2624,14 +2624,10 @@ public class AppUtils {
                     }else{
                         mediaFile = new File(bean.getMediaPath());
                         if (!TextUtils.isEmpty(bean.getMd5()) &&mediaFile.exists()) {
-                            if (bean.getMedia_type()==1){
-                                if (bean.getMd5().equals(AppUtils.getEasyMd5(mediaFile))){
-                                    checkFail = false;
-                                }
-                            }else if (bean.getMedia_type()==2){
-                                if (bean.getMd5().toUpperCase().equals(AppUtils.getMD5(mediaFile))){
-                                    checkFail = false;
-                                }
+                            if (bean.getMd5().equals(AppUtils.getEasyMd5(mediaFile))){
+                                checkFail = false;
+                            }else if (bean.getMd5().toUpperCase().equals(AppUtils.getMD5(mediaFile))){
+                                checkFail = false;
                             }
                         }
                     }

@@ -361,7 +361,6 @@ public class Session {
         simple_upload_size = mPreference.loadLongKey(P_APP_SIMPLE_UPLOAD_SIZE,0);
         qrcode_showtime = mPreference.loadIntKey(P_APP_QRCODE_SHOW_TIME,0);
         qrcode_takttime = mPreference.loadIntKey(P_APP_QRCODE_TAKT_TIME,0);
-        isHeartbeatMiniNetty = mPreference.loadBooleanKey(P_APP_HEARTBEAT_MIMIPROGRAM,false);
         nettyUrl = mPreference.loadStringKey(P_APP_NETTY_URL,null);
         nettyPort = mPreference.loadIntKey(P_APP_NETTY_PORT,0);
         whether4gNetwork = mPreference.loadBooleanKey(P_APP_4G_NETWORK,false);
@@ -1302,7 +1301,6 @@ public class Session {
 
     public void setHeartbeatMiniNetty(boolean heartbeatMiniNetty) {
         isHeartbeatMiniNetty = heartbeatMiniNetty;
-        writePreference(new Pair<>(P_APP_HEARTBEAT_MIMIPROGRAM,heartbeatMiniNetty));
     }
 
     public String getNettyUrl() {
@@ -1503,7 +1501,6 @@ public class Session {
     public static final String P_APP_SHOW_SIMPLE_MIMIPROGRAM = "com.savor.ads.show.simpleminiprogram";
     public static final String P_APP_OPEN_INTERACTSCREENAD = "com.savor.ads.open.interactscreenad";
     public static final String P_APP_SYSTEM_FORSCREEN_NUMS = "com.savor.ads.system.forscreen.nums";
-    public static final String P_APP_HEARTBEAT_MIMIPROGRAM = "com.savor.ads.heartbeat.miniprogram";
     public static final String P_APP_NETTY_URL = "com.savor.ads.netty_url";
     public static final String P_APP_NETTY_PORT = "com.savor.ads.netty_port";
 
