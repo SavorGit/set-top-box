@@ -2314,6 +2314,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         GlobalValues.PROJECTION_VIDEO_PATH = null;
         GlobalValues.PROJECT_IMAGES.clear();
         GlobalValues.PROJECT_FAIL_IMAGES.clear();
+        GlobalValues.PROJECT_THUMBNIAL_IMAGE.clear();
+        GlobalValues.PROJECT_STREAM_IMAGE.clear();
+        GlobalValues.PROJECT_STREAM_FAIL_IMAGE.clear();
         GlobalValues.CURRENT_OPEN_ID = openid;
         GlobalValues.CURRRNT_PROJECT_ID = forscreen_id;
         isDownloadRunnable = false;

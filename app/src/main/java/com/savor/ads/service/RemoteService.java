@@ -736,6 +736,7 @@ public class RemoteService extends Service {
                 String totalChunks = request.getParameter("totalChunks");
                 String serial_number = request.getParameter("serial_number");
                 String forscreen_char = request.getParameter("words");
+                String img_size = request.getParameter("img_size");
                 //0:原图，1:缩略图
                 String thumbnail = request.getParameter("thumbnail");
                 ImgQueueParam param = new ImgQueueParam();
@@ -752,6 +753,7 @@ public class RemoteService extends Service {
                 param.setSerial_number(serial_number);
                 param.setThumbnail(thumbnail);
                 param.setForscreen_nums(forscreen_nums);
+                param.setSize(img_size);
                 imgQueue.offer(param);
                 Log.d(TAG,"IMG|写入队列，数据块index==="+index+"||filename=="+filename);
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
@@ -777,15 +779,18 @@ public class RemoteService extends Service {
                             if (!TextUtils.isEmpty(imgQueue.getThumbnail())&&imgQueue.getThumbnail().equals("0")){
                                GlobalValues.PROJECT_STREAM_IMAGE.add(filePath);
 //                                LogUtils.d("IMG|图片下载完成-大图,filePath="+filePath);
-                                String thumbnailPath = GlobalValues.PROJECT_THUMBNIAL_IMAGE.get(currentIndex);
-                                String[] names = thumbnailPath.split("/");
-                                String name = names[names.length-1];
-                                String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-                                String originalImgPath = path+name.substring(2);
-                                if (GlobalValues.PROJECT_STREAM_IMAGE.contains(originalImgPath)){
+                                if (GlobalValues.PROJECT_THUMBNIAL_IMAGE.size()>currentIndex){
+                                    String thumbnailPath = GlobalValues.PROJECT_THUMBNIAL_IMAGE.get(currentIndex);
+                                    String[] names = thumbnailPath.split("/");
+                                    String name = names[names.length-1];
+                                    String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+                                    String originalImgPath = path+name.substring(2);
+                                    if (GlobalValues.PROJECT_STREAM_IMAGE.contains(originalImgPath)){
 //                                   LogUtils.d("IMG|大图替换正在展示的小图,filePath="+filePath);
-                                   RemoteService.listener.showImage(1,originalImgPath,true,forscreen_id,words,avatarUrl,nickName,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
-                               }
+                                        RemoteService.listener.showImage(1,originalImgPath,true,forscreen_id,words,avatarUrl,nickName,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                                    }
+                                }
+
                            }else{
                                GlobalValues.PROJECT_THUMBNIAL_IMAGE.add(filePath);
 //                               LogUtils.d("IMG|图片下载完成-小图,filePath="+filePath);
@@ -803,8 +808,10 @@ public class RemoteService extends Service {
                                isTasking = false;
                            }
                             res_eup_time = String.valueOf(System.currentTimeMillis());
-                            String outPath = path+imgQueue.getFileName();
-                            postSimpleMiniProgramProjectionLog(action,"",forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,outPath,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE,false);
+                            String outPath = imgQueue.getFilePath();
+                            if (!TextUtils.isEmpty(imgQueue.getThumbnail())&&imgQueue.getThumbnail().equals("1")){
+                                postSimpleMiniProgramProjectionLog(action,"",forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,img_size,resource_type,outPath,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE,false);
+                            }
                             if (!isPPTRunnable){
                                 currentIndex=0;
                                 int time = 0;
@@ -2070,6 +2077,8 @@ public class RemoteService extends Service {
             GlobalValues.PROJECT_THUMBNIAL_IMAGE.clear();
             GlobalValues.PROJECT_STREAM_IMAGE_NUMS.clear();
             GlobalValues.PROJECTION_VIDEO_PATH = null;
+            GlobalValues.PROJECT_IMAGES.clear();
+            GlobalValues.PROJECT_FAIL_IMAGES.clear();
             GlobalValues.CURRRNT_PROJECT_ID = forscreen_id;
             handler.removeCallbacks(new ProjectShowImageRunnable());
             isPPTRunnable = false;

@@ -17,6 +17,7 @@ public class ImgQueueParam {
     private String filePath;
     //本次投屏总共投了几张图
     private String forscreen_nums;
+    private String size;
     public String getAction() {
         return action;
     }
@@ -127,5 +128,13 @@ public class ImgQueueParam {
 
     public void setForscreen_nums(String forscreen_nums) {
         this.forscreen_nums = forscreen_nums;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
     }
 }
