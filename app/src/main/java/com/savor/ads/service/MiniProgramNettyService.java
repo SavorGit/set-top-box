@@ -50,6 +50,7 @@ import com.savor.ads.okhttp.coreProgress.download.ProgressDownloader;
 import com.savor.ads.oss.OSSUtils;
 import com.savor.ads.projection.ProjectionManager;
 import com.savor.ads.projection.action.VodAction;
+import com.savor.ads.service.socket.Global;
 import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.Base64Utils;
@@ -1400,7 +1401,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 }
             }
         });
-
+        GlobalValues.PROJECT_STREAM_IMAGE.clear();
+        GlobalValues.PROJECT_STREAM_FAIL_IMAGE.clear();
+        GlobalValues.PROJECT_THUMBNIAL_IMAGE.clear();
         ProjectOperationListener.getInstance(context).stop(GlobalValues.CURRENT_PROJECT_ID);
         Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
         if (this.miniProgramProjection!=null&&!TextUtils.isEmpty(forscreen_id)){

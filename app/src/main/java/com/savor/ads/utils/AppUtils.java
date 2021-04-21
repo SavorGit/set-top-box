@@ -3,6 +3,7 @@ package com.savor.ads.utils;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningTaskInfo;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -15,6 +16,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
 import android.media.MediaMetadataRetriever;
+import android.media.ThumbnailUtils;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -24,6 +26,7 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -1249,6 +1252,8 @@ public class AppUtils {
                         if (list!=null&&list.size()>0){
                             for (ProjectionLogBean bean:list){
                                 final String mediaPath = bean.getMedia_path();
+                                //这个值就是文件名称
+                                final String resourceId = bean.getResource_id();
                                 long resuorceSize = 0;
                                 if (!TextUtils.isEmpty(bean.getResource_size())){
                                     resuorceSize = Long.valueOf(bean.getResource_size());
@@ -1284,16 +1289,16 @@ public class AppUtils {
                                     String resourceType = bean.getResource_type();
                                     //0和1:图片,2:视频
                                     if ("0".equals(resourceType)||"1".equals(resourceType)){
-                                        String filePath = path+"img_ys"+fileName;
-                                        File destFile = new File(filePath);
-                                        FileUtils.copyFile(suorcefile,destFile);
-                                        Bitmap imageBitmap = BitmapFactory.decodeFile(filePath);
-                                        saveImage(imageBitmap,filePath);
-                                        ossPath = OSSValues.uploadSimplePath+"img_ys"+fileName;
+                                        String ys_name = "img_ys_"+fileName;
+                                        String ysFilePath = path+ys_name;
+                                        if (!new File(ysFilePath).exists()){
+                                            continue;
+                                        }
+                                        ossPath = OSSValues.uploadSimplePath+fileName;
                                         OSSUtils ossUtils =  new OSSUtils(context,
                                                 BuildConfig.OSS_BUCKET_NAME,
                                                 ossPath,
-                                                filePath);
+                                                ysFilePath);
                                         flag = ossUtils.syncUploadFile();
                                         if (flag){
                                             jsonArray.put(ossPath);
@@ -2952,21 +2957,65 @@ public class AppUtils {
     }
 
 
+    /**
+     * 根据指定的图像路径和大小来获取缩略图
+     * 此方法有两点好处：
+     *     1. 使用较小的内存空间，第一次获取的bitmap实际上为null，只是为了读取宽度和高度，
+     *        第二次读取的bitmap是根据比例压缩过的图像，第三次读取的bitmap是所要的缩略图。
+     *     2. 缩略图对于原图像来讲没有拉伸，这里使用了2.2版本的新工具ThumbnailUtils，使
+     *        用这个工具生成的图像不会被拉伸。
+     * @param imagePath 图像的路径
+     * @param width 指定输出图像的宽度
+     * @param height 指定输出图像的高度
+     * @return 生成的缩略图
+     */
+    public static Bitmap getImageThumbnail(String imagePath, int width, int height) {
+        Bitmap bitmap = null;
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        // 获取这个图片的宽和高，注意此处的bitmap为null
+        bitmap = BitmapFactory.decodeFile(imagePath, options);
+        options.inJustDecodeBounds = false; // 设为 false
+        // 计算缩放比
+        int h = options.outHeight;
+        int w = options.outWidth;
+        int beWidth = w / width;
+        int beHeight = h / height;
+        int be = 1;
+        if (beWidth < beHeight) {
+            be = beWidth;
+        } else {
+            be = beHeight;
+        }
+        if (be <= 0) {
+            be = 1;
+        }
+        options.inSampleSize = be;
+        // 重新读入图片，读取缩放后的bitmap，注意这次要把options.inJustDecodeBounds 设为 false
+        bitmap = BitmapFactory.decodeFile(imagePath, options);
+        // 利用ThumbnailUtils来创建缩略图，这里要指定要缩放哪个Bitmap对象
+        bitmap = ThumbnailUtils.extractThumbnail(bitmap, width, height,
+                ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
+        return bitmap;
+    }
+
     public static File saveImage(Bitmap bmp,String localPath) {
 
         File file = new File(localPath);
-        FileOutputStream fos = null;
+
+        FileOutputStream fos;
         try {
+            if (!file.exists()){
+                file.createNewFile();
+            }
             fos = new FileOutputStream(file);
-            bmp.compress(Bitmap.CompressFormat.JPEG, 50, fos);
-            fos.close();
+            bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
             fos.flush();
+            fos.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
-            bmp.recycle();
         }
         return file;
     }

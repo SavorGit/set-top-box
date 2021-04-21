@@ -18,6 +18,7 @@ public class ImgQueueParam {
     //本次投屏总共投了几张图
     private String forscreen_nums;
     private String size;
+    private String startTime;
     public String getAction() {
         return action;
     }
@@ -136,5 +137,13 @@ public class ImgQueueParam {
 
     public void setSize(String size) {
         this.size = size;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
     }
 }

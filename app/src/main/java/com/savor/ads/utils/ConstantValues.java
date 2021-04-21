@@ -21,6 +21,8 @@ public class ConstantValues {
     public static final int SERVER_RESPONSE_CODE_MAC_ERROR=10011;
     /**他人抢投*/
     public static final int SERVER_RESPONSE_CODE_AHEAD=10012;
+    /**本人抢投*/
+    public static final int SERVER_RESPONSE_CODE_SELF=10013;
     /** 视频播放完毕*/
     public static final int SERVER_RESPONSE_CODE_VIDEO_COMPLETE = 1;
     /** 大小图不匹配*/

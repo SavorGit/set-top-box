@@ -1490,6 +1490,7 @@ public class DBHelper extends SQLiteOpenHelper {
             initialValues.put(SMALL_APP_ID,bean.getSmall_app_id());
             initialValues.put(CREATETIME,bean.getCreate_time());
             long success = db.insert(TableName.PROJECTION_LOG,null,initialValues);
+            LogUtils.d("数据插入，成功，forscreenId=" + bean.getForscreen_id());
             if (success>0){
                 flag = true;
             }
@@ -1598,8 +1599,9 @@ public class DBHelper extends SQLiteOpenHelper {
                             history.setMobile_model(cursor.getString(cursor.getColumnIndex(MOBILE_MODEL)));
                             history.setOpenid(cursor.getString(cursor.getColumnIndex(OPENID)));
                             history.setResource_type(cursor.getString(cursor.getColumnIndex(RESOURCE_TYPE)));
-                            selection = FORSCREEN_ID + "=? AND "+REPEAT +" = ? ";
-                            selectionArgs = new String[]{history.getForscreen_id(),"0"};
+//                            selection = FORSCREEN_ID + "=? AND "+REPEAT +" = ? ";
+                            selection = FORSCREEN_ID + "=? ";
+                            selectionArgs = new String[]{history.getForscreen_id()};
                             List<ProjectionLogDetail> listDetail = findProjectionDetail(selection,selectionArgs);
                             if (listDetail!=null&&listDetail.size()>0){
                                 history.setList(listDetail);

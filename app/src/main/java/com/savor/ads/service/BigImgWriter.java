@@ -32,6 +32,7 @@ public class BigImgWriter implements Runnable {
     private ConcurrentLinkedQueue<ImgQueueParam> queue;
     private HashMap<String,RandomAccessFile> imgMap;
     private HashMap<String,Integer> imgCount;
+    private HashMap<String,String> imgCreateTime;
     private boolean overTime;
     private Handler mHander = new Handler(Looper.getMainLooper());
     private String forscreen_id;
@@ -44,6 +45,7 @@ public class BigImgWriter implements Runnable {
         mHander.postDelayed(overTimeRunnable, 1000 * 30);
         imgMap = new HashMap<>();
         imgCount = new HashMap<>();
+        imgCreateTime = new HashMap<>();
     }
 
     public Runnable overTimeRunnable = ()->overTime = false;
@@ -110,6 +112,7 @@ public class BigImgWriter implements Runnable {
                     this.randomAccessFile = new RandomAccessFile(file, "rws");
                     imgMap.put(fileName,randomAccessFile);
                     randomAccessFile.setLength(fileLength);
+                    imgCreateTime.put(fileName,System.currentTimeMillis()+"");
                 }else{
                     this.randomAccessFile = imgMap.get(fileName);
                 }
@@ -127,6 +130,8 @@ public class BigImgWriter implements Runnable {
 
                 if (imgCount.get(fileName) == totalParts) {
                     param.setFilePath(basePath+fileName);
+                    param.setStartTime(imgCreateTime.get(fileName));
+                    param.setFileName(fileName);
                     if (playListener!=null){
                         this.playListener.playProjection(param);
                     }
@@ -142,6 +147,7 @@ public class BigImgWriter implements Runnable {
                 }
                 imgMap.clear();
                 imgCount.clear();
+                imgCreateTime.clear();
             } catch (Exception e) {
                 e.printStackTrace();
             }

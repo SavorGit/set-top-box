@@ -1,6 +1,7 @@
 package com.savor.ads.service;
 
 import android.app.Service;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -30,6 +31,7 @@ import com.jar.savor.box.vo.SeekResponseVo;
 import com.jar.savor.box.vo.StopResponseVo;
 import com.jar.savor.box.vo.VolumeResponseVo;
 import com.savor.ads.BuildConfig;
+import com.savor.ads.bean.BigImgBean;
 import com.savor.ads.bean.BirthdayOndemandBean;
 import com.savor.ads.bean.ContentInfo;
 import com.savor.ads.bean.ImgQueueParam;
@@ -61,6 +63,7 @@ import com.savor.ads.utils.LogUtils;
 import com.savor.ads.utils.StreamUtils;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -311,8 +314,7 @@ public class RemoteService extends Service {
                     currentAction = 4;
                     break;
                 case "/picH5":
-                case "/h5/pic":
-                    currentAction = 5;
+                    currentAction = 5;//极简版重投
                     resJson = handlePicH5Request(request,deviceId,deviceName);
                     break;
                 case "/h5/restPicture":
@@ -321,7 +323,7 @@ public class RemoteService extends Service {
                     break;
                 case "/h5/singleImg":
                 case "/h5/restSingleImg":
-                    currentAction = 7;
+                    currentAction = 7;//极简版滑动单张
                     resJson = handleSinglePicRequest(request,deviceId,deviceName,ConstantValues.SMALL_APP_ID_SIMPLE);
                     break;
                 case "/h5/stop":
@@ -706,7 +708,6 @@ public class RemoteService extends Service {
             String forscreen_nums = request.getParameter("forscreen_nums");
             if (TextUtils.isEmpty(GlobalValues.CURRRNT_PROJECT_ID)){
                 clearProjectionMark(forscreen_id);
-                res_sup_time = String.valueOf(System.currentTimeMillis());
                 imgQueue.clear();
             }else {
                 long preProjectId = Long.valueOf(GlobalValues.CURRRNT_PROJECT_ID);
@@ -715,11 +716,16 @@ public class RemoteService extends Service {
                     clearProjectionMark(forscreen_id);
                     res_sup_time = String.valueOf(System.currentTimeMillis());
                     imgQueue.clear();
+                    isTasking = false;
                 }else if (nowProjectId<preProjectId){
                     object = new BaseResponse();
                     object.setMsg("已被抢投");
                     object.setResult(new JsonObject());
-                    object.setCode(ConstantValues.SERVER_RESPONSE_CODE_AHEAD);
+                    if (GlobalValues.CURRENT_OPEN_ID.equals(deviceId)){
+                        object.setCode(ConstantValues.SERVER_RESPONSE_CODE_SELF);
+                    }else {
+                        object.setCode(ConstantValues.SERVER_RESPONSE_CODE_AHEAD);
+                    }
                     respJson = new Gson().toJson(object);
                     return respJson;
                 }
@@ -749,7 +755,8 @@ public class RemoteService extends Service {
                 param.setTotalSize(resource_size);
                 param.setChunkSize(chunkSize);
                 param.setTotalChunks(totalChunks);
-                param.setInputContent(StreamUtils.toByteArray(inputStream));
+//                param.setInputContent(StreamUtils.toByteArray(inputStream));
+                param.setInputContent(IOUtils.toByteArray(inputStream));
                 param.setSerial_number(serial_number);
                 param.setThumbnail(thumbnail);
                 param.setForscreen_nums(forscreen_nums);
@@ -776,42 +783,60 @@ public class RemoteService extends Service {
                                 imgQueue = (ImgQueueParam)object;
                             }
                             String filePath = imgQueue.getFilePath();
-                            if (!TextUtils.isEmpty(imgQueue.getThumbnail())&&imgQueue.getThumbnail().equals("0")){
-                               GlobalValues.PROJECT_STREAM_IMAGE.add(filePath);
-//                                LogUtils.d("IMG|图片下载完成-大图,filePath="+filePath);
-                                if (GlobalValues.PROJECT_THUMBNIAL_IMAGE.size()>currentIndex){
-                                    String thumbnailPath = GlobalValues.PROJECT_THUMBNIAL_IMAGE.get(currentIndex);
-                                    String[] names = thumbnailPath.split("/");
-                                    String name = names[names.length-1];
-                                    String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-                                    String originalImgPath = path+name.substring(2);
-                                    if (GlobalValues.PROJECT_STREAM_IMAGE.contains(originalImgPath)){
-//                                   LogUtils.d("IMG|大图替换正在展示的小图,filePath="+filePath);
-                                        RemoteService.listener.showImage(1,originalImgPath,true,forscreen_id,words,avatarUrl,nickName,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                            String filename = imgQueue.getFileName();
+                            String[] filename_ids = filename.split("\\.");
+                            String filename_id = filename_ids[0];
+                            boolean isExitBig = false;
+                            if (GlobalValues.PROJECT_THUMBNIAL_IMAGE.size()>0){
+                                for (BigImgBean bean:GlobalValues.PROJECT_THUMBNIAL_IMAGE){
+                                    if (!TextUtils.isEmpty(imgQueue.getThumbnail())&&imgQueue.getThumbnail().equals("0")){
+                                        String keyId = filename_id;
+                                        if (bean.getFilenameId().equals(keyId)){
+                                            isExitBig = true;
+                                            bean.setBigPath(filePath);
+                                            break;
+                                        }
+                                    }else if (!TextUtils.isEmpty(imgQueue.getThumbnail())&&imgQueue.getThumbnail().equals("1")){
+                                        String keyId = filename_id.substring(2);
+                                        if (bean.getFilenameId().equals(keyId)){
+                                            isExitBig = true;
+                                            bean.setThumbnailPath(filePath);
+                                            break;
+                                        }
                                     }
-                                }
 
-                           }else{
-                               GlobalValues.PROJECT_THUMBNIAL_IMAGE.add(filePath);
-//                               LogUtils.d("IMG|图片下载完成-小图,filePath="+filePath);
-                               final String img_id = System.currentTimeMillis()+"";
-                               ProjectionImg img = new ProjectionImg();
-                               img.setImg_id(img_id);
-                               GlobalValues.PROJECT_STREAM_IMAGE_NUMS.add(img);
-                               handler.post(()->projectionImgListDialog.setContent(GlobalValues.PROJECT_STREAM_IMAGE_NUMS,TYPE_IMG,"100%"));
-                           }
+                                }
+                            }
+                            if (!isExitBig){
+                                BigImgBean bigImgBean = new BigImgBean();
+                                if (!TextUtils.isEmpty(imgQueue.getThumbnail())&&imgQueue.getThumbnail().equals("0")){
+                                    bigImgBean.setFilenameId(filename_id);
+                                    bigImgBean.setBigPath(filePath);
+                                }else if (!TextUtils.isEmpty(imgQueue.getThumbnail())&&imgQueue.getThumbnail().equals("1")){
+                                    bigImgBean.setFilenameId(filename_id.substring(2));
+                                    bigImgBean.setThumbnailPath(filePath);
+                                }
+                                GlobalValues.PROJECT_THUMBNIAL_IMAGE.add(bigImgBean);
+                                res_sup_time = imgQueue.getStartTime();
+                                res_eup_time = String.valueOf(System.currentTimeMillis());
+                                String outPath = imgQueue.getFilePath();
+                                LogUtils.d("数据插入，imgQueue.getThumbnail()=" + imgQueue.getThumbnail());
+                                LogUtils.d("数据插入，filename=" + imgQueue.getFileName());
+                                LogUtils.d("数据插入，filepath=" + imgQueue.getFilePath());
+                                LogUtils.d("数据插入，开始，forscreenId=" + imgQueue.getForscreen_id());
+                                postSimpleMiniProgramProjectionLog(action,"",forscreen_char,forscreen_id,deviceName,device_model,deviceId,imgQueue.getFileName(),imgQueue.getSize(),resource_type,outPath,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE,false);
+
+                            }
+                            final String img_id = System.currentTimeMillis()+"";
+                            ProjectionImg img = new ProjectionImg();
+                            img.setImg_id(img_id);
+                            GlobalValues.PROJECT_STREAM_IMAGE_NUMS.add(img);
+                            handler.post(()->projectionImgListDialog.setContent(GlobalValues.PROJECT_STREAM_IMAGE_NUMS,TYPE_IMG,"100%"));
                            if (GlobalValues.PROJECT_THUMBNIAL_IMAGE.size()==Integer.valueOf(forscreen_nums)){
-                               handler.postDelayed(()->closeDownloadWindow(),1000);
-                           }
-                           if (GlobalValues.PROJECT_THUMBNIAL_IMAGE.size()==Integer.valueOf(forscreen_nums)
-                                   &&GlobalValues.PROJECT_STREAM_IMAGE.size()==Integer.valueOf(forscreen_nums)){
+                               handler.postDelayed(()->closeDownloadWindow(),500);
                                isTasking = false;
                            }
-                            res_eup_time = String.valueOf(System.currentTimeMillis());
-                            String outPath = imgQueue.getFilePath();
-                            if (!TextUtils.isEmpty(imgQueue.getThumbnail())&&imgQueue.getThumbnail().equals("1")){
-                                postSimpleMiniProgramProjectionLog(action,"",forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,img_size,resource_type,outPath,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE,false);
-                            }
+
                             if (!isPPTRunnable){
                                 currentIndex=0;
                                 int time = 0;
@@ -923,12 +948,7 @@ public class RemoteService extends Service {
             params.put("mobile_brand", mobile_brand);
             params.put("mobile_model", mobile_model);
             params.put("openid", openid);
-            if (resource_id.contains(".")){
-                String id = resource_id.split("\\.")[0];
-                params.put("resource_id", id);
-            }else{
-                params.put("resource_id", resource_id);
-            }
+            params.put("resource_id", resource_id);
             params.put("resource_size", resource_size);
             params.put("resource_type", resource_type);
             params.put("serial_number",serial_number);
@@ -937,6 +957,9 @@ public class RemoteService extends Service {
             params.put("res_sup_time",startTime);
             params.put("res_eup_time",endTime);
             AppApi.postSimpleMiniProgramProjectionLog(RemoteService.this,apiRequestListener,params,forscreen_id);
+            if (currentAction==5||currentAction==7){
+                return;//重投和滑动操作不计入本地投屏历史
+            }
             ProjectionLogBean bean = new ProjectionLogBean();
             bean.setAction(action);
             bean.setSerial_number(serial_number);
@@ -962,13 +985,10 @@ public class RemoteService extends Service {
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
                 String[] filePaths = media_path.split("\\/");
                 final String fileName = filePaths[filePaths.length-1];
-                File suorcefile = new File(media_path);
                 if ("1".equals(resource_type)){
-                    String shotcutName = "img_ys"+fileName;
+                    String shotcutName = "img_ys_"+fileName;
                     String filePath = path+shotcutName;
-                    File destFile = new File(filePath);
-                    FileUtils.copyFile(suorcefile,destFile);
-                    Bitmap imageBitmap = BitmapFactory.decodeFile(filePath);
+                    Bitmap imageBitmap = AppUtils.getImageThumbnail(media_path,100,100);
                     AppUtils.saveImage(imageBitmap,filePath);
                     String screenshotUrl = "http://"+AppUtils.getEthernetIP()+":8080/projection/"+shotcutName;
                     bean.setMedia_screenshot_path(screenshotUrl);
@@ -1224,14 +1244,14 @@ public class RemoteService extends Service {
             }else if (currentAction==22){
                 if (GlobalValues.PROJECT_THUMBNIAL_IMAGE.size()>currentIndex){
                     isGo = true;
-                    String url = GlobalValues.PROJECT_THUMBNIAL_IMAGE.get(currentIndex);
-                    String[] names = url.split("/");
-                    String name = names[names.length-1];
-                    String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-                    String originalImgPath = path+name.substring(2);
-                    if (GlobalValues.PROJECT_STREAM_IMAGE.contains(originalImgPath)){
-                        url = originalImgPath;
+                    BigImgBean bean = GlobalValues.PROJECT_THUMBNIAL_IMAGE.get(currentIndex);
+                    String url;
+                    if (!TextUtils.isEmpty(bean.getBigPath())){
+                        url = bean.getBigPath();
+                    }else{
+                        url = bean.getThumbnailPath();
                     }
+
                     if (currentIndex==0){
                         RemoteService.listener.showImage(1,url,true,forscreenId,words,avatarUrl,nickName,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                     }else{
@@ -1304,9 +1324,8 @@ public class RemoteService extends Service {
                     GlobalValues.IMG_NUM.put(deviceId,1);
                 }
             }
-            if (request.getContentType().contains("multipart/form-data;")) {
-                resJson = downloadSingleImageProjection(request,deviceId, deviceName,projectionFrom);
-            }
+
+            resJson = downloadSingleImageProjection(request,deviceId, deviceName,projectionFrom);
             return resJson;
 
         }
@@ -1641,6 +1660,8 @@ public class RemoteService extends Service {
             BaseResponse stopResponse = new BaseResponse();
 
             GlobalValues.PROJECT_STREAM_IMAGE.clear();
+            GlobalValues.PROJECT_STREAM_FAIL_IMAGE.clear();
+            GlobalValues.PROJECT_THUMBNIAL_IMAGE.clear();
             handler.removeCallbacks(new ProjectShowImageRunnable());
             if (projectionImgListDialog!=null&&projectionImgListDialog.isShowing()){
                 projectionImgListDialog.dismiss();
@@ -2055,6 +2076,7 @@ public class RemoteService extends Service {
             String selection = DBHelper.MediaDBInfo.FieldName.OPENID + "=? ";
             String[] selectionArgs = new String[]{openid};
             List<ProjectionLogHistory> list = DBHelper.get(context).findProjectionHistory(selection,selectionArgs);
+            LogUtils.d("数据插入，历史查询返回");
             if (list!=null&&list.size()>0){
                 response.setResult(list);
                 response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
@@ -2080,6 +2102,7 @@ public class RemoteService extends Service {
             GlobalValues.PROJECT_IMAGES.clear();
             GlobalValues.PROJECT_FAIL_IMAGES.clear();
             GlobalValues.CURRRNT_PROJECT_ID = forscreen_id;
+            GlobalValues.CURRENT_OPEN_ID = deviceId;
             handler.removeCallbacks(new ProjectShowImageRunnable());
             isPPTRunnable = false;
             isTasking = false;
