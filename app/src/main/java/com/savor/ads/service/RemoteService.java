@@ -826,12 +826,13 @@ public class RemoteService extends Service {
                                 LogUtils.d("数据插入，开始，forscreenId=" + imgQueue.getForscreen_id());
                                 postSimpleMiniProgramProjectionLog(action,"",forscreen_char,forscreen_id,deviceName,device_model,deviceId,imgQueue.getFileName(),imgQueue.getSize(),resource_type,outPath,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE,false);
 
+                                String img_id = System.currentTimeMillis()+"";
+                                ProjectionImg img = new ProjectionImg();
+                                img.setImg_id(img_id);
+                                GlobalValues.PROJECT_STREAM_IMAGE_NUMS.add(img);
+                                handler.post(()->projectionImgListDialog.setContent(GlobalValues.PROJECT_STREAM_IMAGE_NUMS,TYPE_IMG,"100%"));
                             }
-                            final String img_id = System.currentTimeMillis()+"";
-                            ProjectionImg img = new ProjectionImg();
-                            img.setImg_id(img_id);
-                            GlobalValues.PROJECT_STREAM_IMAGE_NUMS.add(img);
-                            handler.post(()->projectionImgListDialog.setContent(GlobalValues.PROJECT_STREAM_IMAGE_NUMS,TYPE_IMG,"100%"));
+
                            if (GlobalValues.PROJECT_THUMBNIAL_IMAGE.size()==Integer.valueOf(forscreen_nums)){
                                handler.postDelayed(()->closeDownloadWindow(),500);
                                isTasking = false;
@@ -1358,7 +1359,7 @@ public class RemoteService extends Service {
                 boolean isDownload = false;
                 LogUtils.d(TAG+":"+"极简下载:fileName="+filename+"开始下载");
                 if (file.exists()){
-                    repeat = true;
+//                    repeat = true;
                     isDownload = true;
                 }else {
                     MultipartConfigElement multipartConfigElement = new MultipartConfigElement((String) null);
