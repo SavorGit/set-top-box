@@ -1663,6 +1663,45 @@ public class DBHelper extends SQLiteOpenHelper {
         return logDetailList;
     }
 
+    public ProjectionLogHistory findProjectionHistoryById(String selection, String[] selectionArgs){
+        ProjectionLogHistory history = null;
+        synchronized (dbHelper) {
+            Cursor cursor = null;
+            try {
+                cursor = db.query(TableName.PROJECTION_LOG, null,
+                        selection, selectionArgs, FORSCREEN_ID, null, null, null);
+                if (cursor != null&&cursor.moveToFirst()) {
+                    history = new ProjectionLogHistory();
+                    history.setAction(cursor.getString(cursor.getColumnIndex(ACTION)));
+                    history.setSerial_number(cursor.getString(cursor.getColumnIndex(SERIAL_NUMBER)));
+                    history.setBox_mac(cursor.getString(cursor.getColumnIndex(BOX_MAC)));
+                    history.setForscreen_char(cursor.getString(cursor.getColumnIndex(FORSCREEN_CHAR)));
+                    history.setForscreen_id(cursor.getString(cursor.getColumnIndex(FORSCREEN_ID)));
+                    history.setMobile_brand(cursor.getString(cursor.getColumnIndex(MOBILE_BRAND)));
+                    history.setMobile_model(cursor.getString(cursor.getColumnIndex(MOBILE_MODEL)));
+                    history.setOpenid(cursor.getString(cursor.getColumnIndex(OPENID)));
+                    history.setResource_type(cursor.getString(cursor.getColumnIndex(RESOURCE_TYPE)));
+                    selection = FORSCREEN_ID + "=? ";
+                    selectionArgs = new String[]{history.getForscreen_id()};
+                    List<ProjectionLogDetail> listDetail = findProjectionDetail(selection,selectionArgs);
+                    if (listDetail!=null&&listDetail.size()>0){
+                        history.setList(listDetail);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (cursor != null && !cursor.isClosed()) {
+                        cursor.close();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return history;
+    }
 
     /**
      * 接受到活动商品广告入库

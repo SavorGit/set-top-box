@@ -130,7 +130,6 @@ public class BigImgWriter implements Runnable {
 
                 if (imgCount.get(fileName) == totalParts) {
                     param.setFilePath(basePath+fileName);
-                    param.setStartTime(imgCreateTime.get(fileName));
                     param.setFileName(fileName);
                     if (playListener!=null){
                         this.playListener.playProjection(param);
