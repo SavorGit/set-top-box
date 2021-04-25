@@ -182,18 +182,17 @@ public class RemoteService extends Service {
         private Object mLock;
         private String avatarUrl = null;
         private String nickName = null;
-        //openid
+        /**openid*/
         private String deviceId;
+        /**手机品牌*/
         private String deviceName;
+        /**手机型号*/
         private String device_model;
+        /**当前轮播图片的游标*/
         private int currentIndex=0;
-        /**
-         * 投屏时屏幕显示的文字
-         */
+        /** 投屏时屏幕显示的文字*/
         private String words;
-        /**
-         * 投屏唯一标示id
-         */
+        /**投屏唯一标示id*/
         private String forscreenId;
         /**投屏开始时间*/
         private String res_sup_time;
@@ -201,9 +200,9 @@ public class RemoteService extends Service {
         private String res_eup_time;
         /**机顶盒接受到的图片块*/
         private HashMap<String,Integer> acceptNum = new HashMap<>();
-        //开始时间
+        /**开始时间*/
         private HashMap<String,String> acceptsTime = new HashMap<>();
-        //结束时间
+        /**结束时间*/
         private HashMap<String,String> accepteTime = new HashMap<>();
 
         public void handle(String target, Request baseRequest, final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {

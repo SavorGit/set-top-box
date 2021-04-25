@@ -1,8 +1,8 @@
 include ':app',
+        ':carousel',
         ':tvlibrary',
         ':Pushlib',
         ':gsyVideoPlayer-base',
         ':gsyVideoPlayer-java',
         ':gsyVideoPlayer-proxy_cache',
-        'gsyVideoPlayer-exo_player2',
-        ':carousel'
+        'gsyVideoPlayer-exo_player2'

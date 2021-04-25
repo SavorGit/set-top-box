@@ -18,7 +18,7 @@ android {
         targetSdkVersion TARGET_SDK_VERSION as int
 
         //noinspection HighAppVersionCode
-        versionCode 2021042207
+        versionCode 2021042501
         versionName "2.2.7"
         multiDexEnabled true
     }
@@ -135,4 +135,5 @@ dependencies {
     implementation project(path: ':gsyVideoPlayer-java')
     implementation project(path: ':gsyVideoPlayer-exo_player2')
     implementation project(path: ':carousel')
+//    implementation project(':pdfLibrary')
 }
