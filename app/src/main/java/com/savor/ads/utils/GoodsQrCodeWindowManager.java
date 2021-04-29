@@ -71,8 +71,8 @@ public class GoodsQrCodeWindowManager {
         wmParams.format = PixelFormat.RGBA_8888;
         //设置浮动窗口不可聚焦（实现操作除浮动窗口外的其他可见窗口的操作）
         wmParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-        //调整悬浮窗显示的停靠位置为左侧置顶
-        wmParams.gravity = Gravity.LEFT | Gravity.BOTTOM;
+        //调整悬浮窗显示的停靠位置为右侧置顶
+        wmParams.gravity = Gravity.RIGHT | Gravity.BOTTOM;
 
         // 以屏幕左上角为原点，设置x、y初始值，相对于gravity
         wmParams.x = DensityUtil.dip2px(context, 30);

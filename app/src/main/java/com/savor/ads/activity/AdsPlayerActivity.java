@@ -1270,7 +1270,8 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 mHandler.removeCallbacks(mCountDownRunnable);
             }
 
-            if (libBean.getType().equals(ConstantValues.SHOP_GOODS_ADS)){
+            if (libBean.getType().equals(ConstantValues.SHOP_GOODS_ADS)
+                    ||libBean.getType().equals(ConstantValues.LOCAL_LIFE)){
                 String qrcode_url=libBean.getQrcode_url();
                 String qrcode_path=libBean.getQrcode_path();
                 ((SavorApplication) getApplication()).showGoodsQrCodeWindow(qrcode_url,qrcode_path);

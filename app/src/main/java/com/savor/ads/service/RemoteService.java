@@ -271,12 +271,8 @@ public class RemoteService extends Service {
                 response.getWriter().println(resJson);
                 return;
             }else {
-                deviceId = request.getParameter("deviceId");
-                deviceName = request.getParameter("deviceName");
-                device_model = request.getParameter("device_model");
-                avatarUrl = request.getParameter("avatarUrl");
-                nickName = request.getParameter("nickName");
-                resJson = distributeRequest(request, path, deviceId, deviceName);
+
+                resJson = distributeRequest(request, path);
             }
 
             if (TextUtils.isEmpty(resJson)) {
@@ -293,7 +289,7 @@ public class RemoteService extends Service {
 
         }
 
-        private String distributeRequest(final HttpServletRequest request,String action,final String deviceId,final String deviceName) throws IOException, ServletException {
+        private String distributeRequest(final HttpServletRequest request,String action){
             String resJson = "";
             // 标识是否强行投屏
             LogUtils.d("enter method request.distributeRequest");
@@ -309,27 +305,27 @@ public class RemoteService extends Service {
                 case "/videoH5":
                 case "/h5/video":
                     currentAction = 2;
-                    resJson = handleVideoH5Request(request,deviceId,deviceName,resJson);
+                    resJson = handleVideoH5Request(request);
                     break;
                 case "/h5/restVideo":
                     currentAction = 3;
-                    resJson = handleVideoH5Request(request,deviceId,deviceName,resJson);
+                    resJson = handleVideoH5Request(request);
                     break;
                 case "/pic":
                     currentAction = 4;
                     break;
                 case "/picH5":
                     currentAction = 5;//极简版重投
-                    resJson = handlePicH5Request(request,deviceId,deviceName);
+                    resJson = handlePicH5Request(request);
                     break;
                 case "/h5/restPicture":
                     currentAction = 6;
-                    resJson = handlePicH5Request(request,deviceId,deviceName);
+                    resJson = handlePicH5Request(request);
                     break;
                 case "/h5/singleImg":
                 case "/h5/restSingleImg":
                     currentAction = 7;//极简版滑动单张
-                    resJson = handleSinglePicRequest(request,deviceId,deviceName,ConstantValues.SMALL_APP_ID_SIMPLE);
+                    resJson = handleSinglePicRequest(request);
                     break;
                 case "/h5/stop":
                     currentAction = 8;
@@ -337,43 +333,43 @@ public class RemoteService extends Service {
                     break;
                 case "/h5/birthday_ondemand":
                     currentAction = 9;
-                    resJson = handleH5BirthdayOndemand(request,deviceId);
+                    resJson = handleH5BirthdayOndemand(request);
                     break;
                 case "/stop":
                     currentAction = 10;
-                    resJson = handleStopRequest(request, deviceId, resJson);
+                    resJson = handleStopRequest(request);
                     break;
                 case "/rotate":
                     currentAction = 11;
-                    resJson = handleRotateRequest(request, deviceId, resJson);
+                    resJson = handleRotateRequest(request);
                     break;
                 case "/resume":
                     currentAction = 12;
-                    resJson = handleResumeRequest(request, deviceId, resJson);
+                    resJson = handleResumeRequest(request);
                     break;
                 case "/pause":
                     currentAction = 13;
-                    resJson = handlePauseRequest(request, deviceId, resJson);
+                    resJson = handlePauseRequest(request);
                     break;
                 case "/seek":
                     currentAction = 14;
-                    resJson = handleSeekRequest(request, deviceId, resJson);
+                    resJson = handleSeekRequest(request);
                     break;
                 case "/volume":
                     currentAction = 15;
-                    resJson = handleVolumeRequest(request, deviceId, resJson);
+                    resJson = handleVolumeRequest(request);
                     break;
                 case "/switchProgram":
                     currentAction = 16;
-                    resJson = handleProgramRequest(request,deviceId,resJson);
+                    resJson = handleProgramRequest(request);
                     break;
                 case "/showMiniProgramCode":
                     currentAction = 17;
-                    resJson = handleShowMiniProgramCode(request,deviceId);
+                    resJson = handleShowMiniProgramCode(request);
                     break;
                 case "/query":
                     currentAction = 18;
-                    resJson = handleQueryRequest(request, deviceId);
+                    resJson = handleQueryRequest(request);
                     break;
                 case "/queryStatus":
                     currentAction = 19;
@@ -381,7 +377,7 @@ public class RemoteService extends Service {
                     break;
                 case "/verify":
                     currentAction = 21;
-                    resJson = handleVerifyCodeRequest(request, deviceId);
+                    resJson = handleVerifyCodeRequest(request);
                     break;
                 case "/bigImgPartUpload":
                     currentAction = 22;
@@ -397,7 +393,7 @@ public class RemoteService extends Service {
                     break;
                 case "/h5/goods_ondemand":
                     currentAction = 27;
-                    resJson = handleH5GoodsOndemand(request,deviceId);
+                    resJson = handleH5GoodsOndemand(request);
                     break;
                 case "/h5/discover_ondemand":
                     currentAction = 28;
@@ -436,10 +432,19 @@ public class RemoteService extends Service {
             }
             return resJson;
         }
+        /**获取接口基础参数，openid,设备名称，设备型号，微信头像昵称等*/
+        private void initBaseParam(HttpServletRequest request){
+            deviceId = request.getParameter("deviceId");
+            deviceName = request.getParameter("deviceName");
+            device_model = request.getParameter("device_model");
+            avatarUrl = request.getParameter("avatarUrl");
+            nickName = request.getParameter("nickName");
+        }
 
-        private String handleVideoH5Request(HttpServletRequest request, String deviceId, String deviceName,String resJson){
 
+        private String handleVideoH5Request(HttpServletRequest request){
 
+            initBaseParam(request);
             String forscreen_id = request.getParameter("forscreen_id");
             String video_id = System.currentTimeMillis()+"";
             final MiniProgramProjection minipp = new MiniProgramProjection();
@@ -478,11 +483,11 @@ public class RemoteService extends Service {
                 });
             }
             // 视频流投屏处理
-            resJson = downloadStreamVideoProjection(request,deviceId, deviceName,video_id);
+            String resJson = downloadStreamVideoProjection(request,video_id);
             return resJson;
         }
 
-        private String downloadStreamVideoProjection(HttpServletRequest request,String deviceId, String deviceName,final String video_id){
+        private String downloadStreamVideoProjection(HttpServletRequest request,final String video_id){
             String respJson = "";
             try{
                 boolean repeat = false;
@@ -579,7 +584,7 @@ public class RemoteService extends Service {
                             }else{
                                 GlobalValues.PROJECTION_VIDEO_PATH = null;
                                 RemoteService.listener.showVideo(media_path, true,forscreen_id,avatarUrl,nickName,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
-                                postSimpleMiniProgramProjectionLog(action,duration,null,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE,repeat);
+                                postSimpleMiniProgramProjectionLog(action,duration,null,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,repeat);
                             }
 
                         }
@@ -589,7 +594,7 @@ public class RemoteService extends Service {
                             time = Integer.valueOf(play_time);
                         }
                         RemoteService.listener.showRestVideo(resultFile.getAbsolutePath(),true, avatarUrl, nickName,time);
-                        postSimpleMiniProgramProjectionLog(action,duration,null,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE,repeat);
+                        postSimpleMiniProgramProjectionLog(action,duration,null,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,repeat);
                     }
                     object = new BaseResponse();
                     object.setMsg("上传成功");
@@ -611,6 +616,7 @@ public class RemoteService extends Service {
             String index = null;
             BaseResponse object;
             String respJson;
+            initBaseParam(request);
             String forscreen_id = request.getParameter("forscreen_id");
             if (TextUtils.isEmpty(GlobalValues.CURRRNT_PROJECT_ID)){
                 clearProjectionMark(forscreen_id);
@@ -677,7 +683,7 @@ public class RemoteService extends Service {
                         @Override
                         public void playProjection(Object object) {
                             res_eup_time = String.valueOf(System.currentTimeMillis());
-                            postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,outPath,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE,false);
+                            postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,outPath,serial_number,false);
                         }
                     });
                     new Thread(writer).start();
@@ -712,6 +718,7 @@ public class RemoteService extends Service {
             String index = null;
             BaseResponse object;
             String respJson;
+            initBaseParam(request);
             String forscreen_id = request.getParameter("forscreen_id");
             String forscreen_nums = request.getParameter("forscreen_nums");
             if (TextUtils.isEmpty(GlobalValues.CURRRNT_PROJECT_ID)){
@@ -857,7 +864,7 @@ public class RemoteService extends Service {
 //                                LogUtils.d("数据插入，filename=" + imgQueue.getFileName());
 //                                LogUtils.d("数据插入，filepath=" + imgQueue.getFilePath());
                                 LogUtils.d("数据插入，开始，forscreenId=" + imgQueue.getForscreen_id());
-                                postSimpleMiniProgramProjectionLog(action,"",forscreen_char,forscreen_id,deviceName,device_model,deviceId,imgQueue.getFileName(),imgQueue.getSize(),resource_type,outPath,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE,false);
+                                postSimpleMiniProgramProjectionLog(action,"",forscreen_char,forscreen_id,deviceName,device_model,deviceId,imgQueue.getFileName(),imgQueue.getSize(),resource_type,outPath,serial_number,false);
 
                                 String img_id = System.currentTimeMillis()+"";
                                 ProjectionImg img = new ProjectionImg();
@@ -952,8 +959,7 @@ public class RemoteService extends Service {
 
         public void postSimpleMiniProgramProjectionLog(String action,String startTime,String endTime,String duration,String forscreen_char,String forscreen_id,
                                                        String mobile_brand,String mobile_model,String openid,String resource_id,
-                                                       String resource_size,String resource_type,String media_path,String serial_number,
-                                                       String small_app_id,boolean repeat){
+                                                       String resource_size,String resource_type,String media_path,String serial_number,boolean repeat){
             HashMap<String,Object> params = new HashMap<>();
             String create_time = String.valueOf(System.currentTimeMillis());
 
@@ -975,7 +981,7 @@ public class RemoteService extends Service {
             params.put("resource_size", resource_size);
             params.put("resource_type", resource_type);
             params.put("serial_number",serial_number);
-            params.put("small_app_id", small_app_id);
+            params.put("small_app_id", ConstantValues.SMALL_APP_ID_SIMPLE);
             params.put("create_time", create_time);
             params.put("res_sup_time",startTime);
             params.put("res_eup_time",endTime);
@@ -1002,7 +1008,7 @@ public class RemoteService extends Service {
             }else {
                 bean.setRepeat("0");
             }
-            bean.setSmall_app_id(small_app_id);
+            bean.setSmall_app_id(ConstantValues.SMALL_APP_ID_SIMPLE);
             bean.setCreate_time(create_time);
             try{
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
@@ -1034,13 +1040,12 @@ public class RemoteService extends Service {
 
         public void postSimpleMiniProgramProjectionLog(String action,String duration,String forscreen_char,String forscreen_id,
                                                         String mobile_brand,String mobile_model,String openid,String resource_id,
-                                                        String resource_size,String resource_type,String media_path,String serial_number,
-                                                        String small_app_id,boolean repeat){
+                                                        String resource_size,String resource_type,String media_path,String serial_number,boolean repeat){
             String startTime = res_sup_time;
             String endTime = res_eup_time;
             postSimpleMiniProgramProjectionLog(action,startTime,endTime,duration,forscreen_char,forscreen_id,
                     mobile_brand,mobile_model,openid,resource_id,
-                    resource_size,resource_type,media_path,serial_number,small_app_id,repeat);
+                    resource_size,resource_type,media_path,serial_number,repeat);
         }
 
         //展示下载时大屏右侧的窗口列表
@@ -1070,9 +1075,10 @@ public class RemoteService extends Service {
             }
         }
 
-        private String handlePicH5Request(final HttpServletRequest request,final String deviceId, final String deviceName){
-            String resJson = null;
+        private String handlePicH5Request(final HttpServletRequest request){
+            String resJson;
             LogUtils.d("enter method request.handlePicH5Request");
+            initBaseParam(request);
             String forscreen_id = request.getParameter("forscreen_id");
             if (TextUtils.isEmpty(GlobalValues.CURRRNT_PROJECT_ID)
                     ||!GlobalValues.CURRRNT_PROJECT_ID.equals(forscreen_id)){
@@ -1087,13 +1093,13 @@ public class RemoteService extends Service {
                 showDownloadWindow();
             }
             LogUtils.d(TAG+":"+"极简图片下载:forscreen_id="+forscreen_id);
-            resJson = downloadStreamImageProjection(request,deviceId, deviceName);
+            resJson = downloadStreamImageProjection(request);
 
             return resJson;
         }
 
 
-        private String downloadStreamImageProjection(HttpServletRequest request,String deviceId, String deviceName){
+        private String downloadStreamImageProjection(HttpServletRequest request){
             String respJson = "";
             try {
                 boolean repeat= false;
@@ -1174,7 +1180,7 @@ public class RemoteService extends Service {
                     LogUtils.d(TAG+":"+"极简下载:fileName="+filename+"结束下载");
                     GlobalValues.PROJECT_STREAM_IMAGE.add(media_path);
 
-                    postSimpleMiniProgramProjectionLog(action,startTimee,endTime,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,ConstantValues.SMALL_APP_ID_SIMPLE,repeat);
+                    postSimpleMiniProgramProjectionLog(action,startTimee,endTime,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,repeat);
 
                     handler.post(()->projectionImgListDialog.setImgDownloadProgress(img_id,100+"%"));
                     object = new BaseResponse();
@@ -1334,9 +1340,10 @@ public class RemoteService extends Service {
         }
 
 
-        private String handleSinglePicRequest(final HttpServletRequest request,final String deviceId, final String deviceName,String projectionFrom){
+        private String handleSinglePicRequest(final HttpServletRequest request){
 
-            String resJson = null;
+            String resJson;
+            initBaseParam(request);
             String forscreen_id = request.getParameter("forscreen_id");
             if (TextUtils.isEmpty(GlobalValues.CURRRNT_PROJECT_ID)
                     ||!GlobalValues.CURRRNT_PROJECT_ID.equals(forscreen_id)){
@@ -1351,12 +1358,12 @@ public class RemoteService extends Service {
                 }
             }
 
-            resJson = downloadSingleImageProjection(request,deviceId, deviceName,projectionFrom);
+            resJson = downloadSingleImageProjection(request);
             return resJson;
 
         }
 
-        private String downloadSingleImageProjection(HttpServletRequest request,String deviceId, String deviceName,String projectionFrom){
+        private String downloadSingleImageProjection(HttpServletRequest request){
             String respJson = "";
             boolean repeat = false;
             try {
@@ -1431,7 +1438,7 @@ public class RemoteService extends Service {
                     String endTime = String.valueOf(System.currentTimeMillis());
                     String media_path = path+filename;
                     LogUtils.d(TAG+":"+"极简下载:fileName="+filename+"结束下载");
-                    postSimpleMiniProgramProjectionLog(action,startTimee,endTime,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,projectionFrom,repeat);
+                    postSimpleMiniProgramProjectionLog(action,startTimee,endTime,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,repeat);
                     GlobalValues.PROJECT_STREAM_IMAGE.add(media_path);
                     object = new BaseResponse();
                     object.setMsg("上传成功");
@@ -1463,12 +1470,12 @@ public class RemoteService extends Service {
          * 处理退出投屏请求
          *
          * @param request
-         * @param deviceId
-         * @param resJson
          * @return
          */
-        private String handleStopRequest(HttpServletRequest request, String deviceId, String resJson) {
+        private String handleStopRequest(HttpServletRequest request) {
             LogUtils.e("enter method listener.stop");
+            String resJson = null;
+            initBaseParam(request);
             if (!TextUtils.isEmpty(deviceId) && deviceId.equals(GlobalValues.CURRENT_PROJECT_DEVICE_ID)) {
                 String projectId = request.getParameter("projectId");
                 StopResponseVo object = RemoteService.listener.stop(projectId);
@@ -1483,12 +1490,12 @@ public class RemoteService extends Service {
          * 处理图片旋转请求
          *
          * @param request
-         * @param deviceId
-         * @param resJson
          * @return
          */
-        private String handleRotateRequest(HttpServletRequest request, String deviceId, String resJson) {
+        private String handleRotateRequest(HttpServletRequest request) {
             LogUtils.d("enter method listener.rotate");
+            String resJson = null;
+            initBaseParam(request);
             if (!TextUtils.isEmpty(deviceId) && deviceId.equals(GlobalValues.CURRENT_PROJECT_DEVICE_ID)) {
                 String projectId = request.getParameter("projectId");
                 RotateResponseVo object = RemoteService.listener.rotate(90, projectId);
@@ -1501,12 +1508,12 @@ public class RemoteService extends Service {
          * 处理视频恢复播放请求
          *
          * @param request
-         * @param deviceId
-         * @param resJson
          * @return
          */
-        private String handleResumeRequest(HttpServletRequest request, String deviceId, String resJson) {
+        private String handleResumeRequest(HttpServletRequest request) {
             LogUtils.d("enter method listener.resume");
+            String resJson = null;
+            initBaseParam(request);
             if (!TextUtils.isEmpty(deviceId) && deviceId.equals(GlobalValues.CURRENT_PROJECT_DEVICE_ID)) {
                 String projectId = request.getParameter("projectId");
                 PlayResponseVo object = RemoteService.listener.play(1, projectId);
@@ -1519,12 +1526,12 @@ public class RemoteService extends Service {
          * 处理视频暂停播放请求
          *
          * @param request
-         * @param deviceId
-         * @param resJson
          * @return
          */
-        private String handlePauseRequest(HttpServletRequest request, String deviceId, String resJson) {
+        private String handlePauseRequest(HttpServletRequest request) {
             LogUtils.d("enter method listener.pause");
+            String resJson = null;
+            initBaseParam(request);
             if (!TextUtils.isEmpty(deviceId) && deviceId.equals(GlobalValues.CURRENT_PROJECT_DEVICE_ID)) {
                 String projectId = request.getParameter("projectId");
                 PlayResponseVo object = RemoteService.listener.play(0, projectId);
@@ -1537,12 +1544,12 @@ public class RemoteService extends Service {
          * 处理视频拖动进度请求
          *
          * @param request
-         * @param deviceId
-         * @param resJson
          * @return
          */
-        private String handleSeekRequest(HttpServletRequest request, String deviceId, String resJson) {
+        private String handleSeekRequest(HttpServletRequest request) {
             LogUtils.d("enter method listener.seek");
+            String resJson = null;
+            initBaseParam(request);
             int positionSeek = Integer.parseInt(request.getParameter("position"));
             if (!TextUtils.isEmpty(deviceId) && deviceId.equals(GlobalValues.CURRENT_PROJECT_DEVICE_ID)) {
                 String projectId = request.getParameter("projectId");
@@ -1556,12 +1563,12 @@ public class RemoteService extends Service {
          * 处理视频改变音量请求
          *
          * @param request
-         * @param deviceId
-         * @param resJson
          * @return
          */
-        private String handleVolumeRequest(HttpServletRequest request, String deviceId, String resJson) {
+        private String handleVolumeRequest(HttpServletRequest request) {
             LogUtils.d("enter method listener.volume");
+            String resJson = null;
+            initBaseParam(request);
             int volumeAction = Integer.parseInt(request.getParameter("action"));
             if (!TextUtils.isEmpty(deviceId)) {
                 GlobalValues.CURRENT_PROJECT_DEVICE_ID = deviceId;
@@ -1575,11 +1582,11 @@ public class RemoteService extends Service {
         /**
          * 处理切换视频节目请求
          * @param request
-         * @param deviceId
-         * @param resJson
          * @return
          */
-        private String handleProgramRequest(HttpServletRequest request, String deviceId, String resJson){
+        private String handleProgramRequest(HttpServletRequest request){
+            String resJson = null;
+            initBaseParam(request);
             int switchAction = Integer.parseInt(request.getParameter("action"));
             if (!TextUtils.isEmpty(deviceId)) {
                 GlobalValues.CURRENT_PROJECT_DEVICE_ID = deviceId;
@@ -1590,8 +1597,9 @@ public class RemoteService extends Service {
             return resJson;
         }
 
-        private String handleShowMiniProgramCode(HttpServletRequest request,String deviceId){
+        private String handleShowMiniProgramCode(HttpServletRequest request){
             String resJson;
+            initBaseParam(request);
             if (!TextUtils.isEmpty(deviceId)) {
                 String filename = request.getParameter("filename");
                 GlobalValues.CURRENT_PROJECT_DEVICE_ID = deviceId;
@@ -1617,11 +1625,11 @@ public class RemoteService extends Service {
          * 处理查询视频播放进度请求
          *
          * @param request
-         * @param deviceId
          * @return
          */
-        private String handleQueryRequest(HttpServletRequest request, String deviceId) {
+        private String handleQueryRequest(HttpServletRequest request) {
             String resJson;
+            initBaseParam(request);
             LogUtils.d("enter method listener.query");
             if (!TextUtils.isEmpty(deviceId) &&
                     (deviceId.equals(GlobalValues.CURRENT_PROJECT_DEVICE_ID) ||
@@ -1663,12 +1671,12 @@ public class RemoteService extends Service {
          * 处理验码请求
          *
          * @param request
-         * @param deviceId
          * @return
          */
-        private String handleVerifyCodeRequest(HttpServletRequest request, String deviceId) {
+        private String handleVerifyCodeRequest(HttpServletRequest request) {
             String resJson;
             LogUtils.d("enter method listener.verify");
+            initBaseParam(request);
             if (!TextUtils.isEmpty(deviceId)) {
                 String code = request.getParameter("code");
                 ResponseT vo = RemoteService.listener.verify(code);
@@ -1706,12 +1714,12 @@ public class RemoteService extends Service {
         /**
          * 生日星座相关点播
          * @param request
-         * @param deviceId
          * @return
          */
-        private String handleH5BirthdayOndemand(HttpServletRequest request,String deviceId){
+        private String handleH5BirthdayOndemand(HttpServletRequest request){
             BaseResponse response = new BaseResponse();
             try {
+                initBaseParam(request);
                 GlobalValues.CURRENT_PROJECT_DEVICE_ID = deviceId;
                 LogUtils.d("ondemand birthday");
                 clearProjectionMark("");
@@ -1766,12 +1774,12 @@ public class RemoteService extends Service {
         /**
          * 优选商品点播
          * @param request
-         * @param deviceId
          * @return
          */
-        private String handleH5GoodsOndemand(HttpServletRequest request,String deviceId){
+        private String handleH5GoodsOndemand(HttpServletRequest request){
             BaseResponse response = new BaseResponse();
             try {
+                initBaseParam(request);
                 GlobalValues.CURRENT_PROJECT_DEVICE_ID = deviceId;
                 LogUtils.d("ondemand goods");
                 String forscreen_id = request.getParameter("forscreen_id");
@@ -1808,6 +1816,7 @@ public class RemoteService extends Service {
          * @return
          */
         private String findGoods(HttpServletRequest request){
+            initBaseParam(request);
             BaseResponse response = new BaseResponse();
             String selection = null;
             String[] selectionArgs = null;
@@ -1848,6 +1857,7 @@ public class RemoteService extends Service {
             BaseResponse response = new BaseResponse();
             try{
                 LogUtils.d("ondemand discover");
+                initBaseParam(request);
                 String filename = request.getParameter("filename");
 
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.select_content)+filename;
@@ -1875,6 +1885,7 @@ public class RemoteService extends Service {
          * @return
          */
         private String findDiscover(HttpServletRequest request){
+            initBaseParam(request);
             BaseResponse response = new BaseResponse();
             String selection = DBHelper.MediaDBInfo.FieldName.TYPE + "=? ";
             String[] selectionArgs = new String[]{"2"};
@@ -1947,7 +1958,7 @@ public class RemoteService extends Service {
             Gson gson = builder.create();
             try{
                 LogUtils.d("ondemand discover");
-                String deviceId = request.getParameter("deviceId");
+                initBaseParam(request);
                 String media_id = request.getParameter("media_id");
                 String media_url = request.getParameter("media_url");
                 String forscreen_id = request.getParameter("forscreen_id");
@@ -2060,6 +2071,7 @@ public class RemoteService extends Service {
          */
         private String findHotShow(HttpServletRequest request){
             BaseResponse response = new BaseResponse();
+            initBaseParam(request);
             String selection = DBHelper.MediaDBInfo.FieldName.TYPE + "=? ";
             String[] selectionArgs = new String[]{"1"};
             List<MediaItemBean> listItem = DBHelper.get(context).findMediaItemList(selection,selectionArgs);

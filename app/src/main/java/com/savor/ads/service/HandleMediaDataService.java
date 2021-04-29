@@ -1329,6 +1329,14 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             }
             if (isDownloaded){
                 //下载成功以后将本地路径set到bean里，入库时使用
+                String qrcodeUrl = bean.getQrcode_url();
+                String[] fileNameArray = fileName.split("\\.");
+                String qrcodeName = fileNameArray[0]+"_qrcode.png";
+                String qrcodePath = basePath + fileName;
+                if (!new File(qrcodePath).exists()){
+                    new ProgressDownloader(context,qrcodeUrl,basePath,qrcodeName,true).downloadByRange();
+                }
+                bean.setQrcode_path(qrcodePath);
                 bean.setMediaPath(path);
                 bean.setPeriod(result.getPeriod());
                 bean.setCreateTime(System.currentTimeMillis()+"");

@@ -2607,6 +2607,8 @@ public class AppUtils {
                                 bean.setMedia_type(localLifeBean.getMedia_type());
                                 bean.setType(localLifeBean.getType());
                                 bean.setName(localLifeBean.getName());
+                                bean.setQrcode_path(localLifeBean.getQrcode_path());
+                                bean.setQrcode_url(localLifeBean.getQrcode_url());
                                 bean.setCreateTime(localLifeBean.getCreateTime());
                             }else if (nowTime>endTime){
                                 selection = DBHelper.MediaDBInfo.FieldName.VID + "=? ";

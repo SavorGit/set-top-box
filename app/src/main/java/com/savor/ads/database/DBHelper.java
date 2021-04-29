@@ -167,7 +167,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "dbsavor.db";
 
 
-    private static final int DB_VERSION = 36;
+    private static final int DB_VERSION = 37;
 
     private Context mContext;
 
@@ -375,6 +375,21 @@ public class DBHelper extends SQLiteOpenHelper {
             try{
                 try{
                     createTable_localLifeAds(sqLiteDatabase);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        if (oldVersion<37){
+            //versionName 2.2.8
+            try{
+                try{
+                    String addQrcodePath = "ALTER TABLE " + TableName.LOCAL_LIFE_ADS + " ADD " + QRCODE_PATH + " TEXT;";
+                    sqLiteDatabase.execSQL(addQrcodePath);
+                    String addQrcodeUrl = "ALTER TABLE " + TableName.LOCAL_LIFE_ADS + " ADD " + QRCODE_URL + " TEXT;";
+                    sqLiteDatabase.execSQL(addQrcodeUrl);
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -705,6 +720,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 + TYPE + " INTEGER, "
                 + LOCATION_ID + " TEXT, "
                 + MEDIANAME + " TEXT, "
+                + QRCODE_PATH + " TEXT, "
+                + QRCODE_URL + " TEXT, "
                 + PERIOD + " TEXT, "
                 + CREATETIME + " TEXT " + ");";
         db.execSQL(DATABASE_CREATE);
@@ -2106,6 +2123,8 @@ public class DBHelper extends SQLiteOpenHelper {
             initialValues.put(RESOURCE_TYPE,bean.getMedia_type());
             initialValues.put(TYPE,bean.getType());
             initialValues.put(MEDIANAME,bean.getName());
+            initialValues.put(QRCODE_PATH,bean.getQrcode_path());
+            initialValues.put(QRCODE_URL,bean.getQrcode_url());
             initialValues.put(PERIOD,bean.getPeriod());
             initialValues.put(CREATETIME,bean.getCreateTime());
             long success = db.insert(TableName.LOCAL_LIFE_ADS,null,initialValues);
@@ -2142,6 +2161,8 @@ public class DBHelper extends SQLiteOpenHelper {
                             bean.setMedia_type(cursor.getInt(cursor.getColumnIndex(RESOURCE_TYPE)));
                             bean.setType(cursor.getString(cursor.getColumnIndex(TYPE)));
                             bean.setName(cursor.getString(cursor.getColumnIndex(MEDIANAME)));
+                            bean.setQrcode_path(cursor.getString(cursor.getColumnIndex(QRCODE_PATH)));
+                            bean.setQrcode_url(cursor.getString(cursor.getColumnIndex(QRCODE_URL)));
                             bean.setPeriod(cursor.getString(cursor.getColumnIndex(PERIOD)));
                             bean.setCreateTime(cursor.getString(cursor.getColumnIndex(CREATETIME)));
                             list.add(bean);
