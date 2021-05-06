@@ -1107,6 +1107,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         }else{
                             ProjectOperationListener.getInstance(context).showVideo(basePath,oss_url, true,forscreen_id, headPic, nickName, FROM_SERVICE_MINIPROGRAM);
                         }
+                        if (!TextUtils.isEmpty(minipp.getQrcode_url())){
+                            ((SavorApplication) getApplication()).showGoodsQrCodeWindow(minipp.getQrcode_url(),"");
+                        }
                     }
                 }
             }
