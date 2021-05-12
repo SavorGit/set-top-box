@@ -13,7 +13,6 @@
         android:id="@+id/video_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
-
     <RelativeLayout
         android:id="@+id/rl_image"
         android:layout_width="match_parent"
@@ -308,5 +307,21 @@
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:src="@mipmap/store_sale"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/user_share_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/user_share_tip"
+            android:layout_gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="分享 | 热点投屏精选"
+            android:layout_marginLeft="50dp"
+            android:layout_marginTop="30dp"
+            android:textStyle="bold"
+            android:textColor="@color/color_white"
+            android:textSize="30dp"/>
     </RelativeLayout>
 </RelativeLayout>

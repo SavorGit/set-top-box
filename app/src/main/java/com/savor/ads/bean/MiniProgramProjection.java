@@ -107,6 +107,8 @@ public class MiniProgramProjection implements Serializable{
     private String content;
 
     private String qrcode_url;
+    //红包类型1正常 2运营
+    private int rtype;
 
     public int getAction() {
         return action;
@@ -538,5 +540,13 @@ public class MiniProgramProjection implements Serializable{
 
     public void setQrcode_url(String qrcode_url) {
         this.qrcode_url = qrcode_url;
+    }
+
+    public int getRtype() {
+        return rtype;
+    }
+
+    public void setRtype(int rtype) {
+        this.rtype = rtype;
     }
 }

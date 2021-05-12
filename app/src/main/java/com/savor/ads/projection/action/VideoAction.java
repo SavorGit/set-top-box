@@ -41,7 +41,7 @@ public class VideoAction extends ProjectionActionBase implements Serializable {
         this.isNewDevice = isNewDevice;
     }
 
-    public VideoAction(Context context, String videoPath,String videoUrl, boolean isNewDevice,String forscreenId,String avatarUrl,String nickname,int fromService) {
+    public VideoAction(Context context, String videoPath,String videoUrl, boolean isNewDevice,String forscreenId,String avatarUrl,String nickname,int action,int fromService) {
         super();
 
         mPriority = ProjectPriority.HIGH;
@@ -53,6 +53,7 @@ public class VideoAction extends ProjectionActionBase implements Serializable {
         this.forscreenId = forscreenId;
         this.avatarUrl = avatarUrl;
         this.nickname = nickname;
+        this.action = action;
     }
 
     public VideoAction(Context context, String videoPath, boolean isNewDevice,String forscreenId,String avatarUrl,String nickname,int fromService) {

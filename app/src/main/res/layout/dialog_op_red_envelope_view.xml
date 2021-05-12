@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@mipmap/op_red_bg">
+    <TextView
+        android:id="@+id/tv_scan_wx_countdown"
+        android:layout_alignParentRight="true"
+        android:text="70"
+        android:gravity="center"
+        android:textSize="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:textColor="@color/color_white"
+        android:textStyle="bold"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:background="@drawable/bg_shape_white_line"/>
+    <TextView
+        android:id="@+id/hotel_name_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8sp"
+        android:lines="1"
+        android:text="新荣记"
+        android:typeface="serif"
+        android:textStyle="bold"
+        android:textColor="@color/color_white"
+        android:textSize="55sp" />
+
+    <ImageView
+        android:id="@+id/hotel_logo_iv"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="18dp"
+        android:src="@mipmap/wxavatar"
+        android:layout_below="@+id/hotel_name_tv"
+        android:layout_width="90dp"
+        android:layout_height="90dp" />
+
+    <ImageView
+        android:id="@+id/iv_scan_qrcode"
+        android:layout_width="280dp"
+        android:layout_height="280dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="60dp"
+        android:layout_marginBottom="55dp" />
+</RelativeLayout>

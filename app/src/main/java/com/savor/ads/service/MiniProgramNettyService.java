@@ -30,6 +30,7 @@ import com.savor.ads.bean.JsonBean;
 import com.savor.ads.bean.PartakeDishBean;
 import com.savor.ads.bean.ProjectionGuideImg;
 import com.savor.ads.dialog.BusinessFileDialog;
+import com.savor.ads.dialog.OpRedEnvelopeQrCodeDialog;
 import com.savor.ads.dialog.PartakeDishDialog;
 import com.savor.ads.log.LogParamValues;
 import com.savor.ads.bean.MediaLibBean;
@@ -135,6 +136,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private ExtensionQrCodeDialog extensionQrCodeDialog = null;
     private PartakeDishDialog partakeDishDialog = null;
     private ScanRedEnvelopeQrCodeDialog scanRedEnvelopeQrCodeDialog =null;
+    private OpRedEnvelopeQrCodeDialog opRedEnvelopeQrCodeDialog = null;
     /**商務宴請-個人名片推送*/
     private BusinessCardDialog cardDialog = null;
     /**商务宴请-商业文件分享*/
@@ -156,6 +158,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         extensionQrCodeDialog = new ExtensionQrCodeDialog(context);
         partakeDishDialog = new PartakeDishDialog(context);
         scanRedEnvelopeQrCodeDialog = new ScanRedEnvelopeQrCodeDialog(context);
+        opRedEnvelopeQrCodeDialog = new OpRedEnvelopeQrCodeDialog(context);
         cardDialog = new BusinessCardDialog(context);
         fileDialog = new BusinessFileDialog(context);
     }
@@ -253,6 +256,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 136:霸王餐开奖
          * 137：商务宴请-欢迎词(这个跟销售端欢迎词的区别是，销售端是单张图片，这个商务宴请的欢迎词是多张图片的)
          * 140:对服务人员评价打赏后机顶盒展示效果
+         * 141：推送用户审核通过的视频内容，走2的逻辑
+         * 142：推送用户审核通过的图片内容,走10的逻辑
          * 150:小程序连接机顶盒成功后推送引导投屏图
          * 160：商务宴请-個人名片推送
          * 170：商务宴请-文件分享
@@ -336,6 +341,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         case 42:
                         case 12:
                         case 15:
+                        case 141:
                             new Thread(()->projectionVideo(miniProgramProjection)).start();
                             break;
                         case 3:
@@ -363,6 +369,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         case 10:
                         case 11:
                         case 14:
+                        case 142:
                             projectionListImg(miniProgramProjection);
                             break;
                         case 13:
@@ -413,18 +420,32 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                                 @Override
                                 public void run() {
                                     Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
-                                    if (activity instanceof AdsPlayerActivity){
-                                        ((AdsPlayerActivity) activity).setScanRedEnvelopeQrCodeDialogListener(scanRedEnvelopeQrCodeDialog);
-                                    }
                                     String scanRedEnvelopeUrl = miniProgramProjection.getCodeUrl();
                                     String content = miniProgramProjection.getContent();
-                                    if (scanRedEnvelopeQrCodeDialog !=null){
-                                        scanRedEnvelopeQrCodeDialog.dismiss();
-                                        scanRedEnvelopeQrCodeDialog = new ScanRedEnvelopeQrCodeDialog(context);
-                                        scanRedEnvelopeQrCodeDialog.show();
-                                        scanRedEnvelopeQrCodeDialog.setRedEnvelopeInfo(headPic,nickName,scanRedEnvelopeUrl,content);
+                                    int red_type = miniProgramProjection.getRtype();
 
+                                    if (red_type==2){
+                                        if (activity instanceof AdsPlayerActivity){
+                                            if (opRedEnvelopeQrCodeDialog !=null){
+                                                opRedEnvelopeQrCodeDialog.dismiss();
+                                                opRedEnvelopeQrCodeDialog = new OpRedEnvelopeQrCodeDialog(context);
+                                                opRedEnvelopeQrCodeDialog.show();
+                                                opRedEnvelopeQrCodeDialog.setRedEnvelopeInfo(headPic,nickName,scanRedEnvelopeUrl);
+                                            }
+                                        }
+                                    }else{
+                                        if (activity instanceof AdsPlayerActivity){
+                                            ((AdsPlayerActivity) activity).setScanRedEnvelopeQrCodeDialogListener(scanRedEnvelopeQrCodeDialog);
+                                            if (scanRedEnvelopeQrCodeDialog !=null){
+                                                scanRedEnvelopeQrCodeDialog.dismiss();
+                                                scanRedEnvelopeQrCodeDialog = new ScanRedEnvelopeQrCodeDialog(context);
+                                                scanRedEnvelopeQrCodeDialog.show();
+                                                scanRedEnvelopeQrCodeDialog.setRedEnvelopeInfo(headPic,nickName,scanRedEnvelopeUrl,content);
+
+                                            }
+                                        }
                                     }
+
                                 }
                             });
                             break;
@@ -618,7 +639,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private void projectShowImage(int currentIndex,String words,String avatarUrl,String nickName){
         isPPTRunnable = true;
         if (GlobalValues.PROJECT_IMAGES!=null&&GlobalValues.PROJECT_IMAGES.size()>0){
-            if (currentAction==4||currentAction==10||currentAction==11||currentAction==14){
+            if (currentAction==4||currentAction==10||currentAction==11||currentAction==14||currentAction==142){
                 boolean flag = true;
                 LogUtils.d("PROJECT_IMAGES:flag=true|currentIndex="+currentIndex);
                 if (GlobalValues.PROJECT_IMAGES.size()>currentIndex){
@@ -1094,7 +1115,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         GlobalValues.PROJECTION_VIDEO_PATH = path;
                     }else if (preOrNextAdsBean.getPlay_position()==2){
                         GlobalValues.PROJECTION_VIDEO_PATH = null;
-                        ProjectOperationListener.getInstance(context).showVideo(basePath,oss_url,true,forscreen_id, headPic, nickName, FROM_SERVICE_MINIPROGRAM);
+                        ProjectOperationListener.getInstance(context).showVideo(basePath,oss_url,true,forscreen_id, headPic, nickName, currentAction,FROM_SERVICE_MINIPROGRAM);
                     }
                 }else{
                     GlobalValues.INTERACTION_ADS_PLAY = 0;
@@ -1103,9 +1124,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     boolean isBreak = projectionIsBreak(forscreen_id);
                     if (!isBreak){
                         if (isDownloaded){
-                            ProjectOperationListener.getInstance(context).showVideo(path,"",true,forscreen_id, headPic, nickName, FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showVideo(path,"",true,forscreen_id, headPic, nickName,currentAction, FROM_SERVICE_MINIPROGRAM);
                         }else{
-                            ProjectOperationListener.getInstance(context).showVideo(basePath,oss_url, true,forscreen_id, headPic, nickName, FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showVideo(basePath,oss_url, true,forscreen_id, headPic, nickName, currentAction,FROM_SERVICE_MINIPROGRAM);
                         }
                         if (!TextUtils.isEmpty(minipp.getQrcode_url())){
                             ((SavorApplication) getApplication()).showGoodsQrCodeWindow(minipp.getQrcode_url(),"");
@@ -1242,19 +1263,20 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         String fileName = img.getFilename();
         String imgpath = basePath + fileName;
         if (img_nums>1||(img_nums==1&&!new File(imgpath).exists())){
-
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (pImgListDialog!=null){
-                        if (!pImgListDialog.isShowing()){
-                            pImgListDialog.show();
-                            pImgListDialog.setProjectionPersonInfo(headPic,nickName);
+            if (currentAction!=142){
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (pImgListDialog!=null){
+                            if (!pImgListDialog.isShowing()){
+                                pImgListDialog.show();
+                                pImgListDialog.setProjectionPersonInfo(headPic,nickName);
+                            }
+                            pImgListDialog.setContent(imgList,TYPE_IMG);
                         }
-                        pImgListDialog.setContent(imgList,TYPE_IMG);
                     }
-                }
-            });
+                });
+            }
         }
         downloadIndex =0;
         new Thread(()->downloadFile(downloadIndex)).start();
@@ -1290,29 +1312,40 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             box_downstime = System.currentTimeMillis()+"";
             String path = basePath + fileName;
             File file = new File(path);
-            if (file.exists()) {
-                isDownloaded = true;
-                handler.post(()->pImgListDialog.setImgDownloadProgress(img.getImg_id(), "100%"));
-            } else {
-                try {
+            if(currentAction==142){
+                if (file.exists()) {
+                    isDownloaded = true;
+                } else {
                     String oss_url = BuildConfig.OSS_ENDPOINT+img.getUrl();
                     ProgressDownloader downloader = new ProgressDownloader(context,oss_url, basePath,fileName,resourceSize,true,serial_number);
-                    downloader.setDownloadProgressListener(new DownloadProgressListener() {
-                        @Override
-                        public void getDownloadProgress(long currentSize, long totalSize) {
-                        }
-                        @Override
-                        public void getDownloadProgress(String progress) {
-                            handler.post(()->pImgListDialog.setImgDownloadProgress(img.getImg_id(),progress));
-                        }
-                    });
                     isDownloaded = downloader.downloadByRange();
-                    if (resourceSize==0&&isDownloaded){
-                        handler.post(()->pImgListDialog.setImgDownloadProgress(img.getImg_id(), "100%"));
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
                 }
+            }else{
+                if (file.exists()) {
+                    isDownloaded = true;
+                    handler.post(()->pImgListDialog.setImgDownloadProgress(img.getImg_id(), "100%"));
+                } else {
+                    try {
+                        String oss_url = BuildConfig.OSS_ENDPOINT+img.getUrl();
+                        ProgressDownloader downloader = new ProgressDownloader(context,oss_url, basePath,fileName,resourceSize,true,serial_number);
+                        downloader.setDownloadProgressListener(new DownloadProgressListener() {
+                            @Override
+                            public void getDownloadProgress(long currentSize, long totalSize) {
+                            }
+                            @Override
+                            public void getDownloadProgress(String progress) {
+                                handler.post(()->pImgListDialog.setImgDownloadProgress(img.getImg_id(),progress));
+                            }
+                        });
+                        isDownloaded = downloader.downloadByRange();
+                        if (resourceSize==0&&isDownloaded){
+                            handler.post(()->pImgListDialog.setImgDownloadProgress(img.getImg_id(), "100%"));
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+
             }
             if (isDownloaded) {
                 boolean isBreaks = projectionIsBreak(projection.getForscreen_id());

@@ -224,6 +224,9 @@ public class ScreenProjectionActivity extends BaseActivity{
     private ImageView wxProjectionIconTipIV;
     private TextView wxProjectionTxtTipTV;
     private TextView projectCountdowTipTV;
+
+    private RelativeLayout userShareLayout;
+
     /**
      * 图片旋转角度
      */
@@ -351,6 +354,8 @@ public class ScreenProjectionActivity extends BaseActivity{
         priceLayout = findViewById(R.id.price_layout);
         goodsPriceTV = findViewById(R.id.goods_price);
         storeSaleLayout = findViewById(R.id.store_sale_layout);
+
+        userShareLayout = findViewById(R.id.user_share_layout);
     }
 
     private void setView() {
@@ -508,6 +513,7 @@ public class ScreenProjectionActivity extends BaseActivity{
         storeSaleLayout.setVisibility(View.GONE);
         waiterLayout.setVisibility(View.GONE);
         waiterWelcomeLayout.setVisibility(View.GONE);
+        userShareLayout.setVisibility(View.GONE);
         //有新的投屏进来，如果有正在轮播的欢迎词，就打断播放,并且停止背景音乐 20191212
         GlobalValues.mpprojection = null;
         if (!ConstantValues.PROJECT_TYPE_BUSINESS_WELCOME.equals(mProjectType)
@@ -607,7 +613,10 @@ public class ScreenProjectionActivity extends BaseActivity{
                 projectCountdowTipTV.setVisibility(View.VISIBLE);
                 mHandler.post(mCountDownRunnable);
             }
-
+            //用户精选视频投屏内容推送
+            if (currentAction==141){
+                userShareLayout.setVisibility(View.VISIBLE);
+            }
         }else if (ConstantValues.PROJECT_TYPE_VIDEO_REST.equals(mProjectType)) {
             // 小程序餐厅端视频投屏
             mSavorVideoView.setVisibility(View.VISIBLE);
@@ -720,6 +729,10 @@ public class ScreenProjectionActivity extends BaseActivity{
                 projectCountdowTipTV.setText(delayTime);
                 projectCountdowTipTV.setVisibility(View.VISIBLE);
                 mHandler.post(mCountDownRunnable);
+            }
+            //用户精选图片投屏内容推送
+            if (currentAction==142){
+                userShareLayout.setVisibility(View.VISIBLE);
             }
         } else if (mProjectType.equals(ConstantValues.PROJECT_TYPE_REST_PICTURE)){
             downloadLog(true);
