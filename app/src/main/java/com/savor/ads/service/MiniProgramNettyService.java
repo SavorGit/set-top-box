@@ -30,6 +30,7 @@ import com.savor.ads.bean.JsonBean;
 import com.savor.ads.bean.PartakeDishBean;
 import com.savor.ads.bean.ProjectionGuideImg;
 import com.savor.ads.dialog.BusinessFileDialog;
+import com.savor.ads.dialog.LuckyDrawDialog;
 import com.savor.ads.dialog.OpRedEnvelopeQrCodeDialog;
 import com.savor.ads.dialog.PartakeDishDialog;
 import com.savor.ads.log.LogParamValues;
@@ -134,9 +135,14 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     public static ConcurrentHashMap<String,String> projectionIdMap = new ConcurrentHashMap<>();
     private int currentAction;
     private ExtensionQrCodeDialog extensionQrCodeDialog = null;
+    /**霸王菜抽奖活动**/
     private PartakeDishDialog partakeDishDialog = null;
+    /**发红包**/
     private ScanRedEnvelopeQrCodeDialog scanRedEnvelopeQrCodeDialog =null;
+    /**系统发红包**/
     private OpRedEnvelopeQrCodeDialog opRedEnvelopeQrCodeDialog = null;
+    /**系统抽奖**/
+    private LuckyDrawDialog luckyDrawDialog = null;
     /**商務宴請-個人名片推送*/
     private BusinessCardDialog cardDialog = null;
     /**商务宴请-商业文件分享*/
@@ -159,6 +165,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         partakeDishDialog = new PartakeDishDialog(context);
         scanRedEnvelopeQrCodeDialog = new ScanRedEnvelopeQrCodeDialog(context);
         opRedEnvelopeQrCodeDialog = new OpRedEnvelopeQrCodeDialog(context);
+        luckyDrawDialog = new LuckyDrawDialog(context);
         cardDialog = new BusinessCardDialog(context);
         fileDialog = new BusinessFileDialog(context);
     }
@@ -218,8 +225,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         /***
          * action字段
          * 1:呼玛
-         * 2：投屏视频
-         * 3 退出投屏
+         * 2:投屏视频
+         * 3:退出投屏
          * 4:投屏多张图片（包括单张）
          * 5:点播机顶盒内存在的视频
          * 6:点播生日相关视频
@@ -232,7 +239,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 13:商城商品视频点播
          * 14:本地生活图片点播
          * 15:本地生活视频点播
-         * 101：发起游戏
+         * 101:发起游戏
          * 102:开始游戏
          * 103:加入游戏
          * 104:退出游戏
@@ -254,14 +261,15 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 134:投屏帮助视频
          * 135:霸王餐抽奖活动推送
          * 136:霸王餐开奖
-         * 137：商务宴请-欢迎词(这个跟销售端欢迎词的区别是，销售端是单张图片，这个商务宴请的欢迎词是多张图片的)
+         * 137:商务宴请-欢迎词(这个跟销售端欢迎词的区别是，销售端是单张图片，这个商务宴请的欢迎词是多张图片的)
+         * 138:系统后台发起抽奖活动（含有发红包）
          * 140:对服务人员评价打赏后机顶盒展示效果
-         * 141：推送用户审核通过的视频内容，走2的逻辑
-         * 142：推送用户审核通过的图片内容,走10的逻辑
+         * 141:推送用户审核通过的视频内容，走2的逻辑
+         * 142:推送用户审核通过的图片内容,走10的逻辑
          * 150:小程序连接机顶盒成功后推送引导投屏图
-         * 160：商务宴请-個人名片推送
-         * 170：商务宴请-文件分享
-         * 171: 预下载投屏资源（含图片，视频，文件）
+         * 160:商务宴请-個人名片推送
+         * 170:商务宴请-文件分享
+         * 171:预下载投屏资源（含图片，视频，文件）
          * 000:活动广告
          */
         if (ConstantValues.NETTY_MINI_PROGRAM_COMMAND.equals(msg)){
@@ -543,6 +551,27 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             break;
                         case 137:
                             businessWelcome();
+                            break;
+                        case 138:
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+                                    String luckQrcodeUrl = miniProgramProjection.getCodeUrl();
+                                    int countDown = miniProgramProjection.getCountdown();
+                                    if (activity instanceof AdsPlayerActivity){
+                                        if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
+                                            return;
+                                        }
+                                        if (luckyDrawDialog !=null){
+                                            luckyDrawDialog.dismiss();
+                                            luckyDrawDialog = new LuckyDrawDialog(context);
+                                            luckyDrawDialog.show();
+                                            luckyDrawDialog.showLuckDrawWindow(headPic,nickName,countDown,luckQrcodeUrl);
+                                        }
+                                    }
+                                }
+                            });
                             break;
                         case 140:
                             finishEvaluate(miniProgramProjection);

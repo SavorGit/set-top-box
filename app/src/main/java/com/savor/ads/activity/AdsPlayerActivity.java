@@ -1274,7 +1274,12 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                     ||libBean.getType().equals(ConstantValues.LOCAL_LIFE)){
                 String qrcode_url=libBean.getQrcode_url();
                 String qrcode_path=libBean.getQrcode_path();
-                ((SavorApplication) getApplication()).showGoodsQrCodeWindow(qrcode_url,qrcode_path);
+                if (libBean.getType().equals(ConstantValues.LOCAL_LIFE)){
+                    ((SavorApplication) getApplication()).showGoodsQrCodeWindow(qrcode_url,qrcode_path,ConstantValues.LOCAL_LIFE);
+                }else {
+                    ((SavorApplication) getApplication()).showGoodsQrCodeWindow(qrcode_url,qrcode_path,ConstantValues.SHOP_GOODS_ADS);
+                }
+
             }else{
                 ((SavorApplication) getApplication()).hideGoodsQrCodeWindow();
             }

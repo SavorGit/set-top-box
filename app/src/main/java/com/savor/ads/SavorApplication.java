@@ -407,6 +407,15 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
         goodsQrCodeWindowManager.showQrCode(this,goodsQrcodeUrl,goodsQrcodePath);
     }
 
+    public void showGoodsQrCodeWindow(String goodsQrcodeUrl,String goodsQrcodePath,String type){
+        if (type.equals(ConstantValues.LOCAL_LIFE)){
+            goodsQrCodeWindowManager.setQrcodeTitle(ConstantValues.LOCAL_LIFE);
+        }else{
+            goodsQrCodeWindowManager.setQrcodeTitle(ConstantValues.SHOP_GOODS_ADS);
+        }
+        goodsQrCodeWindowManager.showQrCode(this,goodsQrcodeUrl,goodsQrcodePath);
+    }
+
     public void hideGoodsQrCodeWindow(){
         goodsQrCodeWindowManager.hideQrCode();
     }

@@ -91,6 +91,15 @@ public class GoodsQrCodeWindowManager {
         qrcodeFrontTipTV.setTextColor(Color.parseColor("#e61f18"));
     }
 
+    public void setQrcodeTitle(String type){
+        if (type.equals(ConstantValues.LOCAL_LIFE)){
+            qrcodeFrontTipTV.setText("扫码领券");
+        }else{
+            qrcodeFrontTipTV.setText("扫码下单");
+        }
+        qrcodeFrontTipTV.setTextColor(Color.parseColor("#e61f18"));
+    }
+
     public static GoodsQrCodeWindowManager get(Context context){
         if (mInstance==null){
             mInstance = new GoodsQrCodeWindowManager(context);
