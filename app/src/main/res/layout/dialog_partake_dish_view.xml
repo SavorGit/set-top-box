@@ -12,74 +12,16 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:gravity="center"
         android:background="@drawable/partakedish_bg">
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
-            <TextView
-                android:id="@+id/lottery_time"
-                android:text=""
-                android:textColor="@color/color_white"
-                android:layout_marginTop="94dp"
-                android:paddingRight="40dp"
-                android:layout_centerHorizontal="true"
-                android:textStyle="bold"
-                android:textSize="20dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <ImageView
-                android:id="@+id/partake_dish_img"
-                android:layout_marginLeft="78dp"
-                android:layout_marginTop="16dp"
-                android:scaleType="centerCrop"
-                android:paddingBottom="2dp"
-                android:paddingTop="2dp"
-                android:layout_below="@id/lottery_time"
-                android:layout_width="304dp"
-                android:layout_height="200dp"/>
-            <com.savor.ads.customview.StrokeTextView
-                android:id="@+id/partake_dish_name"
-                android:textSize="25dp"
-                android:text="奖品:这是一道大菜"
-                android:maxLength="20"
-                android:lines="1"
-                android:textStyle="bold"
-                android:textColor="@color/color_dark"
-                android:layout_centerHorizontal="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginBottom="40dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </RelativeLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
             <ImageView
                 android:id="@+id/partake_dish_qrcode"
-                android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="140dp"
                 android:background="@color/color_white"
                 android:padding="2dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <com.savor.ads.customview.StrokeTextView
-                android:id="@+id/activity_name"
-                android:textSize="40dp"
-                android:text="测试活动测试活动测试活动"
-                android:maxLength="10"
-                android:layout_centerHorizontal="true"
-                android:textStyle="bold"
-                android:textColor="#fce593"
-                android:lines="1"
-                android:layout_marginBottom="10dp"
-                android:layout_above="@id/partake_dish_qrcode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </RelativeLayout>
+                android:layout_marginTop="23dp"
+                android:layout_width="170dp"
+                android:layout_height="170dp"/>
 
     </LinearLayout>
     <TextView

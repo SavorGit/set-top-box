@@ -311,7 +311,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     }
 
                     /*******************************/
-                    removeDialog();
+                    if (currentAction!=31&&currentAction!=32){
+                        removeDialog();
+                    }
                     /*******************************/
                     if (action != 101 && action != 102 && action != 103 && action != 105
                             && ActivitiesManager.getInstance().getCurrentActivity() instanceof MonkeyGameActivity) {
@@ -1608,8 +1610,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         qrcodeurl = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ session.getEthernetMac()+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_PARTAKE_DISH_TYPE;
                     }
                     partakeDishDialog.show();
-                    partakeDishDialog.setPartakeDishBg(filePath);
-                    partakeDishDialog.showPartakeDishWindow(context,qrcodeurl,countdown,lottery_time,partake_name,activity_name);
+                    partakeDishDialog.showPartakeDishWindow(context,qrcodeurl,countdown,lottery_time);
 
                     Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
                     if (activity instanceof AdsPlayerActivity&&lottery_countdown!=0){
