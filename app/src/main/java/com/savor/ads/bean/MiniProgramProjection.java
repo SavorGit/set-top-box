@@ -109,6 +109,11 @@ public class MiniProgramProjection implements Serializable{
     private String qrcode_url;
     //红包类型1正常 2运营
     private int rtype;
+    //活动专用
+    private String price;
+    private String jd_price;
+    private List<String> prize_list;
+    //活动专用
 
     public int getAction() {
         return action;
@@ -548,5 +553,30 @@ public class MiniProgramProjection implements Serializable{
 
     public void setRtype(int rtype) {
         this.rtype = rtype;
+    }
+
+
+    public String getPrice() {
+        return price;
+    }
+
+    public void setPrice(String price) {
+        this.price = price;
+    }
+
+    public String getJd_price() {
+        return jd_price;
+    }
+
+    public void setJd_price(String jd_price) {
+        this.jd_price = jd_price;
+    }
+
+    public List<String> getPrize_list() {
+        return prize_list;
+    }
+
+    public void setPrize_list(List<String> prize_list) {
+        this.prize_list = prize_list;
     }
 }

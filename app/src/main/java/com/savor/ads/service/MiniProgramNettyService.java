@@ -30,6 +30,8 @@ import com.savor.ads.bean.JsonBean;
 import com.savor.ads.bean.PartakeDishBean;
 import com.savor.ads.bean.ProjectionGuideImg;
 import com.savor.ads.dialog.BusinessFileDialog;
+import com.savor.ads.dialog.JuhuasuanResultDialog;
+import com.savor.ads.dialog.JuhuasuanShowDialog;
 import com.savor.ads.dialog.LuckyDrawDialog;
 import com.savor.ads.dialog.OpRedEnvelopeQrCodeDialog;
 import com.savor.ads.dialog.PartakeDishDialog;
@@ -147,6 +149,10 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private BusinessCardDialog cardDialog = null;
     /**商务宴请-商业文件分享*/
     private BusinessFileDialog fileDialog = null;
+    /**展示聚划算窗口*/
+    private JuhuasuanShowDialog juhuasuanShowDialog = null;
+    /**聚划算活动结果窗口*/
+    private JuhuasuanResultDialog juhuasuanResultDialog = null;
     private AdsBinder adsBinder = new AdsBinder();
     /**增加投屏前置或者后置广告,前置：1，后置：2*/
     private MediaLibBean preOrNextAdsBean=null;
@@ -168,6 +174,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         luckyDrawDialog = new LuckyDrawDialog(context);
         cardDialog = new BusinessCardDialog(context);
         fileDialog = new BusinessFileDialog(context);
+        juhuasuanShowDialog = new JuhuasuanShowDialog(context);
+        juhuasuanResultDialog = new JuhuasuanResultDialog(context);
     }
 
     @Override
@@ -267,6 +275,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 141:推送用户审核通过的视频内容，走2的逻辑
          * 142:推送用户审核通过的图片内容,走10的逻辑
          * 150:小程序连接机顶盒成功后推送引导投屏图
+         * 151:开始聚划算活动
          * 160:商务宴请-個人名片推送
          * 170:商务宴请-文件分享
          * 171:预下载投屏资源（含图片，视频，文件）
@@ -585,6 +594,12 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             }
                             guideImage();
                             break;
+                        case 151:
+                            juhuasuanShow();
+                            break;
+                        case 152:
+                            juhuasuanResult();
+                            break;
                         case 160:
                             activity = ActivitiesManager.getInstance().getCurrentActivity();
                             if (activity instanceof ScreenProjectionActivity) {
@@ -635,6 +650,12 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         }
         if (partakeDishDialog!=null&&partakeDishDialog.isShowing()){
             partakeDishDialog.dismiss();
+        }
+        if (juhuasuanShowDialog!=null&&juhuasuanShowDialog.isShowing()){
+            juhuasuanShowDialog.dismiss();
+        }
+        if (juhuasuanResultDialog!=null&&juhuasuanResultDialog.isShowing()){
+            juhuasuanResultDialog.dismiss();
         }
     }
 
@@ -2296,6 +2317,47 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             }
         }
     }
+
+    private void juhuasuanShow(){
+        if (juhuasuanShowDialog==null){
+            juhuasuanShowDialog = new JuhuasuanShowDialog(context);
+        }
+        if (juhuasuanShowDialog.isShowing()){
+            juhuasuanShowDialog.dismiss();
+        }
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                juhuasuanShowDialog.show();
+                String codeUrl = miniProgramProjection.getCodeUrl();
+                int countdown = miniProgramProjection.getCountdown();
+                juhuasuanShowDialog.showJuhuasuanWindow(context,headPic,nickName,codeUrl,countdown);
+            }
+        });
+
+    }
+
+    private void juhuasuanResult(){
+        if (juhuasuanResultDialog==null){
+            juhuasuanResultDialog = new JuhuasuanResultDialog(context);
+        }
+        if (juhuasuanResultDialog.isShowing()){
+            juhuasuanResultDialog.dismiss();
+        }
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                juhuasuanResultDialog.show();
+                String activityPrice = miniProgramProjection.getPrice();
+                String jdPrice = miniProgramProjection.getJd_price();
+                int countdown = miniProgramProjection.getCountdown();
+                List<String> activityContents = miniProgramProjection.getPrize_list();
+                juhuasuanResultDialog.juhuasuanResultWindow(activityPrice,jdPrice,activityContents,countdown);
+            }
+        });
+    }
+
+
     /**分享展示名片*/
     private void showBusinessCard(){
         handler.post(new Runnable() {
