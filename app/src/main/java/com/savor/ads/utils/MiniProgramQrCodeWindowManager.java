@@ -273,7 +273,6 @@ public class MiniProgramQrCodeWindowManager {
         mHandler.removeCallbacks(getToRightRunnable);
         QRCodeType = type;
         if (QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE
-                ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_OFFICIAL_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_HELP_TYPE){
             LogUtils.v("QrCodeWindowManager 开始addView");
@@ -321,7 +320,6 @@ public class MiniProgramQrCodeWindowManager {
             url = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ session.getEthernetMac()+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_PARTAKE_DISH_TYPE;
         }
         if ((QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE
-                ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_OFFICIAL_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE)
                 &&isCompletePicture&&hour<2&&!GlobalValues.isActivity) {
             GlideImageLoader.loadLocalImage(context,localFile,qrCodeIv);
@@ -488,7 +486,6 @@ public class MiniProgramQrCodeWindowManager {
 //        mHandler.postDelayed(flipCardRunnable,1000*3);
         mIsHandling = false;
         if (QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE
-                ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_OFFICIAL_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_HELP_TYPE){
             mIsAdded = true;

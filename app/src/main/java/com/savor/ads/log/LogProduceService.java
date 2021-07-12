@@ -147,8 +147,6 @@ public class LogProduceService {
 		downloadMiniProgramSimpleQRcodeCall(box_mac);
 		//-----------------------------------
 		downloadMiniProgramQRcodeExtension(box_mac);
-		//-----------------------------------
-		downloadMPQRcodeOfficial(box_mac);
 	}
 
 
@@ -338,17 +336,6 @@ public class LogProduceService {
 						file.renameTo(tarFile);
 					}
 					break;
-				case SP_GET_QR_OFFICIAL_JSON:
-					if (obj instanceof File){
-						File file = (File)obj;
-						String pathQRcode = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_OFFICIAL_NAME;
-						File tarFile = new File(pathQRcode);
-						if (tarFile.exists()) {
-							tarFile.delete();
-						}
-						file.renameTo(tarFile);
-					}
-					break;
 			}
 
 		}
@@ -509,15 +496,5 @@ public class LogProduceService {
 			tarFile.delete();
 		}
 		AppApi.downloadQRCodeExtensionImg(urlExtension,mContext,apiRequestListener,pathExtension);
-	}
-	/**下载跳转公众号码*/
-	private void downloadMPQRcodeOfficial(String box_mac){
-		String urlQRcode = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ box_mac+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_OFFICIAL_TYPE;
-		String pathQRcode = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_OFFICIAL_TEMP_NAME;
-		File tarFile = new File(pathQRcode);
-		if (tarFile.exists()) {
-			tarFile.delete();
-		}
-		AppApi.downloadQRCodeOfficialImg(urlQRcode,mContext,apiRequestListener,pathQRcode);
 	}
 }

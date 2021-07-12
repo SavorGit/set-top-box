@@ -43,6 +43,7 @@ import com.savor.ads.bean.ProjectionImg;
 import com.savor.ads.bean.ProjectionLogBean;
 import com.savor.ads.bean.ProjectionLogHistory;
 import com.savor.ads.bean.VideoQueueParam;
+import com.savor.ads.bean.WelcomeResourceBean;
 import com.savor.ads.callback.ProjectOperationListener;
 import com.savor.ads.core.ApiRequestListener;
 import com.savor.ads.core.AppApi;
@@ -126,7 +127,7 @@ public class RemoteService extends Service {
     //给每一类请求分配一个action，用来区分业务方便操作
     private int currentAction;
     public ControllHandler controllHandler;
-
+    public static MiniProgramProjection mpProjection = new MiniProgramProjection();
     public RemoteService() {
     }
 
@@ -182,6 +183,7 @@ public class RemoteService extends Service {
         private Object mLock;
         private String avatarUrl = null;
         private String nickName = null;
+        private String musicPath = null;
         /**openid*/
         private String deviceId;
         /**手机品牌*/
@@ -449,8 +451,8 @@ public class RemoteService extends Service {
             String video_id = System.currentTimeMillis()+"";
             final MiniProgramProjection minipp = new MiniProgramProjection();
             minipp.setVideo_id(video_id);
-            if (TextUtils.isEmpty(GlobalValues.CURRRNT_PROJECT_ID)
-                    ||!GlobalValues.CURRRNT_PROJECT_ID.equals(forscreen_id)){
+            if (TextUtils.isEmpty(GlobalValues.CURRENT_FORSCREEN_ID)
+                    ||!GlobalValues.CURRENT_FORSCREEN_ID.equals(forscreen_id)){
                 clearProjectionMark(forscreen_id);
                 //記錄投屏次數
                 if (GlobalValues.VIDEO_NUM.containsKey(deviceId)){
@@ -577,7 +579,7 @@ public class RemoteService extends Service {
                                 if (preOrNextAdsBean.getMedia_type()==1){
                                     ProjectOperationListener.getInstance(context).showVideo(adspath,true,forscreen_id, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                                 }else{
-                                    ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, "", avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                                    ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, "", avatarUrl, nickName,adsduration,"",currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                                 }
                                 preOrNextAdsBean = null;
                                 GlobalValues.PROJECTION_VIDEO_PATH = resultFile.getAbsolutePath();
@@ -618,12 +620,12 @@ public class RemoteService extends Service {
             String respJson;
             initBaseParam(request);
             String forscreen_id = request.getParameter("forscreen_id");
-            if (TextUtils.isEmpty(GlobalValues.CURRRNT_PROJECT_ID)){
+            if (TextUtils.isEmpty(GlobalValues.CURRENT_FORSCREEN_ID)){
                 clearProjectionMark(forscreen_id);
                 res_sup_time = String.valueOf(System.currentTimeMillis());
                 queue.clear();
             }else {
-                long preProjectId = Long.valueOf(GlobalValues.CURRRNT_PROJECT_ID);
+                long preProjectId = Long.valueOf(GlobalValues.CURRENT_FORSCREEN_ID);
                 long nowProjectId = Long.valueOf(forscreen_id);
                 if (nowProjectId>preProjectId){
                     clearProjectionMark(forscreen_id);
@@ -669,6 +671,11 @@ public class RemoteService extends Service {
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
                 String outPath = path + filename + ".mp4";
                 if (TextUtils.isEmpty(index)){
+                    mpProjection.setReq_id(serial_number);
+                    mpProjection.setFilename(filename);
+                    mpProjection.setForscreen_id(forscreen_id);
+                    mpProjection.setResource_id(filename);
+                    mpProjection.setOpenid(deviceId);
                     //記錄投屏次數
                     if (GlobalValues.VIDEO_NUM.containsKey(deviceId)){
                         if (GlobalValues.VIDEO_NUM.get(deviceId)!=-1){
@@ -681,7 +688,14 @@ public class RemoteService extends Service {
                     writer.setUserInfo(avatarUrl,nickName);
                     writer.setToPlayListener(new ToPlayInterface() {
                         @Override
-                        public void playProjection(Object object) {
+                        public void playProjection(Object obj) {
+                            if (obj instanceof VideoQueueParam){
+                                VideoQueueParam vqParam = (VideoQueueParam)obj;
+                                mpProjection.setReq_id(vqParam.getSerial_number());
+                                mpProjection.setForscreen_id(vqParam.getForscreen_id());
+                                mpProjection.setResource_id(vqParam.getFileName());
+                                mpProjection.setOpenid(deviceId);
+                            }
                             res_eup_time = String.valueOf(System.currentTimeMillis());
                             postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,outPath,serial_number,false);
                         }
@@ -710,6 +724,23 @@ public class RemoteService extends Service {
             respJson = new Gson().toJson(object);
             return respJson;
         }
+
+        private void getMusicPathMethod(String basePath,String music_id,String music_oss_addr){
+            if (!TextUtils.isEmpty(music_id)&&!"0".equals(music_id)){
+                String selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
+                String[] selectionArgs = new String[]{music_id};
+                List<WelcomeResourceBean> musicList = DBHelper.get(context).findWelcomeResourceList(selection,selectionArgs);
+                if (musicList!=null&&musicList.size()>0){
+                    WelcomeResourceBean bean = musicList.get(0);
+                    musicPath = basePath+bean.getName();
+                    File file = new File(musicPath);
+                    if (!file.exists()){
+                        musicPath = BuildConfig.OSS_ENDPOINT+music_oss_addr;
+                    }
+                }
+            }
+        }
+
         /**
          * 分片上传大图片
          */
@@ -721,7 +752,7 @@ public class RemoteService extends Service {
             initBaseParam(request);
             String forscreen_id = request.getParameter("forscreen_id");
             String forscreen_nums = request.getParameter("forscreen_nums");
-            if (TextUtils.isEmpty(GlobalValues.CURRRNT_PROJECT_ID)){
+            if (TextUtils.isEmpty(GlobalValues.CURRENT_FORSCREEN_ID)){
                 clearProjectionMark(forscreen_id);
                 imgQueue.clear();
                 acceptNum.clear();
@@ -729,7 +760,7 @@ public class RemoteService extends Service {
                 accepteTime.clear();
                 isTasking = false;
             }else {
-                long preProjectId = Long.valueOf(GlobalValues.CURRRNT_PROJECT_ID);
+                long preProjectId = Long.valueOf(GlobalValues.CURRENT_FORSCREEN_ID);
                 long nowProjectId = Long.valueOf(forscreen_id);
                 if (nowProjectId>preProjectId){
                     clearProjectionMark(forscreen_id);
@@ -753,7 +784,6 @@ public class RemoteService extends Service {
                 }
             }
             try {
-
                 index = request.getParameter("index");
                 inputStream = request.getInputStream();
                 String action = request.getParameter("action");
@@ -766,8 +796,11 @@ public class RemoteService extends Service {
                 String serial_number = request.getParameter("serial_number");
                 String forscreen_char = request.getParameter("forscreen_char");
                 String img_size = request.getParameter("img_size");
+                String resource_id = request.getParameter("img_size");
                 //0:原图，1:缩略图
                 String thumbnail = request.getParameter("thumbnail");
+                String music_id = request.getParameter("music_id");
+                String music_oss_addr = request.getParameter("music_oss_addr");
                 ImgQueueParam param = new ImgQueueParam();
                 param.setAction(action);
                 param.setForscreen_id(forscreen_id);
@@ -778,6 +811,8 @@ public class RemoteService extends Service {
                 param.setTotalSize(resource_size);
                 param.setChunkSize(chunkSize);
                 param.setTotalChunks(totalChunks);
+                param.setSerial_number(serial_number);
+                param.setDeviceId(deviceId);
                 if (!acceptNum.containsKey(filename)){
                     String startTime = System.currentTimeMillis()+"";
                     acceptsTime.put(filename,startTime);
@@ -798,6 +833,9 @@ public class RemoteService extends Service {
                 imgQueue.offer(param);
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
                 if (!isTasking){
+                    musicPath = null;
+                    String basePath = AppUtils.getFilePath(AppUtils.StorageFile.welcome_resource);
+                    getMusicPathMethod(basePath,music_id,music_oss_addr);
                     //記錄投屏次數
                     if (GlobalValues.IMG_NUM.containsKey(deviceId)){
                         if (GlobalValues.IMG_NUM.get(deviceId)!=-1){
@@ -816,7 +854,7 @@ public class RemoteService extends Service {
                                 imgQueue = (ImgQueueParam)object;
                             }
                             String forscreen_id = imgQueue.getForscreen_id();
-                            if (!GlobalValues.CURRRNT_PROJECT_ID.equals(forscreen_id)){
+                            if (!GlobalValues.CURRENT_FORSCREEN_ID.equals(forscreen_id)){
                                 return;
                             }
                             String filePath = imgQueue.getFilePath();
@@ -857,14 +895,15 @@ public class RemoteService extends Service {
                                     res_sup_time = acceptsTime.get(filename.substring(2));
                                     res_eup_time = accepteTime.get(filename.substring(2));
                                 }
+
+                                bigImgBean.setDeviceId(deviceId);
+                                bigImgBean.setForscreen_id(forscreen_id);
+                                bigImgBean.setSerial_number(imgQueue.getSerial_number());
                                 GlobalValues.PROJECT_THUMBNIAL_IMAGE.add(bigImgBean);
 
                                 String outPath = imgQueue.getFilePath();
-//                                LogUtils.d("数据插入，imgQueue.getThumbnail()=" + imgQueue.getThumbnail());
-//                                LogUtils.d("数据插入，filename=" + imgQueue.getFileName());
-//                                LogUtils.d("数据插入，filepath=" + imgQueue.getFilePath());
                                 LogUtils.d("数据插入，开始，forscreenId=" + imgQueue.getForscreen_id());
-                                postSimpleMiniProgramProjectionLog(action,"",forscreen_char,forscreen_id,deviceName,device_model,deviceId,imgQueue.getFileName(),imgQueue.getSize(),resource_type,outPath,serial_number,false);
+                                postSimpleMiniProgramProjectionLog(action,"",forscreen_char,forscreen_id,deviceName,device_model,deviceId,imgQueue.getFileName(),imgQueue.getSize(),resource_type,outPath,serial_number,musicPath,false);
 
                                 String img_id = System.currentTimeMillis()+"";
                                 ProjectionImg img = new ProjectionImg();
@@ -894,7 +933,7 @@ public class RemoteService extends Service {
                                         if (preOrNextAdsBean.getMedia_type()==1){
                                             ProjectOperationListener.getInstance(context).showVideo(adspath,true,forscreen_id, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                                         }else {
-                                            ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, words, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                                            ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, words, avatarUrl, nickName,adsduration,"",currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                                         }
                                         preOrNextAdsBean = null;
                                     }else{
@@ -959,7 +998,7 @@ public class RemoteService extends Service {
 
         public void postSimpleMiniProgramProjectionLog(String action,String startTime,String endTime,String duration,String forscreen_char,String forscreen_id,
                                                        String mobile_brand,String mobile_model,String openid,String resource_id,
-                                                       String resource_size,String resource_type,String media_path,String serial_number,boolean repeat){
+                                                       String resource_size,String resource_type,String media_path,String serial_number,String music_id,boolean repeat){
             HashMap<String,Object> params = new HashMap<>();
             String create_time = String.valueOf(System.currentTimeMillis());
 
@@ -981,6 +1020,7 @@ public class RemoteService extends Service {
             params.put("resource_size", resource_size);
             params.put("resource_type", resource_type);
             params.put("serial_number",serial_number);
+            params.put("music_id", music_id);
             params.put("small_app_id", ConstantValues.SMALL_APP_ID_SIMPLE);
             params.put("create_time", create_time);
             params.put("res_sup_time",startTime);
@@ -1039,13 +1079,23 @@ public class RemoteService extends Service {
         }
 
         public void postSimpleMiniProgramProjectionLog(String action,String duration,String forscreen_char,String forscreen_id,
+                                                       String mobile_brand,String mobile_model,String openid,String resource_id,
+                                                       String resource_size,String resource_type,String media_path,String serial_number,String music_id,boolean repeat){
+            String startTime = res_sup_time;
+            String endTime = res_eup_time;
+            postSimpleMiniProgramProjectionLog(action,startTime,endTime,duration,forscreen_char,forscreen_id,
+                    mobile_brand,mobile_model,openid,resource_id,
+                    resource_size,resource_type,media_path,serial_number,music_id,repeat);
+        }
+
+        public void postSimpleMiniProgramProjectionLog(String action,String duration,String forscreen_char,String forscreen_id,
                                                         String mobile_brand,String mobile_model,String openid,String resource_id,
                                                         String resource_size,String resource_type,String media_path,String serial_number,boolean repeat){
             String startTime = res_sup_time;
             String endTime = res_eup_time;
             postSimpleMiniProgramProjectionLog(action,startTime,endTime,duration,forscreen_char,forscreen_id,
                     mobile_brand,mobile_model,openid,resource_id,
-                    resource_size,resource_type,media_path,serial_number,repeat);
+                    resource_size,resource_type,media_path,serial_number,null,repeat);
         }
 
         //展示下载时大屏右侧的窗口列表
@@ -1080,8 +1130,8 @@ public class RemoteService extends Service {
             LogUtils.d("enter method request.handlePicH5Request");
             initBaseParam(request);
             String forscreen_id = request.getParameter("forscreen_id");
-            if (TextUtils.isEmpty(GlobalValues.CURRRNT_PROJECT_ID)
-                    ||!GlobalValues.CURRRNT_PROJECT_ID.equals(forscreen_id)){
+            if (TextUtils.isEmpty(GlobalValues.CURRENT_FORSCREEN_ID)
+                    ||!GlobalValues.CURRENT_FORSCREEN_ID.equals(forscreen_id)){
                 clearProjectionMark(forscreen_id);
                 if (GlobalValues.IMG_NUM.containsKey(deviceId)){
                     if (GlobalValues.IMG_NUM.get(deviceId)!=-1){
@@ -1180,7 +1230,7 @@ public class RemoteService extends Service {
                     LogUtils.d(TAG+":"+"极简下载:fileName="+filename+"结束下载");
                     GlobalValues.PROJECT_STREAM_IMAGE.add(media_path);
 
-                    postSimpleMiniProgramProjectionLog(action,startTimee,endTime,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,repeat);
+                    postSimpleMiniProgramProjectionLog(action,startTimee,endTime,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,null,repeat);
 
                     handler.post(()->projectionImgListDialog.setImgDownloadProgress(img_id,100+"%"));
                     object = new BaseResponse();
@@ -1236,7 +1286,7 @@ public class RemoteService extends Service {
                             if (preOrNextAdsBean.getMedia_type()==1){
                                 ProjectOperationListener.getInstance(context).showVideo(adspath,true,forscreen_id, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                             }else {
-                                ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, "", avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                                ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, "", avatarUrl, nickName,adsduration,"",currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                             }
                             preOrNextAdsBean = null;
                         }else{
@@ -1256,7 +1306,7 @@ public class RemoteService extends Service {
 
 
         private void projectShowImage(String forscreen_char,String forscreenId,int time){
-            if (!GlobalValues.CURRRNT_PROJECT_ID.equals(forscreenId)){
+            if (!GlobalValues.CURRENT_FORSCREEN_ID.equals(forscreenId)){
                 return;
             }
             boolean isGo = false;
@@ -1265,9 +1315,9 @@ public class RemoteService extends Service {
                     isGo = true;
                     String url = GlobalValues.PROJECT_STREAM_IMAGE.get(currentIndex);
                     if (currentIndex==0){
-                        RemoteService.listener.showImage(1,url,true,forscreenId,forscreen_char,avatarUrl,nickName,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                        RemoteService.listener.showImage(1,url,true,forscreenId,forscreen_char,avatarUrl,nickName,null,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                     }else{
-                        RemoteService.listener.showImage(1,url,false,forscreenId,forscreen_char,avatarUrl,nickName,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                        RemoteService.listener.showImage(1,url,false,forscreenId,forscreen_char,avatarUrl,nickName,null,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                     }
                 }
                 if (isGo){
@@ -1285,11 +1335,14 @@ public class RemoteService extends Service {
                     }else{
                         url = bean.getThumbnailPath();
                     }
-
+                    mpProjection.setReq_id(bean.getSerial_number());
+                    mpProjection.setFilename(bean.getFilenameId());
+                    mpProjection.setForscreen_id(bean.getForscreen_id());
+                    mpProjection.setOpenid(bean.getDeviceId());
                     if (currentIndex==0){
-                        RemoteService.listener.showImage(1,url,true,forscreenId,forscreen_char,avatarUrl,nickName,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                        RemoteService.listener.showImage(1,url,true,forscreenId,forscreen_char,avatarUrl,nickName,null,musicPath,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                     }else{
-                        RemoteService.listener.showImage(1,url,false,forscreenId,forscreen_char,avatarUrl,nickName,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                        RemoteService.listener.showImage(1,url,false,forscreenId,forscreen_char,avatarUrl,nickName,null,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                     }
                 }
                 if (isGo){
@@ -1345,8 +1398,8 @@ public class RemoteService extends Service {
             String resJson;
             initBaseParam(request);
             String forscreen_id = request.getParameter("forscreen_id");
-            if (TextUtils.isEmpty(GlobalValues.CURRRNT_PROJECT_ID)
-                    ||!GlobalValues.CURRRNT_PROJECT_ID.equals(forscreen_id)){
+            if (TextUtils.isEmpty(GlobalValues.CURRENT_FORSCREEN_ID)
+                    ||!GlobalValues.CURRENT_FORSCREEN_ID.equals(forscreen_id)){
                 clearProjectionMark(forscreen_id);
                 closeProjectionDialog();
                 if (GlobalValues.IMG_NUM.containsKey(deviceId)){
@@ -1438,7 +1491,7 @@ public class RemoteService extends Service {
                     String endTime = String.valueOf(System.currentTimeMillis());
                     String media_path = path+filename;
                     LogUtils.d(TAG+":"+"极简下载:fileName="+filename+"结束下载");
-                    postSimpleMiniProgramProjectionLog(action,startTimee,endTime,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,repeat);
+                    postSimpleMiniProgramProjectionLog(action,startTimee,endTime,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,null,repeat);
                     GlobalValues.PROJECT_STREAM_IMAGE.add(media_path);
                     object = new BaseResponse();
                     object.setMsg("上传成功");
@@ -1457,7 +1510,7 @@ public class RemoteService extends Service {
                 if (GlobalValues.PROJECT_STREAM_IMAGE.size()>0){
                     currentIndex=0;
                     String url = GlobalValues.PROJECT_STREAM_IMAGE.get(currentIndex);
-                    RemoteService.listener.showImage(1,url,true,forscreen_id,forscreen_char,avatarUrl,nickName,GlobalValues.FROM_SERVICE_REMOTE);
+                    RemoteService.listener.showImage(1,url,false,forscreen_id,forscreen_char,avatarUrl,nickName,"","",currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                 }
                 respJson = new Gson().toJson(object);
             }catch (Exception e){
@@ -1732,12 +1785,12 @@ public class RemoteService extends Service {
                     String path = AppUtils.getFilePath(AppUtils.StorageFile.birthday_ondemand) + media_name;
                     File file = new File(path);
                     if (file.exists()){
-                        ProjectOperationListener.getInstance(context).showVod(media_name, "3", 0, false, true,GlobalValues.FROM_SERVICE_REMOTE);
+                        ProjectOperationListener.getInstance(context).showVod(media_name, "3", 0, false, true,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                     }else{
-                        ProjectOperationListener.getInstance(context).showVideo("",media_url,true,GlobalValues.FROM_SERVICE_REMOTE);
+                        ProjectOperationListener.getInstance(context).showVideo("",media_url,true,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                     }
                 }else{
-                    ProjectOperationListener.getInstance(context).showVideo("",media_url, true,GlobalValues.FROM_SERVICE_REMOTE);
+                    ProjectOperationListener.getInstance(context).showVideo("",media_url, true,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                 }
                 response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
             }catch (Exception e){
@@ -1794,12 +1847,12 @@ public class RemoteService extends Service {
                     String path = AppUtils.getFilePath(AppUtils.StorageFile.activity_ads) + media_name;
                     File file = new File(path);
                     if (file.exists()){
-                        ProjectOperationListener.getInstance(context).showVideo(path,"",true,GlobalValues.FROM_SERVICE_REMOTE);
+                        ProjectOperationListener.getInstance(context).showVideo(path,"",true,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                     }else{
-                        ProjectOperationListener.getInstance(context).showVideo("",media_url,true,GlobalValues.FROM_SERVICE_REMOTE);
+                        ProjectOperationListener.getInstance(context).showVideo("",media_url,true,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                     }
                 }else{
-                    ProjectOperationListener.getInstance(context).showVideo("",media_url,true,GlobalValues.FROM_SERVICE_REMOTE);
+                    ProjectOperationListener.getInstance(context).showVideo("",media_url,true,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                 }
                 response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
             }catch (Exception e){
@@ -1862,11 +1915,11 @@ public class RemoteService extends Service {
 
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.select_content)+filename;
                 if (new File(path).exists()){
-                    ProjectOperationListener.getInstance(context).showVideo(path,"",true,GlobalValues.FROM_SERVICE_REMOTE);
+                    ProjectOperationListener.getInstance(context).showVideo(path,"",true,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                 }else{
                     path =  AppUtils.getFilePath(AppUtils.StorageFile.media)+filename;
                     if (new File(path).exists()){
-                        ProjectOperationListener.getInstance(context).showVideo(path,"",true,GlobalValues.FROM_SERVICE_REMOTE);
+                        ProjectOperationListener.getInstance(context).showVideo(path,"",true,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                     }
                 }
                 response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
@@ -2044,14 +2097,14 @@ public class RemoteService extends Service {
                             File file = new File(path);
                             if (file.exists()){
                                 handler.post(()->projectionImgListDialog.setImgDownloadProgress(video_id,100+"%"));
-                                ProjectOperationListener.getInstance(context).showVideo(path,"",true,GlobalValues.FROM_SERVICE_REMOTE);
+                                ProjectOperationListener.getInstance(context).showVideo(path,"",true,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                             }else{
                                 handler.post(()->projectionImgListDialog.setImgDownloadProgress(video_id,100+"%"));
-                                ProjectOperationListener.getInstance(context).showVideo("",url, true,GlobalValues.FROM_SERVICE_REMOTE);
+                                ProjectOperationListener.getInstance(context).showVideo("",url, true,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                             }
                         }else{
                             handler.post(()->projectionImgListDialog.setImgDownloadProgress(video_id,100+"%"));
-                            ProjectOperationListener.getInstance(context).showVideo("",url, true,GlobalValues.FROM_SERVICE_REMOTE);
+                            ProjectOperationListener.getInstance(context).showVideo("",url, true,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                         }
                         closeProjectionDialog();
                         response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
@@ -2160,7 +2213,7 @@ public class RemoteService extends Service {
             GlobalValues.PROJECTION_VIDEO_PATH = null;
             GlobalValues.PROJECT_IMAGES.clear();
             GlobalValues.PROJECT_FAIL_IMAGES.clear();
-            GlobalValues.CURRRNT_PROJECT_ID = forscreen_id;
+            GlobalValues.CURRENT_FORSCREEN_ID = forscreen_id;
             GlobalValues.CURRENT_OPEN_ID = deviceId;
             handler.removeCallbacks(new ProjectShowImageRunnable());
             isPPTRunnable = false;
@@ -2338,7 +2391,7 @@ public class RemoteService extends Service {
                             if (preOrNextAdsBean.getMedia_type()==1){
                                 ProjectOperationListener.getInstance(context).showVideo(adspath, true,forscreenId, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                             }else{
-                                ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreenId, words, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                                ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreenId, words, avatarUrl, nickName,adsduration,"",currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                             }
                             GlobalValues.INTERACTION_ADS_PLAY=2;
                             preOrNextAdsBean = null;

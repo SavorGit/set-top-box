@@ -25,6 +25,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.savor.ads.bean.ProjectionImg;
 import com.savor.ads.service.RemoteService;
 import com.jar.savor.box.vo.PlayResponseVo;
 import com.jar.savor.box.vo.QueryPosBySessionIdResponseVo;
@@ -262,6 +263,7 @@ public class ScreenProjectionActivity extends BaseActivity{
     private RemoteService.OperationBinder remoteBinder;
 
     private long startTime=0;
+    private MiniProgramProjection proProjection = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -484,6 +486,40 @@ public class ScreenProjectionActivity extends BaseActivity{
 
     }
 
+    private void handleProjectionShowTime(){
+        if (from_service!=GlobalValues.FROM_SERVICE_MINIPROGRAM){
+            GlobalValues.PROJECT_IMAGES.clear();
+            currentShowProjection(RemoteService.mpProjection,GlobalValues.FROM_SERVICE_REMOTE);
+        }else if (from_service!=GlobalValues.FROM_SERVICE_REMOTE){
+            GlobalValues.PROJECT_STREAM_IMAGE.clear();
+            if(!TextUtils.isEmpty(mImagePath)){
+                if(!mImagePath.contains(ConstantValues.PROJECTION_IMG_THUMBNAIL_PARAM)){
+                    currentShowProjection(MiniProgramNettyService.mpProjection,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                }
+            }else{
+                currentShowProjection(MiniProgramNettyService.mpProjection,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+            }
+        }
+    }
+
+    private void currentShowProjection(MiniProgramProjection projection, int fromType){
+        if (proProjection != null) {
+            showProjectionPlayState(1);
+        }
+        MiniProgramProjection mpProjection = projection;
+        proProjection = new MiniProgramProjection();
+        if (!TextUtils.isEmpty(mpProjection.getFilename())){
+            proProjection.setFilename(mpProjection.getFilename());
+        }else{
+            proProjection.setFilename("0");
+        }
+        proProjection.setReq_id(mpProjection.getReq_id());
+        proProjection.setOpenid(mpProjection.getOpenid());
+        proProjection.setForscreen_id(mpProjection.getForscreen_id());
+        proProjection.setType(fromType);
+        showProjectionPlayState(0);
+    }
+
     /**
      * 处理投屏
      * 根据不同的投屏类型
@@ -499,12 +535,7 @@ public class ScreenProjectionActivity extends BaseActivity{
         if (currentAction!=40){
             ((SavorApplication) getApplication()).hideGoodsQrCodeWindow();
         }
-        if (from_service!=GlobalValues.FROM_SERVICE_MINIPROGRAM){
-            GlobalValues.PROJECT_IMAGES.clear();
-            LogUtils.d("projectionIdMap>3>GlobalValues.PROJECT_IMAGES=null");
-        }else if (from_service!=GlobalValues.FROM_SERVICE_REMOTE){
-            GlobalValues.PROJECT_STREAM_IMAGE.clear();
-        }
+        handleProjectionShowTime();
         mSavorVideoView.setLooping(false);
         projectCountdowTipTV.setVisibility(View.GONE);
         mWelcomeWordsTV.setVisibility(View.GONE);
@@ -516,8 +547,10 @@ public class ScreenProjectionActivity extends BaseActivity{
         userShareLayout.setVisibility(View.GONE);
         //有新的投屏进来，如果有正在轮播的欢迎词，就打断播放,并且停止背景音乐 20191212
         GlobalValues.mpprojection = null;
-        if (!ConstantValues.PROJECT_TYPE_BUSINESS_WELCOME.equals(mProjectType)
-                ||(ConstantValues.PROJECT_TYPE_BUSINESS_WELCOME.equals(mProjectType)&&mIsThumbnail)){
+        if ((!ConstantValues.PROJECT_TYPE_BUSINESS_WELCOME.equals(mProjectType)
+                ||(ConstantValues.PROJECT_TYPE_BUSINESS_WELCOME.equals(mProjectType)&&mIsThumbnail))
+                &&(!ConstantValues.PROJECT_TYPE_PICTURE.equals(mProjectType)
+                ||(ConstantValues.PROJECT_TYPE_PICTURE.equals(mProjectType)&&mIsThumbnail))){
             if (mMusicPlayer!=null&&mMusicPlayer.isPlaying()){
                 mMusicPlayer.setLooping(false);
                 mMusicPlayer.stop();
@@ -644,11 +677,11 @@ public class ScreenProjectionActivity extends BaseActivity{
             mHandler.postDelayed(mShowMiniProgramQrCodeRunnable,1000*60*2);
 
         } else if (ConstantValues.PROJECT_TYPE_PICTURE.equals(mProjectType)) {
-            if (currentAction==4
-                    &&(TextUtils.isEmpty(preForscreenId)||(!TextUtils.isEmpty(preForscreenId)&&!preForscreenId.equals(mForscreenId)))){
-                //投图片开始展示第一张时上报一次
-                showImgLog();
-            }
+//            if (currentAction==4
+//                    &&(TextUtils.isEmpty(preForscreenId)||(!TextUtils.isEmpty(preForscreenId)&&!preForscreenId.equals(mForscreenId)))){
+//                //投图片开始展示第一张时上报一次
+//                showImgLog();
+//            }
             downloadLog(true);
             if (currentAction==40){
                 if (!TextUtils.isEmpty(goodsPrice)){
@@ -705,8 +738,12 @@ public class ScreenProjectionActivity extends BaseActivity{
                     if (mImageView.getDrawable()!=null){
                         GlideImageLoader.loadImageWithDrawable(mContext,mImagePath,mImageView,mImageView.getDrawable());
                     }else{
-                        File file = new File(mImagePath);
-                        GlideImageLoader.loadLocalImage(mContext,file,mImageView);
+                        if (mImagePath.contains("http:")){
+                            GlideImageLoader.loadImageWithoutCache(mContext,mImagePath,mImageView,0,0);
+                        }else {
+                            File file = new File(mImagePath);
+                            GlideImageLoader.loadLocalImage(mContext,file,mImageView);
+                        }
                     }
                 }
             }
@@ -722,6 +759,7 @@ public class ScreenProjectionActivity extends BaseActivity{
                 mImageView.setScaleX(1);
                 mImageView.setScaleY(1);
                 rotatePicture();
+                mHandler.postDelayed(()->initSounds(),500);
             }
             rescheduleToExit(true);
             mHandler.removeCallbacks(mCountDownRunnable);
@@ -937,7 +975,7 @@ public class ScreenProjectionActivity extends BaseActivity{
 
         if (mSession.getQrcodeType()==2){
             if (AppUtils.isNetworkAvailable(mContext) && mSession.isHeartbeatMiniNetty()) {
-                ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_OFFICIAL_TYPE);
+                ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE);
                 LogUtils.v("MiniProgramNettyService showMiniProgramQrCodeWindow");
             } else {
                 ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE);
@@ -1107,6 +1145,7 @@ public class ScreenProjectionActivity extends BaseActivity{
         LogUtils.e("StopResponseVo will exitProjection " + this.hashCode());
         mStopAction = stopAction;
         mIsBeenStopped = true;
+        showProjectionPlayState(1);
         GlobalValues.mpprojection = null;
         GlobalValues.WELCOME_ID = 0;
         mHandler.post(()->exitProjection());
@@ -1277,6 +1316,7 @@ public class ScreenProjectionActivity extends BaseActivity{
 
     private void handleProjectionEndResult(){
         downloadLog(true);
+        showProjectionPlayState(1);
         LogUtils.d(TAG+"handleProjectionEndResult " + ScreenProjectionActivity.this.hashCode());
         if (miniProgramNettyService!=null&&from_service == GlobalValues.FROM_SERVICE_MINIPROGRAM){
             LogUtils.d("handleImgAndVideo=000>>>currentAction="+currentAction+"&mForscreenId="+mForscreenId);
@@ -1453,6 +1493,7 @@ public class ScreenProjectionActivity extends BaseActivity{
         public boolean onMediaError(int index, boolean isLast) {
             LogUtils.w("activity onMediaError " + this.hashCode());
             downloadLog(false);
+            showProjectionPlayState(1);
             if (!AppUtils.isSVT()){
                 ShowMessage.showToast(mContext, "视频播放失败");
             }
@@ -1484,14 +1525,14 @@ public class ScreenProjectionActivity extends BaseActivity{
 
         @Override
         public void onMediaBufferPercent(){
-            MiniProgramProjection mpp = MiniProgramNettyService.miniProgramProjection;
-            if (mpp!=null){
+
+            if (proProjection!=null){
                 HashMap<String,Object> params = new HashMap<>();
-                params.put("req_id",mpp.getReq_id());
-                params.put("forscreen_id",mpp.getForscreen_id());
-                params.put("resource_id",mpp.getVideo_id());
+                params.put("req_id",proProjection.getReq_id());
+                params.put("forscreen_id",proProjection.getForscreen_id());
+                params.put("resource_id",proProjection.getVideo_id());
                 params.put("box_mac",mSession.getEthernetMac());
-                params.put("openid",mpp.getOpenid());
+                params.put("openid",proProjection.getOpenid());
                 params.put("is_download",1);
                 postProjectionResourceLog(params);
             }
@@ -1522,25 +1563,56 @@ public class ScreenProjectionActivity extends BaseActivity{
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                if (mpp!=null&&!TextUtils.isEmpty(mpp.getSerial_number())){
-                    LogReportUtil.get(mContext).downloadLog(mUuid, LogParamValues.download,LogParamValues.standard_serial,mpp.getSerial_number());
+                if (proProjection!=null&&!TextUtils.isEmpty(proProjection.getSerial_number())){
+                    LogReportUtil.get(mContext).downloadLog(mUuid, LogParamValues.download,LogParamValues.standard_serial,proProjection.getSerial_number());
                 }
             }
         }
     };
 
-    private void showImgLog(){
-        MiniProgramProjection mpp = MiniProgramNettyService.miniProgramProjection;
-        if (mpp!=null){
-            HashMap<String,Object> params = new HashMap<>();
-            params.put("req_id",mpp.getReq_id());
-            params.put("forscreen_id",mpp.getForscreen_id());
-            params.put("resource_id",mpp.getVideo_id());
-            params.put("box_mac",mSession.getEthernetMac());
-            params.put("openid",mpp.getOpenid());
-            params.put("is_play",1);
-            postProjectionResourceLog(params);
+    /**
+     * @param playState 0:开始，1:结束
+     */
+    private void showProjectionPlayState(int playState){
+        if (proProjection==null){
+            return;
         }
+//        if (playState==0){
+//            LogUtils.d(">>>>>filename>>>="+proProjection.getFilename()+"|开始");
+//        }else{
+//            LogUtils.d(">>>>>filename>>>="+proProjection.getFilename()+"|结束");
+//        }
+        HashMap<String,Object> params = new HashMap<>();
+        params.put("req_id",proProjection.getReq_id());
+        params.put("forscreen_id",proProjection.getForscreen_id());
+        params.put("resource_id",proProjection.getFilename());
+        params.put("box_mac",mSession.getEthernetMac());
+        params.put("openid",proProjection.getOpenid());
+        String time = System.currentTimeMillis()+"";
+        if (playState==0){
+            params.put("box_playstime",time);
+        }else{
+            params.put("box_playetime",time);
+        }
+        if (proProjection.getType()==GlobalValues.FROM_SERVICE_MINIPROGRAM){
+//            LogUtils.d(">>>>>filename>>>=标准版投屏");
+            postProjectionResourceLog(params);
+        }else{
+//            LogUtils.d(">>>>>filename>>>=极简版投屏");
+            postSimpleProjectionResourceLog(params);
+        }
+    }
+
+    /**
+     * 小程序投屏日志统计接口，不在区分资源类型
+     * @param params
+     */
+    private void postProjectionResourceLog(HashMap<String,Object> params) {
+        AppApi.postProjectionResourceParam(mContext, apiRequestListener, params);
+    }
+
+    private void postSimpleProjectionResourceLog(HashMap<String,Object> params){
+        AppApi.postSimpleProjectionResourceParam(mContext, apiRequestListener, params);
     }
 
     private void downloadLog(boolean success){
@@ -1558,14 +1630,6 @@ public class ScreenProjectionActivity extends BaseActivity{
                 LogReportUtil.get(mContext).downloadLog(mUuid, LogParamValues.launch,LogParamValues.speed_fail);
             }
         }
-    }
-
-    /**
-     * 小程序投屏日志统计接口，不在区分资源类型
-     * @param params
-     */
-    private void postProjectionResourceLog(HashMap<String,Object> params) {
-        AppApi.postProjectionResourceParam(mContext, apiRequestListener, params);
     }
 
     ApiRequestListener apiRequestListener = new ApiRequestListener() {

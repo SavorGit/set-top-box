@@ -71,7 +71,7 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
     }
 
     @Override
-    public PrepareResponseVoNew showVod(String mediaName, String vodType, int position, boolean isFromWeb, boolean isNewDevice,int fromService) {
+    public PrepareResponseVoNew showVod(String mediaName, String vodType, int position, boolean isFromWeb, boolean isNewDevice,int currentAction,int fromService) {
         PrepareResponseVoNew localResult = new PrepareResponseVoNew();
         String vid = "";
         String url = "";
@@ -169,13 +169,8 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
                 File file = new File(filePath);
                 if (file.exists()) {
                     String vodMd5 = null;
-                    if (file.exists()){
-                        vodMd5 = AppUtils.getEasyMd5(file);
-                        url = filePath;
-                    }else{
-                        vodMd5 = AppUtils.getEasyMd5(file);
-                        url = filePath;
-                    }
+                    vodMd5 = AppUtils.getEasyMd5(file);
+                    url = filePath;
 
                     if (TextUtils.isEmpty(vodMd5)||!vodMd5.equals(md5)) {
                         file.delete();
@@ -205,7 +200,7 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
             localResult.setProjectId(GlobalValues.CURRENT_PROJECT_ID = UUID.randomUUID().toString());
             localResult.setMsg("加载成功！");
 
-            VodAction vodAction = new VodAction(mContext, vid, url, isFromWeb, isNewDevice,fromService);
+            VodAction vodAction = new VodAction(mContext, vid, url, isFromWeb, isNewDevice,currentAction,fromService);
             ProjectionManager.getInstance().enqueueAction(vodAction);
         } else {
             localResult.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
@@ -257,7 +252,7 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
     }
 
     @Override
-    public PrepareResponseVoNew showImage(int imageType, String imageUrl, boolean isThumbnail, String forscreenId, String words, String avatarUrl, String nickname, String delayTime,int action,int fromService) {
+    public PrepareResponseVoNew showImage(int imageType, String imageUrl, boolean isThumbnail, String forscreenId, String words, String avatarUrl, String nickname, String delayTime,String musicPath,int action,int fromService) {
         PrepareResponseVoNew localResult = new PrepareResponseVoNew();
         if (isThumbnail) {
             if (!TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_ID)) {
@@ -271,7 +266,7 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
         localResult.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
         localResult.setMsg("加载成功！");
 
-        ImageAction imageAction = new ImageAction(mContext, imageType, imageUrl,isThumbnail,forscreenId,words,avatarUrl,nickname,delayTime,action,fromService);
+        ImageAction imageAction = new ImageAction(mContext, imageType, imageUrl,isThumbnail,forscreenId,words,avatarUrl,nickname,delayTime,musicPath,action,fromService);
         ProjectionManager.getInstance().enqueueAction(imageAction);
 
         return localResult;
@@ -411,7 +406,7 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
     }
 
     @Override
-    public PrepareResponseVoNew showVideo(String videoPath,String videoUrl, boolean isNewDevice,int fromService) {
+    public PrepareResponseVoNew showVideo(String videoPath,String videoUrl, boolean isNewDevice,int currentAction,int fromService) {
         PrepareResponseVoNew localResult = new PrepareResponseVoNew();
         if (!TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_ID)) {
             GlobalValues.LAST_PROJECT_ID = GlobalValues.CURRENT_PROJECT_ID;
@@ -421,7 +416,7 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
         localResult.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
         localResult.setMsg("加载成功！");
 
-        VideoAction videoAction = new VideoAction(mContext, videoPath, videoUrl,isNewDevice,fromService);
+        VideoAction videoAction = new VideoAction(mContext, videoPath, videoUrl,isNewDevice,currentAction,fromService);
         ProjectionManager.getInstance().enqueueAction(videoAction);
 
         return localResult;

@@ -65,7 +65,7 @@ public class BigImgWriter implements Runnable {
 //            this.randomAccessFile = new RandomAccessFile(new File(basePath), "rws");
 
             while (!queue.isEmpty() || overTime) {
-                if (!forscreen_id.equals(GlobalValues.CURRRNT_PROJECT_ID)){
+                if (!forscreen_id.equals(GlobalValues.CURRENT_FORSCREEN_ID)){
                     break;
                 }
                 ImgQueueParam param = queue.poll();

@@ -32,6 +32,7 @@ public class ImageAction extends ProjectionActionBase implements Serializable {
     private String avatarUrl;
     private String nickname;
     private String delayTime;
+    private String musicPath;
     private int action;
 
 
@@ -65,7 +66,7 @@ public class ImageAction extends ProjectionActionBase implements Serializable {
         this.nickname = nickname;
     }
 
-    public ImageAction(Context context, int imageType, String imagePath,boolean isThumbnail,String forscreenId,String words, String avatarUrl,String nickname,String delayTime,int action,int fromService) {
+    public ImageAction(Context context, int imageType, String imagePath,boolean isThumbnail,String forscreenId,String words, String avatarUrl,String nickname,String delayTime,String musicPath,int action,int fromService) {
         super();
 
         mPriority = ProjectPriority.HIGH;
@@ -79,6 +80,7 @@ public class ImageAction extends ProjectionActionBase implements Serializable {
         this.avatarUrl = avatarUrl;
         this.nickname = nickname;
         this.delayTime = delayTime;
+        this.musicPath = musicPath;
         this.action = action;
 
     }
@@ -114,6 +116,7 @@ public class ImageAction extends ProjectionActionBase implements Serializable {
         data.putString(ScreenProjectionActivity.EXTRA_PRICE_ID,price);
         data.putInt(ScreenProjectionActivity.EXTRA_STORE_SALE_ID, storeSale);
         data.putString(ScreenProjectionActivity.EXTRA_DELAY_TIME_ID,delayTime);
+        data.putString(ScreenProjectionActivity.EXTRA_MUSIC_PATH,musicPath);
         data.putInt(ScreenProjectionActivity.EXTRA_ACTION_ID,action);
         data.putInt(ScreenProjectionActivity.EXTRA_FROM_SERVICE_ID, fromService);
         data.putString(ScreenProjectionActivity.EXTRA_PROJECTION_WORDS,projectionWords);

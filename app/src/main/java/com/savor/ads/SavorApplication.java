@@ -369,9 +369,10 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
             path = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_SQRCODE_BIG_NAME;
         }else if (QRCodeType==21){
             path = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_SQRCODE_CALL_NAME;
-        }else if (QRCodeType==33){
-            path = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_OFFICIAL_NAME;
         }
+//        else if (QRCodeType==33){
+//            path = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_OFFICIAL_NAME;
+//        }
         String url;
         if (QRCodeType==16
                 ||QRCodeType==19

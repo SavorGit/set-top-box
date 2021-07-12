@@ -134,6 +134,7 @@ public class AppApi {
         CP_POST_FORSCREEN_GETCONFIG_JSON,
         CP_GET_UPLOAD_LOG_FILE_JSON,
         CP_GET_MINIPROGRAM_PROJECTION_RESOURCE_JSON,
+        CP_GET_MINIPROGRAM_SIMPLE_PROJECTION_RESOURCE_JSON,
         CP_GET_MINIPROGRAM_PROJECTION_NETTYTIME_JSON,
         CP_POST_MINIPROGRAM_PROJECTION_GAME_JSON,
         CP_POST_MINIPROGRAM_ICON_SHOW_LOG_JSON,
@@ -148,7 +149,6 @@ public class AppApi {
         SP_GET_QR_SIMPLE_NEW_JSON,
         SP_GET_QR_SIMPLE_CALL_JSON,
         SP_GET_QR_EXTENSION_JSON,
-        SP_GET_QR_OFFICIAL_JSON,
         CP_GET_NETTY_BALANCING_FORM,
         CP_POST_LOGOUT_GAME_H5_JSON,
         CP_GET_BOX_TPMEDIAS_JSON,
@@ -213,6 +213,7 @@ public class AppApi {
             put(Action.CP_POST_FORSCREEN_GETCONFIG_JSON,BuildConfig.BASE_URL+"Box/Forscreen/getConfig");
             put(Action.CP_GET_UPLOAD_LOG_FILE_JSON,BuildConfig.BASE_URL+"box/BoxLog/isUploadLog");
             put(Action.CP_GET_MINIPROGRAM_PROJECTION_RESOURCE_JSON,BuildConfig.BASE_URL+"box/buriedPoint/boxNetLogs");
+            put(Action.CP_GET_MINIPROGRAM_SIMPLE_PROJECTION_RESOURCE_JSON,BuildConfig.BASE_URL+"smallappsimple/forscreenLog/updateForscreenPlaytime");
             put(Action.CP_GET_MINIPROGRAM_PROJECTION_NETTYTIME_JSON,BuildConfig.BASE_URL+"box/buriedPoint/boxReceiveNetty");
             put(Action.CP_POST_MINIPROGRAM_PROJECTION_GAME_JSON,BuildConfig.BASE_URL+"Smallapp/BuriedPoint/activity");
             put(Action.CP_POST_MINIPROGRAM_ICON_SHOW_LOG_JSON,BuildConfig.BASE_URL+"Smallapp/BuriedPoint/sunCodeLog");
@@ -583,18 +584,6 @@ public class AppApi {
     }
 
     /**
-     * 获取跳转公众号的码
-     * @param url
-     * @param context
-     * @param handler
-     * @param filePath
-     */
-    public static void downloadQRCodeOfficialImg(String url,Context context, ApiRequestListener handler,String filePath){
-        final HashMap<String, Object> params = new HashMap<>();
-        new AppServiceOk(context, Action.SP_GET_QR_OFFICIAL_JSON, handler, params).downLoad(url, filePath);
-    }
-
-    /**
      * 下载文件
      * @param type 1是ROM2是apk
      * @param context
@@ -882,6 +871,16 @@ public class AppApi {
      */
     public static void postProjectionResourceParam(Context context,ApiRequestListener handler,HashMap<String,Object> params){
         new AppServiceOk(context,Action.CP_GET_MINIPROGRAM_PROJECTION_RESOURCE_JSON,handler,params).get();
+    }
+
+    /**
+     * 上报小程序极简版投屏开始结束日志
+     * @param context
+     * @param handler
+     * @param params
+     */
+    public static void postSimpleProjectionResourceParam(Context context,ApiRequestListener handler,HashMap<String,Object> params){
+        new AppServiceOk(context,Action.CP_GET_MINIPROGRAM_SIMPLE_PROJECTION_RESOURCE_JSON,handler,params).get();
     }
 
     /**

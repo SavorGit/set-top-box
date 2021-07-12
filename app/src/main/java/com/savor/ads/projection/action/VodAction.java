@@ -26,30 +26,17 @@ public class VodAction extends ProjectionActionBase implements Serializable {
     private boolean isNewDevice;
     private int action;
 
-    public VodAction(Context context, String vid, String url,boolean isFromWeb, boolean isNewDevice,int fromService) {
-        super();
-
-        mPriority = ProjectPriority.HIGH;
-        this.fromService = fromService;
-        mContext = context;
-        this.vid = vid;
-        this.url = url;
-        this.isFromWeb = isFromWeb;
-        this.isNewDevice = isNewDevice;
-        this.action = action;
-    }
-
     public VodAction(Context context, String vid, String url,boolean isFromWeb, boolean isNewDevice,int action,int fromService) {
         super();
 
         mPriority = ProjectPriority.HIGH;
-        this.fromService = fromService;
-        mContext = context;
+        this.mContext = context;
         this.vid = vid;
         this.url = url;
         this.isFromWeb = isFromWeb;
         this.isNewDevice = isNewDevice;
         this.action = action;
+        this.fromService = fromService;
     }
 
     @Override

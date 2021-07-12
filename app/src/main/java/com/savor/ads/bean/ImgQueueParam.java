@@ -18,6 +18,7 @@ public class ImgQueueParam {
     //本次投屏总共投了几张图
     private String forscreen_nums;
     private String size;
+    private String deviceId;
     public String getAction() {
         return action;
     }
@@ -138,4 +139,11 @@ public class ImgQueueParam {
         this.size = size;
     }
 
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
 }

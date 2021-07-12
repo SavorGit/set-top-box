@@ -82,7 +82,7 @@ public class VideoWriter implements Runnable {
 
 
             while (!queue.isEmpty() || overTime) {
-                if (!forscreen_id.equals(GlobalValues.CURRRNT_PROJECT_ID)){
+                if (!forscreen_id.equals(GlobalValues.CURRENT_FORSCREEN_ID)){
                     break;
                 }
                 VideoQueueParam param = queue.poll();
@@ -143,10 +143,10 @@ public class VideoWriter implements Runnable {
                 }
                 if (preparedPart == 5) {
                     Log.d(TAG,"开始调用播放器，forscreen_id=="+forscreen_id);
-                    ProjectOperationListener.getInstance(mContext).showVideo(filePath,true,forscreen_id,avatarUrl,nickName, GlobalValues.FROM_SERVICE_REMOTE);
                     preparedPart = 0;
                     if (playListener!=null){
                         this.playListener.playProjection(param);
+                        ProjectOperationListener.getInstance(mContext).showVideo(filePath,true,forscreen_id,avatarUrl,nickName, GlobalValues.FROM_SERVICE_REMOTE);
                     }
                 }
                 if (writedParts-1==totalParts){

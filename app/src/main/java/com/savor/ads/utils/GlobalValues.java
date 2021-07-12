@@ -98,8 +98,8 @@ public class GlobalValues <T extends MediaLibBean> {
 
     /**当前投屏人的微信ID**/
     public static String CURRENT_OPEN_ID;
-    /**本次投屏操作的唯一标示ID**/
-    public static String CURRRNT_PROJECT_ID;
+    /**当前投屏操作的唯一标示ID**/
+    public static String CURRENT_FORSCREEN_ID;
     /**本次投屏文字**/
 //    public static String PROJECTION_WORDS;
     /**当前netty接收到的图片投屏人投的并且下载成功的照片集合**/
@@ -124,7 +124,7 @@ public class GlobalValues <T extends MediaLibBean> {
     public static int CURRENT_INTERACTION_ADS_NUM = 0;
     /**当前是否正在播广告,主状态,1：前置广告;0:无广告;2:后置广告*/
     public static int INTERACTION_ADS_PLAY=0;
-    /**当前投屏行为来自小程序服务*/
+    /**当前投屏行为来自标准版小程序服务*/
     public static int FROM_SERVICE_MINIPROGRAM = 1;
     /**当前投屏行为来自jetty服务*/
     public static int FROM_SERVICE_REMOTE = 2;
