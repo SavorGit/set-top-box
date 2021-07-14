@@ -131,7 +131,7 @@ public class LogUploadService {
                             e.printStackTrace();
                         }
                         if (zipFile.exists()) {
-                            String localFilePath = archivePath.substring(1, archivePath.length());
+                            String localFilePath = archivePath.substring(1);
                             String ossFilePath = null;
                             if (name.contains(ConstantValues.STANDALONE)){
                                 ossFilePath = OSSValues.uploadStandaloneFilePath + session.getOssAreaId() + File.separator +

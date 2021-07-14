@@ -1698,6 +1698,8 @@ public class DBHelper extends SQLiteOpenHelper {
                     history.setMobile_model(cursor.getString(cursor.getColumnIndex(MOBILE_MODEL)));
                     history.setOpenid(cursor.getString(cursor.getColumnIndex(OPENID)));
                     history.setResource_type(cursor.getString(cursor.getColumnIndex(RESOURCE_TYPE)));
+                    history.setResource_id(cursor.getString(cursor.getColumnIndex(RESOURCE_ID)));
+                    history.setResource_size(cursor.getString(cursor.getColumnIndex(RESOURCE_SIZE)));
                     selection = FORSCREEN_ID + "=? ";
                     selectionArgs = new String[]{history.getForscreen_id()};
                     List<ProjectionLogDetail> listDetail = findProjectionDetail(selection,selectionArgs);

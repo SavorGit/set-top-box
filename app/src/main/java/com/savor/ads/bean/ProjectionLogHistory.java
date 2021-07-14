@@ -14,6 +14,9 @@ public class ProjectionLogHistory implements Serializable {
     private String mobile_model;
     private String openid;
     private String resource_type;
+    private String duration;
+    private String resource_id;
+    private String resource_size;
     private List<ProjectionLogDetail> list;
 
     public String getAction() {
@@ -86,6 +89,30 @@ public class ProjectionLogHistory implements Serializable {
 
     public void setResource_type(String resource_type) {
         this.resource_type = resource_type;
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
+
+    public String getResource_id() {
+        return resource_id;
+    }
+
+    public void setResource_id(String resource_id) {
+        this.resource_id = resource_id;
+    }
+
+    public String getResource_size() {
+        return resource_size;
+    }
+
+    public void setResource_size(String resource_size) {
+        this.resource_size = resource_size;
     }
 
     public List<ProjectionLogDetail> getList() {

@@ -1,16 +1,14 @@
 package com.savor.ads.service;
 
 import android.app.Service;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import androidx.annotation.NonNull;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -34,6 +32,7 @@ import com.savor.ads.BuildConfig;
 import com.savor.ads.bean.BigImgBean;
 import com.savor.ads.bean.BirthdayOndemandBean;
 import com.savor.ads.bean.ContentInfo;
+import com.savor.ads.bean.FileQueueParam;
 import com.savor.ads.bean.ImgQueueParam;
 import com.savor.ads.bean.MediaItemBean;
 import com.savor.ads.bean.MediaLibBean;
@@ -41,6 +40,7 @@ import com.savor.ads.bean.MiniProgramProjection;
 import com.savor.ads.bean.ProjectionGuideImg;
 import com.savor.ads.bean.ProjectionImg;
 import com.savor.ads.bean.ProjectionLogBean;
+import com.savor.ads.bean.ProjectionLogDetail;
 import com.savor.ads.bean.ProjectionLogHistory;
 import com.savor.ads.bean.VideoQueueParam;
 import com.savor.ads.bean.WelcomeResourceBean;
@@ -54,25 +54,29 @@ import com.savor.ads.log.LogParamValues;
 import com.savor.ads.log.LogReportUtil;
 import com.savor.ads.okhttp.coreProgress.download.ProgressDownloader;
 import com.savor.ads.projection.ProjectionManager;
-import com.savor.ads.service.socket.Constant;
-import com.savor.ads.service.socket.Global;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.GlideImageLoader;
 import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.LogUtils;
 import com.savor.ads.utils.StreamUtils;
+import com.tom_roush.pdfbox.pdmodel.PDDocument;
+import com.tom_roush.pdfbox.rendering.ImageType;
+import com.tom_roush.pdfbox.rendering.PDFRenderer;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -91,8 +95,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
-import tv.danmaku.ijk.media.exo2.RangeManager;
-import tv.danmaku.ijk.media.exo2.RangeManagerFactory;
+import static com.savor.ads.utils.GlobalValues.FROM_SERVICE_MINIPROGRAM;
+import static com.savor.ads.utils.GlobalValues.FROM_SERVICE_REMOTE;
+
 
 /**
  * Created by zhanghq on 2016/12/22.
@@ -108,8 +113,9 @@ public class RemoteService extends Service {
     Handler handler=new Handler(Looper.getMainLooper());
     private Context context;
     ProjectionImgListDialog projectionImgListDialog = null;
-    static ConcurrentLinkedQueue<VideoQueueParam> queue = new ConcurrentLinkedQueue<>();
+    static ConcurrentLinkedQueue<VideoQueueParam> videoQueue = new ConcurrentLinkedQueue<>();
     static ConcurrentLinkedQueue<ImgQueueParam> imgQueue = new ConcurrentLinkedQueue<>();
+    static ConcurrentLinkedQueue<FileQueueParam> fileQueue = new ConcurrentLinkedQueue<>();
     //投图片
     private int TYPE_IMG = 1;
     //投视频
@@ -232,9 +238,8 @@ public class RemoteService extends Service {
                     LogUtils.d("返回结果:" + resp);
                     response.getWriter().println(resp);
                 } else {
-                    String version = request.getHeader("version");
+//                    String version = request.getHeader("version");
                     try {
-                        String temp = request.getParameter("web");// 是否是h5来的请求
                         handleRequestV10(request, response);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -383,11 +388,19 @@ public class RemoteService extends Service {
                     break;
                 case "/bigImgPartUpload":
                     currentAction = 22;
-                    resJson = handleBigImgPartUploadRequest(request);
+                    resJson = handleBigImgBlockUploadRequest(request);
                     break;
                 case "/videoUploadSpeed":
                     currentAction = 23;
-                    resJson = handleVideoPartUploadRequest(request);
+                    resJson = handleVideoBlockUploadRequest(request);
+                    break;
+                case "/fileBlockUpload":
+                    currentAction = 24;
+                    resJson = handleFileBlockUploadRequest(request);
+                    break;
+                case "/showFileImg":
+                    currentAction = 25;
+                    resJson = showFileImgRequest(request);
                     break;
                 case "/restaurant/stop":
                     currentAction = 26;
@@ -422,6 +435,9 @@ public class RemoteService extends Service {
                     break;
                 case "/h5/projectionThumbnail":
                     resJson = findProjectionThumbnail(request);
+                    break;
+                case "/h5/fileImgList":
+                    resJson = findFileImgList(request);
                     break;
                 default:
                     currentAction = -1;
@@ -498,7 +514,6 @@ public class RemoteService extends Service {
                 request.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT, multipartConfigElement);
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
                 String action = request.getParameter("action");
-                String device_model = request.getParameter("device_model");
                 String filename = request.getParameter("filename");
                 String forscreen_id = request.getParameter("forscreen_id");
                 String resource_size = request.getParameter("resource_size");
@@ -506,6 +521,7 @@ public class RemoteService extends Service {
                 String duration = request.getParameter("duration");
                 String play_time = request.getParameter("play_times");
                 String serial_number = request.getParameter("serial_number");
+                res_sup_time = System.currentTimeMillis()+"";
                 if (TextUtils.isEmpty(filename)){
                     object = new BaseResponse();
                     object.setMsg("上传异常-文件名称为空");
@@ -586,7 +602,7 @@ public class RemoteService extends Service {
                             }else{
                                 GlobalValues.PROJECTION_VIDEO_PATH = null;
                                 RemoteService.listener.showVideo(media_path, true,forscreen_id,avatarUrl,nickName,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
-                                postSimpleMiniProgramProjectionLog(action,duration,null,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,repeat);
+                                postSimpleMiniProgramProjectionLog(action,duration,null,forscreen_id,filename,resource_size,resource_type,media_path,serial_number,repeat);
                             }
 
                         }
@@ -596,7 +612,7 @@ public class RemoteService extends Service {
                             time = Integer.valueOf(play_time);
                         }
                         RemoteService.listener.showRestVideo(resultFile.getAbsolutePath(),true, avatarUrl, nickName,time);
-                        postSimpleMiniProgramProjectionLog(action,duration,null,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,repeat);
+                        postSimpleMiniProgramProjectionLog(action,duration,"",forscreen_id,filename,resource_size,resource_type,media_path,serial_number,repeat);
                     }
                     object = new BaseResponse();
                     object.setMsg("上传成功");
@@ -611,9 +627,9 @@ public class RemoteService extends Service {
             return respJson;
         }
         /**
-         * 分片上传边写入边播放
+         * 切片上传边写入边播放
          */
-        private String handleVideoPartUploadRequest(HttpServletRequest request){
+        private String handleVideoBlockUploadRequest(HttpServletRequest request){
             InputStream inputStream = null;
             String index = null;
             BaseResponse object;
@@ -623,14 +639,14 @@ public class RemoteService extends Service {
             if (TextUtils.isEmpty(GlobalValues.CURRENT_FORSCREEN_ID)){
                 clearProjectionMark(forscreen_id);
                 res_sup_time = String.valueOf(System.currentTimeMillis());
-                queue.clear();
+                videoQueue.clear();
             }else {
                 long preProjectId = Long.valueOf(GlobalValues.CURRENT_FORSCREEN_ID);
                 long nowProjectId = Long.valueOf(forscreen_id);
                 if (nowProjectId>preProjectId){
                     clearProjectionMark(forscreen_id);
                     res_sup_time = String.valueOf(System.currentTimeMillis());
-                    queue.clear();
+                    videoQueue.clear();
                 }else if (nowProjectId<preProjectId){
                     object = new BaseResponse();
                     object.setMsg("已被抢投");
@@ -666,7 +682,7 @@ public class RemoteService extends Service {
                 param.setTotalChunks(totalChunks);
                 param.setInputContent(StreamUtils.toByteArray(inputStream));
                 param.setSerial_number(serial_number);
-                queue.offer(param);
+                videoQueue.offer(param);
                 Log.d(TAG,"写入队列，数据块index==="+index+"||input=="+param.getInputContent());
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
                 String outPath = path + filename + ".mp4";
@@ -684,7 +700,7 @@ public class RemoteService extends Service {
                     }else{
                         GlobalValues.VIDEO_NUM.put(deviceId,1);
                     }
-                    VideoWriter writer = new VideoWriter(context,forscreen_id,queue,outPath);
+                    VideoWriter writer = new VideoWriter(context,forscreen_id,videoQueue,outPath);
                     writer.setUserInfo(avatarUrl,nickName);
                     writer.setToPlayListener(new ToPlayInterface() {
                         @Override
@@ -697,7 +713,7 @@ public class RemoteService extends Service {
                                 mpProjection.setOpenid(deviceId);
                             }
                             res_eup_time = String.valueOf(System.currentTimeMillis());
-                            postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,outPath,serial_number,false);
+                            postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,filename,resource_size,resource_type,outPath,serial_number,false);
                         }
                     });
                     new Thread(writer).start();
@@ -742,9 +758,9 @@ public class RemoteService extends Service {
         }
 
         /**
-         * 分片上传大图片
+         * 切片上传大图片
          */
-        private String handleBigImgPartUploadRequest(HttpServletRequest request){
+        private String handleBigImgBlockUploadRequest(HttpServletRequest request){
             InputStream inputStream = null;
             String index = null;
             BaseResponse object;
@@ -903,7 +919,7 @@ public class RemoteService extends Service {
 
                                 String outPath = imgQueue.getFilePath();
                                 LogUtils.d("数据插入，开始，forscreenId=" + imgQueue.getForscreen_id());
-                                postSimpleMiniProgramProjectionLog(action,"",forscreen_char,forscreen_id,deviceName,device_model,deviceId,imgQueue.getFileName(),imgQueue.getSize(),resource_type,outPath,serial_number,musicPath,false);
+                                postSimpleMiniProgramProjectionLog(action,"",forscreen_char,forscreen_id,imgQueue.getFileName(),imgQueue.getSize(),resource_type,outPath,serial_number,musicPath,false);
 
                                 String img_id = System.currentTimeMillis()+"";
                                 ProjectionImg img = new ProjectionImg();
@@ -972,6 +988,227 @@ public class RemoteService extends Service {
             return respJson;
         }
 
+        /**
+         * 切片上传文件(暂时只支持PDF)
+         * @param request
+         * @return
+         */
+        private String handleFileBlockUploadRequest(HttpServletRequest request){
+            InputStream inputStream = null;
+            String index = null;
+            BaseResponse object;
+            String respJson;
+            initBaseParam(request);
+            String forscreen_id = request.getParameter("forscreen_id");
+            if (TextUtils.isEmpty(GlobalValues.CURRENT_FORSCREEN_ID)){
+                clearProjectionMark(forscreen_id);
+                res_sup_time = String.valueOf(System.currentTimeMillis());
+                fileQueue.clear();
+            }else {
+                long preProjectId = Long.valueOf(GlobalValues.CURRENT_FORSCREEN_ID);
+                long nowProjectId = Long.valueOf(forscreen_id);
+                if (nowProjectId>preProjectId){
+                    clearProjectionMark(forscreen_id);
+                    res_sup_time = String.valueOf(System.currentTimeMillis());
+                    fileQueue.clear();
+                }else if (nowProjectId<preProjectId){
+                    object = new BaseResponse();
+                    object.setMsg("已被抢投");
+                    object.setResult(new JsonObject());
+                    object.setCode(ConstantValues.SERVER_RESPONSE_CODE_AHEAD);
+                    respJson = new Gson().toJson(object);
+                    return respJson;
+                }
+            }
+            try {
+                index = request.getParameter("index");
+                inputStream = request.getInputStream();
+                String action = request.getParameter("action");
+                String duration = request.getParameter("duration");
+                String filename = request.getParameter("filename");
+                String position = request.getParameter("position");
+                String resource_size = request.getParameter("resource_size");
+                String resource_type = request.getParameter("resource_type");
+                String chunkSize = request.getParameter("chunkSize");
+                String totalChunks = request.getParameter("totalChunks");
+                String save_type = request.getParameter("save_type");
+                String serial_number = request.getParameter("serial_number");
+                String forscreen_char = "";
+                FileQueueParam param = new FileQueueParam();
+                param.setAction(action);
+                param.setDuration(duration);
+                param.setForscreen_id(forscreen_id);
+                param.setIndex(index);
+                param.setResource_type(resource_type);
+                param.setFileName(filename);
+                param.setPosition(position);
+                param.setTotalSize(resource_size);
+                param.setChunkSize(chunkSize);
+                param.setTotalChunks(totalChunks);
+                param.setInputContent(StreamUtils.toByteArray(inputStream));
+                param.setSerial_number(serial_number);
+                fileQueue.offer(param);
+                Log.d(TAG,"写入队列，数据块index==="+index+"||input=="+param.getInputContent());
+                String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+                String outPath = path + filename;
+                if ("0".equals(position)){
+                    FileWriter writer = new FileWriter(context,forscreen_id,fileQueue,outPath);
+                    writer.setUserInfo(avatarUrl,nickName);
+                    writer.setToPlayListener(obj -> {
+                        if (obj instanceof FileQueueParam){
+                            FileQueueParam fParam = (FileQueueParam)obj;
+                            res_eup_time = String.valueOf(System.currentTimeMillis());
+                            convertFileToImg(fParam,outPath);
+                        }
+
+                    });
+                    new Thread(writer).start();
+                }
+                object = new BaseResponse();
+                object.setMsg("上传成功");
+                object.setResult(new JsonObject());
+                object.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
+
+            }catch (Exception e){
+                object = new BaseResponse();
+                object.setMsg("上传报错");
+                object.setResult(index);
+                object.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
+                e.printStackTrace();
+            }finally {
+                try {
+                    if (inputStream != null)
+                        inputStream.close();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
+            respJson = new Gson().toJson(object);
+            return respJson;
+        }
+
+        private void convertFileToImg(FileQueueParam fParam,String filePath){
+            String action = fParam.getAction();
+            String filename = fParam.getFileName();
+            String forscreen_id = fParam.getForscreen_id();
+            String resource_size = fParam.getTotalSize();
+            String resource_type = fParam.getResource_type();
+            String save_type = fParam.getSave_type();
+            String serial_number = fParam.getSerial_number();
+            Bitmap pageImage;
+            // Render the page and save it to an image file
+            FileOutputStream fileOut = null;
+            InputStream inputStream = null;
+            try {
+                String name=null;
+                if (filename.contains("\\.")){
+                    String[] names = filename.split("\\.");
+                    name = names[0];
+                }
+                String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+                File root = new File(basePath+name);
+                // Load in an already created PDF
+                File pdfFile = new File(filePath);
+                if (!pdfFile.exists()){
+                    return;
+                }
+                String md5 = AppUtils.getMD5(pdfFile);
+                inputStream = new FileInputStream(pdfFile);
+                PDDocument document = PDDocument.load(inputStream);
+                // Create a renderer for the document
+                PDFRenderer renderer = new PDFRenderer(document);
+                // Render the image to an RGB Bitmap
+//            pageImage = renderer.renderImage(0, 1, ImageType.RGB);
+                int pages = document.getNumberOfPages();
+                for (int i=1;i<=pages;i++){
+                    pageImage = renderer.renderImage(i, 1, ImageType.RGB);
+
+                    // Save the render result to an image
+                    String path = root.getAbsolutePath() + "/"+i+".jpg";
+                    File renderFile = new File(path);
+                    fileOut = new FileOutputStream(renderFile);
+                    pageImage.compress(Bitmap.CompressFormat.JPEG, 100, fileOut);
+
+                   if (i == 1){
+                       ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,"", avatarUrl, nickName,"","",currentAction, FROM_SERVICE_REMOTE);
+                   }
+                }
+                postSimpleMiniProgramProjectionLog(action,forscreen_id,filename,resource_size,resource_type,filePath,serial_number,md5,pages,save_type);
+                AppUtils.uplopadProjectionFile(context,root.getAbsolutePath(),name);
+            }
+            catch (IOException e){
+                Log.e("PdfBox-Android-Sample", "Exception thrown while rendering file", e);
+            }finally {
+                if (fileOut!=null){
+                    try{
+                        fileOut.close();
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+                if (inputStream!=null){
+                    try {
+                        inputStream.close();
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
+        private String showFileImgRequest(HttpServletRequest request){
+            String resJson = null;
+            initBaseParam(request);
+            String forscreen_id = request.getParameter("forscreen_id");
+            String selection = DBHelper.MediaDBInfo.FieldName.FORSCREEN_ID + "=? ";
+            String[] selectionArgs = new String[]{forscreen_id};
+            ProjectionLogHistory projectionLog = DBHelper.get(context).findProjectionHistoryById(selection,selectionArgs);
+            String duration = projectionLog.getDuration();
+            String forscreen_char = projectionLog.getForscreen_char();
+            String resource_size = projectionLog.getResource_size();
+            String resource_type = projectionLog.getResource_type();
+            String serial_number = projectionLog.getSerial_number();
+            if (TextUtils.isEmpty(GlobalValues.CURRENT_FORSCREEN_ID)
+                    ||!GlobalValues.CURRENT_FORSCREEN_ID.equals(forscreen_id)){
+                clearProjectionMark(forscreen_id);
+                closeProjectionDialog();
+            }
+            try {
+                BaseResponse object;
+                String startTime = String.valueOf(System.currentTimeMillis());
+                res_sup_time = startTime;
+                String action = request.getParameter("action");
+                String filepath = request.getParameter("filepath");
+                String[] filenames = filepath.split("/");
+                String filename = filenames[filenames.length-1];
+                String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+                File file = new File(filepath);
+                boolean isDownload = false;
+                if (file.exists()){
+                    isDownload = true;
+                }
+                if (isDownload) {
+                    ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,"", avatarUrl, nickName,"","",currentAction, FROM_SERVICE_REMOTE);
+                    String endTime = String.valueOf(System.currentTimeMillis());
+                    res_eup_time = endTime;
+                    postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,filename,resource_size,resource_type,filepath,serial_number,null, true);
+                    GlobalValues.PROJECT_STREAM_IMAGE.add(filepath);
+                    object = new BaseResponse();
+                    object.setMsg("滑动成功");
+                    object.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
+                }else{
+                    object = new BaseResponse();
+                    object.setMsg("滑动失败");
+                    object.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
+                }
+
+                resJson = new Gson().toJson(object);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return resJson;
+        }
+
         private void setDownloadProgress(final String resource_id,final long totalSize,final long currentSize){
             new Thread(new Runnable() {
                 @Override
@@ -997,8 +1234,7 @@ public class RemoteService extends Service {
         }
 
         public void postSimpleMiniProgramProjectionLog(String action,String startTime,String endTime,String duration,String forscreen_char,String forscreen_id,
-                                                       String mobile_brand,String mobile_model,String openid,String resource_id,
-                                                       String resource_size,String resource_type,String media_path,String serial_number,String music_id,boolean repeat){
+                                                       String resource_id,String resource_size,String resource_type,String media_path,String serial_number,String music_id,boolean repeat,String md5,int file_imgnum,String save_type){
             HashMap<String,Object> params = new HashMap<>();
             String create_time = String.valueOf(System.currentTimeMillis());
 
@@ -1012,10 +1248,15 @@ public class RemoteService extends Service {
             }else {
                 params.put("action",action);
             }
+            if (action.equals("30")){
+                params.put("md5", md5);
+                params.put("file_imgnum", file_imgnum);
+                params.put("save_type", save_type);
+            }
             params.put("forscreen_id", forscreen_id);
-            params.put("mobile_brand", mobile_brand);
-            params.put("mobile_model", mobile_model);
-            params.put("openid", openid);
+            params.put("mobile_brand", deviceName);
+            params.put("mobile_model", device_model);
+            params.put("openid", deviceId);
             params.put("resource_id", resource_id);
             params.put("resource_size", resource_size);
             params.put("resource_type", resource_type);
@@ -1036,9 +1277,9 @@ public class RemoteService extends Service {
             bean.setDuration(duration);
             bean.setForscreen_char(forscreen_char);
             bean.setForscreen_id(forscreen_id);
-            bean.setMobile_brand(mobile_brand);
-            bean.setMobile_model(mobile_model);
-            bean.setOpenid(openid);
+            bean.setMobile_brand(deviceName);
+            bean.setMobile_model(device_model);
+            bean.setOpenid(deviceId);
             bean.setResource_id(resource_id);
             bean.setResource_size(resource_size);
             bean.setResource_type(resource_type);
@@ -1079,23 +1320,27 @@ public class RemoteService extends Service {
         }
 
         public void postSimpleMiniProgramProjectionLog(String action,String duration,String forscreen_char,String forscreen_id,
-                                                       String mobile_brand,String mobile_model,String openid,String resource_id,
-                                                       String resource_size,String resource_type,String media_path,String serial_number,String music_id,boolean repeat){
+                                                       String resource_id,String resource_size,String resource_type,String media_path,String serial_number,String music_id,boolean repeat){
             String startTime = res_sup_time;
             String endTime = res_eup_time;
             postSimpleMiniProgramProjectionLog(action,startTime,endTime,duration,forscreen_char,forscreen_id,
-                    mobile_brand,mobile_model,openid,resource_id,
-                    resource_size,resource_type,media_path,serial_number,music_id,repeat);
+                    resource_id,resource_size,resource_type,media_path,serial_number,music_id,repeat,null,0,"");
         }
 
-        public void postSimpleMiniProgramProjectionLog(String action,String duration,String forscreen_char,String forscreen_id,
-                                                        String mobile_brand,String mobile_model,String openid,String resource_id,
-                                                        String resource_size,String resource_type,String media_path,String serial_number,boolean repeat){
+        public void postSimpleMiniProgramProjectionLog(String action,String duration,String forscreen_char,String forscreen_id,String resource_id,
+                                                       String resource_size,String resource_type,String media_path,String serial_number,boolean repeat){
             String startTime = res_sup_time;
             String endTime = res_eup_time;
             postSimpleMiniProgramProjectionLog(action,startTime,endTime,duration,forscreen_char,forscreen_id,
-                    mobile_brand,mobile_model,openid,resource_id,
-                    resource_size,resource_type,media_path,serial_number,null,repeat);
+                    resource_id,resource_size,resource_type,media_path,serial_number,null,repeat,null,0,"");
+        }
+
+        public void postSimpleMiniProgramProjectionLog(String action,String forscreen_id,
+                                                       String resource_id,String resource_size,String resource_type,String media_path,String serial_number,String md5,int file_imgnum,String save_type){
+            String startTime = res_sup_time;
+            String endTime = res_eup_time;
+            postSimpleMiniProgramProjectionLog(action,startTime,endTime,"","",forscreen_id,
+                    resource_id,resource_size,resource_type,media_path,serial_number,null,false,md5,file_imgnum,save_type);
         }
 
         //展示下载时大屏右侧的窗口列表
@@ -1155,6 +1400,7 @@ public class RemoteService extends Service {
                 boolean repeat= false;
                 BaseResponse object;
                 String startTimee = String.valueOf(System.currentTimeMillis());
+                res_sup_time = startTimee;
                 String action = request.getParameter("action");
                 final String forscreen_nums = request.getParameter("forscreen_nums");
                 final String forscreen_char = request.getParameter("forscreen_char");
@@ -1226,11 +1472,12 @@ public class RemoteService extends Service {
 
                 if (isDownload) {
                     String endTime = String.valueOf(System.currentTimeMillis());
+                    res_eup_time = endTime;
                     String media_path = file.getAbsolutePath();
                     LogUtils.d(TAG+":"+"极简下载:fileName="+filename+"结束下载");
                     GlobalValues.PROJECT_STREAM_IMAGE.add(media_path);
 
-                    postSimpleMiniProgramProjectionLog(action,startTimee,endTime,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,null,repeat);
+                    postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,filename,resource_size,resource_type,media_path,serial_number,null,repeat);
 
                     handler.post(()->projectionImgListDialog.setImgDownloadProgress(img_id,100+"%"));
                     object = new BaseResponse();
@@ -1422,9 +1669,9 @@ public class RemoteService extends Service {
             try {
                 BaseResponse object;
                 String startTimee = String.valueOf(System.currentTimeMillis());
+                res_sup_time = startTimee;
                 String action = request.getParameter("action");
                 String forscreen_char = request.getParameter("forscreen_char");
-                String device_model = request.getParameter("device_model");
                 String filename = request.getParameter("filename");
                 String forscreen_id = request.getParameter("forscreen_id");
                 String resource_size = request.getParameter("resource_size");
@@ -1489,9 +1736,10 @@ public class RemoteService extends Service {
 
                 if (isDownload) {
                     String endTime = String.valueOf(System.currentTimeMillis());
+                    res_eup_time = endTime;
                     String media_path = path+filename;
                     LogUtils.d(TAG+":"+"极简下载:fileName="+filename+"结束下载");
-                    postSimpleMiniProgramProjectionLog(action,startTimee,endTime,duration,forscreen_char,forscreen_id,deviceName,device_model,deviceId,filename,resource_size,resource_type,media_path,serial_number,null,repeat);
+                    postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,filename,resource_size,resource_type,media_path,serial_number,null,repeat);
                     GlobalValues.PROJECT_STREAM_IMAGE.add(media_path);
                     object = new BaseResponse();
                     object.setMsg("上传成功");
@@ -2166,8 +2414,9 @@ public class RemoteService extends Service {
         private String findProjectionHistory(HttpServletRequest request){
             BaseResponse response = new BaseResponse();
             String openid = request.getParameter("openid");
-            String selection = DBHelper.MediaDBInfo.FieldName.OPENID + "=? ";
-            String[] selectionArgs = new String[]{openid};
+            String selection = DBHelper.MediaDBInfo.FieldName.OPENID + "=? and "
+                    + DBHelper.MediaDBInfo.FieldName.RESOURCE_TYPE + "!= ?";
+            String[] selectionArgs = new String[]{openid,"3"};
             List<ProjectionLogHistory> list = DBHelper.get(context).findProjectionHistory(selection,selectionArgs);
             LogUtils.d("投屏历史查询返回");
             if (list!=null&&list.size()>0){
@@ -2198,6 +2447,50 @@ public class RemoteService extends Service {
                 response.setMsg("查询數據誒空");
             }
 
+            return new Gson().toJson(response);
+        }
+
+        private String findFileImgList(HttpServletRequest request){
+            BaseResponse response = new BaseResponse();
+            String forscreen_id = request.getParameter("forscreen_id");
+            String filename = request.getParameter("filename");
+            String filename_id = filename.substring(0,filename.length()-4);
+            String selection = DBHelper.MediaDBInfo.FieldName.FORSCREEN_ID + "=? ";
+            String[] selectionArgs = new String[]{forscreen_id};
+            ProjectionLogHistory projectionLog = DBHelper.get(context).findProjectionHistoryById(selection,selectionArgs);
+            if (projectionLog==null){
+                response.setCode(ConstantValues.SERVER_RESPONSE_CODE_NULL);
+                response.setMsg("查询數據誒空");
+                return new Gson().toJson(response);
+            }
+            String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+            File fileImg = new File(basePath+filename_id);
+
+            JSONObject jsonObject = new JSONObject();
+            try{
+                jsonObject.accumulate("status",2);
+                jsonObject.accumulate("task_id",0);
+                jsonObject.accumulate("percent",100);
+                jsonObject.accumulate("oss_host","http://"+AppUtils.getEthernetIP()+":8080/");
+                JSONArray jsonArray = new JSONArray();
+                if (fileImg.isDirectory()&&fileImg.listFiles().length>0){
+                    for (File file:fileImg.listFiles()){
+                        jsonArray.put(file.getAbsolutePath());
+                    }
+                }
+                jsonObject.accumulate("imgs",jsonArray);
+                if (jsonObject!=null){
+                    response.setResult(jsonObject);
+                    response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
+                    response.setMsg("查询成功");
+                }else{
+                    response.setCode(ConstantValues.SERVER_RESPONSE_CODE_NULL);
+                    response.setMsg("查询數據誒空");
+                }
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
             return new Gson().toJson(response);
         }
 

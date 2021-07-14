@@ -1219,19 +1219,16 @@ public class AppUtils {
     }
 
     public static void deleteCacheData() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String cachePath = AppUtils.getFilePath(StorageFile.cache);
-                File[] cacheFiles = new File(cachePath).listFiles();
-                if (cacheFiles == null || cacheFiles.length == 0) {
-                    return;
-                }
-                for (File file:cacheFiles){
-                    String name = file.getName();
-                    if (file.isFile()&&!name.contains("get_box_qrcode")){
-                        file.delete();
-                    }
+        new Thread(() -> {
+            String cachePath = AppUtils.getFilePath(StorageFile.cache);
+            File[] cacheFiles = new File(cachePath).listFiles();
+            if (cacheFiles == null || cacheFiles.length == 0) {
+                return;
+            }
+            for (File file:cacheFiles){
+                String name = file.getName();
+                if (file.isFile()&&!name.contains("get_box_qrcode")){
+                    file.delete();
                 }
             }
         }).start();
@@ -1275,7 +1272,8 @@ public class AppUtils {
                                 String ossPath;
                                 String[] filePaths = bean.getMedia_path().split("\\/");
                                 final String fileName = filePaths[filePaths.length-1];
-                                if (resuorceSize<simpleUploadSize){
+                                String resourceType = bean.getResource_type();
+                                if (resuorceSize<simpleUploadSize||resourceType.equals("3")){
                                     ossPath = OSSValues.uploadSimplePath+fileName;
                                     OSSUtils ossUtils =  new OSSUtils(context,
                                             BuildConfig.OSS_BUCKET_NAME,
@@ -1286,8 +1284,7 @@ public class AppUtils {
                                         jsonArray.put(ossPath);
                                     }
                                 }else {
-                                    String resourceType = bean.getResource_type();
-                                    //0和1:图片,2:视频
+                                    //0和1:图片,2:视频,3:文件
                                     if ("0".equals(resourceType)||"1".equals(resourceType)){
                                         String ys_name = "img_ys_"+fileName;
                                         String ysFilePath = path+ys_name;
@@ -1340,6 +1337,23 @@ public class AppUtils {
         }).start();
     }
 
+    public static void uplopadProjectionFile(final Context context,final String fileDir,final String fileName){
+        new Thread(() -> {
+            File fileList = new File(fileDir);
+            File [] listImg = fileList.listFiles();
+            String ossPath = OSSValues.uploadSimpleFilePath+fileName+"/";
+            for (File file:listImg){
+                String name = file.getName();
+                ossPath = ossPath+name;
+                OSSUtils ossUtils =  new OSSUtils(context,
+                        BuildConfig.OSS_BUCKET_NAME,
+                        ossPath,
+                        file.getAbsolutePath());
+                ossUtils.syncUploadFile();
+            }
+
+        }).start();
+    }
 
     public static void updateSimpleProjectionLog(final Context context, ProjectionLogBean bean, JSONArray jsonArray){
         long time  = Long.parseLong(bean.getCreate_time());
