@@ -113,7 +113,7 @@ public class FileWriter implements Runnable {
                     positionLong = Long.valueOf(position);
                 }
 
-                if (TextUtils.isEmpty(index)) {
+                if ("0".equals(index)) {
                     randomAccessFile.setLength(fileLength);
                 }
                 Log.d(TAG, "第{" + index + "}段写入开始 total=" + totalSize);

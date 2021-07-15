@@ -3,6 +3,7 @@ package com.savor.ads.service;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.os.Binder;
 import android.os.Handler;
@@ -1056,7 +1057,7 @@ public class RemoteService extends Service {
                 Log.d(TAG,"写入队列，数据块index==="+index+"||input=="+param.getInputContent());
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
                 String outPath = path + filename;
-                if ("0".equals(position)){
+                if ("0".equals(index)){
                     FileWriter writer = new FileWriter(context,forscreen_id,fileQueue,outPath);
                     writer.setUserInfo(avatarUrl,nickName);
                     writer.setToPlayListener(obj -> {
@@ -1118,8 +1119,10 @@ public class RemoteService extends Service {
                     return;
                 }
                 String md5 = AppUtils.getMD5(pdfFile);
-                inputStream = new FileInputStream(pdfFile);
-                PDDocument document = PDDocument.load(inputStream);
+//                inputStream = new FileInputStream(pdfFile);
+                AssetManager assetManager = getAssets();
+
+                PDDocument document = PDDocument.load(assetManager.open("123.pdf"));
                 // Create a renderer for the document
                 PDFRenderer renderer = new PDFRenderer(document);
                 // Render the image to an RGB Bitmap
