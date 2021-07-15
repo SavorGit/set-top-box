@@ -1038,7 +1038,6 @@ public class RemoteService extends Service {
                 String totalChunks = request.getParameter("totalChunks");
                 String save_type = request.getParameter("save_type");
                 String serial_number = request.getParameter("serial_number");
-                String forscreen_char = "";
                 FileQueueParam param = new FileQueueParam();
                 param.setAction(action);
                 param.setDuration(duration);
@@ -1051,6 +1050,7 @@ public class RemoteService extends Service {
                 param.setChunkSize(chunkSize);
                 param.setTotalChunks(totalChunks);
                 param.setInputContent(StreamUtils.toByteArray(inputStream));
+                param.setSave_type(save_type);
                 param.setSerial_number(serial_number);
                 fileQueue.offer(param);
                 Log.d(TAG,"写入队列，数据块index==="+index+"||input=="+param.getInputContent());
@@ -1106,7 +1106,7 @@ public class RemoteService extends Service {
             InputStream inputStream = null;
             try {
                 String name=null;
-                if (filename.contains("\\.")){
+                if (filename.contains(".")){
                     String[] names = filename.split("\\.");
                     name = names[0];
                 }
