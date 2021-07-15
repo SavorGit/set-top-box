@@ -491,6 +491,23 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
     }
 
     @Override
+    public PrepareResponseVoNew showVideo(String videoPath, boolean isNewDevice, String forscreenId,boolean ads, String delayTime,int action,int fromService) {
+        PrepareResponseVoNew localResult = new PrepareResponseVoNew();
+        if (!TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_ID)) {
+            GlobalValues.LAST_PROJECT_ID = GlobalValues.CURRENT_PROJECT_ID;
+        }
+
+        localResult.setProjectId(GlobalValues.CURRENT_PROJECT_ID = UUID.randomUUID().toString());
+        localResult.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
+        localResult.setMsg("加载成功！");
+
+        VideoAction videoAction = new VideoAction(mContext, videoPath,isNewDevice,forscreenId,ads,delayTime,action,fromService);
+        ProjectionManager.getInstance().enqueueAction(videoAction);
+
+        return localResult;
+    }
+
+    @Override
     public PrepareResponseVoNew showVideoBirthday(String videoUrl,String videoPath,String forscreenId, int action, int fromService) {
         PrepareResponseVoNew localResult = new PrepareResponseVoNew();
         if (!TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_ID)) {

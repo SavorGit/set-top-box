@@ -29,6 +29,7 @@ public class VideoAction extends ProjectionActionBase implements Serializable {
     private String avatarUrl;
     private String nickname;
     private String delayTime;
+    private boolean isAds;
     private int action;
     public VideoAction(Context context, String videoPath,String videoUrl,boolean isNewDevice,int currentAction,int fromService) {
         super();
@@ -86,6 +87,20 @@ public class VideoAction extends ProjectionActionBase implements Serializable {
         this.action = action;
     }
 
+    public VideoAction(Context context, String videoPath, boolean isNewDevice,String forscreenId,boolean isAds,String delayTime,int action,int fromService) {
+        super();
+
+        mPriority = ProjectPriority.HIGH;
+        this.fromService = fromService;
+        mContext = context;
+        this.videoPath = videoPath;
+        this.isNewDevice = isNewDevice;
+        this.forscreenId = forscreenId;
+        this.isAds = isAds;
+        this.delayTime = delayTime;
+        this.action = action;
+    }
+
     public VideoAction(Context context, String videoPath, boolean isNewDevice,String price,int storeSale,String delayTime,int action,int fromService) {
         super();
 
@@ -118,6 +133,7 @@ public class VideoAction extends ProjectionActionBase implements Serializable {
         data.putInt(ScreenProjectionActivity.EXTRA_FROM_SERVICE_ID, fromService);
         data.putString(ScreenProjectionActivity.EXTRA_AVATAR_URL,avatarUrl);
         data.putString(ScreenProjectionActivity.EXTRA_NICKNAME,nickname);
+        data.putBoolean(ScreenProjectionActivity.EXTRA_ISADS,isAds);
         data.putSerializable(ScreenProjectionActivity.EXTRA_PROJECT_ACTION, this);
         Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
         if (activity instanceof ScreenProjectionActivity && !((ScreenProjectionActivity) activity).isBeenStopped()) {

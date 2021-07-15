@@ -76,6 +76,7 @@ public class ScreenProjectionActivity extends BaseActivity{
     public static final String EXTRA_WORD_FONT_PATH = "extra_word_font_path";
     public static final String EXTRA_AVATAR_URL = "extra_avatar_url";
     public static final String EXTRA_NICKNAME = "extra_nickname";
+    public static final String EXTRA_ISADS = "extra_isads";
     public static final String EXTRA_FORSCREEN_ID = "extra_forscreen_id";
     public static final String EXTRA_PRICE_ID = "extra_price_id";
     public static final String EXTRA_STORE_SALE_ID = "extra_store_sale_id";
@@ -139,6 +140,8 @@ public class ScreenProjectionActivity extends BaseActivity{
      * 9: 用户端欢迎词图片（多图）
      */
     private int mImageType;
+    //是否是前置后置广告广告视频
+    private boolean isAds;
     private String mImagePath;
     private String mMusicPath;
     private String preForscreenId;
@@ -444,6 +447,7 @@ public class ScreenProjectionActivity extends BaseActivity{
         from_service = bundle.getInt(EXTRA_FROM_SERVICE_ID);
         mImageRotationDegree = bundle.getInt(EXTRA_IMAGE_ROTATION);
         mImageType = bundle.getInt(EXTRA_IMAGE_TYPE);
+        isAds = bundle.getBoolean(EXTRA_ISADS);
         mImagePath = bundle.getString(EXTRA_IMAGE_PATH);
         mMusicPath = bundle.getString(EXTRA_MUSIC_PATH);
         preForscreenId = mForscreenId;
@@ -1574,7 +1578,7 @@ public class ScreenProjectionActivity extends BaseActivity{
      * @param playState 0:开始，1:结束
      */
     private void showProjectionPlayState(int playState){
-        if (proProjection==null){
+        if (proProjection==null||isAds||mImageType==5){
             return;
         }
 //        if (playState==0){
