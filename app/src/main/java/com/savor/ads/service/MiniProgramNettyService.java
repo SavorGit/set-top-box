@@ -703,9 +703,11 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             &&PROJECTION_STATE_PLAY.equals(projectionIdMap.get(forscreen_id))){
                         String uri = GlobalValues.PROJECT_IMAGES.get(currentIndex);
                         //当前这个骚操作。。。是为了在投屏activity中获取当前展示的图片相关信息
-                        ProjectionImg projectionImg = mpProjection.getImg_list().get(currentIndex);
-                        if (projectionImg!=null){
-                            mpProjection.setFilename(projectionImg.getFilename());
+                        if (mpProjection!=null){
+                            ProjectionImg projectionImg = mpProjection.getImg_list().get(currentIndex);
+                            if (projectionImg!=null){
+                                mpProjection.setFilename(projectionImg.getFilename());
+                            }
                         }
                         if (currentIndex==0){
                             ProjectOperationListener.getInstance(context).showImage(1,uri,true,forscreen_id,words,avatarUrl,nickName,"",musicPath,currentAction, FROM_SERVICE_MINIPROGRAM);
@@ -1164,7 +1166,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         String adspath = preOrNextAdsBean.getMediaPath();
                         String duration = preOrNextAdsBean.getDuration();
                         if (preOrNextAdsBean.getMedia_type()==1){
-                            ProjectOperationListener.getInstance(context).showVideo(adspath, true,forscreen_id, headPic, nickName,duration,currentAction, FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showVideo(adspath, true,forscreen_id, true,duration,currentAction, FROM_SERVICE_MINIPROGRAM);
                         }else{
                             ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, words, headPic, nickName,duration,"",currentAction, FROM_SERVICE_MINIPROGRAM);
                         }
@@ -1278,7 +1280,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     String adspath = preOrNextAdsBean.getMediaPath();
                     String duration = preOrNextAdsBean.getDuration();
                     if (preOrNextAdsBean.getMedia_type()==1){
-                        ProjectOperationListener.getInstance(context).showVideo(adspath,  true,forscreen_id, headPic, nickName,duration,currentAction, FROM_SERVICE_MINIPROGRAM);
+                        ProjectOperationListener.getInstance(context).showVideo(adspath,  true,forscreen_id, true,duration,currentAction, FROM_SERVICE_MINIPROGRAM);
                     }else{
                         ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, words, headPic, nickName,duration,"",currentAction, FROM_SERVICE_MINIPROGRAM);
                     }
@@ -2623,7 +2625,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 String path = preOrNextAdsBean.getMediaPath();
                 String duration = preOrNextAdsBean.getDuration();
                 if (preOrNextAdsBean.getMedia_type()==1){
-                    ProjectOperationListener.getInstance(context).showVideo(path, true,forscreenId, headPic, nickName,duration,currentAction, FROM_SERVICE_MINIPROGRAM);
+                    ProjectOperationListener.getInstance(context).showVideo(path, true,forscreenId, true,duration,currentAction, FROM_SERVICE_MINIPROGRAM);
                 }else{
                     ProjectOperationListener.getInstance(context).showImage(5, path, true,forscreenId, words, headPic, nickName,duration,"",currentAction, FROM_SERVICE_MINIPROGRAM);
                 }

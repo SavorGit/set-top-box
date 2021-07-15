@@ -582,7 +582,7 @@ public class RemoteService extends Service {
                                 String adspath = preOrNextAdsBean.getMediaPath();
                                 String adsduration = preOrNextAdsBean.getDuration();
                                 if (preOrNextAdsBean.getMedia_type()==1){
-                                    ProjectOperationListener.getInstance(context).showVideo(adspath,true,forscreen_id, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                                    ProjectOperationListener.getInstance(context).showVideo(adspath,true,forscreen_id, true,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                                 }else{
                                     ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, "", avatarUrl, nickName,adsduration,"",currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                                 }
@@ -936,7 +936,7 @@ public class RemoteService extends Service {
                                         final String adsduration = preOrNextAdsBean.getDuration();
 
                                         if (preOrNextAdsBean.getMedia_type()==1){
-                                            ProjectOperationListener.getInstance(context).showVideo(adspath,true,forscreen_id, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                                            ProjectOperationListener.getInstance(context).showVideo(adspath,true,forscreen_id,true,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                                         }else {
                                             ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, words, avatarUrl, nickName,adsduration,"",currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                                         }
@@ -1289,7 +1289,7 @@ public class RemoteService extends Service {
                             final String adsduration = preOrNextAdsBean.getDuration();
 
                             if (preOrNextAdsBean.getMedia_type()==1){
-                                ProjectOperationListener.getInstance(context).showVideo(adspath,true,forscreen_id, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                                ProjectOperationListener.getInstance(context).showVideo(adspath,true,forscreen_id,true,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                             }else {
                                 ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, "", avatarUrl, nickName,adsduration,"",currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                             }
@@ -2399,7 +2399,7 @@ public class RemoteService extends Service {
                             String adspath = preOrNextAdsBean.getMediaPath();
                             String adsduration = preOrNextAdsBean.getDuration();
                             if (preOrNextAdsBean.getMedia_type()==1){
-                                ProjectOperationListener.getInstance(context).showVideo(adspath, true,forscreenId, avatarUrl, nickName,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                                ProjectOperationListener.getInstance(context).showVideo(adspath, true,forscreenId, true,adsduration,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                             }else{
                                 ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreenId, words, avatarUrl, nickName,adsduration,"",currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                             }
