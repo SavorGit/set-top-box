@@ -574,6 +574,11 @@ public class RemoteService extends Service {
                 }
 
                 if (isDownloaded){
+                    mpProjection.setReq_id(serial_number);
+                    mpProjection.setFilename(filename);
+                    mpProjection.setForscreen_id(forscreen_id);
+                    mpProjection.setResource_id(filename);
+                    mpProjection.setOpenid(deviceId);
                     res_eup_time = String.valueOf(System.currentTimeMillis());
                     String media_path = resultFile.getAbsolutePath();
                     handler.post(this::closeDownloadWindow);
@@ -1735,6 +1740,11 @@ public class RemoteService extends Service {
                 }
 
                 if (isDownload) {
+                    mpProjection.setReq_id(serial_number);
+                    mpProjection.setFilename(filename);
+                    mpProjection.setForscreen_id(forscreen_id);
+                    mpProjection.setResource_id(filename);
+                    mpProjection.setOpenid(deviceId);
                     String endTime = String.valueOf(System.currentTimeMillis());
                     res_eup_time = endTime;
                     String media_path = path+filename;
