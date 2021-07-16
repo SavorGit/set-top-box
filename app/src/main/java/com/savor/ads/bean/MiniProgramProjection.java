@@ -18,6 +18,8 @@ public class MiniProgramProjection implements Serializable{
     private String filename;
     /**投多张图片时总张数**/
     private int img_nums;
+    /**是否滑动：0:非滑动，1:滑动*/
+    private int img_slide;
     /**投屏添加文字**/
     private String forscreen_char;
     /**操作ID**/
@@ -169,6 +171,14 @@ public class MiniProgramProjection implements Serializable{
 
     public void setImg_nums(int img_nums) {
         this.img_nums = img_nums;
+    }
+
+    public int getImg_slide() {
+        return img_slide;
+    }
+
+    public void setImg_slide(int img_slide) {
+        this.img_slide = img_slide;
     }
 
     public String getForscreen_char() {
