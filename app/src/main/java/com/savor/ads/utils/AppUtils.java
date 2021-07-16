@@ -1344,10 +1344,10 @@ public class AppUtils {
             String ossPath = OSSValues.uploadSimpleFilePath+fileName+"/";
             for (File file:listImg){
                 String name = file.getName();
-                ossPath = ossPath+name;
+                String ossPathImg = ossPath+name;
                 OSSUtils ossUtils =  new OSSUtils(context,
                         BuildConfig.OSS_BUCKET_NAME,
-                        ossPath,
+                        ossPathImg,
                         file.getAbsolutePath());
                 ossUtils.syncUploadFile();
             }

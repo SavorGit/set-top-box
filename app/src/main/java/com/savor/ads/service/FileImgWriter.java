@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import tv.danmaku.ijk.media.exo2.RangeManager;
 import tv.danmaku.ijk.media.exo2.RangeManagerFactory;
 
-public class FileWriter implements Runnable {
+public class FileImgWriter implements Runnable {
     private static final String TAG = "FileWriter";
 
     private Context mContext;
@@ -37,7 +37,7 @@ public class FileWriter implements Runnable {
     private String nickName = null;
     private String forscreen_id;
     private RemoteService.ToPlayInterface playListener;
-    public FileWriter(Context context, String screen_id, ConcurrentLinkedQueue<FileQueueParam> q, String outPath) {
+    public FileImgWriter(Context context, String screen_id, ConcurrentLinkedQueue<FileQueueParam> q, String outPath) {
         this.mContext = context;
         this.forscreen_id = screen_id;
         this.queue = q;

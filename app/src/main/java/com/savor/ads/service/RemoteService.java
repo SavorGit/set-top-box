@@ -9,7 +9,6 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -41,7 +40,6 @@ import com.savor.ads.bean.MiniProgramProjection;
 import com.savor.ads.bean.ProjectionGuideImg;
 import com.savor.ads.bean.ProjectionImg;
 import com.savor.ads.bean.ProjectionLogBean;
-import com.savor.ads.bean.ProjectionLogDetail;
 import com.savor.ads.bean.ProjectionLogHistory;
 import com.savor.ads.bean.VideoQueueParam;
 import com.savor.ads.bean.WelcomeResourceBean;
@@ -62,7 +60,7 @@ import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.LogUtils;
 import com.savor.ads.utils.StreamUtils;
 import com.tom_roush.pdfbox.pdmodel.PDDocument;
-import com.tom_roush.pdfbox.rendering.ImageType;
+//import com.tom_roush.pdfbox.rendering.ImageType;
 import com.tom_roush.pdfbox.rendering.PDFRenderer;
 
 import org.apache.commons.io.IOUtils;
@@ -74,16 +72,13 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -96,7 +91,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
-import static com.savor.ads.utils.GlobalValues.FROM_SERVICE_MINIPROGRAM;
 import static com.savor.ads.utils.GlobalValues.FROM_SERVICE_REMOTE;
 
 
@@ -1058,7 +1052,7 @@ public class RemoteService extends Service {
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
                 String outPath = path + filename;
                 if ("0".equals(index)){
-                    FileWriter writer = new FileWriter(context,forscreen_id,fileQueue,outPath);
+                    FileImgWriter writer = new FileImgWriter(context,forscreen_id,fileQueue,outPath);
                     writer.setUserInfo(avatarUrl,nickName);
                     writer.setToPlayListener(obj -> {
                         if (obj instanceof FileQueueParam){
@@ -1113,31 +1107,35 @@ public class RemoteService extends Service {
                 }
                 String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
                 File root = new File(basePath+name);
+                if (!root.exists()){
+                    root.mkdir();
+                }
                 // Load in an already created PDF
                 File pdfFile = new File(filePath);
                 if (!pdfFile.exists()){
                     return;
                 }
                 String md5 = AppUtils.getMD5(pdfFile);
-//                inputStream = new FileInputStream(pdfFile);
+                inputStream = new FileInputStream(pdfFile);
                 AssetManager assetManager = getAssets();
 
-                PDDocument document = PDDocument.load(assetManager.open("123.pdf"));
+//                PDDocument document = PDDocument.load(assetManager.open("123.pdf"));
+                PDDocument document = PDDocument.load(inputStream);
                 // Create a renderer for the document
                 PDFRenderer renderer = new PDFRenderer(document);
                 // Render the image to an RGB Bitmap
 //            pageImage = renderer.renderImage(0, 1, ImageType.RGB);
                 int pages = document.getNumberOfPages();
-                for (int i=1;i<=pages;i++){
-                    pageImage = renderer.renderImage(i, 1, ImageType.RGB);
+                for (int i=0;i<pages;i++){
+                    pageImage = renderer.renderImage(i, 1, Bitmap.Config.ARGB_8888);
 
                     // Save the render result to an image
-                    String path = root.getAbsolutePath() + "/"+i+".jpg";
+                    String path = root.getAbsolutePath() + "/"+(i+1)+".jpg";
                     File renderFile = new File(path);
                     fileOut = new FileOutputStream(renderFile);
                     pageImage.compress(Bitmap.CompressFormat.JPEG, 100, fileOut);
 
-                   if (i == 1){
+                   if (i == 0){
                        ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,"", avatarUrl, nickName,"","",currentAction, FROM_SERVICE_REMOTE);
                    }
                 }
