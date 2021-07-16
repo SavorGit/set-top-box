@@ -393,7 +393,7 @@ public class RemoteService extends Service {
                     currentAction = 24;
                     resJson = handleFileBlockUploadRequest(request);
                     break;
-                case "/showFileImg":
+                case "/h5/showFileImg":
                     currentAction = 25;
                     resJson = showFileImgRequest(request);
                     break;
@@ -1102,8 +1102,8 @@ public class RemoteService extends Service {
             try {
                 String name=null;
                 if (filename.contains(".")){
-                    String[] names = filename.split("\\.");
-                    name = names[0];
+                    int position = filename.lastIndexOf(".");
+                    name = filename.substring(0,position);
                 }
                 String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
                 File root = new File(basePath+name);
@@ -1184,21 +1184,21 @@ public class RemoteService extends Service {
                 String startTime = String.valueOf(System.currentTimeMillis());
                 res_sup_time = startTime;
                 String action = request.getParameter("action");
-                String filepath = request.getParameter("filepath");
-                String[] filenames = filepath.split("/");
+                String imgpath = request.getParameter("imgpath");
+                String[] filenames = imgpath.split("/");
                 String filename = filenames[filenames.length-1];
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-                File file = new File(filepath);
+                File file = new File(imgpath);
                 boolean isDownload = false;
                 if (file.exists()){
                     isDownload = true;
                 }
                 if (isDownload) {
-                    ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,"", avatarUrl, nickName,"","",currentAction, FROM_SERVICE_REMOTE);
+                    ProjectOperationListener.getInstance(context).showImage(2, imgpath, true,forscreen_id,"", avatarUrl, nickName,"","",currentAction, FROM_SERVICE_REMOTE);
                     String endTime = String.valueOf(System.currentTimeMillis());
                     res_eup_time = endTime;
-                    postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,filename,resource_size,resource_type,filepath,serial_number,null, true);
-                    GlobalValues.PROJECT_STREAM_IMAGE.add(filepath);
+                    postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,filename,resource_size,resource_type,imgpath,serial_number,null, true);
+                    GlobalValues.PROJECT_STREAM_IMAGE.add(imgpath);
                     object = new BaseResponse();
                     object.setMsg("滑动成功");
                     object.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
@@ -2482,11 +2482,13 @@ public class RemoteService extends Service {
                 jsonObject.accumulate("status",2);
                 jsonObject.accumulate("task_id",0);
                 jsonObject.accumulate("percent",100);
-                jsonObject.accumulate("oss_host","http://"+AppUtils.getEthernetIP()+":8080/");
+                jsonObject.accumulate("oss_host","http://"+AppUtils.getEthernetIP()+":8080");
                 JSONArray jsonArray = new JSONArray();
                 if (fileImg.isDirectory()&&fileImg.listFiles().length>0){
                     for (File file:fileImg.listFiles()){
-                        jsonArray.put(file.getAbsolutePath());
+                        String name = file.getName();
+                        String imgPath = "projection/"+filename_id+"/"+name;
+                        jsonArray.put(imgPath);
                     }
                 }
                 jsonObject.accumulate("imgs",jsonArray);
