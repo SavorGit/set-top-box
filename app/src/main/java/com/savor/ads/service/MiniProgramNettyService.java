@@ -709,7 +709,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                                 mpProjection.setFilename(projectionImg.getFilename());
                             }
                         }
-                        if (currentIndex==0){
+                        if (currentIndex==0&&mpProjection.getImg_slide()==0){
                             ProjectOperationListener.getInstance(context).showImage(1,uri,true,forscreen_id,words,avatarUrl,nickName,"",musicPath,currentAction, FROM_SERVICE_MINIPROGRAM);
                         }else {
                             ProjectOperationListener.getInstance(context).showImage(1,uri,false,forscreen_id,words,avatarUrl,nickName,"","",currentAction, FROM_SERVICE_MINIPROGRAM);
@@ -1235,6 +1235,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         imgList.addAll(mpp.getImg_list());
         ProjectionImg img = imgList.get(0);
         String url = BuildConfig.OSS_ENDPOINT+img.getUrl()+ConstantValues.PROJECTION_IMG_THUMBNAIL_PARAM;
+        String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+        String fileName = img.getFilename();
+        String imgpath = basePath + fileName;
         if (action==44){
             playTimes =mpp.getPlay_times();
             LogUtils.d("playTimes=="+playTimes+"|缩略图");
@@ -1247,13 +1250,11 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             }else{
                 GlobalValues.IMG_NUM.put(openid,1);
             }
-            if (!session.isOpenInteractscreenad()){
+            if (!session.isOpenInteractscreenad()&&!new File(imgpath).exists()){
                 ProjectOperationListener.getInstance(context).showImage(1, url, false,forscreen_id, words, headPic, nickName, FROM_SERVICE_MINIPROGRAM);
             }
         }
-        String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-        String fileName = img.getFilename();
-        String imgpath = basePath + fileName;
+
         if (img_nums>1||(img_nums==1&&!new File(imgpath).exists())){
 
             handler.post(new Runnable() {
