@@ -29,7 +29,6 @@ public class Type2CharStringParser
     private int hstemCount = 0;
     private int vstemCount = 0;
     private List<Object> sequence = null;
-    @SuppressWarnings("unused")
     private final String fontName, glyphName;
 
     /**
@@ -59,41 +58,38 @@ public class Type2CharStringParser
     /**
      * The given byte array will be parsed and converted to a Type2 sequence.
      * @param bytes the given mapping as byte array
-     * @param globalSubrIndex array containing all global subroutines
-     * @param localSubrIndex array containing all local subroutines
+     * @param globalSubrIndex index containing all global subroutines
+     * @param localSubrIndex index containing all local subroutines
      * 
      * @return the Type2 sequence
      * @throws IOException if an error occurs during reading
      */
-    public List<Object> parse(byte[] bytes, byte[][] globalSubrIndex, byte[][] localSubrIndex)
-        throws IOException
+    public List<Object> parse(byte[] bytes, IndexData globalSubrIndex, IndexData localSubrIndex) throws IOException
     {
-        return parse(bytes, globalSubrIndex, localSubrIndex, true);
+    	return parse(bytes, globalSubrIndex, localSubrIndex, true);
     }
-
-    private List<Object> parse(byte[] bytes, byte[][] globalSubrIndex, byte[][] localSubrIndex,
-        boolean init) throws IOException
+    
+    private List<Object> parse(byte[] bytes, IndexData globalSubrIndex, IndexData localSubrIndex, boolean init) throws IOException
     {
         if (init) 
         {
-            hstemCount = 0;
-            vstemCount = 0;
-            sequence = new ArrayList<Object>();
+	        hstemCount = 0;
+	        vstemCount = 0;
+	        sequence = new ArrayList<Object>();
         }
         DataInput input = new DataInput(bytes);
-        boolean localSubroutineIndexProvided = localSubrIndex != null && localSubrIndex.length > 0;
-        boolean globalSubroutineIndexProvided =
-            globalSubrIndex != null && globalSubrIndex.length > 0;
+        boolean localSubroutineIndexProvided = localSubrIndex != null && localSubrIndex.getCount() > 0;
+        boolean globalSubroutineIndexProvided = globalSubrIndex != null && globalSubrIndex.getCount() > 0;
 
         while (input.hasRemaining())
         {
             int b0 = input.readUnsignedByte();
             if (b0 == 10 && localSubroutineIndexProvided) 
             { // process subr command
-                Integer operand = (Integer)sequence.remove(sequence.size() - 1);
-                //get subrbias
+            	Integer operand=(Integer)sequence.remove(sequence.size()-1);
+            	//get subrbias
                 int bias = 0;
-                int nSubrs = localSubrIndex.length;
+                int nSubrs = localSubrIndex.getCount();
                 
                 if (nSubrs < 1240)
                 {
@@ -108,9 +104,9 @@ public class Type2CharStringParser
                     bias = 32768;
                 }
                 int subrNumber = bias+operand;
-                if (subrNumber < localSubrIndex.length)
+                if (subrNumber < localSubrIndex.getCount())
                 {
-                    byte[] subrBytes = localSubrIndex[subrNumber];
+                    byte[] subrBytes = localSubrIndex.getBytes(subrNumber);
                     parse(subrBytes, globalSubrIndex, localSubrIndex, false);
                     Object lastItem=sequence.get(sequence.size()-1);
                     if (lastItem instanceof CharStringCommand && ((CharStringCommand)lastItem).getKey().getValue()[0] == 11)
@@ -118,14 +114,14 @@ public class Type2CharStringParser
                         sequence.remove(sequence.size()-1); // remove "return" command
                     }
                 }
-
+            	
             } 
             else if (b0 == 29 && globalSubroutineIndexProvided) 
             { // process globalsubr command
                 Integer operand=(Integer)sequence.remove(sequence.size()-1);
                 //get subrbias
                 int bias = 0;
-                int nSubrs = globalSubrIndex.length;
+                int nSubrs = globalSubrIndex.getCount();
                 
                 if (nSubrs < 1240)
                 {
@@ -141,9 +137,9 @@ public class Type2CharStringParser
                 }
                 
                 int subrNumber = bias+operand;
-                if (subrNumber < globalSubrIndex.length)
+                if (subrNumber < globalSubrIndex.getCount())
                 {
-                    byte[] subrBytes = globalSubrIndex[subrNumber];
+                    byte[] subrBytes = globalSubrIndex.getBytes(subrNumber);
                     parse(subrBytes, globalSubrIndex, localSubrIndex, false);
                     Object lastItem=sequence.get(sequence.size()-1);
                     if (lastItem instanceof CharStringCommand && ((CharStringCommand)lastItem).getKey().getValue()[0]==11) 
@@ -151,7 +147,7 @@ public class Type2CharStringParser
                         sequence.remove(sequence.size()-1); // remove "return" command
                     }
                 }
-
+                	
             } 
             else if (b0 >= 0 && b0 <= 27)
             {
@@ -216,7 +212,10 @@ public class Type2CharStringParser
 
         if (b0 == 28)
         {
-            return (int)input.readShort();
+            int b1 = input.readUnsignedByte();
+            int b2 = input.readUnsignedByte();
+
+            return (int) (short) (b1 << 8 | b2);
         } 
         else if (b0 >= 32 && b0 <= 246)
         {
@@ -236,12 +235,13 @@ public class Type2CharStringParser
         } 
         else if (b0 == 255)
         {
-            short value = input.readShort();
+            int b1 = input.readUnsignedByte();
+            int b2 = input.readUnsignedByte();
             // The lower bytes are representing the digits after 
             // the decimal point and aren't needed in this context
             input.readUnsignedByte();
             input.readUnsignedByte();
-            return (int)value;
+            return (int) (short)(b1 << 8 | b2);
         } 
         else
         {
@@ -251,29 +251,37 @@ public class Type2CharStringParser
 
     private int getMaskLength()
     {
+        int length = 1;
+
         int hintCount = hstemCount + vstemCount;
-        int length = (int)(hintCount / 8);
-        if (hintCount % 8 > 0)
+        while ((hintCount -= 8) > 0)
         {
             length++;
         }
+
         return length;
     }
 
     private List<Number> peekNumbers()
     {
         List<Number> numbers = new ArrayList<Number>();
+
         for (int i = sequence.size() - 1; i > -1; i--)
         {
             Object object = sequence.get(i);
 
             if (object instanceof Number)
             {
-                numbers.add(0, (Number) object);
+                Number number = (Number) object;
+
+                numbers.add(0, number);
+
                 continue;
             }
+
             return numbers;
         }
+
         return numbers;
     }
 }

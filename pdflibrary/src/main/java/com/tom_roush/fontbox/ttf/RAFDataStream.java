@@ -18,6 +18,7 @@ package com.tom_roush.fontbox.ttf;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -31,19 +32,18 @@ class RAFDataStream extends TTFDataStream
 {
     private RandomAccessFile raf = null;
     private File ttfFile = null;
-    private static final int BUFFERSIZE = 16834;
     
     /**
      * Constructor.
      * 
      * @param name The raf file.
      * @param mode The mode to open the RAF.
-     *
-     * @throws IOException If there is a problem creating the RAF.
+     * 
+     * @throws FileNotFoundException If there is a problem creating the RAF.
      * 
      * @see RandomAccessFile#RandomAccessFile( String, String )
      */
-    RAFDataStream(String name, String mode) throws IOException
+    RAFDataStream(String name, String mode) throws FileNotFoundException
     {
         this( new File( name ), mode );
     }
@@ -53,14 +53,14 @@ class RAFDataStream extends TTFDataStream
      * 
      * @param file The raf file.
      * @param mode The mode to open the RAF.
-     *
-     * @throws IOException If there is a problem creating the RAF.
+     * 
+     * @throws FileNotFoundException If there is a problem creating the RAF.
      * 
      * @see RandomAccessFile#RandomAccessFile( File, String )
      */
-    RAFDataStream(File file, String mode) throws IOException
+    RAFDataStream(File file, String mode) throws FileNotFoundException
     {
-        raf = new BufferedRandomAccessFile(file, mode, BUFFERSIZE);
+        raf = new RandomAccessFile( file, mode );
         ttfFile = file;
     }
     
@@ -70,7 +70,6 @@ class RAFDataStream extends TTFDataStream
      * @return An signed short.
      * @throws IOException If there is an error reading the data.
      */
-    @Override
     public short readSignedShort() throws IOException
     {
         return raf.readShort();
@@ -81,7 +80,6 @@ class RAFDataStream extends TTFDataStream
      * @return The current position in the stream.
      * @throws IOException If an error occurs while reading the stream.
      */
-    @Override
     public long getCurrentPosition() throws IOException
     {
         return raf.getFilePointer();
@@ -92,7 +90,6 @@ class RAFDataStream extends TTFDataStream
      * 
      * @throws IOException If there is an error closing the resources.
      */
-    @Override
     public void close() throws IOException
     {
         raf.close();
@@ -104,7 +101,6 @@ class RAFDataStream extends TTFDataStream
      * @return An unsigned byte.
      * @throws IOException If there is an error reading the data.
      */
-    @Override
     public int read() throws IOException
     {
         return raf.read();
@@ -116,7 +112,6 @@ class RAFDataStream extends TTFDataStream
      * @return An unsigned short.
      * @throws IOException If there is an error reading the data.
      */
-    @Override
     public int readUnsignedShort() throws IOException
     {
         return raf.readUnsignedShort();
@@ -127,7 +122,6 @@ class RAFDataStream extends TTFDataStream
      * @return An unsigned byte.
      * @throws IOException If there is an error reading the data.
      */
-    @Override
     public long readLong() throws IOException
     {
         return raf.readLong();
@@ -139,7 +133,6 @@ class RAFDataStream extends TTFDataStream
      * @param pos The position to seek to.
      * @throws IOException If there is an error seeking to that position.
      */
-    @Override
     public void seek(long pos) throws IOException
     {
         raf.seek( pos );
@@ -156,7 +149,6 @@ class RAFDataStream extends TTFDataStream
      * 
      * @throws IOException If there is an error reading from the stream.
      */
-    @Override
     public int read(byte[] b, int off, int len) throws IOException
     {
         return raf.read(b, off, len);
@@ -165,7 +157,6 @@ class RAFDataStream extends TTFDataStream
     /**
      * {@inheritDoc}
      */
-    @Override
     public InputStream getOriginalData() throws IOException
     {
         return new FileInputStream( ttfFile );

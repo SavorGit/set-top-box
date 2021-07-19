@@ -40,7 +40,6 @@ import com.tom_roush.pdfbox.pdmodel.interactive.form.FieldUtils.KeyValue;
 public abstract class PDChoice extends PDVariableText
 {
     static final int FLAG_COMBO = 1 << 17;
-
     private static final int FLAG_SORT = 1 << 19;
     private static final int FLAG_MULTI_SELECT = 1 << 21;
     private static final int FLAG_DO_NOT_SPELL_CHECK = 1 << 22;
@@ -54,7 +53,7 @@ public abstract class PDChoice extends PDVariableText
     public PDChoice(PDAcroForm acroForm)
     {
         super(acroForm);
-        getCOSObject().setItem(COSName.FT, COSName.CH);
+        dictionary.setItem(COSName.FT, COSName.CH);
     }
 
     /**
@@ -62,7 +61,7 @@ public abstract class PDChoice extends PDVariableText
      *
      * @param acroForm The form that this field is part of.
      * @param field the PDF object to represent as a field.
-     * @param parent the parent node of the node
+     * @param parent the parent node of the node to be created
      */
     PDChoice(PDAcroForm acroForm, COSDictionary field, PDNonTerminalField parent)
     {
@@ -85,10 +84,11 @@ public abstract class PDChoice extends PDVariableText
      * </p>
      *
      * @return List containing the export values.
+     * @return COSArray containing all options.
      */
     public List<String> getOptions()
     {
-        COSBase values = getCOSObject().getDictionaryObject(COSName.OPT);
+        COSBase values = dictionary.getDictionaryObject(COSName.OPT);
         return FieldUtils.getPairableItems(values, 0);
     }
 
@@ -115,12 +115,12 @@ public abstract class PDChoice extends PDVariableText
             {
                 Collections.sort(displayValues);
             }
-            getCOSObject().setItem(COSName.OPT,
+            dictionary.setItem(COSName.OPT,
                 COSArrayList.convertStringListToCOSStringCOSArray(displayValues));
         }
         else
         {
-            getCOSObject().removeItem(COSName.OPT);
+            dictionary.removeItem(COSName.OPT);
         }
     }
 
@@ -154,12 +154,10 @@ public abstract class PDChoice extends PDVariableText
             else
             {
                 List<KeyValue> keyValuePairs = FieldUtils.toKeyValueList(exportValues, displayValues);
-
                 if (isSort())
                 {
                     FieldUtils.sortByValue(keyValuePairs);
                 }
-
                 COSArray options = new COSArray();
                 for (int i = 0; i<exportValues.size(); i++)
                 {
@@ -168,12 +166,12 @@ public abstract class PDChoice extends PDVariableText
                     entry.add(new COSString(keyValuePairs.get(i).getValue()));
                     options.add(entry);
                 }
-                getCOSObject().setItem(COSName.OPT, options);
+                dictionary.setItem(COSName.OPT, options);
             }
         }
         else
         {
-            getCOSObject().removeItem(COSName.OPT);
+            dictionary.removeItem(COSName.OPT);
         }
     }
 
@@ -191,7 +189,7 @@ public abstract class PDChoice extends PDVariableText
      */
     public List<String> getOptionsDisplayValues()
     {
-        COSBase values = getCOSObject().getDictionaryObject(COSName.OPT);
+        COSBase values = dictionary.getDictionaryObject(COSName.OPT);
         return FieldUtils.getPairableItems(values, 1);
     }
 
@@ -225,7 +223,7 @@ public abstract class PDChoice extends PDVariableText
      */
     public List<Integer> getSelectedOptionsIndex()
     {
-        COSBase value = getCOSObject().getDictionaryObject(COSName.I);
+        COSBase value = dictionary.getDictionaryObject(COSName.I);
         if (value != null)
         {
             return COSArrayList.convertIntegerCOSArrayToList((COSArray) value);
@@ -257,11 +255,11 @@ public abstract class PDChoice extends PDVariableText
                 throw new IllegalArgumentException(
                     "Setting the indices is not allowed for choice fields not allowing multiple selections.");
             }
-            getCOSObject().setItem(COSName.I, COSArrayList.converterToCOSArray(values));
+            dictionary.setItem(COSName.I, COSArrayList.converterToCOSArray(values));
         }
         else
         {
-            getCOSObject().removeItem(COSName.I);
+            dictionary.removeItem(COSName.I);
         }
     }
 
@@ -278,7 +276,7 @@ public abstract class PDChoice extends PDVariableText
      */
     public boolean isSort()
     {
-        return getCOSObject().getFlag(COSName.FF, FLAG_SORT);
+        return dictionary.getFlag(COSName.FF, FLAG_SORT);
     }
 
     /**
@@ -289,7 +287,7 @@ public abstract class PDChoice extends PDVariableText
      */
     public void setSort( boolean sort )
     {
-        getCOSObject().setFlag(COSName.FF, FLAG_SORT, sort);
+        dictionary.setFlag(COSName.FF, FLAG_SORT, sort);
     }
 
     /**
@@ -299,7 +297,7 @@ public abstract class PDChoice extends PDVariableText
      */
     public boolean isMultiSelect()
     {
-        return getCOSObject().getFlag(COSName.FF, FLAG_MULTI_SELECT);
+        return dictionary.getFlag(COSName.FF, FLAG_MULTI_SELECT);
     }
 
     /**
@@ -309,7 +307,7 @@ public abstract class PDChoice extends PDVariableText
      */
     public void setMultiSelect( boolean multiSelect )
     {
-        getCOSObject().setFlag(COSName.FF, FLAG_MULTI_SELECT, multiSelect);
+        dictionary.setFlag(COSName.FF, FLAG_MULTI_SELECT, multiSelect);
     }
 
     /**
@@ -319,7 +317,7 @@ public abstract class PDChoice extends PDVariableText
      */
     public boolean isDoNotSpellCheck()
     {
-        return getCOSObject().getFlag(COSName.FF, FLAG_DO_NOT_SPELL_CHECK);
+        return dictionary.getFlag(COSName.FF, FLAG_DO_NOT_SPELL_CHECK);
     }
 
     /**
@@ -329,7 +327,7 @@ public abstract class PDChoice extends PDVariableText
      */
     public void setDoNotSpellCheck( boolean doNotSpellCheck )
     {
-        getCOSObject().setFlag(COSName.FF, FLAG_DO_NOT_SPELL_CHECK, doNotSpellCheck);
+        dictionary.setFlag(COSName.FF, FLAG_DO_NOT_SPELL_CHECK, doNotSpellCheck);
     }
 
     /**
@@ -339,7 +337,7 @@ public abstract class PDChoice extends PDVariableText
      */
     public boolean isCommitOnSelChange()
     {
-        return getCOSObject().getFlag(COSName.FF, FLAG_COMMIT_ON_SEL_CHANGE);
+        return dictionary.getFlag(COSName.FF, FLAG_COMMIT_ON_SEL_CHANGE);
     }
 
     /**
@@ -349,7 +347,7 @@ public abstract class PDChoice extends PDVariableText
      */
     public void setCommitOnSelChange( boolean commitOnSelChange )
     {
-        getCOSObject().setFlag(COSName.FF, FLAG_COMMIT_ON_SEL_CHANGE, commitOnSelChange);
+        dictionary.setFlag(COSName.FF, FLAG_COMMIT_ON_SEL_CHANGE, commitOnSelChange);
     }
 
     /**
@@ -359,7 +357,7 @@ public abstract class PDChoice extends PDVariableText
      */
     public boolean isCombo()
     {
-        return getCOSObject().getFlag(COSName.FF, FLAG_COMBO);
+        return dictionary.getFlag(COSName.FF, FLAG_COMBO);
     }
 
     /**
@@ -369,7 +367,7 @@ public abstract class PDChoice extends PDVariableText
      */
     public void setCombo( boolean combo )
     {
-        getCOSObject().setFlag(COSName.FF, FLAG_COMBO, combo);
+        dictionary.setFlag(COSName.FF, FLAG_COMBO, combo);
     }
 
     /**
@@ -378,10 +376,9 @@ public abstract class PDChoice extends PDVariableText
      * @param value The name of the selected item.
      * @throws IOException if the value could not be set
      */
-    @Override
     public void setValue(String value) throws IOException
     {
-        getCOSObject().setString(COSName.V, value);
+        dictionary.setString(COSName.V, value);
 
         // remove I key for single valued choice field
         setSelectedOptionsIndex(null);
@@ -397,7 +394,7 @@ public abstract class PDChoice extends PDVariableText
      */
     public void setDefaultValue(String value) throws IOException
     {
-        getCOSObject().setString(COSName.DV, value);
+        dictionary.setString(COSName.DV, value);
     }
 
     /**
@@ -418,13 +415,13 @@ public abstract class PDChoice extends PDVariableText
             {
                 throw new IllegalArgumentException("The values are not contained in the selectable options.");
             }
-            getCOSObject()
+            dictionary
                 .setItem(COSName.V, COSArrayList.convertStringListToCOSStringCOSArray(values));
             updateSelectedOptionsIndex(values);
         }
         else
         {
-            getCOSObject().removeItem(COSName.V);
+            dictionary.removeItem(COSName.V);
         }
         applyChange();
     }
@@ -456,7 +453,7 @@ public abstract class PDChoice extends PDVariableText
      */
     private List<String> getValueFor(COSName name)
     {
-        COSBase value = getCOSObject().getDictionaryObject(name);
+        COSBase value = dictionary.getDictionaryObject(name);
         if (value instanceof COSString)
         {
             List<String> array = new ArrayList<String>();
@@ -494,6 +491,5 @@ public abstract class PDChoice extends PDVariableText
         setSelectedOptionsIndex(indices);
     }
 
-    @Override
     abstract void constructAppearances() throws IOException;
 }

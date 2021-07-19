@@ -41,7 +41,7 @@ import com.tom_roush.pdfbox.cos.COSName;
  */
 public class PDNumberTreeNode implements COSObjectable
 {
-    private final COSDictionary node;
+	private final COSDictionary node;
     private Class<? extends COSObjectable> valueType = null;
 
     /**
@@ -158,8 +158,7 @@ public class PDNumberTreeNode implements COSObjectable
             }
             else
             {
-                Log.w("PdfBox-Android",
-                    "NumberTreeNode does not have \"nums\" nor \"kids\" objects.");
+            	Log.w("PdfBox-Android", "NumberTreeNode does not have \"nums\" nor \"kids\" objects.");
             }
         }
         return retval;
@@ -200,6 +199,7 @@ public class PDNumberTreeNode implements COSObjectable
      *
      * @param base The COS object to convert.
      * @return The converted PD Model object.
+     * @throws IOException If there is an error during creation.
      */
     protected COSObjectable convertCOSToPD( COSBase base ) throws IOException
     {
@@ -212,6 +212,7 @@ public class PDNumberTreeNode implements COSObjectable
         catch( Throwable t )
         {
             throw new IOException( "Error while trying to create value in number tree:" + t.getMessage(), t);
+
         }
         return retval;
     }

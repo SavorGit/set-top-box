@@ -32,10 +32,8 @@ import com.tom_roush.pdfbox.pdmodel.interactive.digitalsignature.visible.PDVisib
 public class SignatureOptions implements Closeable
 {
     private COSDocument visualSignature;
-    private int preferredSignatureSize;
+    private int preferedSignatureSize;
     private int pageNo;
-
-    public static final int DEFAULT_SIGNATURE_SIZE = 0x2500;
 
     /**
      * Creates the default signature options.
@@ -46,7 +44,7 @@ public class SignatureOptions implements Closeable
     }
 
     /**
-     * Set the 0-based page number.
+     * Set the page number.
      * 
      * @param pageNo the page number
      */
@@ -56,7 +54,7 @@ public class SignatureOptions implements Closeable
     }
   
     /**
-     * Get the 0-based page number.
+     * Get the page number.
      * 
      * @return the page number
      */
@@ -115,24 +113,24 @@ public class SignatureOptions implements Closeable
   
     /**
      * Get the preferred size of the signature.
-     *
-     * @return the preferred size of the signature in bytes.
+     * 
+     * @return the preferred size
      */
-    public int getPreferredSignatureSize()
+    public int getPreferedSignatureSize()
     {
-        return preferredSignatureSize;
+      return preferedSignatureSize;
     }
   
     /**
      * Set the preferred size of the signature.
-     *
-     * @param size the size of the signature in bytes. Only values above 0 will be considered.
+     * 
+     * @param size the size of the signature
      */
-    public void setPreferredSignatureSize(int size)
+    public void setPreferedSignatureSize(int size)
     {
         if (size > 0)
         {
-            preferredSignatureSize = size;
+            preferedSignatureSize = size;
         }
     }
 

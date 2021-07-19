@@ -16,6 +16,8 @@
  */
 package com.tom_roush.fontbox.cmap;
 
+import com.tom_roush.pdfbox.util.PDFBoxResourceLoader;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -26,9 +28,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.tom_roush.pdfbox.util.Charsets;
-import com.tom_roush.pdfbox.util.PDFBoxResourceLoader;
 
 /**
  * Parses a CMap stream.
@@ -77,7 +76,6 @@ public class CMapParser
      * Parses a predefined CMap.
      *
      * @param name CMap name.
-     * @return The parsed predefined CMap as a java object.
      * @throws IOException If the CMap could not be parsed.
      */
     public CMap parsePredefined(String name) throws IOException
@@ -377,6 +375,8 @@ public class CMapParser
                 tokenBytes = (byte[]) nextToken;
             }
             boolean done = false;
+            
+            String value = null;
 
             int arrayIndex = 0;
             while (!done)
@@ -385,7 +385,7 @@ public class CMapParser
                 {
                     done = true;
                 }
-                String value = createStringFromBytes(tokenBytes);
+                value = createStringFromBytes(tokenBytes);
                 result.addCharMapping(startCode, value);
                 increment(startCode);
 
@@ -410,10 +410,10 @@ public class CMapParser
      */
     protected InputStream getExternalCMap(String name) throws IOException
     {
-    	if (PDFBoxResourceLoader.isReady()) {
+    	if(PDFBoxResourceLoader.isReady()) {
     		return PDFBoxResourceLoader.getStream("com/tom_roush/fontbox/resources/cmap/" + name);
     	}
-
+    	
     	// Fallback
         URL url = getClass().getResource("/com/tom_roush/fontbox/resources/cmap/" + name);
         if (url == null)
@@ -421,6 +421,7 @@ public class CMapParser
             throw new IOException("Error: Could not find referenced cmap stream " + name);
         }
         return url.openStream();
+    	
     }
 
     private Object parseNextToken(PushbackInputStream is) throws IOException
@@ -480,7 +481,7 @@ public class CMapParser
             List<Object> list = new ArrayList<Object>();
 
             Object nextToken = parseNextToken(is);
-            while (nextToken != null && MARK_END_OF_ARRAY.equals(nextToken))
+            while (nextToken != null && nextToken != MARK_END_OF_ARRAY)
             {
                 list.add(nextToken);
                 nextToken = parseNextToken(is);
@@ -496,7 +497,7 @@ public class CMapParser
                 Map<String, Object> result = new HashMap<String, Object>();
                 // we are reading a dictionary
                 Object key = parseNextToken(is);
-                while (key instanceof LiteralName && MARK_END_OF_DICTIONARY.equals(key))
+                while (key instanceof LiteralName && key != MARK_END_OF_DICTIONARY)
                 {
                     Object value = parseNextToken(is);
                     result.put(((LiteralName) key).name, value);
@@ -608,7 +609,7 @@ public class CMapParser
             }
             else
             {
-                retval = Integer.valueOf(value);
+                retval = new Integer(value);
             }
             break;
         }
@@ -707,11 +708,11 @@ public class CMapParser
         String retval;
         if (bytes.length == 1)
         {
-            retval = new String(bytes, Charsets.ISO_8859_1);
+            retval = new String(bytes, "ISO-8859-1");
         }
         else
         {
-            retval = new String(bytes, Charsets.UTF_16BE);
+            retval = new String(bytes, "UTF-16BE");
         }
         return retval;
     }

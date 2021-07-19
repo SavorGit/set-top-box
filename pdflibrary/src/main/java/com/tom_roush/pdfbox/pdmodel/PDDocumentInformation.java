@@ -30,11 +30,11 @@ import com.tom_roush.pdfbox.pdmodel.common.COSObjectable;
  * method then it will clear the value.
  *
  * @author Ben Litchfield
- * @author Gerardo Ortiz
+ * @author  Gerardo Ortiz
  */
-public class PDDocumentInformation implements COSObjectable
+public final class PDDocumentInformation implements COSObjectable
 {
-    private final COSDictionary info;
+    private COSDictionary info;
 
     /**
      * Default Constructor.
@@ -77,7 +77,7 @@ public class PDDocumentInformation implements COSObjectable
      */
     public Object getPropertyStringValue(String propertyKey)
     {
-        return info.getString(propertyKey);
+    	return info.getString(propertyKey);
     }
 
     /**

@@ -44,37 +44,34 @@ public class PDFParser extends COSParser
     private InputStream keyStoreInputStream = null;
     private String keyAlias = null;
 
-    private PDEncryption encryption = null;
     private AccessPermission accessPermission;
 
     /**
      * Constructor.
-     * Unrestricted main memory will be used for buffering PDF streams.
      *
-     * @param source source representing the pdf.
+     * @param source input representing the pdf.
      * @throws IOException If something went wrong.
      */
     public PDFParser(RandomAccessRead source) throws IOException
     {
-        this(source, "", ScratchFile.getMainMemoryOnlyInstance());
+        this(source, "", false);
     }
 
     /**
      * Constructor.
      *
      * @param source input representing the pdf.
-     * @param scratchFile use a {@link ScratchFile} for temporary storage.
+     * @param useScratchFiles use a fiel based buffer for temporary storage.
      * 
      * @throws IOException If something went wrong.
      */
-    public PDFParser(RandomAccessRead source, ScratchFile scratchFile) throws IOException
+    public PDFParser(RandomAccessRead source, boolean useScratchFiles) throws IOException
     {
-        this(source, "", scratchFile);
+        this(source, "", useScratchFiles);
     }
 
     /**
      * Constructor.
-     * Unrestricted main memory will be used for buffering PDF streams.
      *
      * @param source input representing the pdf.
      * @param decryptionPassword password to be used for decryption.
@@ -82,7 +79,7 @@ public class PDFParser extends COSParser
      */
     public PDFParser(RandomAccessRead source, String decryptionPassword) throws IOException
     {
-        this(source, decryptionPassword, ScratchFile.getMainMemoryOnlyInstance());
+        this(source, decryptionPassword, false);
     }
 
     /**
@@ -90,19 +87,18 @@ public class PDFParser extends COSParser
      *
      * @param source input representing the pdf.
      * @param decryptionPassword password to be used for decryption.
-     * @param scratchFile use a {@link ScratchFile} for temporary storage.
+     * @param useScratchFiles use a buffer for temporary storage.
      *
      * @throws IOException If something went wrong.
      */
-    public PDFParser(RandomAccessRead source, String decryptionPassword, ScratchFile scratchFile)
+    public PDFParser(RandomAccessRead source, String decryptionPassword, boolean useScratchFiles)
             throws IOException
     {
-        this(source, decryptionPassword, null, null, scratchFile);
+        this(source, decryptionPassword, null, null, useScratchFiles);
     }
 
     /**
      * Constructor.
-     * Unrestricted main memory will be used for buffering PDF streams.
      *
      * @param source input representing the pdf.
      * @param decryptionPassword password to be used for decryption.
@@ -114,7 +110,7 @@ public class PDFParser extends COSParser
     public PDFParser(RandomAccessRead source, String decryptionPassword, InputStream keyStore,
             String alias) throws IOException
     {
-        this(source, decryptionPassword, keyStore, alias, ScratchFile.getMainMemoryOnlyInstance());
+        this(source, decryptionPassword, keyStore, alias, false);
     }
 
     /**
@@ -123,6 +119,28 @@ public class PDFParser extends COSParser
      * @param source input representing the pdf.
      * @param decryptionPassword password to be used for decryption.
      * @param keyStore key store to be used for decryption when using public key security 
+     * @param alias alias to be used for decryption when using public key security
+     * @param useScratchFiles use a buffer for temporary storage.
+     *
+     * @throws IOException If something went wrong.
+     */
+    public PDFParser(RandomAccessRead source, String decryptionPassword, InputStream keyStore,
+            String alias, boolean useScratchFiles) throws IOException
+    {
+        super(source);
+        fileLen = source.length();
+        password = decryptionPassword;
+        keyStoreInputStream = keyStore;
+        keyAlias = alias;
+        init(useScratchFiles);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param source input representing the pdf.
+     * @param decryptionPassword password to be used for decryption.
+     * @param keyStore key store to be used for decryption when using public key security
      * @param alias alias to be used for decryption when using public key security
      * @param scratchFile buffer handler for temporary storage; it will be closed on
      * {@link COSDocument#close()}
@@ -150,11 +168,29 @@ public class PDFParser extends COSParser
             }
             catch (NumberFormatException nfe)
             {
-                Log.w("PdfBox-Android", "System property " + SYSPROP_EOFLOOKUPRANGE +
-                    " does not contain an integer value, but: '" + eofLookupRangeStr + "'");
+                Log.w("PdfBox-Android", "System property " + SYSPROP_EOFLOOKUPRANGE
+                    + " does not contain an integer value, but: '" + eofLookupRangeStr + "'");
             }
         }
         document = new COSDocument(scratchFile);
+    }
+
+    private void init(boolean useScratchFiles) throws IOException
+    {
+        String eofLookupRangeStr = System.getProperty(SYSPROP_EOFLOOKUPRANGE);
+        if (eofLookupRangeStr != null)
+        {
+            try
+            {
+                setEOFLookupRange(Integer.parseInt(eofLookupRangeStr));
+            }
+            catch (NumberFormatException nfe)
+            {
+            	Log.w("PdfBox-Android", "System property " + SYSPROP_EOFLOOKUPRANGE
+                        + " does not contain an integer value, but: '" + eofLookupRangeStr + "'");
+            }
+        }
+        document = new COSDocument(useScratchFiles);
     }
 
     /**
@@ -167,9 +203,7 @@ public class PDFParser extends COSParser
      */
     public PDDocument getPDDocument() throws IOException
     {
-        PDDocument doc = new PDDocument(getDocument(), source, accessPermission);
-        doc.setEncryptionDictionary(encryption);
-        return doc;
+        return new PDDocument(getDocument(), source, accessPermission);
     }
 
     /**
@@ -194,29 +228,13 @@ public class PDFParser extends COSParser
         }
         // prepare decryption if necessary
         prepareDecryption();
-
-        COSBase base = parseTrailerValuesDynamically(trailer);
-        if (!(base instanceof COSDictionary))
-        {
-            throw new IOException("Expected root dictionary, but got this: " + base);
-        }
-        COSDictionary root = (COSDictionary)base;
-        // in some pdfs the type value "Catalog" is missing in the root object
-        if (isLenient() && !root.containsKey(COSName.TYPE))
-        {
-            root.setItem(COSName.TYPE, COSName.CATALOG);
-        }
+    
+        parseTrailerValuesDynamically(trailer);
+    
         COSObject catalogObj = document.getCatalog();
         if (catalogObj != null && catalogObj.getObject() instanceof COSDictionary)
         {
             parseDictObjects((COSDictionary) catalogObj.getObject(), (COSName[]) null);
-
-            COSBase infoBase = trailer.getDictionaryObject(COSName.INFO);
-            if (infoBase instanceof COSDictionary)
-            {
-                parseDictObjects((COSDictionary)infoBase, (COSName[])null);
-            }
-
             document.setDecrypted();
         }
         initialParseDone = true;
@@ -224,7 +242,7 @@ public class PDFParser extends COSParser
 
     /**
      * This will parse the stream and populate the COSDocument object.  This will close
-     * the keystore stream when it is done parsing.
+     * the stream when it is done parsing.
      *
      * @throws IOException If there is an error reading from the stream or corrupt data
      * is found.
@@ -276,7 +294,7 @@ public class PDFParser extends COSParser
             }
             try
             {
-                encryption = new PDEncryption(document.getEncryptionDictionary());
+                PDEncryption encryption = new PDEncryption(document.getEncryptionDictionary());
     
                 DecryptionMaterial decryptionMaterial;
                 if (keyStoreInputStream != null)

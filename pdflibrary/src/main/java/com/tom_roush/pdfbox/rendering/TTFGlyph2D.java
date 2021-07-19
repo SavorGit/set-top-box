@@ -113,8 +113,12 @@ final class TTFGlyph2D implements Glyph2D
      */
     public Path getPathForGID(int gid, int code) throws IOException
     {
-        Path glyphPath = glyphs.get(gid);
-        if (glyphPath == null)
+        Path glyphPath;
+        if (glyphs.containsKey(gid))
+        {
+            glyphPath = glyphs.get(gid);
+        }
+        else
         {
             if (gid == 0 || gid >= ttf.getMaximumProfile().getNumGlyphs())
             {
@@ -130,20 +134,17 @@ final class TTFGlyph2D implements Glyph2D
                     Log.w("PdfBox-Android", "No glyph for " + code + " in font " + font.getName());
                 }
             }
-
             Path glyph = vectorFont.getPath(code);
-
             // Acrobat only draws GID 0 for embedded or "Standard 14" fonts, see PDFBOX-2372
             if (gid == 0 && !font.isEmbedded() && !font.isStandard14())
             {
                 glyph = null;
             }
-
             if (glyph == null)
             {
                 // empty glyph (e.g. space, newline)
                 glyphPath = new Path();
-//                glyphs.put(gid, glyphPath); TODO: PdfBox-Android
+                glyphs.put(gid, glyphPath);
             }
             else
             {
@@ -153,11 +154,10 @@ final class TTFGlyph2D implements Glyph2D
                     AffineTransform atScale = AffineTransform.getScaleInstance(scale, scale);
                     glyphPath.transform(atScale.toMatrix());
                 }
-//                glyphs.put(gid, glyphPath); TODO: PdfBox-Android
+                glyphs.put(gid, glyphPath);
             }
         }
-        // todo: expensive
-        return new Path(glyphPath);
+        return glyphPath != null ? new Path(glyphPath) : null; // todo: expensive
     }
 
     @Override

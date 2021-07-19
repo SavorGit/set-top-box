@@ -21,20 +21,17 @@
 
 package com.tom_roush.pdfbox.pdfparser;
 
+import com.tom_roush.pdfbox.cos.COSDocument;
+import com.tom_roush.pdfbox.io.RandomAccessBufferedFileInputStream;
+import com.tom_roush.pdfbox.io.RandomAccessRead;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URISyntaxException;
-
-import com.tom_roush.pdfbox.cos.COSDocument;
-import com.tom_roush.pdfbox.io.MemoryUsageSetting;
-import com.tom_roush.pdfbox.io.RandomAccessBufferedFileInputStream;
-import com.tom_roush.pdfbox.io.RandomAccessRead;
-import com.tom_roush.pdfbox.io.ScratchFile;
-import com.tom_roush.pdfbox.pdmodel.PDDocument;
-
-import org.junit.Before;
-import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -89,10 +86,8 @@ public class TestPDFParser
         try
         {
             executeParserTest(new RandomAccessBufferedFileInputStream(
-                    new File(getClass().getResource(PATH_OF_PDF).toURI())),
-                MemoryUsageSetting.setupMainMemoryOnly());
-        }
-        catch (URISyntaxException e)
+                new File(getClass().getResource(PATH_OF_PDF).toURI())), false);
+        } catch (URISyntaxException e)
         {
             e.printStackTrace();
         }
@@ -103,7 +98,7 @@ public class TestPDFParser
     {
         executeParserTest(
             new RandomAccessBufferedFileInputStream(getClass().getResourceAsStream(PATH_OF_PDF)),
-            MemoryUsageSetting.setupMainMemoryOnly());
+            false);
     }
 
     @Test
@@ -112,10 +107,8 @@ public class TestPDFParser
         try
         {
             executeParserTest(new RandomAccessBufferedFileInputStream(
-                    new File(getClass().getResource(PATH_OF_PDF).toURI())),
-                MemoryUsageSetting.setupTempFileOnly());
-        }
-        catch (URISyntaxException e)
+                new File(getClass().getResource(PATH_OF_PDF).toURI())), true);
+        } catch (URISyntaxException e)
         {
             e.printStackTrace();
         }
@@ -126,23 +119,13 @@ public class TestPDFParser
     {
         executeParserTest(
             new RandomAccessBufferedFileInputStream(getClass().getResourceAsStream(PATH_OF_PDF)),
-            MemoryUsageSetting.setupTempFileOnly());
+            true);
     }
 
-    @Test
-    public void testPDFParserMissingCatalog() throws IOException
-    {
-        // PDFBOX-3060
-        PDDocument.load(TestPDFParser.class
-            .getResourceAsStream("/pdfbox/com/tom_roush/pdfbox/pdfparser/MissingCatalog.pdf"))
-            .close();
-    }
-
-    private void executeParserTest(RandomAccessRead source, MemoryUsageSetting memUsageSetting)
+    private void executeParserTest(RandomAccessRead source, boolean useScratchFile)
         throws IOException
     {
-        ScratchFile scratchFile = new ScratchFile(memUsageSetting);
-        PDFParser pdfParser = new PDFParser(source, scratchFile);
+        PDFParser pdfParser = new PDFParser(source, useScratchFile);
         pdfParser.parse();
         COSDocument doc = pdfParser.getDocument();
         assertNotNull(doc);

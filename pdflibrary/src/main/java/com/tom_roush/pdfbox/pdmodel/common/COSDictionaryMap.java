@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -210,11 +211,12 @@ public class COSDictionaryMap<K,V> implements Map<K,V>
      */
     public static COSDictionary convert(Map<String,?> someMap)
     {
+        Iterator<?> iter = someMap.keySet().iterator();
         COSDictionary dic = new COSDictionary();
         for (Entry<String, ?> entry : someMap.entrySet())
         {
-            String name = entry.getKey();
-            COSObjectable object = (COSObjectable)entry.getValue();
+        	String name = entry.getKey();
+        	COSObjectable object = (COSObjectable) entry.getValue();
             dic.setItem( COSName.getPDFName( name ), object.getCOSObject() );
         }
         return dic;

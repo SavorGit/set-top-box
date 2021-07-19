@@ -35,11 +35,11 @@ public final class PDComboBox extends PDChoice
     /**
      * @see PDField#PDField(PDAcroForm)
      *
-     * @param acroForm The acroForm.
+     * @param acroform The acroform.
      */
-    public PDComboBox(PDAcroForm acroForm)
+    public PDComboBox(PDAcroForm acroform)
     {
-        super(acroForm);
+        super(acroform);
         setCombo(true);
     }
 
@@ -62,7 +62,7 @@ public final class PDComboBox extends PDChoice
      */
     public boolean isEdit()
     {
-        return getCOSObject().getFlag(COSName.FF, FLAG_EDIT);
+        return dictionary.getFlag(COSName.FF, FLAG_EDIT);
     }
 
     /**
@@ -72,7 +72,7 @@ public final class PDComboBox extends PDChoice
      */
     public void setEdit(boolean edit)
     {
-        getCOSObject().setFlag(COSName.FF, FLAG_EDIT, edit);
+        dictionary.setFlag(COSName.FF, FLAG_EDIT, edit);
     }
 
     @Override

@@ -16,18 +16,6 @@
  */
 package com.tom_roush.pdfbox.multipdf;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.tom_roush.pdfbox.cos.COSArray;
 import com.tom_roush.pdfbox.cos.COSBase;
 import com.tom_roush.pdfbox.cos.COSDictionary;
@@ -36,7 +24,6 @@ import com.tom_roush.pdfbox.cos.COSName;
 import com.tom_roush.pdfbox.cos.COSNumber;
 import com.tom_roush.pdfbox.cos.COSStream;
 import com.tom_roush.pdfbox.cos.COSString;
-import com.tom_roush.pdfbox.io.MemoryUsageSetting;
 import com.tom_roush.pdfbox.pdmodel.PDDocument;
 import com.tom_roush.pdfbox.pdmodel.PDDocumentCatalog;
 import com.tom_roush.pdfbox.pdmodel.PDDocumentInformation;
@@ -54,6 +41,18 @@ import com.tom_roush.pdfbox.pdmodel.interactive.documentnavigation.outline.PDDoc
 import com.tom_roush.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 import com.tom_roush.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import com.tom_roush.pdfbox.pdmodel.interactive.form.PDField;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class will take a list of pdf documents and merge them, saving the
@@ -168,26 +167,13 @@ public class PDFMergerUtility
     }
 
     /**
-     * Merge the list of source documents, saving the result in the destination file.
-     *
-     * @throws IOException If there is an error saving the document.
-     * @deprecated use {@link #mergeDocuments(com.tom_roush.pdfbox.io.MemoryUsageSetting) }
-     */
-    @Deprecated
-    public void mergeDocuments() throws IOException
-    {
-        mergeDocuments(MemoryUsageSetting.setupMainMemoryOnly());
-    }
-
-    /**
      * Merge the list of source documents, saving the result in the destination
      * file.
      *
-     * @param memUsageSetting defines how memory is used for buffering PDF streams;
-     * in case of <code>null</code> unrestricted main memory is used
+     * @param useScratchFiles enables the usage of a scratch file if set to true
      * @throws IOException If there is an error saving the document.
      */
-    public void mergeDocuments(MemoryUsageSetting memUsageSetting) throws IOException
+    public void mergeDocuments(boolean useScratchFiles) throws IOException
     {
         PDDocument destination = null;
         InputStream sourceFile;
@@ -198,16 +184,13 @@ public class PDFMergerUtility
 
             try
             {
-                MemoryUsageSetting partitionedMemSetting =
-                    memUsageSetting != null ? memUsageSetting.getPartitionedCopy(
-                        sources.size() + 1) : MemoryUsageSetting.setupMainMemoryOnly();
                 Iterator<InputStream> sit = sources.iterator();
-                destination = new PDDocument(partitionedMemSetting);
+                destination = new PDDocument(useScratchFiles);
 
                 while (sit.hasNext())
                 {
                     sourceFile = sit.next();
-                    source = PDDocument.load(sourceFile, partitionedMemSetting);
+                    source = PDDocument.load(sourceFile, useScratchFiles);
                     tobeclosed.add(source);
                     appendDocument(destination, source);
                 }
@@ -249,13 +232,13 @@ public class PDFMergerUtility
      */
     public void appendDocument(PDDocument destination, PDDocument source) throws IOException
     {
-        if (source.getDocument().isClosed())
+        if (destination.isEncrypted())
         {
-            throw new IOException("Error: source PDF is closed.");
+            throw new IOException("Error: destination PDF is encrypted, can't append encrypted PDF documents.");
         }
-        if (destination.getDocument().isClosed())
+        if (source.isEncrypted())
         {
-            throw new IOException("Error: destination PDF is closed.");
+            throw new IOException("Error: source PDF is encrypted, can't append encrypted PDF documents.");
         }
 
         PDDocumentCatalog destCatalog = destination.getDocumentCatalog();
@@ -421,8 +404,8 @@ public class PDFMergerUtility
         if (destMetadata == null && srcMetadata != null)
         {
             PDStream newStream = new PDStream(destination, srcMetadata.createInputStream(),
-                (COSName)null);
-            newStream.getCOSObject().mergeInto(srcMetadata);
+                COSName.FLATE_DECODE);
+            newStream.getStream().mergeInto(srcMetadata);
             destCatalog.getCOSObject().setItem(COSName.METADATA, newStream);
         }
 
@@ -552,30 +535,20 @@ public class PDFMergerUtility
         List<PDField> srcFields = srcAcroForm.getFields();
         if (srcFields != null)
         {
-            // if a form is merged multiple times using PDFBox the newly generated
-            // fields starting with dummyFieldName may already exist. We need to determine the last unique
-            // number used and increment that.
-            final String prefix = "dummyFieldName";
-            final int prefixLength = prefix.length();
-
-            for (PDField destField : destAcroForm.getFieldTree())
-            {
-                String fieldName = destField.getPartialName();
-                if (fieldName.startsWith(prefix))
-                {
-                    nextFieldNum = Math.max(nextFieldNum, Integer.parseInt(fieldName.substring(prefixLength, fieldName.length()))+1);
-                }
-            }
-
+            // keep fields from previous merged parts
             COSArray destFields = (COSArray) destAcroForm.getCOSObject().getItem(COSName.FIELDS);
-            for (PDField srcField : srcAcroForm.getFieldTree())
+            if ( destFields == null ) {
+                destFields = new COSArray();
+            }
+            // fixme: we're only iterating over the root fields, names of kids aren't being checked
+            for (PDField srcField : srcFields)
             {
                 COSDictionary dstField = (COSDictionary) cloner.cloneForNewDocument(srcField.getCOSObject());
                 // if the form already has a field with this name then we need to rename this field
                 // to prevent merge conflicts.
                 if (destAcroForm.getField(srcField.getFullyQualifiedName()) != null)
                 {
-                    dstField.setString(COSName.T, prefix + nextFieldNum++);
+                    dstField.setString(COSName.T, "dummyFieldName" + nextFieldNum++);
                 }
                 destFields.add(dstField);
             }
@@ -618,7 +591,7 @@ public class PDFMergerUtility
             parentTreeEntry.setItem(COSName.PG, objMapping.get(page));
         }
         COSBase obj = parentTreeEntry.getDictionaryObject(COSName.OBJ);
-        if (obj instanceof COSDictionary && objMapping.containsKey(obj))
+        if (obj instanceof COSDictionary && objMapping.containsKey(page))
         {
             parentTreeEntry.setItem(COSName.OBJ, objMapping.get(obj));
         }

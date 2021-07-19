@@ -35,11 +35,8 @@ import com.tom_roush.fontbox.util.BoundingBox;
 import com.tom_roush.harmony.awt.geom.AffineTransform;
 import com.tom_roush.pdfbox.cos.COSDictionary;
 import com.tom_roush.pdfbox.io.IOUtils;
-import com.tom_roush.pdfbox.pdmodel.common.PDRectangle;
 import com.tom_roush.pdfbox.pdmodel.common.PDStream;
 import com.tom_roush.pdfbox.util.Matrix;
-
-import static com.tom_roush.pdfbox.pdmodel.font.UniUtil.getUniNameOfCodePoint;
 
 /**
  * Type 0 CIDFont (CFF).
@@ -59,7 +56,6 @@ public class PDCIDFontType0 extends PDCIDFont
     private Float avgWidth = null;
     private Matrix fontMatrix;
     private final AffineTransform fontMatrixTransform;
-    private BoundingBox fontBBox;
 
     /**
      * Constructor.
@@ -95,7 +91,7 @@ public class PDCIDFontType0 extends PDCIDFont
             CFFParser cffParser = new CFFParser();
             try
             {
-                cffFont = cffParser.parse(bytes, new ByteSource()).get(0);
+                cffFont = cffParser.parse(bytes).get(0);
             }
             catch (IOException e)
             {
@@ -123,8 +119,8 @@ public class PDCIDFontType0 extends PDCIDFont
         else
         {
             // find font or substitute
-            CIDFontMapping mapping = FontMappers.instance().getCIDFont(getBaseFont(),
-                getFontDescriptor(), getCIDSystemInfo());
+            CIDFontMapping mapping = FontMapper.getCIDFont(getBaseFont(), getFontDescriptor(),
+                getCIDSystemInfo());
 
             FontBoxFont font;
             if (mapping.isCIDFont())
@@ -188,38 +184,9 @@ public class PDCIDFontType0 extends PDCIDFont
         return fontMatrix;
     }
 
-    private class ByteSource implements CFFParser.ByteSource
-    {
-        @Override
-        public byte[] getBytes() throws IOException
-        {
-            PDStream ff3Stream = getFontDescriptor().getFontFile3();
-            return IOUtils.toByteArray(ff3Stream.createInputStream());
-        }
-    }
-
     @Override
     public BoundingBox getBoundingBox()
     {
-        if (fontBBox == null)
-        {
-            fontBBox = generateBoundingBox();
-        }
-        return fontBBox;
-    }
-
-    private BoundingBox generateBoundingBox()
-    {
-        if (getFontDescriptor() != null)
-        {
-            PDRectangle bbox = getFontDescriptor().getFontBoundingBox();
-            if (bbox.getLowerLeftX() != 0 || bbox.getLowerLeftY() != 0 ||
-                bbox.getUpperRightX() != 0 || bbox.getUpperRightY() != 0)
-            {
-                return new BoundingBox(bbox.getLowerLeftX(), bbox.getLowerLeftY(),
-                    bbox.getUpperRightX(), bbox.getUpperRightY());
-            }
-        }
         if (cidFont != null)
         {
             return cidFont.getFontBBox();
@@ -305,7 +272,7 @@ public class PDCIDFontType0 extends PDCIDFont
         {
             return ".notdef";
         }
-        return getUniNameOfCodePoint(unicodes.codePointAt(0));
+        return String.format("uni%04X", unicodes.codePointAt(0));
     }
 
     @Override

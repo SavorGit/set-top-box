@@ -76,7 +76,7 @@ public class TestCheckBox extends TestCase
         {
             doc = new PDDocument();
             PDAcroForm form = new PDAcroForm(doc);
-            PDCheckBox checkBox = new PDCheckBox(form);
+            PDCheckbox checkBox = new PDCheckbox(form);
 
             // test that there are no nulls returned for an empty field
             // only specific methods are tested here

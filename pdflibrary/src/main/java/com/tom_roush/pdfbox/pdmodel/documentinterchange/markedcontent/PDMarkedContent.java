@@ -91,12 +91,12 @@ public class PDMarkedContent
 
     /**
      * Gets the marked-content identifier.
-     *
-     * @return the marked-content identifier, or -1 if it doesn't exist.
+     * 
+     * @return the marked-content identifier
      */
     public int getMCID()
     {
-        return this.getProperties() == null ? -1 :
+        return this.getProperties() == null ? null :
             this.getProperties().getInt(COSName.MCID);
     }
 

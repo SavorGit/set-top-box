@@ -23,7 +23,7 @@ import com.tom_roush.pdfbox.cos.COSBase;
 import com.tom_roush.pdfbox.cos.COSName;
 import com.tom_roush.pdfbox.pdmodel.graphics.PDXObject;
 import com.tom_roush.pdfbox.pdmodel.graphics.form.PDFormXObject;
-import com.tom_roush.pdfbox.pdmodel.graphics.form.PDTransparencyGroup;
+import com.tom_roush.pdfbox.text.PDFMarkedContentExtractor;
 
 /**
  * Do: Draws an XObject.
@@ -36,32 +36,18 @@ public class DrawObject extends OperatorProcessor
     @Override
     public void process(Operator operator, List<COSBase> arguments) throws IOException
     {
-        if (arguments.size() < 1)
-        {
-            throw new MissingOperandException(operator, arguments);
-        }
-        COSBase base0 = arguments.get(0);
-        if (!(base0 instanceof COSName))
-        {
-            return;
-        }
-        COSName name = (COSName)base0;
-
-        if (context.getResources().isImageXObject(name))
-        {
-            // we're done here, don't decode images when doing text extraction
-            return;
-        }
+        COSName name = (COSName) arguments.get(0);
 
         PDXObject xobject = context.getResources().getXObject(name);
-
-        if (xobject instanceof PDTransparencyGroup)
+        if (context instanceof PDFMarkedContentExtractor)
         {
-            context.showTransparencyGroup((PDTransparencyGroup)xobject);
+            ((PDFMarkedContentExtractor) context).xobject(xobject);
         }
-        else if (xobject instanceof PDFormXObject)
+
+        if(xobject instanceof PDFormXObject)
         {
             PDFormXObject form = (PDFormXObject)xobject;
+
             context.showForm(form);
         }
     }

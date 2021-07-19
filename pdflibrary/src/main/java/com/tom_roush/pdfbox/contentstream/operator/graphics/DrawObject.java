@@ -19,14 +19,12 @@ package com.tom_roush.pdfbox.contentstream.operator.graphics;
 import java.io.IOException;
 import java.util.List;
 
-import com.tom_roush.pdfbox.contentstream.operator.MissingOperandException;
 import com.tom_roush.pdfbox.contentstream.operator.Operator;
 import com.tom_roush.pdfbox.cos.COSBase;
 import com.tom_roush.pdfbox.cos.COSName;
 import com.tom_roush.pdfbox.pdmodel.MissingResourceException;
 import com.tom_roush.pdfbox.pdmodel.graphics.PDXObject;
 import com.tom_roush.pdfbox.pdmodel.graphics.form.PDFormXObject;
-import com.tom_roush.pdfbox.pdmodel.graphics.form.PDTransparencyGroup;
 import com.tom_roush.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 /**
@@ -40,16 +38,7 @@ public final class DrawObject extends GraphicsOperatorProcessor
     @Override
     public void process(Operator operator, List<COSBase> operands) throws IOException
     {
-        if (operands.size() < 1)
-        {
-            throw new MissingOperandException(operator, operands);
-        }
-        COSBase base0 = operands.get(0);
-        if (!(base0 instanceof COSName))
-        {
-            return;
-        }
-        COSName objectName = (COSName)base0;
+        COSName objectName = (COSName)operands.get(0);
         PDXObject xobject = context.getResources().getXObject(objectName);
 
         if (xobject == null)
@@ -61,13 +50,18 @@ public final class DrawObject extends GraphicsOperatorProcessor
             PDImageXObject image = (PDImageXObject)xobject;
             context.drawImage(image);
         }
-        else if (xobject instanceof PDTransparencyGroup)
-        {
-            getContext().showTransparencyGroup((PDTransparencyGroup)xobject);
-        }
         else if (xobject instanceof PDFormXObject)
         {
-            getContext().showForm((PDFormXObject)xobject);
+            PDFormXObject form = (PDFormXObject) xobject;
+            if (form.getGroup() != null &&
+                COSName.TRANSPARENCY.equals(form.getGroup().getSubType()))
+            {
+                getContext().showTransparencyGroup(form);
+            }
+            else
+            {
+                getContext().showForm(form);
+            }
         }
     }
 

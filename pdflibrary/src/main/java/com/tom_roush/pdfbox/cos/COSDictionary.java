@@ -47,7 +47,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
      */
     public COSDictionary()
     {
-        // default constructor
+        //default constructor
     }
 
     /**
@@ -119,8 +119,8 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
     }
 
     /**
-     * This will get an object from this dictionary. If the object is a reference then it will
-     * dereference it and get it from the document. If the object is COSNull then
+     * This will get an object from this dictionary.  If the object is a reference then it will
+     * dereference it and get it from the document.  If the object is COSNull then
      * null will be returned.
      *
      * @param key The key to the object that we are getting.
@@ -136,8 +136,8 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
      * This is a special case of getDictionaryObject that takes multiple keys, it will handle
      * the situation where multiple keys could get the same value, ie if either CS or ColorSpace
      * is used to get the colorspace.
-     * This will get an object from this dictionary. If the object is a reference then it will
-     * dereference it and get it from the document. If the object is COSNull then
+     * This will get an object from this dictionary.  If the object is a reference then it will
+     * dereference it and get it from the document.  If the object is COSNull then
      * null will be returned.
      *
      * @param firstKey The first key to try.
@@ -154,13 +154,12 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
         }
         return retval;
     }
-
     /**
      * This is a special case of getDictionaryObject that takes multiple keys, it will handle
      * the situation where multiple keys could get the same value, ie if either CS or ColorSpace
      * is used to get the colorspace.
-     * This will get an object from this dictionary. If the object is a reference then it will
-     * dereference it and get it from the document. If the object is COSNull then
+     * This will get an object from this dictionary.  If the object is a reference then it will
+     * dereference it and get it from the document.  If the object is COSNull then
      * null will be returned.
      *
      * @param keyList The list of keys to find a value.
@@ -178,8 +177,8 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
     }
 
     /**
-     * This will get an object from this dictionary. If the object is a reference then it will
-     * dereference it and get it from the document. If the object is COSNull then
+     * This will get an object from this dictionary.  If the object is a reference then it will
+     * dereference it and get it from the document.  If the object is COSNull then
      * null will be returned.
      *
      * @param key The key to the object that we are getting.
@@ -201,7 +200,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
     }
 
     /**
-     * This will set an item in the dictionary. If value is null then the result
+     * This will set an item in the dictionary.  If value is null then the result
      * will be the same as removeItem( key ).
      *
      * @param key The key to the dictionary object.
@@ -220,7 +219,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
     }
 
     /**
-     * This will set an item in the dictionary. If value is null then the result
+     * This will set an item in the dictionary.  If value is null then the result
      * will be the same as removeItem( key ).
      *
      * @param key The key to the dictionary object.
@@ -237,7 +236,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
     }
 
     /**
-     * This will set an item in the dictionary. If value is null then the result
+     * This will set an item in the dictionary.  If value is null then the result
      * will be the same as removeItem( key ).
      *
      * @param key The key to the dictionary object.
@@ -271,7 +270,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
     }
 
     /**
-     * This will set an item in the dictionary. If value is null then the result
+     * This will set an item in the dictionary.  If value is null then the result
      * will be the same as removeItem( key ).
      *
      * @param key The key to the dictionary object.
@@ -284,7 +283,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will convert the value to a COSName
-     * object. If it is null then the object will be removed.
+     * object.  If it is null then the object will be removed.
      *
      * @param key The key to the object,
      * @param value The string value for the name.
@@ -296,7 +295,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will convert the value to a COSName
-     * object. If it is null then the object will be removed.
+     * object.  If it is null then the object will be removed.
      *
      * @param key The key to the object,
      * @param value The string value for the name.
@@ -368,7 +367,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will convert the value to a COSString
-     * object. If it is null then the object will be removed.
+     * object.  If it is null then the object will be removed.
      *
      * @param key The key to the object,
      * @param value The string value for the name.
@@ -380,7 +379,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will convert the value to a COSString
-     * object. If it is null then the object will be removed.
+     * object.  If it is null then the object will be removed.
      *
      * @param key The key to the object,
      * @param value The string value for the name.
@@ -397,7 +396,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will convert the value to a COSString
-     * object. If it is null then the object will be removed.
+     * object.  If it is null then the object will be removed.
      *
      * @param embedded The embedded dictionary to set the item in.
      * @param key The key to the object,
@@ -410,7 +409,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will convert the value to a COSString
-     * object. If it is null then the object will be removed.
+     * object.  If it is null then the object will be removed.
      *
      * @param embedded The embedded dictionary to set the item in.
      * @param key The key to the object,
@@ -594,7 +593,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be a name and convert it to a string. Null is returned
+     * is expected to be a name and convert it to a string.  Null is returned
      * if the entry does not exist in the dictionary.
      *
      * @param key The key to the item in the dictionary.
@@ -607,7 +606,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be a name and convert it to a string. Null is returned
+     * is expected to be a name and convert it to a string.  Null is returned
      * if the entry does not exist in the dictionary.
      *
      * @param key The key to the item in the dictionary.
@@ -630,7 +629,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be a name and convert it to a string. Null is returned
+     * is expected to be a name and convert it to a string.  Null is returned
      * if the entry does not exist in the dictionary.
      *
      * @param key The key to the item in the dictionary.
@@ -644,7 +643,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be a name and convert it to a string. Null is returned
+     * is expected to be a name and convert it to a string.  Null is returned
      * if the entry does not exist in the dictionary.
      *
      * @param key The key to the item in the dictionary.
@@ -663,7 +662,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be a name and convert it to a string. Null is returned
+     * is expected to be a name and convert it to a string.  Null is returned
      * if the entry does not exist in the dictionary.
      *
      * @param key The key to the item in the dictionary.
@@ -676,7 +675,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be a name and convert it to a string. Null is returned
+     * is expected to be a name and convert it to a string.  Null is returned
      * if the entry does not exist in the dictionary.
      *
      * @param key The key to the item in the dictionary.
@@ -695,7 +694,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be a name and convert it to a string. Null is returned
+     * is expected to be a name and convert it to a string.  Null is returned
      * if the entry does not exist in the dictionary.
      *
      * @param key The key to the item in the dictionary.
@@ -709,7 +708,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be a name and convert it to a string. Null is returned
+     * is expected to be a name and convert it to a string.  Null is returned
      * if the entry does not exist in the dictionary.
      *
      * @param key The key to the item in the dictionary.
@@ -728,7 +727,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be a name and convert it to a string. Null is returned
+     * is expected to be a name and convert it to a string.  Null is returned
      * if the entry does not exist in the dictionary.
      *
      * @param embedded The embedded dictionary.
@@ -742,7 +741,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be a name and convert it to a string. Null is returned
+     * is expected to be a name and convert it to a string.  Null is returned
      * if the entry does not exist in the dictionary.
      *
      * @param embedded The embedded dictionary.
@@ -756,7 +755,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be a name and convert it to a string. Null is returned
+     * is expected to be a name and convert it to a string.  Null is returned
      * if the entry does not exist in the dictionary.
      *
      * @param embedded The embedded dictionary.
@@ -771,7 +770,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be a name and convert it to a string. Null is returned
+     * is expected to be a name and convert it to a string.  Null is returned
      * if the entry does not exist in the dictionary.
      *
      * @param embedded The embedded dictionary.
@@ -792,7 +791,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be a name and convert it to a string. Null is returned
+     * is expected to be a name and convert it to a string.  Null is returned
      * if the entry does not exist in the dictionary or if the date was invalid.
      *
      * @param key The key to the item in the dictionary.
@@ -805,7 +804,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be a name and convert it to a string. Null is returned
+     * is expected to be a name and convert it to a string.  Null is returned
      * if the entry does not exist in the dictionary or if the date was invalid.
      *
      * @param key The key to the item in the dictionary.
@@ -819,7 +818,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be a date. Null is returned
+     * is expected to be a date.  Null is returned
      * if the entry does not exist in the dictionary or if the date was invalid.
      *
      * @param key The key to the item in the dictionary.
@@ -833,7 +832,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be a date. Null is returned
+     * is expected to be a date.  Null is returned
      * if the entry does not exist in the dictionary or if the date was invalid.
      *
      * @param key The key to the item in the dictionary.
@@ -852,7 +851,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be a name and convert it to a string. Null is returned
+     * is expected to be a name and convert it to a string.  Null is returned
      * if the entry does not exist in the dictionary.
      *
      * @param embedded The embedded dictionary to get.
@@ -867,7 +866,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be a name and convert it to a string. Null is returned
+     * is expected to be a name and convert it to a string.  Null is returned
      * if the entry does not exist in the dictionary.
      *
      * @param embedded The embedded dictionary to get.
@@ -883,7 +882,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be a date. Null is returned
+     * is expected to be a date.  Null is returned
      * if the entry does not exist in the dictionary.
      *
      * @param embedded The embedded dictionary to get.
@@ -899,7 +898,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be a date. Null is returned
+     * is expected to be a date.  Null is returned
      * if the entry does not exist in the dictionary.
      *
      * @param embedded The embedded dictionary to get.
@@ -969,7 +968,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
     }
 
     /**
-     * Get an integer from an embedded dictionary. Useful for 1-1 mappings. default:-1
+     * Get an integer from an embedded dictionary.  Useful for 1-1 mappings.  default:-1
      *
      * @param embeddedDictionary The name of the embedded dictionary.
      * @param key The key in the embedded dictionary.
@@ -982,7 +981,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
     }
 
     /**
-     * Get an integer from an embedded dictionary. Useful for 1-1 mappings. default:-1
+     * Get an integer from an embedded dictionary.  Useful for 1-1 mappings.  default:-1
      *
      * @param embeddedDictionary The name of the embedded dictionary.
      * @param key The key in the embedded dictionary.
@@ -995,7 +994,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
     }
 
     /**
-     * Get an integer from an embedded dictionary. Useful for 1-1 mappings.
+     * Get an integer from an embedded dictionary.  Useful for 1-1 mappings.
      *
      * @param embeddedDictionary The name of the embedded dictionary.
      * @param key The key in the embedded dictionary.
@@ -1010,7 +1009,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
 
     /**
-     * Get an integer from an embedded dictionary. Useful for 1-1 mappings.
+     * Get an integer from an embedded dictionary.  Useful for 1-1 mappings.
      *
      * @param embeddedDictionary The name of the embedded dictionary.
      * @param key The key in the embedded dictionary.
@@ -1031,7 +1030,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be an int. -1 is returned if there is no value.
+     * is expected to be an int.  -1 is returned if there is no value.
      *
      * @param key The key to the item in the dictionary.
      * @return The integer value.
@@ -1043,7 +1042,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be an int. -1 is returned if there is no value.
+     * is expected to be an int.  -1 is returned if there is no value.
      *
      * @param key The key to the item in the dictionary.
      * @return The integer value..
@@ -1055,7 +1054,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be an integer. If the dictionary value is null then the
+     * is expected to be an integer.  If the dictionary value is null then the
      * default Value will be returned.
      *
      * @param keyList The key to the item in the dictionary.
@@ -1075,7 +1074,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be an integer. If the dictionary value is null then the
+     * is expected to be an integer.  If the dictionary value is null then the
      * default Value will be returned.
      *
      * @param key The key to the item in the dictionary.
@@ -1089,7 +1088,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be an integer. If the dictionary value is null then the
+     * is expected to be an integer.  If the dictionary value is null then the
      * default Value will be returned.
      *
      * @param key The key to the item in the dictionary.
@@ -1103,7 +1102,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be an integer. If the dictionary value is null then the
+     * is expected to be an integer.  If the dictionary value is null then the
      * default Value -1 will be returned.
      *
      * @param firstKey The first key to the item in the dictionary.
@@ -1117,7 +1116,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be an integer. If the dictionary value is null then the
+     * is expected to be an integer.  If the dictionary value is null then the
      * default Value will be returned.
      *
      * @param firstKey The first key to the item in the dictionary.
@@ -1138,7 +1137,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be an long. -1 is returned if there is no value.
+     * is expected to be an long.  -1 is returned if there is no value.
      *
      * @param key The key to the item in the dictionary.
      *
@@ -1151,7 +1150,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be an long. -1 is returned if there is no value.
+     * is expected to be an long.  -1 is returned if there is no value.
      *
      * @param key The key to the item in the dictionary.
      * @return The long value.
@@ -1163,7 +1162,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be an long. If the dictionary value is null then the
+     * is expected to be an long.  If the dictionary value is null then the
      * default Value will be returned.
      *
      * @param keyList The key to the item in the dictionary.
@@ -1183,7 +1182,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be an integer. If the dictionary value is null then the
+     * is expected to be an integer.  If the dictionary value is null then the
      * default Value will be returned.
      *
      * @param key The key to the item in the dictionary.
@@ -1197,7 +1196,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be an integer. If the dictionary value is null then the
+     * is expected to be an integer.  If the dictionary value is null then the
      * default Value will be returned.
      *
      * @param key The key to the item in the dictionary.
@@ -1217,7 +1216,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be an float. -1 is returned if there is no value.
+     * is expected to be an float.  -1 is returned if there is no value.
      *
      * @param key The key to the item in the dictionary.
      * @return The float value.
@@ -1229,7 +1228,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be an float. -1 is returned if there is no value.
+     * is expected to be an float.  -1 is returned if there is no value.
      *
      * @param key The key to the item in the dictionary.
      * @return The float value.
@@ -1241,7 +1240,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be a float. If the dictionary value is null then the
+     * is expected to be a float.  If the dictionary value is null then the
      * default Value will be returned.
      *
      * @param key The key to the item in the dictionary.
@@ -1255,7 +1254,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * This is a convenience method that will get the dictionary object that
-     * is expected to be an float. If the dictionary value is null then the
+     * is expected to be an float.  If the dictionary value is null then the
      * default Value will be returned.
      *
      * @param key The key to the item in the dictionary.
@@ -1288,7 +1287,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
     }
 
     /**
-     * This will remove an item for the dictionary. This
+     * This will remove an item for the dictionary.  This
      * will do nothing of the object does not exist.
      *
      * @param key The key to the item to remove from the dictionary.
@@ -1365,7 +1364,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
      * @throws IOException If there is an error visiting this object.
      */
     @Override
-    public Object accept(ICOSVisitor visitor) throws IOException
+    public Object accept(ICOSVisitor  visitor) throws IOException
     {
         return visitor.visitFromDictionary(this);
     }
@@ -1411,8 +1410,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
      * @param name The key to find in the map.
      * @return true if the map contains this key.
      */
-    public boolean containsKey(COSName name)
-    {
+    public boolean containsKey(COSName name) {
         return this.items.containsKey(name);
     }
 
@@ -1422,8 +1420,7 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
      * @param name The key to find in the map.
      * @return true if the map contains this key.
      */
-    public boolean containsKey(String name)
-    {
+    public boolean containsKey(String name) {
         return containsKey(COSName.getPDFName(name));
     }
 
@@ -1475,7 +1472,6 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
 
     /**
      * Returns an unmodifiable view of this dictionary.
-     *
      * @return an unmodifiable view of this dictionary
      */
     public COSDictionary asUnmodifiableDictionary()
@@ -1487,16 +1483,13 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
      * {@inheritDoc}
      */
     @Override
-    public String toString()
-    {
-        StringBuilder retVal = new StringBuilder(getClass().getSimpleName());
-        retVal.append("{");
-        for (COSName key : items.keySet())
-        {
+    public String toString() {
+        StringBuilder retVal = new StringBuilder("COSDictionary{");
+        for(COSName key : items.keySet()) {
             retVal.append("(");
             retVal.append(key);
             retVal.append(":");
-            if (getDictionaryObject(key) != null)
+            if(getDictionaryObject(key) != null)
             {
                 retVal.append(getDictionaryObject(key).toString());
             }
@@ -1509,4 +1502,5 @@ public class COSDictionary extends COSBase implements COSUpdateInfo
         retVal.append("}");
         return retVal.toString();
     }
+    
 }

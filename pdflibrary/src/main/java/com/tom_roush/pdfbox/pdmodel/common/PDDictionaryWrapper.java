@@ -21,7 +21,7 @@ import com.tom_roush.pdfbox.cos.COSDictionary;
 /**
  * A wrapper for a COS dictionary.
  *
- * @author Johannes Koch
+ * @author Ben Litchfield
  *
  */
 public class PDDictionaryWrapper implements COSObjectable

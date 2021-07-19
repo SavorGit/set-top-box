@@ -18,6 +18,7 @@ package com.tom_roush.pdfbox.pdmodel.common;
 
 import com.tom_roush.pdfbox.cos.COSName;
 import com.tom_roush.pdfbox.cos.COSStream;
+
 import com.tom_roush.pdfbox.pdmodel.PDDocument;
 
 /**
@@ -49,7 +50,7 @@ public class PDObjectStream extends PDStream
     {
         COSStream cosStream = document.getDocument().createCOSStream();
         PDObjectStream strm = new PDObjectStream( cosStream );
-        strm.getCOSObject().setItem(COSName.TYPE, COSName.OBJ_STM);
+        strm.getStream().setItem( COSName.TYPE, COSName.OBJ_STM );
         return strm;
     }
 
@@ -60,7 +61,7 @@ public class PDObjectStream extends PDStream
      */
     public String getType()
     {
-        return getCOSObject().getNameAsString(COSName.TYPE);
+        return getStream().getNameAsString( COSName.TYPE );
     }
 
     /**
@@ -70,7 +71,7 @@ public class PDObjectStream extends PDStream
      */
     public int getNumberOfObjects()
     {
-        return getCOSObject().getInt(COSName.N, 0);
+        return getStream().getInt( COSName.N, 0 );
     }
 
     /**
@@ -80,7 +81,7 @@ public class PDObjectStream extends PDStream
      */
     public void setNumberOfObjects( int n )
     {
-        getCOSObject().setInt(COSName.N, n);
+        getStream().setInt( COSName.N, n );
     }
 
     /**
@@ -90,7 +91,7 @@ public class PDObjectStream extends PDStream
      */
     public int getFirstByteOffset()
     {
-        return getCOSObject().getInt(COSName.FIRST, 0);
+        return getStream().getInt( COSName.FIRST, 0 );
     }
 
     /**
@@ -100,7 +101,7 @@ public class PDObjectStream extends PDStream
      */
     public void setFirstByteOffset( int n )
     {
-        getCOSObject().setInt(COSName.FIRST, n);
+        getStream().setInt( COSName.FIRST, n );
     }
 
     /**
@@ -112,7 +113,7 @@ public class PDObjectStream extends PDStream
     public PDObjectStream getExtends()
     {
         PDObjectStream retval = null;
-        COSStream stream = (COSStream)getCOSObject().getDictionaryObject(COSName.EXTENDS);
+        COSStream stream = (COSStream)getStream().getDictionaryObject( COSName.EXTENDS );
         if( stream != null )
         {
             retval = new PDObjectStream( stream );
@@ -129,6 +130,6 @@ public class PDObjectStream extends PDStream
      */
     public void setExtends( PDObjectStream stream )
     {
-        getCOSObject().setItem(COSName.EXTENDS, stream);
+        getStream().setItem( COSName.EXTENDS, stream );
     }
 }

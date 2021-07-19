@@ -20,11 +20,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
-import androidx.test.InstrumentationRegistry;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import android.support.test.InstrumentationRegistry;
 
 import com.tom_roush.pdfbox.cos.COSArray;
 import com.tom_roush.pdfbox.cos.COSDictionary;
@@ -38,6 +34,10 @@ import com.tom_roush.pdfbox.util.PDFBoxResourceLoader;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -58,7 +58,8 @@ public class PDInlineImageTest
     {
         testContext = InstrumentationRegistry.getInstrumentation().getContext();
         PDFBoxResourceLoader.init(testContext);
-        testResultsDir = new File(testContext.getCacheDir(), "pdfbox-test-output/graphics/");
+        testResultsDir = new File(testContext.getCacheDir() +
+            "/Download/pdfbox-test-output/graphics/");
         testResultsDir.mkdirs();
     }
 
@@ -185,8 +186,7 @@ public class PDInlineImageTest
         PDDocument document = new PDDocument();
         PDPage page = new PDPage();
         document.addPage(page);
-        PDPageContentStream contentStream = new PDPageContentStream(document, page,
-            PDPageContentStream.AppendMode.APPEND, false);
+        PDPageContentStream contentStream = new PDPageContentStream(document, page, true, false);
         contentStream.drawImage(inlineImage1, 150, 400);
         contentStream.drawImage(inlineImage1, 150, 500, inlineImage1.getWidth() * 2,
             inlineImage1.getHeight() * 2);

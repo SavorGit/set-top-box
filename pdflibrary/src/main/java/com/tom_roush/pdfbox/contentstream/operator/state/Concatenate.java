@@ -40,10 +40,6 @@ public class Concatenate extends OperatorProcessor
         {
             throw new MissingOperandException(operator, arguments);
         }
-        if (!checkArrayTypesClass(arguments, COSNumber.class))
-        {
-            return;
-        }
 
         // concatenate matrix to current transformation matrix
         COSNumber a = (COSNumber) arguments.get(0);

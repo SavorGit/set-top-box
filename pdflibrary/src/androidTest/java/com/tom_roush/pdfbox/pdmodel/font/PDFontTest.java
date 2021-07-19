@@ -20,7 +20,7 @@
 package com.tom_roush.pdfbox.pdmodel.font;
 
 import android.content.Context;
-import androidx.test.InstrumentationRegistry;
+import android.support.test.InstrumentationRegistry;
 
 import com.tom_roush.pdfbox.pdmodel.PDDocument;
 import com.tom_roush.pdfbox.rendering.PDFRenderer;

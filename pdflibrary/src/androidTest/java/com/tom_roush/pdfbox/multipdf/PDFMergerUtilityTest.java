@@ -17,12 +17,11 @@ package com.tom_roush.pdfbox.multipdf;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import androidx.test.InstrumentationRegistry;
+import android.support.test.InstrumentationRegistry;
 
 import java.io.File;
 import java.io.IOException;
 
-import com.tom_roush.pdfbox.io.MemoryUsageSetting;
 import com.tom_roush.pdfbox.pdmodel.PDDocument;
 import com.tom_roush.pdfbox.rendering.PDFRenderer;
 import com.tom_roush.pdfbox.util.PDFBoxResourceLoader;
@@ -50,7 +49,7 @@ public class PDFMergerUtilityTest
     {
         testContext = InstrumentationRegistry.getInstrumentation().getContext();
         PDFBoxResourceLoader.init(testContext);
-        TARGETTESTDIR = testContext.getCacheDir() + "/pdfbox-test-output/merge/";
+        TARGETTESTDIR = testContext.getCacheDir() + "/Download/pdfbox-test-output/merge/";
         new File(TARGETTESTDIR).mkdirs();
         if (!new File(TARGETTESTDIR).exists())
         {
@@ -73,29 +72,14 @@ public class PDFMergerUtilityTest
     {
         checkMergeIdentical("PDFBox.GlobalResourceMergeTest.Doc01.decoded.pdf",
             "PDFBox.GlobalResourceMergeTest.Doc02.decoded.pdf",
-            "GlobalResourceMergeTestResult.pdf", MemoryUsageSetting.setupMainMemoryOnly());
+            "GlobalResourceMergeTestResult.pdf",
+            false);
 
         // once again, with scratch file
         checkMergeIdentical("PDFBox.GlobalResourceMergeTest.Doc01.decoded.pdf",
             "PDFBox.GlobalResourceMergeTest.Doc02.decoded.pdf",
-            "GlobalResourceMergeTestResult2.pdf", MemoryUsageSetting.setupTempFileOnly());
-    }
-
-    /**
-     * Tests whether the merge of two PDF files with JPEG and CCITT works. A few revisions before
-     * 1704911 this test failed because the clone utility attempted to decode and re-encode the
-     * streams, see PDFBOX-2893 on 23.9.2015.
-     *
-     * @throws IOException if something goes wrong.
-     */
-    public void testJpegCcitt() throws IOException
-    {
-        checkMergeIdentical("jpegrgb.pdf", "multitiff.pdf", "JpegMultiMergeTestResult.pdf",
-            MemoryUsageSetting.setupMainMemoryOnly());
-
-        // once again, with scratch file
-        checkMergeIdentical("jpegrgb.pdf", "multitiff.pdf", "JpegMultiMergeTestResult.pdf",
-            MemoryUsageSetting.setupTempFileOnly());
+            "GlobalResourceMergeTestResult2.pdf",
+            true);
     }
 
     // see PDFBOX-2893
@@ -104,18 +88,21 @@ public class PDFMergerUtilityTest
     {
         checkMergeIdentical("PDFBox.GlobalResourceMergeTest.Doc01.pdf",
             "PDFBox.GlobalResourceMergeTest.Doc02.pdf",
-            "GlobalResourceMergeTestResult.pdf", MemoryUsageSetting.setupMainMemoryOnly());
+            "GlobalResourceMergeTestResult.pdf",
+            false);
 
         // once again, with scratch file
         checkMergeIdentical("PDFBox.GlobalResourceMergeTest.Doc01.pdf",
             "PDFBox.GlobalResourceMergeTest.Doc02.pdf",
-            "GlobalResourceMergeTestResult2.pdf", MemoryUsageSetting.setupTempFileOnly());
+            "GlobalResourceMergeTestResult2.pdf",
+            true);
     }
 
     // checks that the result file of a merge has the same rendering as the two
     // source files
     private void checkMergeIdentical(String filename1, String filename2, String mergeFilename,
-        MemoryUsageSetting memUsageSetting) throws IOException
+        boolean useScratchFiles)
+        throws IOException
     {
         PDDocument srcDoc1 = PDDocument.load(testContext.getAssets().open(SRCDIR + "/" + filename1), (String) null);
         int src1PageCount = srcDoc1.getNumberOfPages();
@@ -141,7 +128,7 @@ public class PDFMergerUtilityTest
         pdfMergerUtility.addSource(testContext.getAssets().open(SRCDIR + "/" + filename1));
         pdfMergerUtility.addSource(testContext.getAssets().open(SRCDIR + "/" + filename2));
         pdfMergerUtility.setDestinationFileName(TARGETTESTDIR + mergeFilename);
-        pdfMergerUtility.mergeDocuments(memUsageSetting);
+        pdfMergerUtility.mergeDocuments(useScratchFiles);
 
         PDDocument mergedDoc
             = PDDocument.load(new File(TARGETTESTDIR, mergeFilename), (String) null);

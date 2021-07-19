@@ -40,7 +40,7 @@ class PlainTextFormatter
 
         private final int alignment;
 
-        private TextAlign(int alignment)
+        TextAlign(int alignment)
         {
             this.alignment = alignment;
         }
@@ -63,15 +63,9 @@ class PlainTextFormatter
         }
     }
 
-    /**
-     * The scaling factor for font units to PDF units
-     */
-    private static final int FONTSCALE = 1000;
-
     private final AppearanceStyle appearanceStyle;
     private final boolean wrapLines;
     private final float width;
-
     private final PDPageContentStream contents;
     private final PlainText textContent;
     private final TextAlign textAlignment;
@@ -171,7 +165,6 @@ class PlainTextFormatter
     {
         if (textContent != null && !textContent.getParagraphs().isEmpty())
         {
-            boolean isFirstParagraph = true;
             for (Paragraph paragraph : textContent.getParagraphs())
             {
                 if (wrapLines)
@@ -181,15 +174,14 @@ class PlainTextFormatter
                         appearanceStyle.getFontSize(),
                         width
                     );
-                    processLines(lines, isFirstParagraph);
-                    isFirstParagraph = false;
+                    processLines(lines);
                 }
                 else
                 {
                     float startOffset = 0f;
 
                     float lineWidth = appearanceStyle.getFont().getStringWidth(
-                        paragraph.getText()) * appearanceStyle.getFontSize() / FONTSCALE;
+                        paragraph.getText()) * appearanceStyle.getFontSize() / 1000f;
 
                     if (lineWidth < width)
                     {
@@ -223,7 +215,7 @@ class PlainTextFormatter
      * @param lines the lines to process.
      * @throws IOException if there is an error writing to the stream.
      */
-    private void processLines(List<Line> lines, boolean isFirstParagraph) throws IOException
+    private void processLines(List<Line> lines) throws IOException
     {
         float wordWidth = 0f;
 
@@ -252,9 +244,12 @@ class PlainTextFormatter
             }
 
             float offset = -lastPos + startOffset + horizontalOffset;
-            if (lines.indexOf(line) == 0 && isFirstParagraph)
+            if (lines.indexOf(line) == 0)
             {
                 contents.newLineAtOffset(offset, verticalOffset);
+                // reset the initial verticalOffset
+                verticalOffset = 0f;
+                horizontalOffset = 0f;
             }
             else
             {
@@ -262,7 +257,7 @@ class PlainTextFormatter
                 verticalOffset = verticalOffset - appearanceStyle.getLeading();
                 contents.newLineAtOffset(offset, -appearanceStyle.getLeading());
             }
-            lastPos += offset;
+            lastPos = startOffset;
 
             List<Word> words = line.getWords();
             for (Word word : words)

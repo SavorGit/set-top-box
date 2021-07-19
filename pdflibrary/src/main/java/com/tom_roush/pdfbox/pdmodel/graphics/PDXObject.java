@@ -19,7 +19,6 @@ package com.tom_roush.pdfbox.pdmodel.graphics;
 import java.io.IOException;
 
 import com.tom_roush.pdfbox.cos.COSBase;
-import com.tom_roush.pdfbox.cos.COSDictionary;
 import com.tom_roush.pdfbox.cos.COSName;
 import com.tom_roush.pdfbox.cos.COSStream;
 import com.tom_roush.pdfbox.pdmodel.PDDocument;
@@ -28,7 +27,6 @@ import com.tom_roush.pdfbox.pdmodel.ResourceCache;
 import com.tom_roush.pdfbox.pdmodel.common.COSObjectable;
 import com.tom_roush.pdfbox.pdmodel.common.PDStream;
 import com.tom_roush.pdfbox.pdmodel.graphics.form.PDFormXObject;
-import com.tom_roush.pdfbox.pdmodel.graphics.form.PDTransparencyGroup;
 import com.tom_roush.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 /**
@@ -45,7 +43,6 @@ public class PDXObject implements COSObjectable
      * Creates a new XObject instance of the appropriate type for the COS stream.
      *
      * @param base The stream which is wrapped by this XObject.
-     * @param resources
      * @return A new XObject instance.
      * @throws java.io.IOException if there is an error creating the XObject.
      */
@@ -69,14 +66,9 @@ public class PDXObject implements COSObjectable
         {
             return new PDImageXObject(new PDStream(stream), resources);
         }
-        else if (COSName.FORM.getName().equals(subtype))
+        if (COSName.FORM.getName().equals(subtype))
         {
             ResourceCache cache = resources != null ? resources.getResourceCache() : null;
-            COSDictionary group = (COSDictionary)stream.getDictionaryObject(COSName.GROUP);
-            if (group != null && COSName.TRANSPARENCY.equals(group.getCOSName(COSName.S)))
-            {
-                return new PDTransparencyGroup(stream, cache);
-            }
             return new PDFormXObject(stream, cache);
         }
         else if (COSName.PS.getName().equals(subtype))
@@ -93,7 +85,6 @@ public class PDXObject implements COSObjectable
      * Creates a new XObject from the given stream and subtype.
      *
      * @param stream The stream to read.
-     * @param subtype
      */
     protected PDXObject(COSStream stream, COSName subtype)
     {
@@ -107,14 +98,13 @@ public class PDXObject implements COSObjectable
      * Creates a new XObject from the given stream and subtype.
      *
      * @param stream The stream to read.
-     * @param subtype
      */
     protected PDXObject(PDStream stream, COSName subtype)
     {
         this.stream = stream;
         // could be used for writing:
-        stream.getCOSObject().setName(COSName.TYPE, COSName.XOBJECT.getName());
-        stream.getCOSObject().setName(COSName.SUBTYPE, subtype.getName());
+        stream.getStream().setName(COSName.TYPE, COSName.XOBJECT.getName());
+        stream.getStream().setName(COSName.SUBTYPE, subtype.getName());
     }
 
     /**
@@ -125,8 +115,8 @@ public class PDXObject implements COSObjectable
     protected PDXObject(PDDocument document, COSName subtype)
     {
         stream = new PDStream(document);
-        stream.getCOSObject().setName(COSName.TYPE, COSName.XOBJECT.getName());
-        stream.getCOSObject().setName(COSName.SUBTYPE, subtype.getName());
+        stream.getStream().setName(COSName.TYPE, COSName.XOBJECT.getName());
+        stream.getStream().setName(COSName.SUBTYPE, subtype.getName());
     }
 
     /**
@@ -134,7 +124,7 @@ public class PDXObject implements COSObjectable
      * {@inheritDoc}
      */
     @Override
-    public final COSStream getCOSObject()
+    public final COSBase getCOSObject()
     {
         return stream.getCOSObject();
     }
@@ -142,12 +132,10 @@ public class PDXObject implements COSObjectable
     /**
      * Returns the stream.
      * @return The stream for this object.
-     * @deprecated use {@link #getCOSObject() }
      */
-    @Deprecated
     public final COSStream getCOSStream()
     {
-        return stream.getCOSObject();
+        return stream.getStream();
     }
 
     /**

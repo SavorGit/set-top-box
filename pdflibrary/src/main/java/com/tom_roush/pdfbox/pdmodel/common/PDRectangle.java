@@ -30,6 +30,7 @@ import com.tom_roush.pdfbox.util.Matrix;
  * A rectangle in a PDF document.
  *
  * @author Ben Litchfield
+ *
  */
 public class PDRectangle implements COSObjectable
 {
@@ -279,8 +280,21 @@ public class PDRectangle implements COSObjectable
     }
 
     /**
-     * Returns a path which represents this rectangle having been transformed by the given matrix.
-     * Note that the resulting path need not be rectangular.
+     * This will move the rectangle the given relative amount.
+     *
+     * @param horizontalAmount positive values will move rectangle to the right, negative's to the left.
+     * @param verticalAmount positive values will move the rectangle up, negative's down.
+     */
+    public void move(float horizontalAmount, float verticalAmount)
+    {
+        setUpperRightX(getUpperRightX() + horizontalAmount);
+        setLowerLeftX(getLowerLeftX() + horizontalAmount);
+        setUpperRightY(getUpperRightY() + verticalAmount);
+        setLowerLeftY(getLowerLeftY() + verticalAmount);
+    }
+
+    /**
+     * Returns a copy of this rectangle which has been transformed using the given matrix.
      */
     public Path transform(Matrix matrix)
     {

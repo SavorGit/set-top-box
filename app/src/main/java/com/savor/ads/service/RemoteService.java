@@ -60,7 +60,6 @@ import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.LogUtils;
 import com.savor.ads.utils.StreamUtils;
 import com.tom_roush.pdfbox.pdmodel.PDDocument;
-//import com.tom_roush.pdfbox.rendering.ImageType;
 import com.tom_roush.pdfbox.rendering.PDFRenderer;
 
 import org.apache.commons.io.IOUtils;
@@ -1127,7 +1126,7 @@ public class RemoteService extends Service {
 //            pageImage = renderer.renderImage(0, 1, ImageType.RGB);
                 int pages = document.getNumberOfPages();
                 for (int i=0;i<pages;i++){
-                    pageImage = renderer.renderImage(i, 1, Bitmap.Config.ARGB_8888);
+                    pageImage = renderer.renderImage(i, 1, Bitmap.Config.RGB_565);
 
                     // Save the render result to an image
                     String path = root.getAbsolutePath() + "/"+(i+1)+".jpg";

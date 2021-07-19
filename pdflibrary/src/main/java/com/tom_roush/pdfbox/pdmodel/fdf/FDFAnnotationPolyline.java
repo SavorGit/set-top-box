@@ -36,7 +36,6 @@ import org.w3c.dom.Element;
  * This represents a Polyline FDF annotation.
  *
  * @author Ben Litchfield
- * @author Johanneke Lamberink
  */
 public class FDFAnnotationPolyline extends FDFAnnotation
 {
@@ -67,9 +66,9 @@ public class FDFAnnotationPolyline extends FDFAnnotation
     /**
      * Constructor.
      *
-     * @param element An XFDF element.
+     *  @param element An XFDF element.
      *
-     * @throws IOException If there is an error extracting information from the element.
+     *  @throws IOException If there is an error extracting information from the element.
      */
     public FDFAnnotationPolyline( Element element ) throws IOException
     {
@@ -80,7 +79,7 @@ public class FDFAnnotationPolyline extends FDFAnnotation
         initStyles(element);
     }
 
-    private void initVertices(Element element) throws IOException
+    private void initVertices(Element element) throws IOException, NumberFormatException
     {
         XPath xpath = XPathFactory.newInstance().newXPath();
         try
@@ -90,7 +89,7 @@ public class FDFAnnotationPolyline extends FDFAnnotation
             {
                 throw new IOException("Error: missing element 'vertices'");
             }
-            String[] verticesValues = vertices.split(",|;");
+            String[] verticesValues = vertices.split(",");
             float[] values = new float[verticesValues.length];
             for (int i = 0; i < verticesValues.length; i++)
             {
@@ -105,7 +104,7 @@ public class FDFAnnotationPolyline extends FDFAnnotation
         }
     }
 
-    private void initStyles(Element element)
+    private void initStyles(Element element) throws NumberFormatException
     {
         String startStyle = element.getAttribute("head");
         if (startStyle != null && !startStyle.isEmpty())

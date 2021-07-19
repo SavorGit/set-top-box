@@ -16,14 +16,14 @@
  */
 package com.tom_roush.fontbox.cff;
 
+import com.tom_roush.fontbox.FontBoxFont;
+import com.tom_roush.fontbox.util.BoundingBox;
+
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.tom_roush.fontbox.FontBoxFont;
-import com.tom_roush.fontbox.util.BoundingBox;
 
 /**
  * An Adobe Compact Font Format (CFF) font. Thread safe.
@@ -36,16 +36,15 @@ public abstract class CFFFont implements FontBoxFont
     protected String fontName;
     protected final Map<String, Object> topDict = new LinkedHashMap<String, Object>();
     protected CFFCharset charset;
-    protected byte[][] charStrings;
-    protected byte[][] globalSubrIndex;
-    private CFFParser.ByteSource source;
+    protected final List<byte[]> charStrings = new ArrayList<byte[]>();
+    protected IndexData globalSubrIndex;
+    private byte[] data;
 
     /**
      * The name of the font.
      *
      * @return the name of the font
      */
-    @Override
     public String getName()
     {
         return fontName;
@@ -88,13 +87,11 @@ public abstract class CFFFont implements FontBoxFont
     /**
      * Returns the FontMatrix.
      */
-    @Override
     public abstract List<Number> getFontMatrix();
 
     /**
      * Returns the FontBBox.
      */
-    @Override
     public BoundingBox getFontBBox()
     {
         List<Number> numbers = (List<Number>)topDict.get("FontBBox");
@@ -122,29 +119,33 @@ public abstract class CFFFont implements FontBoxFont
     }
 
     /**
-     * Returns the character strings dictionary. For expert users only.
+     * Returns the character strings dictionary.
      *
      * @return the dictionary
      */
-    public final List<byte[]> getCharStringBytes()
+    List<byte[]> getCharStringBytes()
     {
-        return Arrays.asList(charStrings);
+        return charStrings;
     }
 
     /**
-     * Sets a byte source to re-read the CFF data in the future.
+     * Sets the original data.
+     *
+     * @param data the original data.
      */
-    final void setData(CFFParser.ByteSource source)
+    void setData(byte[] data)
     {
-        this.source = source;
+        this.data = data;
     }
 
     /**
-     * Returns the CFF data.
+     * Returns the the original data.
+     *
+     * @return the dictionary
      */
-    public byte[] getData() throws IOException
+    public byte[] getData()
     {
-        return source.getBytes();
+        return data;
     }
 
     /**
@@ -152,27 +153,27 @@ public abstract class CFFFont implements FontBoxFont
      */
     public int getNumCharStrings()
     {
-        return charStrings.length;
+        return charStrings.size();
     }
 
     /**
      * Sets the global subroutine index data.
-     *
-     * @param globalSubrIndexValue a list containing the global subroutines
+     * 
+     * @param globalSubrIndexValue the IndexData object containing the global subroutines
      */
-    void setGlobalSubrIndex(byte[][] globalSubrIndexValue)
+    void setGlobalSubrIndex(IndexData globalSubrIndexValue)
     {
         globalSubrIndex = globalSubrIndexValue;
     }
 
     /**
-     * Returns the list containing the global subroutine .
-     *
+     * Returns the global subroutine index data.
+     * 
      * @return the dictionary
      */
-    public List<byte[]> getGlobalSubrIndex()
+    public IndexData getGlobalSubrIndex()
     {
-        return Arrays.asList(globalSubrIndex);
+        return globalSubrIndex;
     }
 
     /**
@@ -186,8 +187,8 @@ public abstract class CFFFont implements FontBoxFont
     @Override
     public String toString()
     {
-        return getClass().getSimpleName() + "[name=" + fontName + ", topDict=" + topDict +
-            ", charset=" + charset + ", charStrings=" + Arrays.deepToString(charStrings)
+        return getClass().getSimpleName() + "[name=" + fontName + ", topDict=" + topDict
+                + ", charset=" + charset + ", charStrings=" + charStrings
                 + "]";
     }
 }

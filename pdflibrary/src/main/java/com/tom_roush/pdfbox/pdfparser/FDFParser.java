@@ -87,7 +87,7 @@ public class FDFParser extends COSParser
             			+ " does not contain an integer value, but: '" + eofLookupRangeStr + "'");
             }
         }
-        document = new COSDocument();
+        document = new COSDocument(false);
     }
 
     /**
@@ -119,11 +119,13 @@ public class FDFParser extends COSParser
         {
             parseDictObjects((COSDictionary) rootObject, (COSName[]) null);
         }
+    
         initialParseDone = true;
     }
 
     /**
-     * This will parse the stream and populate the COSDocument object.
+     * This will parse the stream and populate the COSDocument object.  This will close
+     * the stream when it is done parsing.
      *
      * @throws IOException If there is an error reading from the stream or corrupt data
      * is found.

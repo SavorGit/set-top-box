@@ -43,12 +43,7 @@ public class MoveTextSetLeading extends OperatorProcessor
         }
 
         //move text position and set leading
-        COSBase base1 = arguments.get(1);
-        if (!(base1 instanceof COSNumber))
-        {
-            return;
-        }
-        COSNumber y = (COSNumber)base1;
+        COSNumber y = (COSNumber) arguments.get(1);
 
         List<COSBase> args = new ArrayList<COSBase>();
         args.add(new COSFloat(-1 * y.floatValue()));

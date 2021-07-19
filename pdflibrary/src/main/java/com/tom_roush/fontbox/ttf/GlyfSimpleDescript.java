@@ -37,11 +37,9 @@ public class GlyfSimpleDescript extends GlyfDescript
      * 
      * @param numberOfContours number of contours
      * @param bais the stream to be read
-     * @param x0 the initial X-position
      * @throws IOException is thrown if something went wrong
      */
-    public GlyfSimpleDescript(short numberOfContours, TTFDataStream bais, short x0)
-        throws IOException
+    public GlyfSimpleDescript(short numberOfContours, TTFDataStream bais) throws IOException
     {
         super(numberOfContours, bais);
 
@@ -76,7 +74,7 @@ public class GlyfSimpleDescript extends GlyfDescript
         int instructionCount = bais.readUnsignedShort();
         readInstructions(bais, instructionCount);
         readFlags(pointCount, bais);
-        readCoords(pointCount, bais, x0);
+        readCoords(pointCount, bais);
     }
 
     /**
@@ -136,9 +134,9 @@ public class GlyfSimpleDescript extends GlyfDescript
     /**
      * The table is stored as relative values, but we'll store them as absolutes.
      */
-    private void readCoords(int count, TTFDataStream bais, short x0) throws IOException
+    private void readCoords(int count, TTFDataStream bais) throws IOException
     {
-        short x = x0;
+        short x = 0;
         short y = 0;
         for (int i = 0; i < count; i++)
         {

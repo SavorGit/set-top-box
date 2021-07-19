@@ -60,7 +60,7 @@ public class DictionaryEncoding extends Encoding
         }
 
         codeToName.putAll(this.baseEncoding.codeToName);
-        inverted.putAll(this.baseEncoding.inverted);
+        names.addAll(this.baseEncoding.names);
         applyDifferences();
     }
 
@@ -118,7 +118,7 @@ public class DictionaryEncoding extends Encoding
         baseEncoding = base;
 
         codeToName.putAll(baseEncoding.codeToName);
-        inverted.putAll(baseEncoding.inverted);
+        names.addAll(baseEncoding.names);
         applyDifferences();
     }
 
@@ -168,11 +168,5 @@ public class DictionaryEncoding extends Encoding
     public COSBase getCOSObject()
     {
         return encoding;
-    }
-
-    @Override
-    public String getEncodingName()
-    {
-        return baseEncoding.getEncodingName() + " with differences";
     }
 }

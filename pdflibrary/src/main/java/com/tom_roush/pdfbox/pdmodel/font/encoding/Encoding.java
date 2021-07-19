@@ -58,29 +58,17 @@ public abstract class Encoding implements COSObjectable
         }
     }
 
-    protected final Map<Integer, String> codeToName = new HashMap<Integer, String>(250);
-    protected final Map<String, Integer> inverted = new HashMap<String, Integer>(250);
-    private Set<String> names;
+    protected final Map<Integer, String> codeToName = new HashMap<Integer, String>();
+    protected final Set<String> names = new HashSet<String>();
 
     /**
-     * Returns an unmodifiable view of the code -> name mapping.
-     *
-     * @return the code -> name map
+     * Returns an unmodifiable view of the Code2Name mapping.
+     * 
+     * @return the Code2Name map
      */
     public Map<Integer, String> getCodeToNameMap()
     {
         return Collections.unmodifiableMap(codeToName);
-    }
-
-    /**
-     * Returns an unmodifiable view of the name -> code mapping. More than one name may map to
-     * the same code.
-     *
-     * @return the name -> code map
-     */
-    public Map<String, Integer> getNameToCodeMap()
-    {
-        return Collections.unmodifiableMap(inverted);
     }
 
     /**
@@ -92,7 +80,7 @@ public abstract class Encoding implements COSObjectable
     protected void add(int code, String name)
     {
         codeToName.put(code, name);
-        inverted.put(name, code);
+        names.add(name);
     }
 
     /**
@@ -102,13 +90,6 @@ public abstract class Encoding implements COSObjectable
      */
     public boolean contains(String name)
     {
-        // we have to wait until all add() calls are done before building the name cache
-        // otherwise /Differences won't be accounted for
-        if (names == null)
-        {
-            names = new HashSet<String>(codeToName.size());
-            names.addAll(codeToName.values());
-        }
         return names.contains(name);
     }
 
@@ -137,9 +118,4 @@ public abstract class Encoding implements COSObjectable
        }
        return ".notdef";
     }
-
-    /**
-     * Returns the name of this encoding.
-     */
-    public abstract String getEncodingName();
 }

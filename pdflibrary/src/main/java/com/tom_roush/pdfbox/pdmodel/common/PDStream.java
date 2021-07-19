@@ -191,7 +191,7 @@ public class PDStream implements COSObjectable
     }
 
     /**
-     * Get the cos stream associated with this object.
+     * Convert this standard java object to a COS object.
      * 
      * @return The cos object that matches this Java object.
      */
@@ -205,6 +205,7 @@ public class PDStream implements COSObjectable
      * This will get a stream that can be written to.
      * 
      * @return An output stream to write data to.
+     *
      * @throws IOException If an IO error occurs during writing.
      */
     public OutputStream createOutputStream() throws IOException
@@ -215,7 +216,6 @@ public class PDStream implements COSObjectable
     /**
      * This will get a stream that can be written to, with the given filter.
      *
-     * @param filter the filter to be used.
      * @return An output stream to write data to.
      * @throws IOException If an IO error occurs during writing.
      */
@@ -249,23 +249,20 @@ public class PDStream implements COSObjectable
         InputStream is = stream.createRawInputStream();
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         List<COSName> filters = getFilters();
-        if (filters != null)
+        for (int i = 0; i < filters.size(); i++)
         {
-            for (int i = 0; i < filters.size(); i++)
+            COSName nextFilter = filters.get(i);
+            if (stopFilters.contains(nextFilter.getName()))
             {
-                COSName nextFilter = filters.get(i);
-                if ((stopFilters != null) && stopFilters.contains(nextFilter.getName()))
-                {
-                    break;
-                }
-                else
-                {
-                    Filter filter = FilterFactory.INSTANCE.getFilter(nextFilter);
-                    filter.decode(is, os, stream, i);
-                    IOUtils.closeQuietly(is);
-                    is = new ByteArrayInputStream(os.toByteArray());
-                    os.reset();
-                }
+                break;
+            }
+            else
+            {
+                Filter filter = FilterFactory.INSTANCE.getFilter(nextFilter);
+                filter.decode(is, os, stream, i);
+                IOUtils.closeQuietly(is);
+                is = new ByteArrayInputStream(os.toByteArray());
+                os.reset();
             }
         }
         return is;
@@ -273,11 +270,9 @@ public class PDStream implements COSObjectable
 
     /**
      * Get the cos stream associated with this object.
-     *
-     * @deprecated use {@link #getCOSObject() }
+     * 
      * @return The cos object that matches this Java object.
      */
-    @Deprecated
     public COSStream getStream()
     {
         return stream;
@@ -332,6 +327,7 @@ public class PDStream implements COSObjectable
      * an entry in the filters list.
      * 
      * @return The list of decode parameters.
+     *
      * @throws IOException if there is an error retrieving the parameters.
      */
     public List<Object> getDecodeParms() throws IOException
@@ -384,6 +380,7 @@ public class PDStream implements COSObjectable
      * required for external files.
      * 
      * @return The file specification.
+     *
      * @throws IOException If there is an error creating the file spec.
      */
     public PDFileSpecification getFile() throws IOException
@@ -442,6 +439,7 @@ public class PDStream implements COSObjectable
      * an entry in the filters list.
      * 
      * @return The list of decode parameters.
+     *
      * @throws IOException if there is an error retrieving the parameters.
      */
     public List<Object> getFileDecodeParams() throws IOException
@@ -485,9 +483,9 @@ public class PDStream implements COSObjectable
 
     /**
      * This will copy the stream into a byte array.
-     *
-     * @return The byte array of the filteredStream.
-     * @throws IOException if an I/O error occurs.
+     * 
+     * @return The byte array of the filteredStream
+     * @throws IOException When getFilteredStream did not work
      */
     public byte[] toByteArray() throws IOException
     {
@@ -574,4 +572,5 @@ public class PDStream implements COSObjectable
     {
         this.stream.setInt(COSName.DL, decodedStreamLength);
     }
+
 }

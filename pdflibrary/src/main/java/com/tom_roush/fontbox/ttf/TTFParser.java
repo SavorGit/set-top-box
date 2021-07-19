@@ -61,11 +61,11 @@ public class TTFParser
     }
 
     /**
-     * Parse a file and return a TrueType font.
+     * Parse a file and get a true type font.
      *
-     * @param ttfFile The TrueType font filename.
-     * @return A TrueType font.
-     * @throws IOException If there is an error parsing the TrueType font.
+     * @param ttfFile The TTF file.
+     * @return A true type font.
+     * @throws IOException If there is an error parsing the true type font.
      */
     public TrueTypeFont parse(String ttfFile) throws IOException
     {
@@ -73,58 +73,48 @@ public class TTFParser
     }
 
     /**
-     * Parse a file and return a TrueType font.
+     * Parse a file and get a true type font.
      *
-     * @param ttfFile The TrueType font file.
-     * @return A TrueType font.
-     * @throws IOException If there is an error parsing the TrueType font.
+     * @param ttfFile The TTF file.
+     * @return A true type font.
+     * @throws IOException If there is an error parsing the true type font.
      */
     public TrueTypeFont parse(File ttfFile) throws IOException
     {
-        RAFDataStream raf = new RAFDataStream(ttfFile, "r");
-        try
-        {
-            return parse(raf);
-        }
-        catch (IOException ex)
-        {
-            // close only on error (file is still being accessed later)
-            raf.close();
-            throw ex;
-        }
+        return parse(new RAFDataStream(ttfFile, "r"));
     }
 
     /**
-     * Parse an input stream and return a TrueType font.
+     * Parse a file and get a true type font.
      *
-     * @param inputStream The TTF data stream to parse from. It will be closed before returning.
-     * @return A TrueType font.
-     * @throws IOException If there is an error parsing the TrueType font.
+     * @param ttfData The TTF data to parse.
+     * @return A true type font.
+     * @throws IOException If there is an error parsing the true type font.
      */
-    public TrueTypeFont parse(InputStream inputStream) throws IOException
+    public TrueTypeFont parse(InputStream ttfData) throws IOException
     {
-        return parse(new MemoryTTFDataStream(inputStream));
+        return parse(new MemoryTTFDataStream(ttfData));
     }
 
     /**
-     * Parse an input stream and return a TrueType font that is to be embedded.
-     *
-     * @param inputStream The TTF data stream to parse from. It will be closed before returning.
-     * @return A TrueType font.
-     * @throws IOException If there is an error parsing the TrueType font.
+     Parse a file and get a true type font.
+
+     * @param ttfData The TTF data to parse.
+     * @return A true type font.
+     * @throws IOException If there is an error parsing the true type font.
      */
-    public TrueTypeFont parseEmbedded(InputStream inputStream) throws IOException
+    public TrueTypeFont parseEmbedded(InputStream ttfData) throws IOException
     {
-        this.isEmbedded = true;
-        return parse(new MemoryTTFDataStream(inputStream));
+    	this.isEmbedded = true;
+    	return parse(new MemoryTTFDataStream(ttfData));
     }
 
     /**
-     * Parse a file and get a TrueType font.
+     * Parse a file and get a true type font.
      *
      * @param raf The TTF file.
-     * @return A TrueType font.
-     * @throws IOException If there is an error parsing the TrueType font.
+     * @return A true type font.
+     * @throws IOException If there is an error parsing the true type font.
      */
     TrueTypeFont parse(TTFDataStream raf) throws IOException
     {
@@ -137,12 +127,7 @@ public class TTFParser
         for (int i = 0; i < numberOfTables; i++)
         {
             TTFTable table = readTableDirectory(font, raf);
-
-            // skip tables with zero length
-            if (table != null)
-            {
-                font.addTable(table);
-            }
+            font.addTable(table);
         }
         // parse tables if wanted
         if (!parseOnDemandOnly)
@@ -163,7 +148,7 @@ public class TTFParser
      *
      * @param font the TrueTypeFont instance holding the parsed data.
      * @param raf the data stream of the to be parsed ttf font
-     * @throws IOException If there is an error parsing the TrueType font.
+     * @throws IOException If there is an error parsing the true type font.
      */
     private void parseTables(TrueTypeFont font, TTFDataStream raf) throws IOException
     {
@@ -298,13 +283,6 @@ public class TTFParser
         table.setCheckSum(raf.readUnsignedInt());
         table.setOffset(raf.readUnsignedInt());
         table.setLength(raf.readUnsignedInt());
-
-        // skip tables with zero length
-        if (table.getLength() == 0)
-        {
-            return null;
-        }
-
         return table;
     }
 

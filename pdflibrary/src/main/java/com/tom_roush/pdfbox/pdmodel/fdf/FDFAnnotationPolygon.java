@@ -35,7 +35,6 @@ import org.w3c.dom.Element;
  * This represents a Polygon FDF annotation.
  *
  * @author Ben Litchfield
- * @author Johanneke Lamberink
  */
 public class FDFAnnotationPolygon extends FDFAnnotation
 {
@@ -66,9 +65,9 @@ public class FDFAnnotationPolygon extends FDFAnnotation
     /**
      * Constructor.
      *
-     * @param element An XFDF element.
+     *  @param element An XFDF element.
      *
-     * @throws IOException If there is an error extracting information from the element.
+     *  @throws IOException If there is an error extracting information from the element.
      */
     public FDFAnnotationPolygon( Element element ) throws IOException
     {
@@ -84,7 +83,7 @@ public class FDFAnnotationPolygon extends FDFAnnotation
         }
     }
 
-    private void initVertices(Element element) throws IOException
+    private void initVertices(Element element) throws IOException, NumberFormatException
     {
         XPath xpath = XPathFactory.newInstance().newXPath();
         try
@@ -94,7 +93,7 @@ public class FDFAnnotationPolygon extends FDFAnnotation
             {
                 throw new IOException("Error: missing element 'vertices'");
             }
-            String[] verticesValues = vertices.split(",|;");
+            String[] verticesValues = vertices.split(",");
             float[] values = new float[verticesValues.length];
             for (int i = 0; i < verticesValues.length; i++)
             {
@@ -113,7 +112,7 @@ public class FDFAnnotationPolygon extends FDFAnnotation
      *
      * @param vertices array of floats [x1, y1, x2, y2, ...] vertex coordinates in default user space.
      */
-    public final void setVertices(float[] vertices)
+    public void setVertices(float[] vertices)
     {
         COSArray newVertices = new COSArray();
         newVertices.setFloatArray(vertices);

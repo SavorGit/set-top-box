@@ -29,7 +29,7 @@ import com.tom_roush.pdfbox.pdmodel.common.COSObjectable;
  */
 public class FDFOptionElement implements COSObjectable
 {
-    private final COSArray option;
+    private COSArray option;
 
     /**
      * Default constructor.
@@ -56,7 +56,6 @@ public class FDFOptionElement implements COSObjectable
      *
      * @return The cos object that matches this Java object.
      */
-    @Override
     public COSBase getCOSObject()
     {
         return option;
@@ -73,7 +72,7 @@ public class FDFOptionElement implements COSObjectable
     }
 
     /**
-     * This will get the string of one of the available options. A required element.
+     * This will get the string of one of the available options.  A required element.
      *
      * @return An available option.
      */
@@ -93,7 +92,7 @@ public class FDFOptionElement implements COSObjectable
     }
 
     /**
-     * This will get the string of default appearance string. A required element.
+     * This will get the string of default appearance string.  A required element.
      *
      * @return A default appearance string.
      */

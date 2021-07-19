@@ -16,11 +16,11 @@
  */
 package com.tom_roush.fontbox.ttf;
 
-import android.graphics.Path;
-
 import java.io.IOException;
 
 import com.tom_roush.fontbox.util.BoundingBox;
+
+import android.graphics.Path;
 
 /**
  * A glyph data record in the glyf table.
@@ -42,11 +42,9 @@ public class GlyphData
      * 
      * @param glyphTable The glyph table this glyph belongs to.
      * @param data The stream to read the data from.
-     * @param leftSideBearing The left side bearing for this glyph.
      * @throws IOException If there is an error reading the data.
      */
-    public void initData(GlyphTable glyphTable, TTFDataStream data, int leftSideBearing)
-        throws IOException
+    public void initData( GlyphTable glyphTable, TTFDataStream data ) throws IOException
     {
         numberOfContours = data.readSignedShort();
         xMin = data.readSignedShort();
@@ -58,8 +56,7 @@ public class GlyphData
         if (numberOfContours >= 0) 
         {
             // create a simple glyph
-            short x0 = (short)(leftSideBearing - xMin);
-            glyphDescription = new GlyfSimpleDescript(numberOfContours, data, x0);
+            glyphDescription = new GlyfSimpleDescript(numberOfContours, data);
         }
         else 
         {

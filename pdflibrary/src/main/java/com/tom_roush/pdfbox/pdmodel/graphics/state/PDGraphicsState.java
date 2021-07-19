@@ -22,7 +22,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
 
-import com.tom_roush.pdfbox.cos.COSBase;
 import com.tom_roush.pdfbox.pdmodel.common.PDRectangle;
 import com.tom_roush.pdfbox.pdmodel.graphics.PDLineDashPattern;
 import com.tom_roush.pdfbox.pdmodel.graphics.blend.BlendMode;
@@ -64,7 +63,7 @@ public class PDGraphicsState implements Cloneable
     private double overprintMode = 0;
     //black generation
     //undercolor removal
-    private COSBase transfer = null;
+    //transfer
     //halftone
     private double flatness = 1.0;
     private double smoothness = 0;
@@ -76,12 +75,12 @@ public class PDGraphicsState implements Cloneable
     public PDGraphicsState(PDRectangle page)
     {
 //        clippingPath = new Area(new GeneralPath(page.toGeneralPath()));TODO: PdfBox-Android
-        RectF bounds = new RectF();
-        page.toGeneralPath().computeBounds(bounds, true);
-        clippingPath = new Region();
-        Rect boundsRounded = new Rect();
-        bounds.round(boundsRounded);
-        clippingPath.setPath(page.toGeneralPath(), new Region(boundsRounded));
+    	RectF bounds = new RectF();
+    	page.toGeneralPath().computeBounds(bounds, true);
+    	clippingPath = new Region();
+    	Rect boundsRounded = new Rect();
+    	bounds.round(boundsRounded);
+    	clippingPath.setPath(page.toGeneralPath(), new Region(boundsRounded));
     }
 
     /**
@@ -430,7 +429,7 @@ public class PDGraphicsState implements Cloneable
     /**
      * This will get the rendering intent.
      *
-     * @see PDExtendedGraphicsState
+     * @see com.tom_roush.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState
      *
      * @return The rendering intent
      */
@@ -457,7 +456,7 @@ public class PDGraphicsState implements Cloneable
             PDGraphicsState clone = (PDGraphicsState)super.clone();
             clone.textState = textState.clone();
             clone.currentTransformationMatrix = currentTransformationMatrix.clone();
-            clone.strokingColor = strokingColor; // immutable
+            clone.strokingColor = strokingColor; // immutable 
             clone.nonStrokingColor = nonStrokingColor; // immutable
             clone.lineDashPattern = lineDashPattern; // immutable
             clone.clippingPath = clippingPath; // not cloned, see intersectClippingPath
@@ -478,7 +477,7 @@ public class PDGraphicsState implements Cloneable
      */
     public PDColor getStrokingColor()
     {
-        return strokingColor;
+    	return strokingColor;
     }
 
     /**
@@ -488,7 +487,7 @@ public class PDGraphicsState implements Cloneable
      */
     public void setStrokingColor(PDColor color)
     {
-        strokingColor = color;
+    	strokingColor = color;
     }
 
     /**
@@ -498,7 +497,7 @@ public class PDGraphicsState implements Cloneable
      */
     public PDColor getNonStrokingColor()
     {
-        return nonStrokingColor;
+    	return nonStrokingColor;
     }
 
     /**
@@ -508,7 +507,7 @@ public class PDGraphicsState implements Cloneable
      */
     public void setNonStrokingColor(PDColor color)
     {
-        nonStrokingColor = color;
+    	nonStrokingColor = color;
     }
 
     /**
@@ -518,7 +517,7 @@ public class PDGraphicsState implements Cloneable
      */
     public PDColorSpace getStrokingColorSpace()
     {
-        return strokingColorSpace;
+    	return strokingColorSpace;
     }
 
     /**
@@ -528,7 +527,7 @@ public class PDGraphicsState implements Cloneable
      */
     public void setStrokingColorSpace(PDColorSpace colorSpace)
     {
-        strokingColorSpace = colorSpace;
+    	strokingColorSpace = colorSpace;
     }
 
     /**
@@ -538,7 +537,7 @@ public class PDGraphicsState implements Cloneable
      */
     public PDColorSpace getNonStrokingColorSpace()
     {
-        return nonStrokingColorSpace;
+    	return nonStrokingColorSpace;
     }
 
     /**
@@ -548,7 +547,7 @@ public class PDGraphicsState implements Cloneable
      */
     public void setNonStrokingColorSpace(PDColorSpace colorSpace)
     {
-        nonStrokingColorSpace = colorSpace;
+    	nonStrokingColorSpace = colorSpace;
     }
 
     /**
@@ -557,14 +556,13 @@ public class PDGraphicsState implements Cloneable
      */
     public void intersectClippingPath(Path path)
     {
-        RectF bounds = new RectF();
-        path.computeBounds(bounds, true);
-        Region r = new Region();
-        Rect boundsRounded = new Rect();
-        bounds.round(boundsRounded);
-        r.setPath(path, new Region(boundsRounded));
+    	RectF bounds = new RectF();
+    	path.computeBounds(bounds, true);
+    	Region r = new Region();
+    	Rect boundsRounded = new Rect();
+    	bounds.round(boundsRounded);
+    	r.setPath(path, new Region(boundsRounded));
         intersectClippingPath(r);
-        // TODO: PdfBox-Android Verify correct behavior
     }
 
     /**
@@ -576,12 +574,12 @@ public class PDGraphicsState implements Cloneable
         // lazy cloning of clipping path for performance
         if (!isClippingPathDirty)
         {
-            // deep copy (can't use clone() as it performs only a shallow copy)
-            Region cloned = new Region(area);
+        	// deep copy (can't use clone() as it performs only a shallow copy)
+        	Region cloned = new Region(area);
 //        	cloned.add(clippingPath);
-            clippingPath = cloned;
+        	clippingPath = cloned;
 
-            isClippingPathDirty = true;
+        	isClippingPathDirty = true;
         }
 
         // intersection as usual
@@ -607,32 +605,4 @@ public class PDGraphicsState implements Cloneable
 //    {
 //        return BlendComposite.getInstance(blendMode, (float) nonStrokingAlphaConstants);
 //    }TODO: PdfBox-Android
-
-    /**
-     * This will get the transfer function.
-     *
-     * @return The transfer function. According to the PDF specification, this is either a single
-     * function (which applies to all process colorants) or an array of four functions (which apply
-     * to the process colorants individually). The name Identity may be used to represent the
-     * identity function, and the name Default denotes the transfer function that was in effect at
-     * the start of the page.
-     */
-    public COSBase getTransfer()
-    {
-        return transfer;
-    }
-
-    /**
-     * This will set the transfer function.
-     *
-     * @param transfer The transfer function. According to the PDF specification, this is either a
-     * single function (which applies to all process colorants) or an array of four functions (which
-     * apply to the process colorants individually). The name Identity may be used to represent the
-     * identity function, and the name Default denotes the transfer function that was in effect at
-     * the start of the page.
-     */
-    public void setTransfer(COSBase transfer)
-    {
-        this.transfer = transfer;
-    }
 }

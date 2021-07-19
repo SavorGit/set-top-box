@@ -17,7 +17,6 @@
 package com.tom_roush.pdfbox.pdmodel.interactive.annotation;
 
 import com.tom_roush.pdfbox.cos.COSArray;
-import com.tom_roush.pdfbox.cos.COSBase;
 import com.tom_roush.pdfbox.cos.COSDictionary;
 import com.tom_roush.pdfbox.cos.COSFloat;
 import com.tom_roush.pdfbox.cos.COSName;
@@ -296,7 +295,6 @@ public class PDAnnotationLine extends PDAnnotationMarkup
      * @param bs the border style dictionary to set.
      *
      */
-    @Override
     public void setBorderStyle( PDBorderStyleDictionary bs )
     {
         this.getCOSObject().setItem(COSName.BS, bs);
@@ -308,15 +306,17 @@ public class PDAnnotationLine extends PDAnnotationMarkup
      *
      * @return the border style dictionary.
      */
-    @Override
     public PDBorderStyleDictionary getBorderStyle()
     {
-        COSBase bs = getCOSObject().getDictionaryObject(COSName.BS);
-        if (bs instanceof COSDictionary)
+        COSDictionary bs = (COSDictionary) this.getCOSObject().getItem(COSName.BS);
+        if (bs != null)
         {
-            return new PDBorderStyleDictionary((COSDictionary)bs);
+            return new PDBorderStyleDictionary( bs );
         }
-        return null;
+        else
+        {
+            return null;
+        }
     }
 
     /**

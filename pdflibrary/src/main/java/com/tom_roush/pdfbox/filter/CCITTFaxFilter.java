@@ -16,10 +16,7 @@
  */
 package com.tom_roush.pdfbox.filter;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import android.util.Log;
 
 import com.tom_roush.pdfbox.cos.COSDictionary;
 import com.tom_roush.pdfbox.cos.COSName;
@@ -27,6 +24,10 @@ import com.tom_roush.pdfbox.filter.ccitt.CCITTFaxG31DDecodeInputStream;
 import com.tom_roush.pdfbox.filter.ccitt.FillOrderChangeInputStream;
 import com.tom_roush.pdfbox.filter.ccitt.TIFFFaxDecoder;
 import com.tom_roush.pdfbox.io.IOUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Decodes image data that has been encoded using either Group 3 or Group 4
@@ -126,7 +127,6 @@ final class CCITTFaxFilter extends Filter
     protected void encode(InputStream input, OutputStream encoded, COSDictionary parameters)
             throws IOException
     {
-        throw new UnsupportedEncodingException(
-            "CCITTFaxDecode encoding is not implemented, use the CCITTFactory methods instead.");
+    	Log.w("PdfBox-Android", "CCITTFaxDecode.encode is not implemented yet, skipping this stream.");
     }
 }

@@ -26,7 +26,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import com.tom_roush.pdfbox.cos.COSDictionary;
 import com.tom_roush.pdfbox.cos.COSName;
@@ -137,10 +136,10 @@ public final class JPEGFactory
     private static PDImageXObject createJPEG(PDDocument document, Bitmap image,
         float quality, int dpi) throws IOException
     {
-        // create XObject
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        encodeImageToJPEGStream(image, quality, dpi, baos);
-        ByteArrayInputStream byteStream = new ByteArrayInputStream(baos.toByteArray());
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        image.compress(Bitmap.CompressFormat.JPEG, (int)(quality * 100), bos);
+        byte[] bitmapData = bos.toByteArray();
+        ByteArrayInputStream byteStream = new ByteArrayInputStream(bitmapData);
 
         PDImageXObject pdImage = new PDImageXObject(document, byteStream,
             COSName.DCT_DECODE, image.getWidth(), image.getHeight(),
@@ -151,10 +150,10 @@ public final class JPEGFactory
         // alpha -> soft mask
         if (image.hasAlpha())
         {
-            PDImage xAlpha = createAlphaFromARGBImage(document, image);
-            pdImage.getCOSObject().setItem(COSName.SMASK, xAlpha);
-        }
+            PDImageXObject xAlpha = createAlphaFromARGBImage(document, image);
 
+            pdImage.getCOSStream().setItem(COSName.SMASK, xAlpha);
+        }
         return pdImage;
     }
 
@@ -249,10 +248,9 @@ public final class JPEGFactory
             width, height, bitsPerComponent, initColorSpace);
     }
 
-    private static void encodeImageToJPEGStream(Bitmap image, float quality, int dpi,
-        OutputStream out) throws IOException
-    {
-        image.compress(Bitmap.CompressFormat.JPEG, (int)(quality * 100), out);
+    //	private static void encodeImageToJPEGStream(BufferedImage image, float quality, int dpi,
+    //			OutputStream out) throws IOException
+    //	{
     //		// encode to JPEG
     //		ImageOutputStream ios = null;
     //		ImageWriter imageWriter = null;
@@ -289,8 +287,8 @@ public final class JPEGFactory
     //			{
     //				imageWriter.dispose();
     //			}
-    //		} TODO: PdfBox-Android
-    }
+    //		}
+    //	} TODO: PdfBox-Android
 
     // returns a PDColorSpace for a given BufferedImage
     //	private static PDColorSpace getColorSpaceFromAWT(Bitmap awtImage)

@@ -55,8 +55,6 @@ public class Overlay
         FOREGROUND, BACKGROUND
     }
 
-    ;
-
     private LayoutPage defaultOverlayPage;
     private LayoutPage firstPageOverlayPage;
     private LayoutPage lastPageOverlayPage;
@@ -70,6 +68,8 @@ public class Overlay
 
     private String inputFileName = null;
     private PDDocument inputPDFDocument = null;
+
+    private String outputFilename = null;
 
     private String defaultOverlayFilename = null;
     private PDDocument defaultOverlay = null;
@@ -96,55 +96,54 @@ public class Overlay
      * This will add overlays to a documents.
      *
      * @param specificPageOverlayFile map of overlay files for specific pages
-     * @return the resulting pdf, which has to be saved and closed be the caller
      * @throws IOException if something went wrong
      */
-    public PDDocument overlay(Map<Integer, String> specificPageOverlayFile) throws IOException
+    public void overlay(Map<Integer, String> specificPageOverlayFile)
+        throws IOException
     {
-        loadPDFs();
-        for (Map.Entry<Integer, String> e : specificPageOverlayFile.entrySet())
+        try
         {
-            PDDocument doc = loadPDF(e.getValue());
-            specificPageOverlay.put(e.getKey(), doc);
-            specificPageOverlayPage.put(e.getKey(), getLayoutPage(doc));
-        }
-        processPages(inputPDFDocument);
-        return inputPDFDocument;
-    }
+            loadPDFs();
+            for (Map.Entry<Integer, String> e : specificPageOverlayFile.entrySet())
+            {
+                PDDocument doc = loadPDF(e.getValue());
+                specificPageOverlay.put(e.getKey(), doc);
+                specificPageOverlayPage.put(e.getKey(), getLayoutPage(doc));
+            }
+            processPages(inputPDFDocument);
 
-    /**
-     * Close all input pdfs which were used for the overlay.
-     *
-     * @throws IOException if something went wrong
-     */
-    public void close() throws IOException
-    {
-        if (defaultOverlay != null)
-        {
-            defaultOverlay.close();
+            inputPDFDocument.save(outputFilename);
         }
-        if (firstPageOverlay != null)
+        finally
         {
-            firstPageOverlay.close();
-        }
-        if (lastPageOverlay != null)
-        {
-            lastPageOverlay.close();
-        }
-        if (allPagesOverlay != null)
-        {
-            allPagesOverlay.close();
-        }
-        if (oddPageOverlay != null)
-        {
-            oddPageOverlay.close();
-        }
-        if (evenPageOverlay != null)
-        {
-            evenPageOverlay.close();
-        }
-        if (specificPageOverlay != null)
-        {
+            if (inputPDFDocument != null)
+            {
+                inputPDFDocument.close();
+            }
+            if (defaultOverlay != null)
+            {
+                defaultOverlay.close();
+            }
+            if (firstPageOverlay != null)
+            {
+                firstPageOverlay.close();
+            }
+            if (lastPageOverlay != null)
+            {
+                lastPageOverlay.close();
+            }
+            if (allPagesOverlay != null)
+            {
+                allPagesOverlay.close();
+            }
+            if (oddPageOverlay != null)
+            {
+                oddPageOverlay.close();
+            }
+            if (evenPageOverlay != null)
+            {
+                evenPageOverlay.close();
+            }
             for (Map.Entry<Integer, PDDocument> e : specificPageOverlay.entrySet())
             {
                 e.getValue().close();
@@ -507,6 +506,26 @@ public class Overlay
     public String getInputFile()
     {
         return inputFileName;
+    }
+
+    /**
+     * Sets the output file.
+     *
+     * @param outputFile the output file
+     */
+    public void setOutputFile(String outputFile)
+    {
+        outputFilename = outputFile;
+    }
+
+    /**
+     * Returns the output file.
+     *
+     * @return the output file
+     */
+    public String getOutputFile()
+    {
+        return outputFilename;
     }
 
     /**

@@ -17,7 +17,6 @@
 package com.tom_roush.pdfbox.pdmodel.interactive.action;
 
 import com.tom_roush.pdfbox.cos.COSDictionary;
-import com.tom_roush.pdfbox.cos.COSName;
 import com.tom_roush.pdfbox.pdmodel.common.COSObjectable;
 
 /**
@@ -70,7 +69,7 @@ public class PDPageAdditionalActions implements COSObjectable
      */
     public PDAction getO()
     {
-        COSDictionary o = (COSDictionary)actions.getDictionaryObject(COSName.O);
+        COSDictionary o = (COSDictionary)actions.getDictionaryObject( "O" );
         PDAction retval = null;
         if( o != null )
         {
@@ -89,7 +88,7 @@ public class PDPageAdditionalActions implements COSObjectable
      */
     public void setO( PDAction o )
     {
-        actions.setItem(COSName.O, o);
+        actions.setItem( "O", o );
     }
 
     /**

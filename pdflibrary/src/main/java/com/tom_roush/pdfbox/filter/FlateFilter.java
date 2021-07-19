@@ -18,6 +18,9 @@ package com.tom_roush.pdfbox.filter;
 
 import android.util.Log;
 
+import com.tom_roush.pdfbox.cos.COSDictionary;
+import com.tom_roush.pdfbox.cos.COSName;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -26,9 +29,6 @@ import java.io.OutputStream;
 import java.util.zip.DataFormatException;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
-
-import com.tom_roush.pdfbox.cos.COSDictionary;
-import com.tom_roush.pdfbox.cos.COSName;
 
 /**
  * Decompresses data encoded using the zlib/deflate compression method,
@@ -86,46 +86,21 @@ final class FlateFilter extends Filter
 
     // Use Inflater instead of InflateInputStream to avoid an EOFException due to a probably
     // missing Z_STREAM_END, see PDFBOX-1232 for details
-    private void decompress(InputStream in, OutputStream out)
-        throws IOException, DataFormatException
-    {
-        byte[] buf = new byte[2048];
-        // skip zlib header
-        in.read(buf, 0, 2);
-        int read = in.read(buf);
-        if (read > 0)
-        {
-            // use nowrap mode to bypass zlib-header and checksum to avoid a DataFormatException
-            Inflater inflater = new Inflater(true);
-            inflater.setInput(buf,0,read);
-            byte[] res = new byte[2048];
-            boolean dataWritten = false;
-            while (true)
-            {
-                int resRead = 0;
-                try
-                {
-                    resRead = inflater.inflate(res);
-                }
-                catch (DataFormatException exception)
-                {
-                    if (dataWritten)
-                    {
-                        // some data could be read -> don't throw an exception
-                        Log.w("PdfBox-Android",
-                            "FlateFilter: premature end of stream due to a DataFormatException");
-                        break;
-                    }
-                    else
-                    {
-                        // nothing could be read -> re-throw exception
-                        throw exception;
-                    }
-                }
+    private static void decompress(InputStream in, OutputStream out) throws IOException, DataFormatException 
+    { 
+        byte[] buf = new byte[2048]; 
+        int read = in.read(buf); 
+        if (read > 0) 
+        { 
+            Inflater inflater = new Inflater(); 
+            inflater.setInput(buf,0,read); 
+            byte[] res = new byte[2048]; 
+            while (true) 
+            { 
+                int resRead = inflater.inflate(res); 
                 if (resRead != 0) 
-                {
-                    out.write(res, 0, resRead);
-                    dataWritten = true;
+                { 
+                    out.write(res,0,resRead); 
                     continue; 
                 } 
                 if (inflater.finished() || inflater.needsDictionary() || in.available() == 0) 
@@ -133,7 +108,7 @@ final class FlateFilter extends Filter
                     break;
                 } 
                 read = in.read(buf); 
-                inflater.setInput(buf,0,read);
+                inflater.setInput(buf,0,read); 
             }
             inflater.end();
         }

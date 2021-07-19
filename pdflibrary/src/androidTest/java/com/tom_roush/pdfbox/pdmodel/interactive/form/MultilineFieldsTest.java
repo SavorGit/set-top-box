@@ -18,18 +18,17 @@
 package com.tom_roush.pdfbox.pdmodel.interactive.form;
 
 import android.content.Context;
-import androidx.test.InstrumentationRegistry;
-
-import java.io.File;
-import java.io.IOException;
+import android.support.test.InstrumentationRegistry;
 
 import com.tom_roush.pdfbox.pdmodel.PDDocument;
-import com.tom_roush.pdfbox.rendering.TestRendering;
 import com.tom_roush.pdfbox.util.PDFBoxResourceLoader;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
 
 public class MultilineFieldsTest
 {
@@ -53,7 +52,7 @@ public class MultilineFieldsTest
         System.out.println("Working Directory = " + System.getProperty("user.dir"));
         document = PDDocument.load(testContext.getAssets().open(IN_DIR + "/" + NAME_OF_PDF));
         acroForm = document.getDocumentCatalog().getAcroForm();
-        OUT_DIR = new File(testContext.getCacheDir(), "pdfbox-test-output");
+        OUT_DIR = new File(testContext.getCacheDir(), "Download/pdfbox-test-output");
         OUT_DIR.mkdirs();
     }
 
@@ -99,9 +98,12 @@ public class MultilineFieldsTest
         // compare rendering
         File file = new File(OUT_DIR, NAME_OF_PDF);
         document.save(file);
-        TestRendering testRendering = new TestRendering();
-        testRendering.setUp();
-        testRendering.render(file);
+//        TestPDFToImage testPDFToImage = new TestPDFToImage(TestPDFToImage.class.getName());
+//        if (!testPDFToImage.doTestFile(file, IN_DIR.getAbsolutePath(), OUT_DIR.getAbsolutePath()))
+//        {
+//            // don't fail, rendering is different on different systems, result must be viewed manually
+//            System.err.println ("Rendering of " + file + " failed or is not identical to expected rendering in " + IN_DIR + " directory");
+//        } TODO: PdfBox-Android
     }
 
     @After

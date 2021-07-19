@@ -17,7 +17,6 @@
 package com.tom_roush.pdfbox.pdmodel.interactive.action;
 
 import com.tom_roush.pdfbox.cos.COSDictionary;
-import com.tom_roush.pdfbox.cos.COSName;
 
 /**
  * This represents a URI action that can be executed in a PDF document.
@@ -59,7 +58,7 @@ public class PDActionURI extends PDAction
      */
     public String getS()
     {
-        return action.getNameAsString(COSName.S);
+        return action.getNameAsString("S");
     }
 
     /**
@@ -70,7 +69,7 @@ public class PDActionURI extends PDAction
      */
     public void setS(String s)
     {
-        action.setName(COSName.S, s);
+        action.setName("S", s);
     }
 
     /**
@@ -81,7 +80,7 @@ public class PDActionURI extends PDAction
      */
     public String getURI()
     {
-        return action.getString(COSName.URI);
+        return action.getString("URI");
     }
 
     /**
@@ -92,7 +91,7 @@ public class PDActionURI extends PDAction
      */
     public void setURI(String uri)
     {
-        action.setString(COSName.URI, uri);
+        action.setString("URI", uri);
     }
 
     /**

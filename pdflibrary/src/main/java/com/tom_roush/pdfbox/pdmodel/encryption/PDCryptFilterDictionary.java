@@ -16,6 +16,8 @@
  */
 package com.tom_roush.pdfbox.pdmodel.encryption;
 
+import java.io.IOException;
+
 import com.tom_roush.pdfbox.cos.COSDictionary;
 import com.tom_roush.pdfbox.cos.COSName;
 
@@ -85,8 +87,10 @@ public class PDCryptFilterDictionary
      * Allowed values are: NONE, V2, AESV2, AESV3
      *
      * @param cfm name of the crypt filter method.
+     *
+     * @throws IOException If there is an error setting the data.
      */
-    public void setCryptFilterMethod(COSName cfm)
+    public void setCryptFilterMethod(COSName cfm) throws IOException
     {
         cryptFilterDictionary.setItem( COSName.CFM, cfm );
     }
@@ -96,8 +100,10 @@ public class PDCryptFilterDictionary
      * Allowed values are: NONE, V2, AESV2, AESV3
      *
      * @return the name of the crypt filter method.
+     *
+     * @throws IOException If there is an error accessing the data.
      */
-    public COSName getCryptFilterMethod()
+    public COSName getCryptFilterMethod() throws IOException
     {
         return (COSName)cryptFilterDictionary.getDictionaryObject( COSName.CFM );
     }

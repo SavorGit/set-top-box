@@ -23,8 +23,8 @@ import com.tom_roush.pdfbox.pdmodel.common.COSObjectable;
 
 /**
  * A marked-content reference.
- *
- * @author Johannes Koch
+ * 
+ * @author Ben Litchfield
  */
 public class PDMarkedContentReference implements COSObjectable
 {

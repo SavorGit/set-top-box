@@ -58,7 +58,7 @@ public final class PDListBox extends PDChoice
      */
     public int getTopIndex()
     {
-        return getCOSObject().getInt(COSName.TI, 0);
+        return dictionary.getInt(COSName.TI, 0);
     }
 
     /**
@@ -70,11 +70,11 @@ public final class PDListBox extends PDChoice
     {
         if (topIndex != null)
         {
-            getCOSObject().setInt(COSName.TI, topIndex);
+            dictionary.setInt(COSName.TI, topIndex);
         }
         else
         {
-            getCOSObject().removeItem(COSName.TI);
+            dictionary.removeItem(COSName.TI);
         }
     }
 

@@ -57,10 +57,10 @@ public class FDFDocument implements Closeable
         document = new COSDocument();
         document.setVersion( 1.2f );
 
-        // First we need a trailer
+        //First we need a trailer
         document.setTrailer( new COSDictionary() );
 
-        // Next we need the root dictionary.
+        //Next we need the root dictionary.
         FDFCatalog catalog = new FDFCatalog();
         setCatalog( catalog );
     }
@@ -112,6 +112,8 @@ public class FDFDocument implements Closeable
         output.write( "</xfdf>\n" );
     }
 
+
+
     /**
      * This will get the low level document.
      *
@@ -123,7 +125,7 @@ public class FDFDocument implements Closeable
     }
 
     /**
-     * This will get the FDF Catalog. This is guaranteed to not return null.
+     * This will get the FDF Catalog.  This is guaranteed to not return null.
      *
      * @return The documents /Root dictionary
      */
@@ -166,8 +168,8 @@ public class FDFDocument implements Closeable
      */
     public static FDFDocument load( String filename ) throws IOException
     {
-        FDFParser parser = new FDFParser(filename);
-        parser.parse();
+    	FDFParser parser = new FDFParser(filename);
+    	parser.parse();
         return new FDFDocument(parser.getDocument());
     }
 
@@ -182,8 +184,8 @@ public class FDFDocument implements Closeable
      */
     public static FDFDocument load( File file ) throws IOException
     {
-        FDFParser parser = new FDFParser(file);
-        parser.parse();
+    	FDFParser parser = new FDFParser(file);
+    	parser.parse();
         return new FDFDocument(parser.getDocument());
     }
 

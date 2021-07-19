@@ -39,12 +39,12 @@ public interface PDContentStream
     InputStream getContents() throws IOException;
 
     /**
-     * Returns this stream's resources, if any.
+     * Returns this stream's resources
      */
     PDResources getResources();
 
     /**
-     * Returns the bounding box of the contents.
+     * Returns the bounding box of the contents, if any.
      */
     PDRectangle getBBox();
 

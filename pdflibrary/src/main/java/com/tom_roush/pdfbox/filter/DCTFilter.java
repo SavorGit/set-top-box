@@ -16,12 +16,14 @@
  */
 package com.tom_roush.pdfbox.filter;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import android.util.Log;
 
 import com.tom_roush.pdfbox.cos.COSDictionary;
 import com.tom_roush.pdfbox.io.IOUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Decompresses data encoded using a DCT (discrete cosine transform)
@@ -36,6 +38,13 @@ final class DCTFilter extends Filter
                                          COSDictionary parameters, int index) throws IOException
     {
     	// Already ready, just read it back out
+//    	byte[] buffer = new byte[1024];
+//        int bytesRead;
+//        while ((bytesRead = encoded.read(buffer)) != -1)
+//        {
+//            decoded.write(buffer, 0, bytesRead);
+//        }
+        
         IOUtils.copy(encoded, decoded);
         
         return new DecodeResult(parameters);
@@ -132,7 +141,6 @@ final class DCTFilter extends Filter
     protected void encode(InputStream input, OutputStream encoded, COSDictionary parameters)
             throws IOException
     {
-        throw new UnsupportedOperationException(
-            "DCTFilter encoding is not implemented, use the JPEGFactory methods instead");
+    	Log.w("PdfBox-Android", "DCTFilter#encode is not implemented yet, skipping this stream.");
     }
 }

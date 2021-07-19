@@ -20,12 +20,9 @@ import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
-
-import com.tom_roush.fontbox.util.Charsets;
 
 /**
  * An interface into a data stream.
@@ -61,11 +58,11 @@ abstract class TTFDataStream implements Closeable
      */
     public String readString(int length) throws IOException
     {
-        return readString(length, Charsets.ISO_8859_1);
+        return readString(length, "ISO-8859-1");
     }
 
     /**
-     * Read a fixed length string.
+     * Read a fixed length ascii string.
      * 
      * @param length The length of the string to read in bytes.
      * @param charset The expected character set of the string.
@@ -73,20 +70,6 @@ abstract class TTFDataStream implements Closeable
      * @throws IOException If there is an error reading the data.
      */
     public String readString(int length, String charset) throws IOException
-    {
-        byte[] buffer = read(length);
-        return new String(buffer, charset);
-    }
-
-    /**
-     * Read a fixed length string.
-     *
-     * @param length The length of the string to read in bytes.
-     * @param charset The expected character set of the string.
-     * @return A string of the desired length.
-     * @throws IOException If there is an error reading the data.
-     */
-    public String readString(int length, Charset charset) throws IOException
     {
         byte[] buffer = read(length);
         return new String(buffer, charset);
@@ -224,12 +207,12 @@ abstract class TTFDataStream implements Closeable
     }
 
     /**
-     * Reads a tag, an array of four uint8s used to identify a script, language system, feature,
+     * Reads a tag, an arrau of four uint8s used to identify a script, language system, feature,
      * or baseline.
      */
     public String readTag() throws IOException
     {
-        return new String(read(4), Charsets.US_ASCII);
+        return new String(read(4), "US-ASCII");
     }
 
     /**

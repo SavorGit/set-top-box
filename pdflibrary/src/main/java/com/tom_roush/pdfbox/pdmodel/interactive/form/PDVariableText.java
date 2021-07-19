@@ -105,7 +105,7 @@ public abstract class PDVariableText extends PDTerminalField
      */
     public void setDefaultAppearance(String daValue)
     {
-        getCOSObject().setString(COSName.DA, daValue);
+        dictionary.setString(COSName.DA, daValue);
     }
 
     /**
@@ -118,7 +118,7 @@ public abstract class PDVariableText extends PDTerminalField
      */
     public String getDefaultStyleString()
     {
-        COSString defaultStyleString = (COSString)getCOSObject().getDictionaryObject(COSName.DS);
+        COSString defaultStyleString = (COSString) dictionary.getDictionaryObject(COSName.DS);
         return defaultStyleString.getString();
     }
 
@@ -133,11 +133,11 @@ public abstract class PDVariableText extends PDTerminalField
     {
         if (defaultStyleString != null)
         {
-            getCOSObject().setItem(COSName.DS, new COSString(defaultStyleString));
+            dictionary.setItem(COSName.DS, new COSString(defaultStyleString));
         }
         else
         {
-            getCOSObject().removeItem(COSName.DS);
+            dictionary.removeItem(COSName.DS);
         }
     }
 
@@ -173,14 +173,13 @@ public abstract class PDVariableText extends PDTerminalField
      */
     public void setQ( int q )
     {
-        getCOSObject().setInt(COSName.Q, q);
+        dictionary.setInt(COSName.Q, q);
     }
 
     /**
      * Get the fields rich text value.
      *
      * @return the rich text value string
-     * @throws IOException if the field dictionary entry is not a text type
      */
     public String getRichTextValue() throws IOException
     {
@@ -193,6 +192,7 @@ public abstract class PDVariableText extends PDTerminalField
      * <p>
      * Setting the rich text value will not generate the appearance
      * for the field.
+     *
      * <br/>
      * You can set {@link PDAcroForm#setNeedAppearances(Boolean)} to
      * signal a conforming reader to generate the appearance stream.
@@ -205,15 +205,17 @@ public abstract class PDVariableText extends PDTerminalField
      */
     public void setRichTextValue(String richTextValue)
     {
+        // TODO stream instead of string
         if (richTextValue != null)
         {
-            getCOSObject().setItem(COSName.RV, new COSString(richTextValue));
+            dictionary.setItem(COSName.RV, new COSString(richTextValue));
         }
         else
         {
-            getCOSObject().removeItem(COSName.RV);
+            dictionary.removeItem(COSName.RV);
         }
     }
+
 
     /**
      * Get a text as text stream.

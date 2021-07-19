@@ -55,7 +55,7 @@ final and all fields private.
  */
 public class PDFormXObject extends PDXObject implements PDContentStream
 {
-    private PDTransparencyGroupAttributes group;
+    private PDGroup group;
     private final ResourceCache cache;
 
     /**
@@ -105,7 +105,7 @@ public class PDFormXObject extends PDXObject implements PDContentStream
      */
     public int getFormType()
     {
-        return getCOSObject().getInt(COSName.FORMTYPE, 1);
+        return getCOSStream().getInt(COSName.FORMTYPE, 1);
     }
 
     /**
@@ -114,22 +114,22 @@ public class PDFormXObject extends PDXObject implements PDContentStream
      */
     public void setFormType(int formType)
     {
-        getCOSObject().setInt(COSName.FORMTYPE, formType);
+        getCOSStream().setInt(COSName.FORMTYPE, formType);
     }
 
     /**
-     * Returns the group attributes dictionary.
+     * Returns the group attributes dictionary (Group XObject).
      *
      * @return the group attributes dictionary
      */
-    public PDTransparencyGroupAttributes getGroup()
+    public PDGroup getGroup()
     {
         if( group == null )
         {
-            COSDictionary dic = (COSDictionary) getCOSObject().getDictionaryObject(COSName.GROUP);
+            COSDictionary dic = (COSDictionary) getCOSStream().getDictionaryObject(COSName.GROUP);
             if( dic != null )
             {
-                group = new PDTransparencyGroupAttributes(dic);
+                group = new PDGroup(dic);
             }
         }
         return group;
@@ -137,13 +137,13 @@ public class PDFormXObject extends PDXObject implements PDContentStream
 
     public PDStream getContentStream()
     {
-        return new PDStream(getCOSObject());
+        return new PDStream(getCOSStream());
     }
 
     @Override
     public InputStream getContents() throws IOException
     {
-        return getCOSObject().createInputStream();
+        return getCOSStream().createInputStream();
     }
 
     /**
@@ -155,7 +155,7 @@ public class PDFormXObject extends PDXObject implements PDContentStream
     @Override
     public PDResources getResources()
     {
-        COSDictionary resources = (COSDictionary) getCOSObject().getDictionaryObject(COSName.RESOURCES);
+        COSDictionary resources = (COSDictionary) getCOSStream().getDictionaryObject(COSName.RESOURCES);
         if (resources != null)
         {
             return new PDResources(resources, cache);
@@ -169,7 +169,7 @@ public class PDFormXObject extends PDXObject implements PDContentStream
      */
     public void setResources(PDResources resources)
     {
-        getCOSObject().setItem(COSName.RESOURCES, resources);
+        getCOSStream().setItem(COSName.RESOURCES, resources);
     }
 
     /**
@@ -183,7 +183,7 @@ public class PDFormXObject extends PDXObject implements PDContentStream
     public PDRectangle getBBox()
     {
         PDRectangle retval = null;
-        COSArray array = (COSArray) getCOSObject().getDictionaryObject(COSName.BBOX);
+        COSArray array = (COSArray) getCOSStream().getDictionaryObject(COSName.BBOX);
         if (array != null)
         {
             retval = new PDRectangle(array);
@@ -199,11 +199,11 @@ public class PDFormXObject extends PDXObject implements PDContentStream
     {
         if (bbox == null)
         {
-            getCOSObject().removeItem(COSName.BBOX);
+            getCOSStream().removeItem(COSName.BBOX);
         }
         else
         {
-            getCOSObject().setItem(COSName.BBOX, bbox.getCOSArray());
+            getCOSStream().setItem(COSName.BBOX, bbox.getCOSArray());
         }
     }
 
@@ -214,13 +214,11 @@ public class PDFormXObject extends PDXObject implements PDContentStream
     @Override
     public Matrix getMatrix()
     {
-        COSArray array = (COSArray) getCOSObject().getDictionaryObject(COSName.MATRIX);
+        COSArray array = (COSArray) getCOSStream().getDictionaryObject(COSName.MATRIX);
         if (array != null)
         {
             return new Matrix(array);
-        }
-        else
-        {
+        } else {
             // default value is the identity matrix
             return new Matrix();
         }
@@ -239,7 +237,7 @@ public class PDFormXObject extends PDXObject implements PDContentStream
         {
             matrix.add(new COSFloat((float) v));
         }
-        getCOSObject().setItem(COSName.MATRIX, matrix);
+        getCOSStream().setItem(COSName.MATRIX, matrix);
     }
 
     /**
@@ -250,7 +248,7 @@ public class PDFormXObject extends PDXObject implements PDContentStream
      */
     public int getStructParents()
     {
-        return getCOSObject().getInt(COSName.STRUCT_PARENTS, 0);
+        return getCOSStream().getInt(COSName.STRUCT_PARENTS, 0);
     }
 
     /**

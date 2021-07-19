@@ -45,7 +45,7 @@ public class PDSignatureField extends PDTerminalField
     public PDSignatureField(PDAcroForm acroForm) throws IOException
     {
         super(acroForm);
-        getCOSObject().setItem(COSName.FT, COSName.SIG);
+        dictionary.setItem(COSName.FT, COSName.SIG);
         getWidgets().get(0).setLocked(true);
         getWidgets().get(0).setPrinted(true);
         setPartialName(generatePartialName());
@@ -73,7 +73,7 @@ public class PDSignatureField extends PDTerminalField
         String fieldName = "Signature";
         Set<String> sigNames = new HashSet<String>();
         // fixme: this ignores non-terminal fields, so will miss any descendant signatures
-        for (PDField field : getAcroForm().getFields())
+        for (PDField field : acroForm.getFields())
         {
             if (field instanceof PDSignatureField)
             {
@@ -101,7 +101,7 @@ public class PDSignatureField extends PDTerminalField
     }
 
     /**
-     * Get the signature getCOSObject().
+     * Get the signature dictionary.
      *
      * @return the signature dictionary
      */
@@ -117,26 +117,8 @@ public class PDSignatureField extends PDTerminalField
      */
     public void setValue(PDSignature value) throws IOException
     {
-        getCOSObject().setItem(COSName.V, value);
+        dictionary.setItem(COSName.V, value);
         applyChange();
-    }
-
-    /**
-     * Sets the value of this field.
-     *
-     * <b>This will throw an UnsupportedOperationException if used as the signature fields
-     * value can't be set using a String</>
-     *
-     * @param value the plain text value.
-     *
-     * @throws UnsupportedOperationException in all cases!
-     */
-    @Override
-    public void setValue(String value) throws UnsupportedOperationException
-    {
-        throw new UnsupportedOperationException(
-            "Signature fields don't support setting the value as String " +
-                "- use setValue(PDSignature value) instead");
     }
 
     /**
@@ -146,7 +128,7 @@ public class PDSignatureField extends PDTerminalField
      */
     public void setDefaultValue(PDSignature value) throws IOException
     {
-        getCOSObject().setItem(COSName.DV, value);
+        dictionary.setItem(COSName.DV, value);
     }
 
     /**
@@ -156,7 +138,7 @@ public class PDSignatureField extends PDTerminalField
      */
     public PDSignature getValue()
     {
-        COSBase value = getCOSObject().getDictionaryObject(COSName.V);
+        COSBase value = dictionary.getDictionaryObject(COSName.V);
         if (value == null)
         {
             return null;
@@ -171,7 +153,7 @@ public class PDSignatureField extends PDTerminalField
      */
     public PDSignature getDefaultValue()
     {
-        COSBase value = getCOSObject().getDictionaryObject(COSName.DV);
+        COSBase value = dictionary.getDictionaryObject(COSName.DV);
         if (value == null)
         {
             return null;
@@ -195,7 +177,7 @@ public class PDSignatureField extends PDTerminalField
      */
     public PDSeedValue getSeedValue()
     {
-        COSDictionary dict = (COSDictionary)getCOSObject().getDictionaryObject(COSName.SV);
+        COSDictionary dict = (COSDictionary) dictionary.getDictionaryObject(COSName.SV);
         PDSeedValue sv = null;
         if (dict != null)
         {
@@ -215,7 +197,7 @@ public class PDSignatureField extends PDTerminalField
     {
         if (sv != null)
         {
-            getCOSObject().setItem(COSName.SV, sv);
+            dictionary.setItem(COSName.SV, sv);
         }
     }
 

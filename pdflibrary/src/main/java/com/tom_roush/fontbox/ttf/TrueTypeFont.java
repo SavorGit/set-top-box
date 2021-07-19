@@ -369,7 +369,6 @@ public class TrueTypeFont implements FontBoxFont, Closeable
      * Read the given table if necessary. Package-private, used by TTFParser only.
      *
      * @param table the table to be initialized
-     *
      * @throws IOException if there was an error reading the table.
      */
     void readTable(TTFTable table) throws IOException
@@ -487,20 +486,19 @@ public class TrueTypeFont implements FontBoxFont, Closeable
 
     private synchronized void readPostScriptNames() throws IOException
     {
-        if (postScriptNames == null && getPostScript() != null)
+        if (postScriptNames == null)
         {
-            String[] names = getPostScript().getGlyphNames();
-            if (names != null)
+            postScriptNames = new HashMap<String, Integer>();
+            if (getPostScript() != null)
             {
-                postScriptNames = new HashMap<String, Integer>(names.length);
-                for (int i = 0; i < names.length; i++)
+                String[] names = getPostScript().getGlyphNames();
+                if (names != null)
                 {
-                    postScriptNames.put(names[i], i);
+                    for (int i = 0; i < names.length; i++)
+                    {
+                        postScriptNames.put(names[i], i);
+                    }
                 }
-            }
-            else
-            {
-                postScriptNames = new HashMap<String, Integer>();
             }
         }
     }
@@ -528,14 +526,7 @@ public class TrueTypeFont implements FontBoxFont, Closeable
         CmapTable cmapTable = getCmap();
         if (cmapTable == null)
         {
-            if (isStrict)
-            {
-                throw new IOException("The TrueType font does not contain a 'cmap' table");
-            }
-            else
-            {
-                return null;
-            }
+            return null;
         }
 
         CmapSubtable cmap = cmapTable.getSubtable(CmapTable.PLATFORM_UNICODE,
@@ -586,7 +577,6 @@ public class TrueTypeFont implements FontBoxFont, Closeable
         {
             return gid;
         }
-
         // look up in 'cmap'
         int uni = parseUniName(name);
         if (uni > -1)
@@ -594,7 +584,6 @@ public class TrueTypeFont implements FontBoxFont, Closeable
             CmapSubtable cmap = getUnicodeCmap(false);
             return cmap.getGlyphId(uni);
         }
-
         return 0;
     }
 
@@ -635,7 +624,12 @@ public class TrueTypeFont implements FontBoxFont, Closeable
     @Override
     public Path getPath(String name) throws IOException
     {
+        readPostScriptNames();
         int gid = nameToGID(name);
+        if (gid < 0 || gid >= getMaximumProfile().getNumGlyphs())
+        {
+            gid = 0;
+        }
 
         // some glyphs have no outlines (e.g. space, table, newline)
         GlyphData glyph = getGlyph().getGlyph(gid);

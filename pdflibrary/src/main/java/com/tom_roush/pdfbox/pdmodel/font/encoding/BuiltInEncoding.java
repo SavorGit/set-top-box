@@ -17,9 +17,9 @@
 
 package com.tom_roush.pdfbox.pdmodel.font.encoding;
 
-import java.util.Map;
-
 import com.tom_roush.pdfbox.cos.COSBase;
+
+import java.util.Map;
 
 /**
  * A font's built-in encoding.
@@ -45,11 +45,5 @@ public class BuiltInEncoding extends Encoding
     public COSBase getCOSObject()
     {
         throw new UnsupportedOperationException("Built-in encodings cannot be serialized");
-    }
-
-    @Override
-    public String getEncodingName()
-    {
-        return "built-in (TTF)";
     }
 }

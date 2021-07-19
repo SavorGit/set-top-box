@@ -272,7 +272,6 @@ public final class PDFontDescriptor implements COSObjectable
      *
      * @return The cos object that matches this Java object.
      */
-    @Override
     public COSDictionary getCOSObject()
     {
         return dic;
@@ -286,10 +285,10 @@ public final class PDFontDescriptor implements COSObjectable
     public String getFontName()
     {
         String retval = null;
-        COSBase base = dic.getDictionaryObject(COSName.FONT_NAME);
-        if (base instanceof COSName)
+        COSName name = (COSName)dic.getDictionaryObject( COSName.FONT_NAME );
+        if( name != null )
         {
-            retval = ((COSName)base).getName();
+            retval = name.getName();
         }
         return retval;
     }
@@ -681,17 +680,9 @@ public final class PDFontDescriptor implements COSObjectable
     }
 
     /**
-     * Returns true if the missing widths entry is present in the font descriptor.
-     */
-    public boolean hasMissingWidth()
-    {
-        return dic.containsKey(COSName.MISSING_WIDTH);
-    }
-
-    /**
-     * This will get the missing width for the font from the /MissingWidth dictionary entry.
+     * This will get the missing width for the font.
      *
-     * @return The missing width value, or 0 if there is no such dictionary entry.
+     * @return The missing width value.
      */
     public float getMissingWidth()
     {
@@ -816,21 +807,6 @@ public final class PDFontDescriptor implements COSObjectable
     {
         dic.setItem( COSName.FONT_FILE3, stream );
     }
-
-    /**
-     * Get the CIDSet stream.
-     *
-     * @return A stream containing a CIDSet.
-     */
-    public PDStream getCIDSet()
-    {
-        COSObjectable cidSet = dic.getDictionaryObject(COSName.CID_SET);
-        if (cidSet instanceof COSStream)
-        {
-            return new PDStream((COSStream)cidSet);
-        }
-        return null;
-    }
     
     /**
      * Set a stream containing a CIDSet.
@@ -839,7 +815,7 @@ public final class PDFontDescriptor implements COSObjectable
      */
     public void setCIDSet( PDStream stream )
     {
-        dic.setItem(COSName.CID_SET, stream);
+    	dic.setItem( COSName.CID_SET, stream );
     }
 
     /**

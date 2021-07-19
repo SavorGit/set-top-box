@@ -46,11 +46,11 @@ public class ValidateXImage
     {
         // check the dictionary
         assertNotNull(ximage);
-        COSStream cosStream = ximage.getCOSObject();
+        COSStream cosStream = ximage.getCOSStream();
         assertNotNull(cosStream);
         assertEquals(COSName.XOBJECT, cosStream.getItem(COSName.TYPE));
         assertEquals(COSName.IMAGE, cosStream.getItem(COSName.SUBTYPE));
-        assertTrue(ximage.getCOSObject().getLength() > 0);
+        assertTrue(ximage.getCOSStream().getLength() > 0);
         assertEquals(bpc, ximage.getBitsPerComponent());
         assertEquals(width, ximage.getWidth());
         assertEquals(height, ximage.getHeight());
@@ -115,8 +115,7 @@ public class ValidateXImage
 
         PDPage page = new PDPage();
         document.addPage(page);
-        PDPageContentStream contentStream = new PDPageContentStream(document, page,
-            PDPageContentStream.AppendMode.APPEND, false);
+        PDPageContentStream contentStream = new PDPageContentStream(document, page, true, false);
         contentStream.drawImage(ximage, 150, 300);
         contentStream.drawImage(ximage, 200, 350);
         contentStream.close();
