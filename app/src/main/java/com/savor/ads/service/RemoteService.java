@@ -1184,21 +1184,25 @@ public class RemoteService extends Service {
                 String startTime = String.valueOf(System.currentTimeMillis());
                 res_sup_time = startTime;
                 String action = request.getParameter("action");
-                String imgpath = request.getParameter("imgpath");
-                String[] filenames = imgpath.split("/");
-                String filename = filenames[filenames.length-1];
-                String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-                File file = new File(imgpath);
+                String filename = request.getParameter("filename");
+                int position = filename.lastIndexOf(".");
+                String fileDir = filename.substring(0,position);
+                String path = request.getParameter("imgpath");
+                String[] imgnames = path.split("/");
+                String imgname = imgnames[imgnames.length-1];
+                String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+                String imgPath = basePath+fileDir+"/"+imgname;
+                File file = new File(imgPath);
                 boolean isDownload = false;
                 if (file.exists()){
                     isDownload = true;
                 }
                 if (isDownload) {
-                    ProjectOperationListener.getInstance(context).showImage(2, imgpath, true,forscreen_id,"", avatarUrl, nickName,"","",currentAction, FROM_SERVICE_REMOTE);
+                    ProjectOperationListener.getInstance(context).showImage(2, imgPath, true,forscreen_id,"", avatarUrl, nickName,"","",currentAction, FROM_SERVICE_REMOTE);
                     String endTime = String.valueOf(System.currentTimeMillis());
                     res_eup_time = endTime;
-                    postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,filename,resource_size,resource_type,imgpath,serial_number,null, true);
-                    GlobalValues.PROJECT_STREAM_IMAGE.add(imgpath);
+                    postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,filename,resource_size,resource_type,imgPath,serial_number,null, true);
+                    GlobalValues.PROJECT_STREAM_IMAGE.add(imgPath);
                     object = new BaseResponse();
                     object.setMsg("滑动成功");
                     object.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
