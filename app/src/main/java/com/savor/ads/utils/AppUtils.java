@@ -1251,6 +1251,10 @@ public class AppUtils {
                                 final String mediaPath = bean.getMedia_path();
                                 //这个值就是文件名称
                                 final String resourceId = bean.getResource_id();
+                                String resourceType = bean.getResource_type();
+                                if (resourceType.equals("3")){
+                                    continue;
+                                }
                                 long resuorceSize = 0;
                                 if (!TextUtils.isEmpty(bean.getResource_size())){
                                     resuorceSize = Long.valueOf(bean.getResource_size());
@@ -1262,8 +1266,8 @@ public class AppUtils {
                                 }
                                 File suorcefile = new File(mediaPath);
                                 if (!suorcefile.exists()){
-                                    selection = DBHelper.MediaDBInfo.FieldName.FORSCREEN_ID + "=? ";
-                                    selectionArgs = new String[]{bean.getForscreen_id()};
+                                    selection = DBHelper.MediaDBInfo.FieldName.RESOURCE_ID + "=? ";
+                                    selectionArgs = new String[]{resourceId};
                                     DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.PROJECTION_LOG,selection,selectionArgs);
                                     continue;
                                 }
@@ -1272,9 +1276,13 @@ public class AppUtils {
                                 String ossPath;
                                 String[] filePaths = bean.getMedia_path().split("\\/");
                                 final String fileName = filePaths[filePaths.length-1];
-                                String resourceType = bean.getResource_type();
-                                if (resuorceSize<simpleUploadSize||resourceType.equals("3")){
-                                    ossPath = OSSValues.uploadSimplePath+fileName;
+                                int pages = bean.getPages();
+                                if (resuorceSize<simpleUploadSize){
+                                    if (pages>0){
+                                        ossPath = OSSValues.uploadSimpleFilePath+fileName;
+                                    }else{
+                                        ossPath = OSSValues.uploadSimplePath+fileName;
+                                    }
                                     OSSUtils ossUtils =  new OSSUtils(context,
                                             BuildConfig.OSS_BUCKET_NAME,
                                             ossPath,
@@ -1372,8 +1380,8 @@ public class AppUtils {
             public void onSuccess(AppApi.Action method, Object obj) {
                 if (obj instanceof String){
 
-                    String forscreenId = (String)obj;
-                    DBHelper.get(context).uploadProjectionLog(forscreenId,"1");
+                    String resourceId = (String)obj;
+                    DBHelper.get(context).uploadProjectionLog(resourceId,"1");
                 }
             }
 
@@ -1386,7 +1394,7 @@ public class AppUtils {
             public void onNetworkFailed(AppApi.Action method) {
 
             }
-        }, params, bean.getForscreen_id());
+        }, params, bean.getResource_id());
     }
 
     /**
@@ -3087,4 +3095,23 @@ public class AppUtils {
         return sourceIndex;
     }
 
+    public static String getFileSuffix(String filename){
+        String suffix;
+        if (TextUtils.isEmpty(filename)){
+            return null;
+        }
+        int pos = filename.lastIndexOf(".");
+        suffix = filename.substring(pos);
+        return suffix;
+    }
+
+    public static String getFileNameId(String filename){
+        String fileNameId;
+        if (TextUtils.isEmpty(filename)){
+            return null;
+        }
+        int pos = filename.lastIndexOf(".");
+        fileNameId = filename.substring(0,pos);
+        return fileNameId;
+    }
 }

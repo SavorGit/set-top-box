@@ -9,12 +9,12 @@ ext {
 }
 
 android {
-    compileSdkVersion COMPILE_SDK_VERSION as int
+    compileSdkVersion Integer.parseInt(project.COMPILE_SDK_VERSION)
     compileOptions.encoding = 'UTF-8'
 
     defaultConfig {
-        minSdkVersion MIN_SDK_VERSION as int
-        targetSdkVersion TARGET_SDK_VERSION as int
+        minSdkVersion Integer.parseInt(project.MIN_SDK_VERSION)
+        targetSdkVersion Integer.parseInt(project.TARGET_SDK_VERSION)
         versionName project.VERSION_NAME
         versionCode Integer.parseInt(project.VERSION_CODE)
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'

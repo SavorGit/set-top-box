@@ -34,7 +34,7 @@ import com.tom_roush.pdfbox.pdmodel.interactive.annotation.PDAppearanceEntry;
  * @author Ben Litchfield
  * @author sug
  */
-public final class PDCheckbox extends PDButton
+final class PDCheckbox extends PDButton
 {
     /**
      * @see PDField#PDField(PDAcroForm)

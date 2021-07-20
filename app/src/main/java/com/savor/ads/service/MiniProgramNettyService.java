@@ -963,22 +963,13 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     String oss_url = BuildConfig.OSS_ENDPOINT+url;
                     isDownloaded = new ProgressDownloader(context,oss_url, basePath,fileName,true,serial_number).downloadByRange();
                     if (isDownloaded){
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                pImgListDialog.setImgDownloadProgress(minipp.getVideo_id(),"100%");
-                            }
-                        });
+                        handler.post(()->pImgListDialog.setImgDownloadProgress(minipp.getVideo_id(),"100%"));
                     }
                 }catch (Exception e){
                     e.printStackTrace();
                 }
             }else{
-                OSSUtils ossUtils = new OSSUtils(context,
-                        BuildConfig.OSS_BUCKET_NAME,
-                        url,
-                        file,true);
-
+                OSSUtils ossUtils = new OSSUtils(context,BuildConfig.OSS_BUCKET_NAME,url,file,true);
                 ossUtils.setDownloadProgressListener(new DownloadProgressListener() {
 
                     @Override

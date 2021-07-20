@@ -17,6 +17,7 @@ public class ProjectionLogHistory implements Serializable {
     private String duration;
     private String resource_id;
     private String resource_size;
+    private int pages;
     private List<ProjectionLogDetail> list;
 
     public String getAction() {
@@ -113,6 +114,14 @@ public class ProjectionLogHistory implements Serializable {
 
     public void setResource_size(String resource_size) {
         this.resource_size = resource_size;
+    }
+
+    public int getPages() {
+        return pages;
+    }
+
+    public void setPages(int pages) {
+        this.pages = pages;
     }
 
     public List<ProjectionLogDetail> getList() {

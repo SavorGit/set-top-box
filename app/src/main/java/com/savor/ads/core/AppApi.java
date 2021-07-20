@@ -931,10 +931,10 @@ public class AppApi {
      * @param context
      * @param handler
      * @param params
-     * @param forscreen_id
+     * @param resource_id
      */
-    public static void updateSimpleProjectionLog(Context context,ApiRequestListener handler,HashMap<String,Object> params,String forscreen_id){
-        new AppServiceOk(context,Action.CP_POST_UPDATE_SIMPLE_FORSCREEN_LOG_JSON,handler,params,forscreen_id).post();
+    public static void updateSimpleProjectionLog(Context context,ApiRequestListener handler,HashMap<String,Object> params,String resource_id){
+        new AppServiceOk(context,Action.CP_POST_UPDATE_SIMPLE_FORSCREEN_LOG_JSON,handler,params,resource_id).post();
 
     }
 

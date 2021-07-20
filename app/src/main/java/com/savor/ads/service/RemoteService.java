@@ -3,7 +3,6 @@ package com.savor.ads.service;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.os.Binder;
 import android.os.Handler;
@@ -58,6 +57,7 @@ import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.GlideImageLoader;
 import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.LogUtils;
+import com.savor.ads.utils.ShowMessage;
 import com.savor.ads.utils.StreamUtils;
 import com.tom_roush.pdfbox.pdmodel.PDDocument;
 import com.tom_roush.pdfbox.rendering.PDFRenderer;
@@ -1049,7 +1049,9 @@ public class RemoteService extends Service {
                 fileQueue.offer(param);
                 Log.d(TAG,"写入队列，数据块index==="+index+"||input=="+param.getInputContent());
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-                String outPath = path + filename;
+                String suffix = AppUtils.getFileSuffix(filename);
+                String fileDir = AppUtils.getMD5(filename);
+                String outPath = path + fileDir + suffix;
                 if ("0".equals(index)){
                     FileImgWriter writer = new FileImgWriter(context,forscreen_id,fileQueue,outPath);
                     writer.setUserInfo(avatarUrl,nickName);
@@ -1057,6 +1059,7 @@ public class RemoteService extends Service {
                         if (obj instanceof FileQueueParam){
                             FileQueueParam fParam = (FileQueueParam)obj;
                             res_eup_time = String.valueOf(System.currentTimeMillis());
+                            handler.post(()->ShowMessage.showToast(context,"下载完成，开始转换文件"));
                             convertFileToImg(fParam,outPath);
                         }
 
@@ -1089,6 +1092,7 @@ public class RemoteService extends Service {
         private void convertFileToImg(FileQueueParam fParam,String filePath){
             String action = fParam.getAction();
             String filename = fParam.getFileName();
+            String fileDir = AppUtils.getMD5(filename);
             String forscreen_id = fParam.getForscreen_id();
             String resource_size = fParam.getTotalSize();
             String resource_type = fParam.getResource_type();
@@ -1099,47 +1103,53 @@ public class RemoteService extends Service {
             FileOutputStream fileOut = null;
             InputStream inputStream = null;
             try {
-                String name=null;
-                if (filename.contains(".")){
-                    int position = filename.lastIndexOf(".");
-                    name = filename.substring(0,position);
-                }
+                /**
+                 *因为正常的文件名称中可能存在中文以及特殊字符
+                 * 所以创建文件目录时，将forscreenid当做文件目录名称
+                 */
                 String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-                File root = new File(basePath+name);
-                if (!root.exists()){
-                    root.mkdir();
-                }
-                // Load in an already created PDF
-                File pdfFile = new File(filePath);
-                if (!pdfFile.exists()){
-                    return;
-                }
-                String md5 = AppUtils.getMD5(pdfFile);
-                inputStream = new FileInputStream(pdfFile);
-                AssetManager assetManager = getAssets();
+                File root = new File(basePath+fileDir);
+                if (root.isDirectory()&&root.listFiles().length>0){
+                    String path = root.getAbsolutePath() + "/1.jpg";
+                    if (new File(path).exists()){
+                        ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,"", avatarUrl, nickName,"","",currentAction, FROM_SERVICE_REMOTE);
+                    }
+                }else{
+                    if (!root.exists()){
+                        root.mkdir();
+                    }
+                    // Load in an already created PDF
+                    File pdfFile = new File(filePath);
+                    if (!pdfFile.exists()){
+                        return;
+                    }
+                    String md5 = AppUtils.getMD5(pdfFile);
+                    inputStream = new FileInputStream(pdfFile);
+//                  AssetManager assetManager = getAssets();
+//                  PDDocument document = PDDocument.load(assetManager.open("123.pdf"));
+                    PDDocument document = PDDocument.load(inputStream);
+                    // Create a renderer for the document
+                    PDFRenderer renderer = new PDFRenderer(document);
+                    // Render the image to an RGB Bitmap
+//                  pageImage = renderer.renderImage(0, 1, ImageType.RGB);
+                    int pages = document.getNumberOfPages();
+                    for (int i=0;i<pages;i++){
+//                        LogUtils.d("下载pdf完成，开始转换第"+i+"张");
+                        pageImage = renderer.renderImage(i, 1, Bitmap.Config.ARGB_4444);
 
-//                PDDocument document = PDDocument.load(assetManager.open("123.pdf"));
-                PDDocument document = PDDocument.load(inputStream);
-                // Create a renderer for the document
-                PDFRenderer renderer = new PDFRenderer(document);
-                // Render the image to an RGB Bitmap
-//            pageImage = renderer.renderImage(0, 1, ImageType.RGB);
-                int pages = document.getNumberOfPages();
-                for (int i=0;i<pages;i++){
-                    pageImage = renderer.renderImage(i, 1, Bitmap.Config.RGB_565);
-
-                    // Save the render result to an image
-                    String path = root.getAbsolutePath() + "/"+(i+1)+".jpg";
-                    File renderFile = new File(path);
-                    fileOut = new FileOutputStream(renderFile);
-                    pageImage.compress(Bitmap.CompressFormat.JPEG, 100, fileOut);
-
-                   if (i == 0){
-                       ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,"", avatarUrl, nickName,"","",currentAction, FROM_SERVICE_REMOTE);
-                   }
+                        // Save the render result to an image
+                        String path = root.getAbsolutePath() + "/"+(i+1)+".jpg";
+                        File renderFile = new File(path);
+                        fileOut = new FileOutputStream(renderFile);
+                        pageImage.compress(Bitmap.CompressFormat.JPEG, 100, fileOut);
+//                        LogUtils.d("下载pdf完成，完成转换第"+i+"张");
+                        if (i == 0){
+                            ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,"", avatarUrl, nickName,"","",currentAction, FROM_SERVICE_REMOTE);
+                            postSimpleMiniProgramProjectionLog(action,forscreen_id,filename,resource_size,resource_type,filePath,serial_number,md5,pages,save_type);
+                        }
+                    }
+                    AppUtils.uplopadProjectionFile(context,root.getAbsolutePath(),fileDir);
                 }
-                postSimpleMiniProgramProjectionLog(action,forscreen_id,filename,resource_size,resource_type,filePath,serial_number,md5,pages,save_type);
-                AppUtils.uplopadProjectionFile(context,root.getAbsolutePath(),name);
             }
             catch (IOException e){
                 Log.e("PdfBox-Android-Sample", "Exception thrown while rendering file", e);
@@ -1165,13 +1175,14 @@ public class RemoteService extends Service {
             String resJson = null;
             initBaseParam(request);
             String forscreen_id = request.getParameter("forscreen_id");
-            String selection = DBHelper.MediaDBInfo.FieldName.FORSCREEN_ID + "=? ";
-            String[] selectionArgs = new String[]{forscreen_id};
+            String filename = request.getParameter("filename");
+            String selection = DBHelper.MediaDBInfo.FieldName.RESOURCE_ID + "=? ";
+            String[] selectionArgs = new String[]{filename};
             ProjectionLogHistory projectionLog = DBHelper.get(context).findProjectionHistoryById(selection,selectionArgs);
             String duration = projectionLog.getDuration();
             String forscreen_char = projectionLog.getForscreen_char();
-            String resource_size = projectionLog.getResource_size();
-            String resource_type = projectionLog.getResource_type();
+            String resource_size = "";
+            String resource_type = request.getParameter("resource_type");
             String serial_number = projectionLog.getSerial_number();
             if (TextUtils.isEmpty(GlobalValues.CURRENT_FORSCREEN_ID)
                     ||!GlobalValues.CURRENT_FORSCREEN_ID.equals(forscreen_id)){
@@ -1183,14 +1194,12 @@ public class RemoteService extends Service {
                 String startTime = String.valueOf(System.currentTimeMillis());
                 res_sup_time = startTime;
                 String action = request.getParameter("action");
-                String filename = request.getParameter("filename");
-                int position = filename.lastIndexOf(".");
-                String fileDir = filename.substring(0,position);
+                String fileDir = AppUtils.getMD5(filename);
                 String path = request.getParameter("imgpath");
                 String[] imgnames = path.split("/");
-                String imgname = imgnames[imgnames.length-1];
+                String imgName = imgnames[imgnames.length-1];
                 String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-                String imgPath = basePath+fileDir+"/"+imgname;
+                String imgPath = basePath+fileDir+"/"+imgName;
                 File file = new File(imgPath);
                 boolean isDownload = false;
                 if (file.exists()){
@@ -1200,7 +1209,7 @@ public class RemoteService extends Service {
                     ProjectOperationListener.getInstance(context).showImage(2, imgPath, true,forscreen_id,"", avatarUrl, nickName,"","",currentAction, FROM_SERVICE_REMOTE);
                     String endTime = String.valueOf(System.currentTimeMillis());
                     res_eup_time = endTime;
-                    postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,filename,resource_size,resource_type,imgPath,serial_number,null, true);
+                    postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,imgName,resource_size,resource_type,imgPath,serial_number,null, false);
                     GlobalValues.PROJECT_STREAM_IMAGE.add(imgPath);
                     object = new BaseResponse();
                     object.setMsg("滑动成功");
@@ -1261,12 +1270,13 @@ public class RemoteService extends Service {
                 params.put("md5", md5);
                 params.put("file_imgnum", file_imgnum);
                 params.put("save_type", save_type);
+                params.put("resource_name", AppUtils.getFileNameId(resource_id));
             }
+            params.put("resource_id", resource_id);
             params.put("forscreen_id", forscreen_id);
             params.put("mobile_brand", deviceName);
             params.put("mobile_model", device_model);
             params.put("openid", deviceId);
-            params.put("resource_id", resource_id);
             params.put("resource_size", resource_size);
             params.put("resource_type", resource_type);
             params.put("serial_number",serial_number);
@@ -1293,6 +1303,7 @@ public class RemoteService extends Service {
             bean.setResource_size(resource_size);
             bean.setResource_type(resource_type);
             bean.setMedia_path(media_path);
+            bean.setPages(file_imgnum);
             if (repeat){
                 bean.setRepeat("1");
             }else {
@@ -2466,11 +2477,11 @@ public class RemoteService extends Service {
 
         private String findFileImgList(HttpServletRequest request){
             BaseResponse response = new BaseResponse();
-            String forscreen_id = request.getParameter("forscreen_id");
+            /**forscreen_id既为原文件名和目录名*/
             String filename = request.getParameter("filename");
-            String filename_id = filename.substring(0,filename.length()-4);
-            String selection = DBHelper.MediaDBInfo.FieldName.FORSCREEN_ID + "=? ";
-            String[] selectionArgs = new String[]{forscreen_id};
+            String fileDir = AppUtils.getMD5(filename);
+            String selection = DBHelper.MediaDBInfo.FieldName.RESOURCE_ID + "=? ";
+            String[] selectionArgs = new String[]{filename};
             ProjectionLogHistory projectionLog = DBHelper.get(context).findProjectionHistoryById(selection,selectionArgs);
             if (projectionLog==null){
                 response.setCode(ConstantValues.SERVER_RESPONSE_CODE_NULL);
@@ -2478,11 +2489,12 @@ public class RemoteService extends Service {
                 return new Gson().toJson(response);
             }
             String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-            File fileImg = new File(basePath+filename_id);
+            File fileImg = new File(basePath+fileDir);
 
             JSONObject jsonObject = new JSONObject();
             try{
                 jsonObject.accumulate("status",2);
+                jsonObject.accumulate("pages",projectionLog.getPages());
                 jsonObject.accumulate("task_id",0);
                 jsonObject.accumulate("percent",100);
                 jsonObject.accumulate("oss_host","http://"+AppUtils.getEthernetIP()+":8080");
@@ -2490,7 +2502,7 @@ public class RemoteService extends Service {
                 if (fileImg.isDirectory()&&fileImg.listFiles().length>0){
                     for (File file:fileImg.listFiles()){
                         String name = file.getName();
-                        String imgPath = "projection/"+filename_id+"/"+name;
+                        String imgPath = "projection/"+fileDir+"/"+name;
                         jsonArray.put(imgPath);
                     }
                 }

@@ -55,6 +55,7 @@ import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.MOBILE_BRAND
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.MOBILE_MODEL;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.NICK_NAME;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.OPENID;
+import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.PAGES;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.PERIOD;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.PLAY_POSITION;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.PLAY_TYPE;
@@ -134,6 +135,7 @@ public class DBHelper extends SQLiteOpenHelper {
             public static final String NICK_NAME = "nick_name";
             public static final String AVATAR_URL = "avatar_url";
             public static final String TYPE = "type";
+            public static final String PAGES = "pages";
             //是否已经上传,0:未上传，1：已上传
             public static final String UPLOADED = "uploaded";
             //是否已经上传,0:一投，1：重投
@@ -167,7 +169,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "dbsavor.db";
 
 
-    private static final int DB_VERSION = 37;
+    private static final int DB_VERSION = 38;
 
     private Context mContext;
 
@@ -385,14 +387,19 @@ public class DBHelper extends SQLiteOpenHelper {
         if (oldVersion<37){
             //versionName 2.2.8
             try{
-                try{
-                    String addQrcodePath = "ALTER TABLE " + TableName.LOCAL_LIFE_ADS + " ADD " + QRCODE_PATH + " TEXT;";
-                    sqLiteDatabase.execSQL(addQrcodePath);
-                    String addQrcodeUrl = "ALTER TABLE " + TableName.LOCAL_LIFE_ADS + " ADD " + QRCODE_URL + " TEXT;";
-                    sqLiteDatabase.execSQL(addQrcodeUrl);
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
+                String addQrcodePath = "ALTER TABLE " + TableName.LOCAL_LIFE_ADS + " ADD " + QRCODE_PATH + " TEXT;";
+                sqLiteDatabase.execSQL(addQrcodePath);
+                String addQrcodeUrl = "ALTER TABLE " + TableName.LOCAL_LIFE_ADS + " ADD " + QRCODE_URL + " TEXT;";
+                sqLiteDatabase.execSQL(addQrcodeUrl);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        if (oldVersion<38){
+            //versionName 2.3.4
+            try{
+                String addPages = "ALTER TABLE " + TableName.PROJECTION_LOG + " ADD " + PAGES + " INTEGER;";
+                sqLiteDatabase.execSQL(addPages);
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -585,6 +592,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 + UPLOADED + " TEXT, "
                 + REPEAT + " TEXT, "
                 + SMALL_APP_ID + " TEXT, "
+                + PAGES + " INTEGER, "
                 + CREATETIME + " TEXT "
                 +");";
         db.execSQL(DATABASE_CREATE);
@@ -1504,6 +1512,7 @@ public class DBHelper extends SQLiteOpenHelper {
             initialValues.put(MEDIA_SCREENSHOT_PATH,bean.getMedia_screenshot_path());
             initialValues.put(UPLOADED,bean.getUpload());
             initialValues.put(REPEAT,bean.getRepeat());
+            initialValues.put(PAGES,bean.getPages());
             initialValues.put(SMALL_APP_ID,bean.getSmall_app_id());
             initialValues.put(CREATETIME,bean.getCreate_time());
             long success = db.insert(TableName.PROJECTION_LOG,null,initialValues);
@@ -1518,11 +1527,11 @@ public class DBHelper extends SQLiteOpenHelper {
         return flag;
     }
 
-    public boolean uploadProjectionLog(String forscreen_id,String upload){
+    public boolean uploadProjectionLog(String resource_id,String upload){
         boolean flag = false;
         try {
-            String selection = FORSCREEN_ID + "=? ";
-            String[] selectionArgs = new String[]{forscreen_id};
+            String selection = RESOURCE_ID + "=? ";
+            String[] selectionArgs = new String[]{resource_id};
             ContentValues initialValues = new ContentValues();
             initialValues.put(FieldName.UPLOADED, upload);
             long success = db.update(TableName.PROJECTION_LOG,initialValues, selection,selectionArgs);
@@ -1568,6 +1577,7 @@ public class DBHelper extends SQLiteOpenHelper {
                             bean.setResource_type(cursor.getString(cursor.getColumnIndex(RESOURCE_TYPE)));
                             bean.setMedia_path(cursor.getString(cursor.getColumnIndex(MEDIA_PATH)));
                             bean.setMedia_screenshot_path(cursor.getString(cursor.getColumnIndex(MEDIA_SCREENSHOT_PATH)));
+                            bean.setPages(cursor.getInt(cursor.getColumnIndex(PAGES)));
                             bean.setSmall_app_id(cursor.getString(cursor.getColumnIndex(SMALL_APP_ID)));
                             bean.setCreate_time(cursor.getString(cursor.getColumnIndex(CREATETIME)));
                             logBeanList.add(bean);
@@ -1699,6 +1709,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     history.setOpenid(cursor.getString(cursor.getColumnIndex(OPENID)));
                     history.setResource_type(cursor.getString(cursor.getColumnIndex(RESOURCE_TYPE)));
                     history.setResource_id(cursor.getString(cursor.getColumnIndex(RESOURCE_ID)));
+                    history.setPages(cursor.getInt(cursor.getColumnIndex(PAGES)));
                     history.setResource_size(cursor.getString(cursor.getColumnIndex(RESOURCE_SIZE)));
                     selection = FORSCREEN_ID + "=? ";
                     selectionArgs = new String[]{history.getForscreen_id()};

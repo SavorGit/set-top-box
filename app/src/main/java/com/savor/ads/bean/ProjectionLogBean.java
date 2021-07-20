@@ -23,6 +23,8 @@ public class ProjectionLogBean implements Serializable {
     //0：一投，1：重投
     private String repeat;
     private String small_app_id;
+    //文件总共有多少页
+    private int pages;
     private String create_time;
 
     public String getAction() {
@@ -159,6 +161,14 @@ public class ProjectionLogBean implements Serializable {
 
     public void setSmall_app_id(String small_app_id) {
         this.small_app_id = small_app_id;
+    }
+
+    public int getPages() {
+        return pages;
+    }
+
+    public void setPages(int pages) {
+        this.pages = pages;
     }
 
     public String getCreate_time() {
