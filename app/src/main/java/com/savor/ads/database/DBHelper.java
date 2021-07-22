@@ -1527,11 +1527,12 @@ public class DBHelper extends SQLiteOpenHelper {
         return flag;
     }
 
-    public boolean uploadProjectionLog(String resource_id,String upload){
+    public boolean uploadProjectionLog(String resource_id,String createTime,String upload){
         boolean flag = false;
         try {
-            String selection = RESOURCE_ID + "=? ";
-            String[] selectionArgs = new String[]{resource_id};
+            String selection = RESOURCE_ID + "=? and "
+                             + CREATETIME + "=? ";
+            String[] selectionArgs = new String[]{resource_id,createTime};
             ContentValues initialValues = new ContentValues();
             initialValues.put(FieldName.UPLOADED, upload);
             long success = db.update(TableName.PROJECTION_LOG,initialValues, selection,selectionArgs);

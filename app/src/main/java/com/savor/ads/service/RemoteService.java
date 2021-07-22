@@ -1118,38 +1118,41 @@ public class RemoteService extends Service {
                     if (!root.exists()){
                         root.mkdir();
                     }
-                    // Load in an already created PDF
-                    File pdfFile = new File(filePath);
-                    if (!pdfFile.exists()){
-                        return;
-                    }
-                    String md5 = AppUtils.getMD5(pdfFile);
-                    inputStream = new FileInputStream(pdfFile);
+                }
+                // Load in an already created PDF
+                File pdfFile = new File(filePath);
+                if (!pdfFile.exists()){
+                    return;
+                }
+                String md5 = AppUtils.getMD5(pdfFile);
+                inputStream = new FileInputStream(pdfFile);
 //                  AssetManager assetManager = getAssets();
 //                  PDDocument document = PDDocument.load(assetManager.open("123.pdf"));
-                    PDDocument document = PDDocument.load(inputStream);
-                    // Create a renderer for the document
-                    PDFRenderer renderer = new PDFRenderer(document);
-                    // Render the image to an RGB Bitmap
+                PDDocument document = PDDocument.load(inputStream);
+                // Create a renderer for the document
+                PDFRenderer renderer = new PDFRenderer(document);
+                // Render the image to an RGB Bitmap
 //                  pageImage = renderer.renderImage(0, 1, ImageType.RGB);
-                    int pages = document.getNumberOfPages();
-                    for (int i=0;i<pages;i++){
+                int pages = document.getNumberOfPages();
+                for (int i=0;i<pages;i++){
 //                        LogUtils.d("下载pdf完成，开始转换第"+i+"张");
-                        pageImage = renderer.renderImage(i, 1, Bitmap.Config.ARGB_4444);
-
+                    String path = root.getAbsolutePath() + "/"+(i+1)+".jpg";
+                    if (!new File(path).exists()){
+                        LogUtils.d("下载pdf完成，开始获取第"+i+"张的bitmap");
+                        pageImage = renderer.renderImage(i, 1f, Bitmap.Config.ARGB_4444);
+                        LogUtils.d("下载pdf完成，完成获取第"+i+"张的bitmap");
                         // Save the render result to an image
-                        String path = root.getAbsolutePath() + "/"+(i+1)+".jpg";
                         File renderFile = new File(path);
                         fileOut = new FileOutputStream(renderFile);
                         pageImage.compress(Bitmap.CompressFormat.JPEG, 100, fileOut);
-//                        LogUtils.d("下载pdf完成，完成转换第"+i+"张");
-                        if (i == 0){
-                            ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,"", avatarUrl, nickName,"","",currentAction, FROM_SERVICE_REMOTE);
-                            postSimpleMiniProgramProjectionLog(action,forscreen_id,filename,resource_size,resource_type,filePath,serial_number,md5,pages,save_type);
-                        }
                     }
-                    AppUtils.uplopadProjectionFile(context,root.getAbsolutePath(),fileDir);
+//                        LogUtils.d("下载pdf完成，完成转换第"+i+"张");
+                    if (i == 0){
+                        ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,"", avatarUrl, nickName,"","",currentAction, FROM_SERVICE_REMOTE);
+                        postSimpleMiniProgramProjectionLog(action,forscreen_id,filename,resource_size,resource_type,filePath,serial_number,md5,pages,save_type);
+                    }
                 }
+                AppUtils.uplopadProjectionFile(context,root.getAbsolutePath(),fileDir);
             }
             catch (IOException e){
                 Log.e("PdfBox-Android-Sample", "Exception thrown while rendering file", e);
@@ -1271,8 +1274,10 @@ public class RemoteService extends Service {
                 params.put("file_imgnum", file_imgnum);
                 params.put("save_type", save_type);
                 params.put("resource_name", AppUtils.getFileNameId(resource_id));
+                params.put("resource_id", AppUtils.getMD5(resource_id)+".pdf");
+            }else{
+                params.put("resource_id", resource_id);
             }
-            params.put("resource_id", resource_id);
             params.put("forscreen_id", forscreen_id);
             params.put("mobile_brand", deviceName);
             params.put("mobile_model", device_model);
@@ -1315,7 +1320,7 @@ public class RemoteService extends Service {
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
                 String[] filePaths = media_path.split("\\/");
                 final String fileName = filePaths[filePaths.length-1];
-                if ("1".equals(resource_type)){
+                if ("1".equals(resource_type)&&!action.equals("31")){
                     String shotcutName = "img_ys_"+fileName;
                     String filePath = path+shotcutName;
                     Bitmap imageBitmap = AppUtils.getImageThumbnail(media_path,400,400);
@@ -2440,8 +2445,9 @@ public class RemoteService extends Service {
             BaseResponse response = new BaseResponse();
             String openid = request.getParameter("openid");
             String selection = DBHelper.MediaDBInfo.FieldName.OPENID + "=? and "
-                    + DBHelper.MediaDBInfo.FieldName.RESOURCE_TYPE + "!= ?";
-            String[] selectionArgs = new String[]{openid,"3"};
+                    + DBHelper.MediaDBInfo.FieldName.RESOURCE_TYPE + "!= ? and "
+                    + DBHelper.MediaDBInfo.FieldName.ACTION + "!= ? ";
+            String[] selectionArgs = new String[]{openid,"3","31"};
             List<ProjectionLogHistory> list = DBHelper.get(context).findProjectionHistory(selection,selectionArgs);
             LogUtils.d("投屏历史查询返回");
             if (list!=null&&list.size()>0){

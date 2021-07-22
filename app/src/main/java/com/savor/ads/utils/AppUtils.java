@@ -45,6 +45,7 @@ import com.savor.ads.bean.MediaLibBean;
 import com.savor.ads.bean.MeiAdLocalBean;
 import com.savor.ads.bean.OOHLinkAdLocalBean;
 import com.savor.ads.bean.ProjectionLogBean;
+import com.savor.ads.bean.ProjectionLogDetail;
 import com.savor.ads.bean.PushRTBItem;
 import com.savor.ads.bean.SelectContentBean;
 import com.savor.ads.bean.ShopGoodsBean;
@@ -1239,102 +1240,105 @@ public class AppUtils {
             @Override
             public void run() {
                 try {
-                    Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
-                    if (activity instanceof ScreenProjectionActivity){
+                    String selection = DBHelper.MediaDBInfo.FieldName.UPLOADED + "=? ";
+                    String[] selectionArgs = new String[]{"0"};
+                    List<ProjectionLogBean> list = DBHelper.get(context).findProjectionLogs(selection,selectionArgs);
+                    if (list!=null&&list.size()>0){
+                        for (ProjectionLogBean bean:list){
+                            final String mediaPath = bean.getMedia_path();
+                            //这个值就是文件名称
+                            final String resourceId = bean.getResource_id();
+                            String resourceType = bean.getResource_type();
 
-                    }else{
-                        String selection = DBHelper.MediaDBInfo.FieldName.UPLOADED + "=? ";
-                        String[] selectionArgs = new String[]{"0"};
-                        List<ProjectionLogBean> list = DBHelper.get(context).findProjectionLogs(selection,selectionArgs);
-                        if (list!=null&&list.size()>0){
-                            for (ProjectionLogBean bean:list){
-                                final String mediaPath = bean.getMedia_path();
-                                //这个值就是文件名称
-                                final String resourceId = bean.getResource_id();
-                                String resourceType = bean.getResource_type();
-                                if (resourceType.equals("3")){
-                                    continue;
-                                }
-                                long resuorceSize = 0;
-                                if (!TextUtils.isEmpty(bean.getResource_size())){
-                                    resuorceSize = Long.valueOf(bean.getResource_size());
-                                }
-                                String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-                                JSONArray jsonArray = new JSONArray();
-                                if (TextUtils.isEmpty(mediaPath)){
-                                    continue;
-                                }
-                                File suorcefile = new File(mediaPath);
-                                if (!suorcefile.exists()){
-                                    selection = DBHelper.MediaDBInfo.FieldName.RESOURCE_ID + "=? ";
-                                    selectionArgs = new String[]{resourceId};
-                                    DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.PROJECTION_LOG,selection,selectionArgs);
-                                    continue;
-                                }
-                                long simpleUploadSize = Session.get(context).getSimple_upload_size();
-                                boolean flag;
-                                String ossPath;
-                                String[] filePaths = bean.getMedia_path().split("\\/");
-                                final String fileName = filePaths[filePaths.length-1];
-                                int pages = bean.getPages();
-                                if (resuorceSize<simpleUploadSize){
-                                    if (pages>0){
-                                        ossPath = OSSValues.uploadSimpleFilePath+fileName;
-                                    }else{
-                                        ossPath = OSSValues.uploadSimplePath+fileName;
+                            long resuorceSize = 0;
+                            if (!TextUtils.isEmpty(bean.getResource_size())){
+                                resuorceSize = Long.valueOf(bean.getResource_size());
+                            }
+                            String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+                            JSONArray jsonArray = new JSONArray();
+                            if (TextUtils.isEmpty(mediaPath)){
+                                continue;
+                            }
+                            File suorcefile = new File(mediaPath);
+                            if (!suorcefile.exists()){
+                                selection = DBHelper.MediaDBInfo.FieldName.RESOURCE_ID + "=? ";
+                                selectionArgs = new String[]{resourceId};
+                                DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.PROJECTION_LOG,selection,selectionArgs);
+                                continue;
+                            }
+                            long simpleUploadSize = Session.get(context).getSimple_upload_size();
+                            boolean flag;
+                            String ossPath=null;
+                            String[] filePaths = bean.getMedia_path().split("\\/");
+                            final String fileName = filePaths[filePaths.length-1];
+                            String action = bean.getAction();
+                            if (resuorceSize<simpleUploadSize||resourceType.equals("3")){
+                                if (action.equals("31")){
+                                    String forscreenId = bean.getForscreen_id();
+                                    selection = DBHelper.MediaDBInfo.FieldName.FORSCREEN_ID + "=? and "
+                                            + DBHelper.MediaDBInfo.FieldName.PAGES + "> 0";
+                                    selectionArgs = new String[]{forscreenId};
+                                    List<ProjectionLogDetail> listDetail = DBHelper.get(context).findProjectionDetail(selection,selectionArgs);
+                                    if (listDetail!=null&&listDetail.size()>0){
+                                        ProjectionLogDetail detail = listDetail.get(0);
+                                        String resourceName = detail.getResource_id();
+                                        String fileDir = AppUtils.getMD5(resourceName);
+                                        ossPath = OSSValues.uploadSimpleFilePath+fileDir+"/"+fileName;
                                     }
+                                }else{
+                                    ossPath = OSSValues.uploadSimplePath+fileName;
+                                }
+                                OSSUtils ossUtils =  new OSSUtils(context,
+                                        BuildConfig.OSS_BUCKET_NAME,
+                                        ossPath,
+                                        mediaPath);
+                                flag = ossUtils.syncUploadFile();
+                                if (flag){
+                                    jsonArray.put(ossPath);
+                                }
+                            }else {
+                                //0和1:图片,2:视频,3:文件
+                                if ("0".equals(resourceType)||"1".equals(resourceType)){
+                                    String ys_name = "img_ys_"+fileName;
+                                    String ysFilePath = path+ys_name;
+                                    if (!new File(ysFilePath).exists()){
+                                        continue;
+                                    }
+                                    ossPath = OSSValues.uploadSimplePath+fileName;
                                     OSSUtils ossUtils =  new OSSUtils(context,
                                             BuildConfig.OSS_BUCKET_NAME,
                                             ossPath,
-                                            mediaPath);
+                                            ysFilePath);
                                     flag = ossUtils.syncUploadFile();
                                     if (flag){
                                         jsonArray.put(ossPath);
                                     }
-                                }else {
-                                    //0和1:图片,2:视频,3:文件
-                                    if ("0".equals(resourceType)||"1".equals(resourceType)){
-                                        String ys_name = "img_ys_"+fileName;
-                                        String ysFilePath = path+ys_name;
-                                        if (!new File(ysFilePath).exists()){
+                                }else if ("2".equals(resourceType)){
+                                    long duation = Float.valueOf(bean.getDuration()).longValue()*1000;
+                                    long time = duation/4;
+                                    for (int i =1;i<5;i++){
+
+                                        Bitmap bitmap = GlideImageLoader.loadVideoScreenshot(context,mediaPath,time*i*1000);
+                                        if (bitmap==null){
                                             continue;
                                         }
-                                        ossPath = OSSValues.uploadSimplePath+fileName;
+                                        String filePath = path+"video_ys_"+i+"_"+fileName.split("\\.")[0]+".jpg";
+                                        saveImage(bitmap,filePath);
+
+                                        ossPath = OSSValues.uploadSimplePath+"video_ys_"+i+"_"+fileName.split("\\.")[0]+".jpg";
                                         OSSUtils ossUtils =  new OSSUtils(context,
                                                 BuildConfig.OSS_BUCKET_NAME,
                                                 ossPath,
-                                                ysFilePath);
+                                                filePath);
                                         flag = ossUtils.syncUploadFile();
                                         if (flag){
                                             jsonArray.put(ossPath);
                                         }
-                                    }else if ("2".equals(resourceType)){
-                                        long duation = Float.valueOf(bean.getDuration()).longValue()*1000;
-                                        long time = duation/4;
-                                        for (int i =1;i<5;i++){
-
-                                            Bitmap bitmap = GlideImageLoader.loadVideoScreenshot(context,mediaPath,time*i*1000);
-                                            if (bitmap==null){
-                                                continue;
-                                            }
-                                            String filePath = path+"video_ys_"+i+"_"+fileName.split("\\.")[0]+".jpg";
-                                            saveImage(bitmap,filePath);
-
-                                            ossPath = OSSValues.uploadSimplePath+"video_ys_"+i+"_"+fileName.split("\\.")[0]+".jpg";
-                                            OSSUtils ossUtils =  new OSSUtils(context,
-                                                    BuildConfig.OSS_BUCKET_NAME,
-                                                    ossPath,
-                                                    filePath);
-                                            flag = ossUtils.syncUploadFile();
-                                            if (flag){
-                                                jsonArray.put(ossPath);
-                                            }
-                                        }
                                     }
                                 }
-                                if (jsonArray.length()>0){
-                                    updateSimpleProjectionLog(context,bean,jsonArray);
-                                }
+                            }
+                            if (jsonArray.length()>0){
+                                updateSimpleProjectionLog(context,bean,jsonArray);
                             }
                         }
                     }
@@ -1359,7 +1363,7 @@ public class AppUtils {
                         file.getAbsolutePath());
                 ossUtils.syncUploadFile();
             }
-
+            AppUtils.updateProjectionLog(context);
         }).start();
     }
 
@@ -1370,10 +1374,15 @@ public class AppUtils {
         }
         HashMap<String,Object> params = new HashMap<>();
         params.put("box_mac", Session.get(context).getEthernetMac());
+        params.put("action",bean.getAction());
         params.put("serial_number",bean.getSerial_number());
         params.put("forscreen_id", bean.getForscreen_id());
         params.put("resource_addr", jsonArray.toString());
-        params.put("resource_id", bean.getResource_id());
+        if (bean.getAction().equals("30")){
+            params.put("resource_id", AppUtils.getMD5(bean.getResource_id())+".pdf");
+        }else{
+            params.put("resource_id", bean.getResource_id());
+        }
         params.put("create_time", bean.getCreate_time());
         AppApi.updateSimpleProjectionLog(context, new ApiRequestListener() {
             @Override
@@ -1381,7 +1390,7 @@ public class AppUtils {
                 if (obj instanceof String){
 
                     String resourceId = (String)obj;
-                    DBHelper.get(context).uploadProjectionLog(resourceId,"1");
+                    DBHelper.get(context).uploadProjectionLog(resourceId,bean.getCreate_time(),"1");
                 }
             }
 

@@ -115,6 +115,8 @@ public class MiniProgramProjection implements Serializable{
     private String price;
     private String jd_price;
     private List<String> prize_list;
+    /**1：标准版，2：极简版*/
+    private int small_app_id;
     //活动专用
 
     public int getAction() {
@@ -588,5 +590,13 @@ public class MiniProgramProjection implements Serializable{
 
     public void setPrize_list(List<String> prize_list) {
         this.prize_list = prize_list;
+    }
+
+    public int getSmall_app_id() {
+        return small_app_id;
+    }
+
+    public void setSmall_app_id(int small_app_id) {
+        this.small_app_id = small_app_id;
     }
 }

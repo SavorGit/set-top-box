@@ -944,11 +944,23 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 }
             }
         });
-
+        String path=null;
         String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-        String path = basePath + fileName;
+        int small_app_id = minipp.getSmall_app_id();
+        if (small_app_id==2){
+            if (fileName.contains("_")){
+                String[] fileDirs = fileName.split("_");
+                path = basePath +fileDirs[1]+"/"+ fileDirs[2];
+            }
+            if (!new File(path).exists()){
+                path = basePath + fileName;
+            }
+
+        }else{
+            path = basePath + fileName;
+        }
         File file = new File(path);
-        if (file.exists()) {
+        if (path!=null&&file.exists()) {
             isDownloaded = true;
             LogUtils.d("MiniProgramNettyService:投屏视频已存在");
             params.put("is_exist", 1);
