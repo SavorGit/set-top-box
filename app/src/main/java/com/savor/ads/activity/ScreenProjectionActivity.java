@@ -1595,11 +1595,11 @@ public class ScreenProjectionActivity extends BaseActivity{
         if (proProjection==null||isAds||mImageType==5){
             return;
         }
-        if (playState==0){
-            LogUtils.d(">>>>>filename>>>="+proProjection.getFilename()+"|开始");
-        }else{
-            LogUtils.d(">>>>>filename>>>="+proProjection.getFilename()+"|结束");
-        }
+//        if (playState==0){
+//            LogUtils.d(">>>>>filename>>>="+proProjection.getFilename()+"|开始");
+//        }else{
+//            LogUtils.d(">>>>>filename>>>="+proProjection.getFilename()+"|结束");
+//        }
         HashMap<String,Object> params = new HashMap<>();
         params.put("req_id",proProjection.getReq_id());
         params.put("forscreen_id",proProjection.getForscreen_id());

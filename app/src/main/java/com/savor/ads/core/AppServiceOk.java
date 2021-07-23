@@ -363,8 +363,7 @@ public class AppServiceOk {
         Callback<Object> callback = new Callback<Object>() {
 
             @Override
-            public Object parseNetworkResponse(Response response)
-                    throws Exception {
+            public Object parseNetworkResponse(Response response){
                 Object object = ApiResponseFactory.getResponse(mContext, action, response, "", "");
 
                 LogUtils.d(object.toString() + "");
