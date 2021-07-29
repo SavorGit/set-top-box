@@ -1197,6 +1197,7 @@ public class RemoteService extends Service {
                 String startTime = String.valueOf(System.currentTimeMillis());
                 res_sup_time = startTime;
                 String action = request.getParameter("action");
+                String playTimes = request.getParameter("play_times");
                 String fileDir = AppUtils.getMD5(filename);
                 String path = request.getParameter("imgpath");
                 String[] imgnames = path.split("/");
@@ -1209,7 +1210,7 @@ public class RemoteService extends Service {
                     isDownload = true;
                 }
                 if (isDownload) {
-                    ProjectOperationListener.getInstance(context).showImage(2, imgPath, true,forscreen_id,"", avatarUrl, nickName,"","",currentAction, FROM_SERVICE_REMOTE);
+                    ProjectOperationListener.getInstance(context).showImage(2, imgPath, true,playTimes,forscreen_id, avatarUrl, nickName,currentAction, FROM_SERVICE_REMOTE);
                     String endTime = String.valueOf(System.currentTimeMillis());
                     res_eup_time = endTime;
                     postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,imgName,resource_size,resource_type,imgPath,serial_number,null, false);
@@ -2660,7 +2661,7 @@ public class RemoteService extends Service {
                             String videoName = guideImg.getVideo_filename();
                             String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+videoName;
                             if (new File(filePath).exists()){
-                                ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),null,null,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                                ProjectOperationListener.getInstance(context).showImage(1,filePath,true,fid,String.valueOf(delayTime),null,null,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                                 GlobalValues.IMG_NUM.put(deviceId,-1);
                                 return;
                             }
@@ -2670,7 +2671,7 @@ public class RemoteService extends Service {
                             String imageName = guideImg.getImage_filename();
                             String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+imageName;
                             if (new File(filePath).exists()){
-                                ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),null,null,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                                ProjectOperationListener.getInstance(context).showImage(1,filePath,true,fid,String.valueOf(delayTime),null,null,currentAction,GlobalValues.FROM_SERVICE_MINIPROGRAM);
                                 GlobalValues.VIDEO_NUM.put(deviceId,-1);
                                 return;
                             }

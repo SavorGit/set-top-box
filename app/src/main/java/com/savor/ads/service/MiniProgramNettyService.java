@@ -667,7 +667,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             if ((currentAction==2||currentAction==4||currentAction==6||currentAction==10)
                     &&activity instanceof ScreenProjectionActivity){
                 flag = true;
-                return flag;
             }
         }
         return flag;
@@ -918,6 +917,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         String fileName = minipp.getFilename();
         String url = minipp.getUrl();
         String openid = minipp.getOpenid();
+        String playTimes = minipp.getPlay_times()==0 ? "0":String.valueOf(minipp.getPlay_times());
         long startTime = System.currentTimeMillis();
         LogUtils.d("-|-|开始下载时间"+startTime);
         HashMap<String, Object> params = new HashMap<>();
@@ -1046,7 +1046,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     }
                 }
             });
-            ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,"", headPic, nickName,"","",currentAction, FROM_SERVICE_MINIPROGRAM);
+            ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,playTimes, headPic, nickName,currentAction, FROM_SERVICE_MINIPROGRAM);
         } else {
             params.put("is_exist", 2);
             long endTime = System.currentTimeMillis();
@@ -2324,7 +2324,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+fileName;
             if (new File(filePath).exists()){
                 session.setFirstWelcomeImg(false);
-                ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),headPic,nickName,currentAction, FROM_SERVICE_MINIPROGRAM);
+                String forsceenId = String.valueOf(System.currentTimeMillis());
+                ProjectOperationListener.getInstance(context).showImage(1,filePath,true,forsceenId,String.valueOf(delayTime),headPic,nickName,currentAction, FROM_SERVICE_MINIPROGRAM);
             }
         }
     }
@@ -2497,7 +2498,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         String videoName = guideImg.getVideo_filename();
                         String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+videoName;
                         if (new File(filePath).exists()){
-                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),null,null,currentAction, FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,forscreen_id,String.valueOf(delayTime),null,null,currentAction, FROM_SERVICE_MINIPROGRAM);
                             GlobalValues.IMG_NUM.put(openid,-1);
                             return;
                         }
@@ -2507,7 +2508,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         String imageName = guideImg.getImage_filename();
                         String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+imageName;
                         if (new File(filePath).exists()){
-                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),null,null,currentAction, FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,forscreen_id,String.valueOf(delayTime),null,null,currentAction, FROM_SERVICE_MINIPROGRAM);
                             GlobalValues.VIDEO_NUM.put(openid,-1);
                             return;
                         }
@@ -2517,7 +2518,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         String videoName = guideImg.getVideo_filename();
                         String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+videoName;
                         if (new File(filePath).exists()){
-                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,String.valueOf(delayTime),null,null,currentAction, FROM_SERVICE_MINIPROGRAM);
+                            ProjectOperationListener.getInstance(context).showImage(1,filePath,true,forscreen_id,String.valueOf(delayTime),null,null,currentAction, FROM_SERVICE_MINIPROGRAM);
                             GlobalValues.FILE_NUM.put(openid,-1);
                             return;
                         }

@@ -191,8 +191,10 @@ public class ScanRedEnvelopeQrCodeDialogBak extends Dialog{
             if (guideImg!=null){
                 String fileName = guideImg.getBonus_forscreen_filename();
                 String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+fileName;
-                if (new File(filePath).exists())
-                ProjectOperationListener.getInstance(mContext).showImage(1,filePath,true,String.valueOf(45),null,null,-1, FROM_SERVICE_MINIPROGRAM);
+                if (new File(filePath).exists()){
+                    String forscreenId = String.valueOf(System.currentTimeMillis());
+                    ProjectOperationListener.getInstance(mContext).showImage(1,filePath,true,forscreenId,String.valueOf(45),null,null,-1, FROM_SERVICE_MINIPROGRAM);
+                }
             }
         }
     };

@@ -31,12 +31,13 @@ public class ImageAction extends ProjectionActionBase implements Serializable {
     private String forscreenId;
     private String avatarUrl;
     private String nickname;
+    /**倒计时时长*/
     private String delayTime;
     private String musicPath;
     private int action;
 
 
-    public ImageAction(Context context, int imageType, String imagePath, boolean isThumbnail,String projectionTime,String avatarUrl,String nickname,int action,int fromService) {
+    public ImageAction(Context context, int imageType, String imagePath, boolean isThumbnail,String forscreenId,String projectionTime,String avatarUrl,String nickname,int action,int fromService) {
         super();
 
         mPriority = ProjectPriority.HIGH;
@@ -44,6 +45,7 @@ public class ImageAction extends ProjectionActionBase implements Serializable {
         this.imageType = imageType;
         this.imagePath = imagePath;
         this.isThumbnail = isThumbnail;
+        this.forscreenId = forscreenId;
         this.delayTime = projectionTime;
         this.avatarUrl = avatarUrl;
         this.nickname = nickname;
@@ -51,12 +53,13 @@ public class ImageAction extends ProjectionActionBase implements Serializable {
         this.fromService = fromService;
     }
 
+
     public ImageAction(Context context, int imageType, String imagePath,boolean isThumbnail,String forscreenId,String words, String avatarUrl,String nickname,int fromService) {
         super();
 
         mPriority = ProjectPriority.HIGH;
         this.fromService = fromService;
-        mContext = context;
+        this.mContext = context;
         this.imageType = imageType;
         this.imagePath = imagePath;
         this.isThumbnail = isThumbnail;
@@ -115,6 +118,7 @@ public class ImageAction extends ProjectionActionBase implements Serializable {
         data.putString(ScreenProjectionActivity.EXTRA_FORSCREEN_ID,forscreenId);
         data.putString(ScreenProjectionActivity.EXTRA_PRICE_ID,price);
         data.putInt(ScreenProjectionActivity.EXTRA_STORE_SALE_ID, storeSale);
+        data.putString(ScreenProjectionActivity.EXTRA_DELAY_TIME_ID,delayTime);
         data.putString(ScreenProjectionActivity.EXTRA_DELAY_TIME_ID,delayTime);
         data.putString(ScreenProjectionActivity.EXTRA_MUSIC_PATH,musicPath);
         data.putInt(ScreenProjectionActivity.EXTRA_ACTION_ID,action);

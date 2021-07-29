@@ -210,7 +210,7 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
     }
 
     @Override
-    public PrepareResponseVoNew showImage(int imageType, String imgagePath,boolean isThumbnail,String delayTime,String avatarUrl,String nickname,int action,int fromService) {
+    public PrepareResponseVoNew showImage(int imageType, String imgagePath,boolean isThumbnail,String delayTime,String forscreenId,String avatarUrl,String nickname,int action,int fromService) {
         PrepareResponseVoNew localResult = new PrepareResponseVoNew();
         if (isThumbnail) {
             if (!TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_ID)) {
@@ -224,11 +224,12 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
         localResult.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
         localResult.setMsg("加载成功！");
 
-        ImageAction imageAction = new ImageAction(mContext, imageType,imgagePath, isThumbnail,delayTime,avatarUrl,nickname,action,fromService);
+        ImageAction imageAction = new ImageAction(mContext, imageType,imgagePath, isThumbnail,forscreenId,delayTime,avatarUrl,nickname,action,fromService);
         ProjectionManager.getInstance().enqueueAction(imageAction);
 
         return localResult;
     }
+
 
     @Override
     public PrepareResponseVoNew showImage(int imageType, String imagePath,boolean isThumbnail,String forscreenId,String words,String avatarUrl,String nickname,int fromService) {

@@ -1305,7 +1305,11 @@ public class ScreenProjectionActivity extends BaseActivity{
                     duration = Integer.valueOf(delayTime)*1000;
                 }
             }else if (2 == mImageType) {
-                duration = PROJECT_DURATION_FILE;
+                if (!TextUtils.isEmpty(delayTime)){
+                    duration = Integer.valueOf(delayTime)*1000;
+                }else {
+                    duration = PROJECT_DURATION_FILE;
+                }
             }else if (4==mImageType||9==mImageType||ConstantValues.PROJECT_TYPE_VIDEO_REST.equals(mProjectType)){
                 if (projectionTime!=0){
                     duration = projectionTime;
