@@ -207,6 +207,8 @@ public class RemoteService extends Service {
         /**结束时间*/
         private HashMap<String,String> accepteTime = new HashMap<>();
 
+        private HashMap<String,Boolean> converted = new HashMap<>();
+
         public void handle(String target, Request baseRequest, final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
             synchronized (mLock) {
                 LogUtils.w("***********一次请求处理开始...***********");
@@ -1060,6 +1062,8 @@ public class RemoteService extends Service {
                             FileQueueParam fParam = (FileQueueParam)obj;
                             res_eup_time = String.valueOf(System.currentTimeMillis());
                             handler.post(()->ShowMessage.showToast(context,"下载完成，开始转换文件"));
+                            converted.clear();
+                            converted.put(fParam.getFileName(),true);
                             convertFileToImg(fParam,outPath);
                         }
 
@@ -1155,6 +1159,7 @@ public class RemoteService extends Service {
                 AppUtils.uplopadProjectionFile(context,root.getAbsolutePath(),fileDir);
             }
             catch (IOException e){
+                converted.put(filename,false);
                 Log.e("PdfBox-Android-Sample", "Exception thrown while rendering file", e);
             }finally {
                 if (fileOut!=null){
@@ -2486,6 +2491,11 @@ public class RemoteService extends Service {
             BaseResponse response = new BaseResponse();
             /**forscreen_id既为原文件名和目录名*/
             String filename = request.getParameter("filename");
+            if (converted.containsKey(filename)&&!converted.get(filename)){
+                response.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
+                response.setMsg("文件转换异常");
+                return new Gson().toJson(response);
+            }
             String fileDir = AppUtils.getMD5(filename);
             String selection = DBHelper.MediaDBInfo.FieldName.RESOURCE_ID + "=? ";
             String[] selectionArgs = new String[]{filename};
