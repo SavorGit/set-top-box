@@ -105,7 +105,7 @@ public class ScreenProjectionActivity extends BaseActivity{
     /**
      * 文件投屏持续时间
      */
-    private static final int PROJECT_DURATION_FILE = 1000 * 60 * 5 + 1000;
+    private static final int PROJECT_DURATION_FILE = 1000 * 60;
     /**
      * 投屏类型
      */
@@ -160,7 +160,9 @@ public class ScreenProjectionActivity extends BaseActivity{
     private String mProjectionWordsColor;
     /**投屏文字-字体*/
     private String mFontPath;
-    /**小程序餐厅端投屏时长，接受的参数为毫秒*/
+    /**小程序餐厅端投屏时长，接受的参数为毫秒
+     * 小程序主干版本投屏时长，接受的参数为秒
+     * */
     private int projectionTime;
     private boolean mIsNewDevice;
     private String avatar_url;
@@ -1305,8 +1307,8 @@ public class ScreenProjectionActivity extends BaseActivity{
                     duration = Integer.valueOf(delayTime)*1000;
                 }
             }else if (2 == mImageType) {
-                if (!TextUtils.isEmpty(delayTime)){
-                    duration = Integer.valueOf(delayTime)*1000;
+                if (projectionTime!=0){
+                    duration = projectionTime*1000;
                 }else {
                     duration = PROJECT_DURATION_FILE;
                 }

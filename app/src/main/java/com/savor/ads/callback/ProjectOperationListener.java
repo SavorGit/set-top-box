@@ -210,7 +210,7 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
     }
 
     @Override
-    public PrepareResponseVoNew showImage(int imageType, String imgagePath,boolean isThumbnail,String delayTime,String forscreenId,String avatarUrl,String nickname,int action,int fromService) {
+    public PrepareResponseVoNew showImage(int imageType, String imgagePath,boolean isThumbnail,String forscreenId,String delayTime,String avatarUrl,String nickname,int action,int fromService) {
         PrepareResponseVoNew localResult = new PrepareResponseVoNew();
         if (isThumbnail) {
             if (!TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_ID)) {

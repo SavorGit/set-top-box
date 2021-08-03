@@ -118,8 +118,11 @@ public class ImageAction extends ProjectionActionBase implements Serializable {
         data.putString(ScreenProjectionActivity.EXTRA_FORSCREEN_ID,forscreenId);
         data.putString(ScreenProjectionActivity.EXTRA_PRICE_ID,price);
         data.putInt(ScreenProjectionActivity.EXTRA_STORE_SALE_ID, storeSale);
-        data.putString(ScreenProjectionActivity.EXTRA_DELAY_TIME_ID,delayTime);
-        data.putString(ScreenProjectionActivity.EXTRA_DELAY_TIME_ID,delayTime);
+        if (imageType==2){
+            data.putInt(ScreenProjectionActivity.EXTRA_PROJECTION_TIME,Integer.valueOf(delayTime));
+        }else {
+            data.putString(ScreenProjectionActivity.EXTRA_DELAY_TIME_ID,delayTime);
+        }
         data.putString(ScreenProjectionActivity.EXTRA_MUSIC_PATH,musicPath);
         data.putInt(ScreenProjectionActivity.EXTRA_ACTION_ID,action);
         data.putInt(ScreenProjectionActivity.EXTRA_FROM_SERVICE_ID, fromService);
