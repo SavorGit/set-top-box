@@ -50,11 +50,10 @@ import com.savor.ads.dialog.ExtensionQrCodeDialog;
 import com.savor.ads.dialog.ProjectionImgListDialog;
 import com.savor.ads.dialog.ScanRedEnvelopeQrCodeDialog;
 import com.savor.ads.log.LogReportUtil;
-import com.savor.ads.okhttp.coreProgress.download.ProgressDownloader;
+import com.savor.ads.okhttp.coreProgress.download.ProjectionDownloader;
 import com.savor.ads.oss.OSSUtils;
 import com.savor.ads.projection.ProjectionManager;
 import com.savor.ads.projection.action.VodAction;
-import com.savor.ads.service.socket.Global;
 import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.Base64Utils;
@@ -80,7 +79,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import cn.savor.small.netty.MiniProNettyClient;
 import cn.savor.small.netty.MiniProNettyClient.MiniNettyMsgCallback;
-import tv.danmaku.ijk.media.exo2.RangeManager;
 
 import static com.savor.ads.utils.GlobalValues.FROM_SERVICE_MINIPROGRAM;
 
@@ -973,7 +971,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             if (session.isWhether4gNetwork()){
                 try {
                     String oss_url = BuildConfig.OSS_ENDPOINT+url;
-                    isDownloaded = new ProgressDownloader(context,oss_url, basePath,fileName,true,serial_number).downloadByRange();
+                    isDownloaded = new ProjectionDownloader(context,oss_url, basePath,fileName,true,serial_number).downloadByRange();
                     if (isDownloaded){
                         handler.post(()->pImgListDialog.setImgDownloadProgress(minipp.getVideo_id(),"100%"));
                     }
@@ -1308,6 +1306,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         String req_id = program.getReq_id();
         words = program.getForscreen_char();
         img_nums = program.getImg_nums();
+        String musicFilePath = AppUtils.getFilePath(AppUtils.StorageFile.welcome_resource);
+        String music_id = program.getMusic_id();
+        getMusicPathMethod(musicFilePath,music_id);
         resetConstant();
         if (GlobalValues.IMG_NUM.containsKey(openid)){
             if (GlobalValues.IMG_NUM.get(openid)!=-1){
@@ -1386,7 +1387,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     isDownloaded = true;
                 } else {
                     String oss_url = BuildConfig.OSS_ENDPOINT+img.getUrl();
-                    ProgressDownloader downloader = new ProgressDownloader(context,oss_url, basePath,fileName,resourceSize,true,serial_number);
+                    ProjectionDownloader downloader = new ProjectionDownloader(context,oss_url, basePath,fileName,resourceSize,true,serial_number);
                     isDownloaded = downloader.downloadByRange();
                 }
             }else{
@@ -1396,7 +1397,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 } else {
                     try {
                         String oss_url = BuildConfig.OSS_ENDPOINT+img.getUrl();
-                        ProgressDownloader downloader = new ProgressDownloader(context,oss_url, basePath,fileName,resourceSize,true,serial_number);
+                        ProjectionDownloader downloader = new ProjectionDownloader(context,oss_url, basePath,fileName,resourceSize,true,serial_number);
                         downloader.setDownloadProgressListener(new DownloadProgressListener() {
                             @Override
                             public void getDownloadProgress(long currentSize, long totalSize) {
@@ -1632,7 +1633,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         if (file.exists()){
             downloaded = true;
         }else{
-            ProgressDownloader downloader = new ProgressDownloader(context,oss_url, basePath,partake_filename,false);
+            ProjectionDownloader downloader = new ProjectionDownloader(context,oss_url, basePath,partake_filename,true);
             downloaded = downloader.downloadByRange();
         }
         if (downloaded){
@@ -1769,7 +1770,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             } else {
                 try {
                     String oss_url = BuildConfig.OSS_ENDPOINT+img.getUrl();
-                    ProgressDownloader downloader = new ProgressDownloader(context,oss_url, basePath,fileName,true,serial_number);
+                    ProjectionDownloader downloader = new ProjectionDownloader(context,oss_url, basePath,fileName,true,serial_number);
                     isDownloaded = downloader.downloadByRange();
                 }catch (Exception e){
                     e.printStackTrace();
@@ -2218,7 +2219,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         if(new File(path).exists()){
             imgPath = path;
         }else{
-            boolean isDownloaded = new ProgressDownloader(context,img_url,projectionPath,filename,true,serial_number).downloadByRange();
+            boolean isDownloaded = new ProjectionDownloader(context,img_url,projectionPath,filename,true,serial_number).downloadByRange();
             if (isDownloaded){
                 imgPath = path;
             }else{
@@ -2431,7 +2432,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     file.delete();
                 }
                 String oss_url = BuildConfig.OSS_ENDPOINT+url;
-                ProgressDownloader downloader = new ProgressDownloader(context,oss_url, basePath,filename);
+                ProjectionDownloader downloader = new ProjectionDownloader(context,oss_url, basePath,filename);
                 downloader.downloadByRange();
             }
         }

@@ -487,7 +487,7 @@ public abstract class BaseActivity extends Activity implements InputBoiteIdDialo
                 ShowMessage.showToast(mContext, "上报心跳失败，网络异常");
                 LogFileUtil.write("手动上报心跳失败，网络异常");
             }
-        });
+        },-1);
     }
 
     protected void setVolume(int volume) {

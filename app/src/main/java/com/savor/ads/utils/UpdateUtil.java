@@ -1,27 +1,18 @@
 package com.savor.ads.utils;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import android.text.TextUtils;
 
 
 import com.amlogic.update.OtaUpgradeUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.savor.ads.BuildConfig;
-import com.savor.ads.bean.BoxInitResult;
 import com.savor.ads.bean.JsonBean;
-import com.savor.ads.bean.ServerInfo;
 import com.savor.ads.bean.UpgradeInfo;
-import com.savor.ads.bean.UpgradeResult;
 import com.savor.ads.core.ApiRequestListener;
 import com.savor.ads.core.AppApi;
 import com.savor.ads.core.Session;
-import com.savor.ads.okhttp.coreProgress.download.ProgressDownloader;
-import com.savor.ads.oss.OSSUtils;
-import com.savor.ads.oss.OSSValues;
+import com.savor.ads.okhttp.coreProgress.download.FileDownloader;
 
 
 import java.io.DataOutputStream;
@@ -80,7 +71,7 @@ public class UpdateUtil{
      */
     public boolean dowloadApkFile(String oss_url,String basePath,String apkName){
         try {
-            return new ProgressDownloader(mContext,oss_url,basePath, apkName,true).downloadByRange();
+            return new FileDownloader(mContext,oss_url,basePath, apkName,true).downloadByRange();
         }catch (Exception e){
             e.printStackTrace();
         }
