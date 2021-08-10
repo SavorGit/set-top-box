@@ -14,7 +14,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.savor.ads.BuildConfig;
-import com.savor.ads.SavorApplication;
 import com.savor.ads.activity.BaseActivity;
 import com.savor.ads.bean.DownloadDetailRequestBean;
 import com.savor.ads.bean.MediaDownloadBean;
@@ -27,13 +26,12 @@ import com.savor.ads.bean.ProgramBeanResult;
 import com.savor.ads.bean.ProjectionGuideImg;
 import com.savor.ads.bean.ServerInfo;
 import com.savor.ads.bean.SetBoxTopResult;
-import com.savor.ads.bean.UpgradeInfo;
 import com.savor.ads.core.ApiRequestListener;
 import com.savor.ads.core.AppApi;
 import com.savor.ads.core.Session;
 import com.savor.ads.database.DBHelper;
 import com.savor.ads.log.LogUploadService;
-import com.savor.ads.okhttp.coreProgress.download.ProgressDownloader;
+import com.savor.ads.okhttp.coreProgress.download.FileDownloader;
 import com.savor.ads.oss.OSSUtils;
 import com.savor.ads.oss.OSSValues;
 import com.savor.ads.utils.ActivitiesManager;
@@ -78,7 +76,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
      * 单次循环等待时长。
      * 由于要在关键时间点上做检测，这里须>30sec <1min
      */
-    private static final int ONE_CYCLE_TIME = 1000 * 40;
+    private static final int ONE_CYCLE_TIME = 1000 * 30;
 
     /**
      * 上一个心跳过去的时长
@@ -110,6 +108,8 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
     };
     /**几秒刷新一次**/
     private final int count = 5;
+    //心跳序列号
+    private int serial_no;
     private Session session;
     private String gifBgPath;
     public HeartbeatService() {
@@ -134,6 +134,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
         } while (true);
         session = Session.get(this);
         //  启动时立即心跳一次
+        serial_no = 0;
         LogFileUtil.write("开机立刻上报心跳和调用是否显示小程序码接口一次");
         doHeartbeat();
         doInitConfig();
@@ -197,7 +198,9 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
 
     private void doHeartbeat() {
         LogFileUtil.write("开始自动上报心跳");
-        AppApi.heartbeat(this, this);
+        serial_no +=1;
+//        LogUtils.d("上报心跳====="+serial_no);
+        AppApi.heartbeat(this, this,serial_no);
     }
 
     private void doInitConfig(){
@@ -637,7 +640,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            boolean isDownloaded = new ProgressDownloader(context,qrcode_gif_url,basePath, qrcode_gif_filename,false).downloadByRange();
+                            boolean isDownloaded = new FileDownloader(context,qrcode_gif_url,basePath, qrcode_gif_filename,false).downloadByRange();
                             if (isDownloaded){
                                 session.setQrcodeGifBgPath(gifBgPath);
                             }
@@ -666,27 +669,27 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
         String image_url = guideImg.getImage_url();
         String imgName = guideImg.getImage_filename();
         if (!new File(basePath+imgName).exists()&&!TextUtils.isEmpty(image_url)){
-            new Thread(() -> new ProgressDownloader(context,image_url,basePath, imgName).downloadByRange()).start();
+            new Thread(() -> new FileDownloader(context,image_url,basePath, imgName).downloadByRange()).start();
         }
         String video_url = guideImg.getVideo_url();
         String videoName = guideImg.getVideo_filename();
         if (!new File(basePath+videoName).exists()&&!TextUtils.isEmpty(video_url)){
-            new Thread(() -> new ProgressDownloader(context,video_url,basePath, videoName).downloadByRange()).start();
+            new Thread(() -> new FileDownloader(context,video_url,basePath, videoName).downloadByRange()).start();
         }
         String file_url = guideImg.getFile_url();
         String fileName = guideImg.getFile_filename();
         if (!new File(basePath+fileName).exists()&&!TextUtils.isEmpty(file_url)){
-            new Thread(() -> new ProgressDownloader(context,file_url,basePath, fileName).downloadByRange()).start();
+            new Thread(() -> new FileDownloader(context,file_url,basePath, fileName).downloadByRange()).start();
         }
         String forscreen_url = guideImg.getForscreen_box_url();
         String forscreenName = guideImg.getForscreen_box_filename();
         if (!new File(basePath+forscreenName).exists()&&!TextUtils.isEmpty(forscreen_url)){
-            new Thread(() -> new ProgressDownloader(context,forscreen_url,basePath, forscreenName).downloadByRange()).start();
+            new Thread(() -> new FileDownloader(context,forscreen_url,basePath, forscreenName).downloadByRange()).start();
         }
         String bonusUrl = guideImg.getBonus_forscreen_url();
         String bonusFilename = guideImg.getBonus_forscreen_filename();
         if (!new File(basePath+bonusFilename).exists()&&!TextUtils.isEmpty(bonusUrl)){
-            new Thread(() -> new ProgressDownloader(context,bonusUrl,basePath, bonusFilename).downloadByRange()).start();
+            new Thread(() -> new FileDownloader(context,bonusUrl,basePath, bonusFilename).downloadByRange()).start();
         }
         session.setGuideImg(guideImg);
     }
@@ -700,7 +703,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
             String filePath = basePath+filename;
             boolean isExit = AppUtils.isDownloadEasyCompleted(filePath,md5.toLowerCase());
             if (!isExit){
-                new Thread(() -> new ProgressDownloader(context,url,basePath, filename,false).downloadByRange()).start();
+                new Thread(() -> new FileDownloader(context,url,basePath, filename,false).downloadByRange()).start();
             }
         }catch (Exception e){
             e.printStackTrace();

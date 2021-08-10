@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Point;
-import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -67,7 +66,7 @@ import com.savor.ads.dialog.AtlasDialog;
 import com.savor.ads.dialog.PlayListDialog;
 import com.savor.ads.dialog.ScanRedEnvelopeQrCodeDialog;
 import com.savor.ads.log.LogReportUtil;
-import com.savor.ads.okhttp.coreProgress.download.ProgressDownloader;
+import com.savor.ads.okhttp.coreProgress.download.FileDownloader;
 import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.BaiduAdsResponseCode;
@@ -87,16 +86,11 @@ import com.savor.ads.utils.TimeUtils;
 import com.savor.ads.utils.ZmengAdsResponseCode;
 import com.savor.tvlibrary.OutputResolution;
 import com.savor.tvlibrary.TVOperatorFactory;
-import com.shuyu.gsyvideoplayer.player.IjkPlayerManager;
-import com.shuyu.gsyvideoplayer.player.PlayerFactory;
-import com.shuyu.gsyvideoplayer.player.SystemPlayerManager;
-import com.shuyu.gsyvideoplayer.utils.GSYVideoType;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -109,8 +103,6 @@ import java.util.UUID;
 import tianshu.ui.api.TsUiApiV20171122;
 import tianshu.ui.api.ZmtAPI;
 import tianshu.ui.api.ZmtAdRequestUtil;
-import tv.danmaku.ijk.media.exo2.Exo2PlayerManager;
-import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
 import static com.savor.ads.utils.ConstantValues.DSP_DOWNLOADING_FILES;
 
@@ -1829,7 +1821,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 
                                 try {
                                     DSP_DOWNLOADING_FILES.add(fileName);
-                                    boolean isDownloaded =new ProgressDownloader(mContext,url, basePath,fileName,true).downloadByRange();
+                                    boolean isDownloaded =new FileDownloader(mContext,url, basePath,fileName,true).downloadByRange();
                                     boolean isCompleted = AppUtils.isDownloadCompleted(path,adInfo.getMatMd5());
                                     if (isDownloaded&&isCompleted){
                                         DSP_DOWNLOADING_FILES.remove(fileName);
@@ -1941,7 +1933,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 
                             try {
                                 DSP_DOWNLOADING_FILES.add(fileName);
-                                boolean isDownloaded =new ProgressDownloader(mContext,url, basePath,fileName,true).downloadByRange();
+                                boolean isDownloaded =new FileDownloader(mContext,url, basePath,fileName,true).downloadByRange();
                                 boolean isCompleted = AppUtils.isDownloadCompleted(path,md5.toUpperCase());
                                 if (isDownloaded&&isCompleted){
                                     DSP_DOWNLOADING_FILES.remove(fileName);
@@ -2014,7 +2006,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                         }
                         try {
                             DSP_DOWNLOADING_FILES.add(fileName);
-                            boolean isDownloaded =new ProgressDownloader(mContext,url, basePath,fileName,true).downloadByRange();
+                            boolean isDownloaded =new FileDownloader(mContext,url, basePath,fileName,true).downloadByRange();
                             boolean isCompleted = AppUtils.isDownloadCompleted(path,sign.toUpperCase());
                             if (isDownloaded&&isCompleted){
                                 DSP_DOWNLOADING_FILES.remove(fileName);

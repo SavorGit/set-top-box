@@ -2989,6 +2989,18 @@ public class AppUtils {
         return retriever.getFrameAtTime();
     }
 
+    /**
+     * 是否正在投屏中
+     * @return
+     */
+    public static boolean isInProjection(){
+        boolean flag=false;
+        Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+        if (activity instanceof ScreenProjectionActivity){
+            flag = true;
+        }
+        return flag;
+    }
 
     /**
      * 根据指定的图像路径和大小来获取缩略图

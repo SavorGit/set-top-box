@@ -16,6 +16,7 @@ import com.savor.ads.log.LogReportUtil;
 import com.savor.ads.service.HandleMediaDataService;
 import com.savor.ads.service.MiniProgramNettyService;
 import com.savor.ads.utils.ActivitiesManager;
+import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.LogFileUtil;
@@ -39,8 +40,8 @@ import okhttp3.Response;
  * Modify  by bichao on 2019-06-25 13:41
  */
 
-public class ProgressDownloader {
-    public static final String TAG = "ProgressDownloader";
+public class FileDownloader {
+    public static final String TAG = "FileDownloader";
     public final static int CONNECT_TIMEOUT =60;
     public final static int READ_TIMEOUT=10;
     public final static int WRITE_TIMEOUT=10;
@@ -53,18 +54,13 @@ public class ProgressDownloader {
     private String fileName;
     private long fileSize;
     //下载失败重复下载次数，最多3次
-    private int downloadCount=0;
+//    private int downloadCount=0;
     private Call call;
     private boolean standard;
-    private String serial_number;
+//    public static int count =0;
     Handler handler = new Handler(Looper.getMainLooper());
-    private MiniProgramNettyService.DownloadProgressListener downloadProgressListener;
 
-    public void setDownloadProgressListener(MiniProgramNettyService.DownloadProgressListener listener){
-        downloadProgressListener = listener;
-    }
-
-    public ProgressDownloader (Context context,String url,String filePath,String fileName){
+    public FileDownloader(Context context, String url, String filePath, String fileName){
         this.context = context;
         session = Session.get(context);
         this.url = url;
@@ -74,19 +70,8 @@ public class ProgressDownloader {
         //在下载、暂停后的继续下载中可复用同一个client对象
         client = getProgressClient();
     }
-    public ProgressDownloader (Context context,String url,String filePath,String fileName,long resourceSize,boolean standard,String serial_number){
-        this.context = context;
-        session = Session.get(context);
-        this.url = url;
-        this.filePath = filePath;
-        this.fileName = fileName;
-        this.fileSize = resourceSize;
-        this.standard = standard;
-        this.serial_number = serial_number;
-        //在下载、暂停后的继续下载中可复用同一个client对象
-        client = getProgressClient();
-    }
-    public ProgressDownloader (Context context,String url,String filePath,String fileName,boolean standard){
+
+    public FileDownloader(Context context, String url, String filePath, String fileName, boolean standard){
         this.context = context;
         session = Session.get(context);
         this.url = url;
@@ -95,16 +80,7 @@ public class ProgressDownloader {
         this.standard = standard;
         client = getProgressClient();
     }
-    public ProgressDownloader (Context context,String url,String filePath,String fileName,boolean standard,String serial_number){
-        this.context = context;
-        session = Session.get(context);
-        this.url = url;
-        this.filePath = filePath;
-        this.fileName = fileName;
-        this.standard = standard;
-        this.serial_number = serial_number;
-        client = getProgressClient();
-    }
+
     //每次下载需要新建新的Call对象
     private Call newRangeCall(long startPoints){
         Request request = new Request.Builder()
@@ -178,15 +154,9 @@ public class ProgressDownloader {
                 if (standard){
                     LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.standard_size,resourceSize);
                     LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.standard_duration,useTime);
-                    if (!TextUtils.isEmpty(serial_number)){
-                        LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.standard_serial,serial_number);
-                    }
                 }else {
                     LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download, LogParamValues.speed_size,resourceSize);
                     LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download,LogParamValues.speed_duration,useTime);
-                    if (!TextUtils.isEmpty(serial_number)){
-                        LogReportUtil.get(context).downloadLog(mUUID,LogParamValues.download,LogParamValues.speed_serial,serial_number);
-                    }
                 }
             }
         }catch (Exception e){
@@ -205,14 +175,19 @@ public class ProgressDownloader {
             is = response.body().byteStream();// 获取流
             byte[] buffer = new byte[1024*1024*3];
             int length;
+            boolean isBreak = false;
             while ((length = is.read(buffer)) > 0) {//读取流
-                tmpAccessFile.write(buffer, 0, length);
-                if (downloadProgressListener!=null&&fileSize!=0){
-                    long cacheLength = tmpAccessFile.length();
-                    countDownlaodProgess(cacheLength,fileSize);
+                if (AppUtils.isInProjection()){
+                    isBreak = true;
+                    break;
                 }
+                tmpAccessFile.write(buffer, 0, length);
             }
-            flag = true;
+            if (isBreak){
+                flag = false;
+            }else{
+                flag = true;
+            }
         }catch (Exception e){
             flag = false;
             e.printStackTrace();
@@ -225,26 +200,8 @@ public class ProgressDownloader {
         if (flag){
             cacheFile.renameTo(new File(filePath+fileName));
             LogFileUtil.writeDownloadLog("下载文件--完成--fileName="+fileName+",fileLength="+tmpAccessFile.length());
-        }else{
-            if (downloadCount<3){
-                downloadByRange();
-            }
-            downloadCount ++;
         }
         return flag;
-    }
-    //计算出一个百分比的字符串
-    private void countDownlaodProgess(long currentSize,long totalSize) {
-        BigDecimal b = new BigDecimal(currentSize * 1.0 / totalSize);
-//        Log.d("circularProgress", "原始除法得到的值" + currentSize * 1.0 / totalSize);
-        float f1 = b.setScale(2, BigDecimal.ROUND_HALF_UP).floatValue();
-//        Log.d("circularProgress", "保留两位小数得到的值" + f1);
-        if (f1 >= 0.01f) {
-            String value = String.valueOf(f1 * 100);
-            int progress = Integer.valueOf(value.split("\\.")[0]);
-            downloadProgressListener.getDownloadProgress(progress+"%");
-            Log.d("downloadProgress", "保留两位小数得到的值" + f1);
-        }
     }
 
     private void downloadState(){

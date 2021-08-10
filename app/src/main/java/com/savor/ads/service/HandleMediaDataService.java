@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -15,7 +14,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.savor.ads.BuildConfig;
-import com.savor.ads.activity.ScreenProjectionActivity;
 import com.savor.ads.activity.TvPlayerActivity;
 import com.savor.ads.activity.TvPlayerGiecActivity;
 import com.savor.ads.bean.ActivityGoodsBean;
@@ -50,7 +48,7 @@ import com.savor.ads.core.AppApi;
 import com.savor.ads.core.Session;
 import com.savor.ads.database.DBHelper;
 import com.savor.ads.log.LogReportUtil;
-import com.savor.ads.okhttp.coreProgress.download.ProgressDownloader;
+import com.savor.ads.okhttp.coreProgress.download.FileDownloader;
 import com.savor.ads.oss.OSSUtils;
 import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
@@ -202,7 +200,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
 
                                     String basePath = AppUtils.getMainMediaPath()+File.separator;
                                     boolean isDownloaded = false;
-                                    if (isNotScreenProjection()){
+                                    if (!AppUtils.isInProjection()){
                                         if (upgradeInfo.isVirtual()){
                                             String url = BuildConfig.OSS_ENDPOINT+upgradeInfo.getOss_path();
                                             isDownloaded = updateUtil.dowloadApkFile(url,basePath,ConstantValues.APK_DOWNLOAD_FILENAME);
@@ -540,7 +538,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                     if (serverInfo != null) {
                         String baseUrl = serverInfo.getDownloadUrl();
                         String url = baseUrl + logoUrl;
-                        downloaded = new ProgressDownloader(context,url,logoBasePath, logo_name,false).downloadByRange();
+                        downloaded = new FileDownloader(context,url,logoBasePath, logo_name,false).downloadByRange();
                     }
                 }
                 if (downloaded){
@@ -572,7 +570,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             }
             if (need){
                 String fileName = "temp_"+ConstantValues.BOOT_VIDEO_TEMP;
-                boolean isDownloaded = new ProgressDownloader(context,bvideoUrl,basePath,fileName,true).downloadByRange();
+                boolean isDownloaded = new FileDownloader(context,bvideoUrl,basePath,fileName,true).downloadByRange();
                 if (isDownloaded){
                     new File(basePath,fileName).renameTo(new File(basePath,ConstantValues.BOOT_VIDEO_TEMP));
                     ShellUtils.copyBootVideo(new File(basePath,ConstantValues.BOOT_VIDEO_TEMP));
@@ -620,8 +618,8 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 if (AppUtils.isDownloadEasyCompleted(path, bean.getMd5())) {
                     isDownloaded = true;
                 } else {
-                    if (isNotScreenProjection()){
-                        isDownloaded = new ProgressDownloader(context,bean.getOss_url(),basePath, fileName,true).downloadByRange();
+                    if (!AppUtils.isInProjection()){
+                        isDownloaded = new FileDownloader(context,bean.getOss_url(),basePath, fileName,true).downloadByRange();
                         if (isDownloaded && AppUtils.isDownloadEasyCompleted(path, bean.getMd5())) {
                             isDownloaded = true;
                         }
@@ -699,9 +697,9 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 }else if (bean.getMedia_type()==2){
                     isDownloaded = AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase());
                 }
-                if (!isDownloaded&&isNotScreenProjection()){
+                if (!isDownloaded&&!AppUtils.isInProjection()){
                     String url = BuildConfig.OSS_ENDPOINT+bean.getOss_path();
-                    isDownloaded = new ProgressDownloader(context,url,basePath,fileName,true).downloadByRange();
+                    isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
                     if (isDownloaded
                             && (AppUtils.isDownloadEasyCompleted(path, bean.getMd5())
                             ||AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase()))) {
@@ -786,9 +784,9 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 }else if (bean.getMedia_type()==2){
                     isDownloaded = AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase());
                 }
-                if (!isDownloaded&&isNotScreenProjection()){
+                if (!isDownloaded&&!AppUtils.isInProjection()){
                     String url = BuildConfig.OSS_ENDPOINT+bean.getOss_path();
-                    isDownloaded = new ProgressDownloader(context,url,basePath,fileName,true).downloadByRange();
+                    isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
                     if (isDownloaded
                             && (AppUtils.isDownloadEasyCompleted(path, bean.getMd5())
                             ||AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase()))) {
@@ -801,7 +799,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 if (isDownloaded){
                     if (!TextUtils.isEmpty(bean.getQrcode_url())){
                         String qrcodeUrl = bean.getQrcode_url();
-                        boolean downloadImg = new ProgressDownloader(context,qrcodeUrl,basePath,qrcodeName,true).downloadByRange();
+                        boolean downloadImg = new FileDownloader(context,qrcodeUrl,basePath,qrcodeName,true).downloadByRange();
                         if (downloadImg){
                             bean.setQrcode_path(qrcodePath);
                         }
@@ -882,9 +880,9 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 }else if (bean.getMedia_type()==2){
                     isDownloaded = AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase());
                 }
-                if (!isDownloaded&&isNotScreenProjection()){
+                if (!isDownloaded&&!AppUtils.isInProjection()){
                     String url = BuildConfig.OSS_ENDPOINT+bean.getOss_path();
-                    isDownloaded = new ProgressDownloader(context,url,basePath,fileName,true).downloadByRange();
+                    isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
                     if (isDownloaded
                             && (AppUtils.isDownloadEasyCompleted(path, bean.getMd5())
                             ||AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase()))) {
@@ -897,7 +895,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 if (isDownloaded){
                     if (!TextUtils.isEmpty(bean.getQrcode_url())){
                         String qrcodeUrl = bean.getQrcode_url();
-                        boolean downloadImg = new ProgressDownloader(context,qrcodeUrl,basePath,qrcodeName,true).downloadByRange();
+                        boolean downloadImg = new FileDownloader(context,qrcodeUrl,basePath,qrcodeName,true).downloadByRange();
                         if (downloadImg){
                             bean.setQrcode_path(qrcodePath);
                         }
@@ -981,9 +979,9 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                         }else if (bean.getMedia_type()==2||bean.getMedia_type()==21){
                             isDownloaded = AppUtils.isDownloadCompleted(path, item.getMd5().toUpperCase());
                         }
-                        if (!isDownloaded&&isNotScreenProjection()){
+                        if (!isDownloaded&&!AppUtils.isInProjection()){
                             String url = BuildConfig.OSS_ENDPOINT + item.getOss_path();
-                            isDownloaded = new ProgressDownloader(context, url, basePath, fileName, true).downloadByRange();
+                            isDownloaded = new FileDownloader(context, url, basePath, fileName, true).downloadByRange();
                             if (isDownloaded
                                     && (AppUtils.isDownloadEasyCompleted(path, item.getMd5())
                                     || AppUtils.isDownloadCompleted(path, item.getMd5().toUpperCase()))) {
@@ -1073,9 +1071,9 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                     }else if (bean.getMedia_type()==2||bean.getMedia_type()==21){
                         isDownloaded = AppUtils.isDownloadCompleted(path, item.getMd5().toUpperCase());
                     }
-                    if (!isDownloaded&&isNotScreenProjection()){
+                    if (!isDownloaded&&!AppUtils.isInProjection()){
                         String url = BuildConfig.OSS_ENDPOINT+item.getOss_path();
-                        isDownloaded = new ProgressDownloader(context,url,basePath,fileName,true).downloadByRange();
+                        isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
                         if (isDownloaded
                                 && (AppUtils.isDownloadEasyCompleted(path, item.getMd5())
                                 ||AppUtils.isDownloadCompleted(path, item.getMd5().toUpperCase()))) {
@@ -1155,9 +1153,9 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                         }else if (bean.getMedia_type()==2||bean.getMedia_type()==21){
                             isDownloaded = AppUtils.isDownloadCompleted(path, item.getMd5().toUpperCase());
                         }
-                        if (!isDownloaded&&isNotScreenProjection()){
+                        if (!isDownloaded&&!AppUtils.isInProjection()){
                             String url = BuildConfig.OSS_ENDPOINT+item.getOss_path();
-                            isDownloaded = new ProgressDownloader(context,url,basePath,fileName,true).downloadByRange();
+                            isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
                             if (isDownloaded
                                     && (AppUtils.isDownloadEasyCompleted(path, item.getMd5())
                                     ||AppUtils.isDownloadCompleted(path, item.getMd5().toUpperCase()))) {
@@ -1245,9 +1243,9 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 }else if (media_type==2||media_type==4||media_type==5){
                     isDownloaded = AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase());
                 }
-                if (!isDownloaded&&isNotScreenProjection()){
+                if (!isDownloaded&&!AppUtils.isInProjection()){
                     String url = BuildConfig.OSS_ENDPOINT+bean.getOss_path();
-                    isDownloaded = new ProgressDownloader(context,url,basePath,fileName,true).downloadByRange();
+                    isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
                     if (isDownloaded
                             && (AppUtils.isDownloadEasyCompleted(path, bean.getMd5())
                             ||AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase()))) {
@@ -1321,9 +1319,9 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             }else if (media_type==2){
                 isDownloaded = AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase());
             }
-            if (!isDownloaded&&isNotScreenProjection()){
+            if (!isDownloaded&&!AppUtils.isInProjection()){
                 String url = BuildConfig.OSS_ENDPOINT+bean.getOss_path();
-                isDownloaded = new ProgressDownloader(context,url,basePath,fileName,true).downloadByRange();
+                isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
                 if (isDownloaded
                         && (AppUtils.isDownloadEasyCompleted(path, bean.getMd5())
                         ||AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase()))) {
@@ -1339,7 +1337,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 String qrcodeName = fileNameArray[0]+"_qrcode.png";
                 String qrcodePath = basePath + qrcodeName;
                 if (!new File(qrcodePath).exists()){
-                    new ProgressDownloader(context,qrcodeUrl,basePath,qrcodeName,true).downloadByRange();
+                    new FileDownloader(context,qrcodeUrl,basePath,qrcodeName,true).downloadByRange();
                 }
                 bean.setQrcode_path(qrcodePath);
                 bean.setMediaPath(path);
@@ -1472,13 +1470,13 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                                 LogFileUtil.write("轮播视频下载是从实体还是虚拟:"+smallType);
                                 boolean isDownloaded =false;
                                 //虚拟小平台下载
-                                if (isNotScreenProjection()){
+                                if (!AppUtils.isInProjection()){
                                     if (ConstantValues.VIRTUAL.equals(smallType)){
                                         String url = BuildConfig.OSS_ENDPOINT + mediaItem.getOss_path();
-                                        isDownloaded = new ProgressDownloader(context,url,basePath,fileName,true).downloadByRange();
+                                        isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
                                     }else {
                                         String url = baseUrl + mediaItem.getUrl();
-                                        isDownloaded = new ProgressDownloader(context,url,basePath,fileName,false).downloadByRange();
+                                        isDownloaded = new FileDownloader(context,url,basePath,fileName,false).downloadByRange();
                                     }
                                     if (mediaItem.getMedia_type()==1){
                                         isDownloaded =  AppUtils.isDownloadEasyCompleted(path, mediaItem.getMd5());
@@ -1638,14 +1636,14 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                         isChecked = true;
                     } else {
                         boolean isDownloaded = false;
-                        if (isNotScreenProjection()){
+                        if (!AppUtils.isInProjection()){
                             //虚拟小平台
                             if (ConstantValues.VIRTUAL.equals(smallType)){
                                 String url = BuildConfig.OSS_ENDPOINT+bean.getOss_path();
-                                isDownloaded = new ProgressDownloader(context,url,basePath,fileName,true).downloadByRange();
+                                isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
                             }else{
                                 String url = baseUrl + bean.getUrl();
-                                isDownloaded = new ProgressDownloader(context,url,basePath,fileName,false).downloadByRange();
+                                isDownloaded = new FileDownloader(context,url,basePath,fileName,false).downloadByRange();
                             }
                             if (bean.getMedia_type()==1){
                                 isDownloaded =  AppUtils.isDownloadEasyCompleted(path, bean.getMd5());
@@ -1880,8 +1878,8 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                             standrad = false;
                             url = baseUrl + bean.getUrl();
                         }
-                        if (isNotScreenProjection()){
-                            new ProgressDownloader(context,url,basePath,fileName,standrad).downloadByRange();
+                        if (!AppUtils.isInProjection()){
+                            new FileDownloader(context,url,basePath,fileName,standrad).downloadByRange();
                         }
                         if (bean.getMedia_type()==1){
                             isDownloaded =  AppUtils.isDownloadEasyCompleted(path, bean.getMd5());
@@ -2020,13 +2018,13 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                         isChecked = true;
                     } else {
                         boolean isDownloaded = false;
-                        if (isNotScreenProjection()){
+                        if (!AppUtils.isInProjection()){
                             if (ConstantValues.VIRTUAL.equals(smallType)){
                                 String url = BuildConfig.OSS_ENDPOINT + bean.getOss_path();
-                                isDownloaded = new ProgressDownloader(context,url,basePath,fileName,true).downloadByRange();
+                                isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
                             }else {
                                 String url = baseUrl + bean.getUrl();
-                                isDownloaded = new ProgressDownloader(context,url,basePath,fileName,false).downloadByRange();
+                                isDownloaded = new FileDownloader(context,url,basePath,fileName,false).downloadByRange();
                             }
                         }
                         if (isDownloaded) {
@@ -2102,16 +2100,6 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
      * 判断当前机顶盒是否处于投屏状态
      * @return
      */
-    private boolean isNotScreenProjection(){
-        boolean flag;
-        Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
-        if (activity instanceof ScreenProjectionActivity){
-            flag = false;
-        }else{
-            flag = true;
-        }
-        return flag;
-    }
 
     private void getTVMatchDataFromSmallPlatform() {
         Activity activity = ActivitiesManager.getInstance().getCurrentActivity();

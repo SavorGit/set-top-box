@@ -621,7 +621,7 @@ public class AppApi {
      * @param context
      * @param handler
      */
-    public static void heartbeat(Context context, ApiRequestListener handler) {
+    public static void heartbeat(Context context, ApiRequestListener handler,int serial_no) {
         final HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("clientid", 2);
         params.put("mac", Session.get(context).getEthernetMac());
@@ -637,6 +637,7 @@ public class AppApi {
         params.put("apk", Session.get(context).getVersionName());
         params.put("apk_time", Session.get(context).getVersionCode());
         params.put("war", "");
+        params.put("serial_no", serial_no);
         params.put("logo", Session.get(context).getSplashVersion());
         params.put("p_load_version", Session.get(context).getLoadingVersion());
         params.put("ip", AppUtils.getLocalIPAddress());

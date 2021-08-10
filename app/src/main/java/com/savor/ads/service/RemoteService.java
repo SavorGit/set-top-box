@@ -50,7 +50,7 @@ import com.savor.ads.database.DBHelper;
 import com.savor.ads.dialog.ProjectionImgListDialog;
 import com.savor.ads.log.LogParamValues;
 import com.savor.ads.log.LogReportUtil;
-import com.savor.ads.okhttp.coreProgress.download.ProgressDownloader;
+import com.savor.ads.okhttp.coreProgress.download.ProjectionDownloader;
 import com.savor.ads.projection.ProjectionManager;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
@@ -920,7 +920,7 @@ public class RemoteService extends Service {
 
                                 String outPath = imgQueue.getFilePath();
                                 LogUtils.d("数据插入，开始，forscreenId=" + imgQueue.getForscreen_id());
-                                postSimpleMiniProgramProjectionLog(action,"",forscreen_char,forscreen_id,imgQueue.getFileName(),imgQueue.getSize(),resource_type,outPath,serial_number,musicPath,false);
+                                postSimpleMiniProgramProjectionLog(action,"",forscreen_char,forscreen_id,imgQueue.getFileName(),imgQueue.getSize(),resource_type,outPath,serial_number,musicPath,music_id,music_oss_addr,false);
 
                                 String img_id = System.currentTimeMillis()+"";
                                 ProjectionImg img = new ProjectionImg();
@@ -994,6 +994,7 @@ public class RemoteService extends Service {
          * @param request
          * @return
          */
+        @Deprecated
         private String handleFileBlockUploadRequest(HttpServletRequest request){
             InputStream inputStream = null;
             String index = null;
@@ -1218,7 +1219,7 @@ public class RemoteService extends Service {
                     ProjectOperationListener.getInstance(context).showImage(2, imgPath, true,playTimes,forscreen_id, avatarUrl, nickName,currentAction, FROM_SERVICE_REMOTE);
                     String endTime = String.valueOf(System.currentTimeMillis());
                     res_eup_time = endTime;
-                    postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,imgName,resource_size,resource_type,imgPath,serial_number,null, false);
+                    postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,imgName,resource_size,resource_type,imgPath,serial_number,false);
                     GlobalValues.PROJECT_STREAM_IMAGE.add(imgPath);
                     object = new BaseResponse();
                     object.setMsg("滑动成功");
@@ -1261,7 +1262,8 @@ public class RemoteService extends Service {
         }
 
         public void postSimpleMiniProgramProjectionLog(String action,String startTime,String endTime,String duration,String forscreen_char,String forscreen_id,
-                                                       String resource_id,String resource_size,String resource_type,String media_path,String serial_number,String music_id,boolean repeat,String md5,int file_imgnum,String save_type){
+                                                       String resource_id,String resource_size,String resource_type,String media_path,String serial_number,
+                                                       String music_path,String music_id,String music_oss_addr,boolean repeat,String md5,int file_imgnum,String save_type){
             HashMap<String,Object> params = new HashMap<>();
             String create_time = String.valueOf(System.currentTimeMillis());
 
@@ -1291,7 +1293,7 @@ public class RemoteService extends Service {
             params.put("resource_size", resource_size);
             params.put("resource_type", resource_type);
             params.put("serial_number",serial_number);
-            params.put("music_id", music_id);
+            params.put("music_id", music_path);
             params.put("small_app_id", ConstantValues.SMALL_APP_ID_SIMPLE);
             params.put("create_time", create_time);
             params.put("res_sup_time",startTime);
@@ -1350,28 +1352,34 @@ public class RemoteService extends Service {
 
         }
 
-        public void postSimpleMiniProgramProjectionLog(String action,String duration,String forscreen_char,String forscreen_id,
-                                                       String resource_id,String resource_size,String resource_type,String media_path,String serial_number,String music_id,boolean repeat){
+        public void postSimpleMiniProgramProjectionLog(String action,String duration,String forscreen_char,String forscreen_id,String resource_id,
+                                                       String resource_size,String resource_type,String media_path,String serial_number,
+                                                       String music_path,String music_id,String music_oss_addr,boolean repeat){
             String startTime = res_sup_time;
             String endTime = res_eup_time;
             postSimpleMiniProgramProjectionLog(action,startTime,endTime,duration,forscreen_char,forscreen_id,
-                    resource_id,resource_size,resource_type,media_path,serial_number,music_id,repeat,null,0,"");
+                    resource_id,resource_size,resource_type,media_path,serial_number,
+                    music_path,music_id,music_oss_addr,repeat,null,0,"");
         }
 
         public void postSimpleMiniProgramProjectionLog(String action,String duration,String forscreen_char,String forscreen_id,String resource_id,
                                                        String resource_size,String resource_type,String media_path,String serial_number,boolean repeat){
             String startTime = res_sup_time;
             String endTime = res_eup_time;
+            String music_about = "";
             postSimpleMiniProgramProjectionLog(action,startTime,endTime,duration,forscreen_char,forscreen_id,
-                    resource_id,resource_size,resource_type,media_path,serial_number,null,repeat,null,0,"");
+                    resource_id,resource_size,resource_type,media_path,serial_number,
+                    music_about,music_about,music_about,repeat,null,0,"");
         }
 
-        public void postSimpleMiniProgramProjectionLog(String action,String forscreen_id,
-                                                       String resource_id,String resource_size,String resource_type,String media_path,String serial_number,String md5,int file_imgnum,String save_type){
+        public void postSimpleMiniProgramProjectionLog(String action,String forscreen_id,String resource_id,String resource_size,String resource_type,
+                                                       String media_path,String serial_number,String md5,int file_imgnum,String save_type){
             String startTime = res_sup_time;
             String endTime = res_eup_time;
+            String music_about = "";
             postSimpleMiniProgramProjectionLog(action,startTime,endTime,"","",forscreen_id,
-                    resource_id,resource_size,resource_type,media_path,serial_number,null,false,md5,file_imgnum,save_type);
+                    resource_id,resource_size,resource_type,media_path,serial_number,
+                    music_about,music_about,music_about,false,md5,file_imgnum,save_type);
         }
 
         //展示下载时大屏右侧的窗口列表
@@ -1445,6 +1453,8 @@ public class RemoteService extends Service {
                 String resource_type = request.getParameter("resource_type");
                 String duration = request.getParameter("duration");
                 String serial_number = request.getParameter("serial_number");
+                String music_id = request.getParameter("music_id");
+                String music_oss_addr = request.getParameter("music_oss_addr");
                 final String img_id = System.currentTimeMillis()+"";
                 ProjectionImg img = new ProjectionImg();
                 img.setImg_id(img_id);
@@ -1508,7 +1518,7 @@ public class RemoteService extends Service {
                     LogUtils.d(TAG+":"+"极简下载:fileName="+filename+"结束下载");
                     GlobalValues.PROJECT_STREAM_IMAGE.add(media_path);
 
-                    postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,filename,resource_size,resource_type,media_path,serial_number,null,repeat);
+                    postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,filename,resource_size,resource_type,media_path,serial_number,repeat);
 
                     handler.post(()->projectionImgListDialog.setImgDownloadProgress(img_id,100+"%"));
                     object = new BaseResponse();
@@ -1536,6 +1546,9 @@ public class RemoteService extends Service {
                 }
 
                 if (!isPPTRunnable){
+                    musicPath = null;
+                    String basePath = AppUtils.getFilePath(AppUtils.StorageFile.welcome_resource);
+                    getMusicPathMethod(basePath,music_id,music_oss_addr);
                     currentIndex=0;
                     int time = 0;
                     if (currentAction==6&&GlobalValues.PROJECT_STREAM_IMAGE.size()==1){
@@ -1593,7 +1606,7 @@ public class RemoteService extends Service {
                     isGo = true;
                     String url = GlobalValues.PROJECT_STREAM_IMAGE.get(currentIndex);
                     if (currentIndex==0){
-                        RemoteService.listener.showImage(1,url,true,forscreenId,forscreen_char,avatarUrl,nickName,null,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                        RemoteService.listener.showImage(1,url,true,forscreenId,forscreen_char,avatarUrl,nickName,null,musicPath,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                     }else{
                         RemoteService.listener.showImage(1,url,false,forscreenId,forscreen_char,avatarUrl,nickName,null,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                     }
@@ -1625,6 +1638,8 @@ public class RemoteService extends Service {
                 }
                 if (isGo){
                     handler.postDelayed(new ProjectShowImageRunnable(forscreen_char,forscreenId,time),INTERVAL_TIME);
+                }else{
+                    closeProjectionDialog();
                 }
             }else if (currentAction==6){
 
@@ -1775,7 +1790,7 @@ public class RemoteService extends Service {
                     res_eup_time = endTime;
                     String media_path = path+filename;
                     LogUtils.d(TAG+":"+"极简下载:fileName="+filename+"结束下载");
-                    postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,filename,resource_size,resource_type,media_path,serial_number,null,repeat);
+                    postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,filename,resource_size,resource_type,media_path,serial_number,repeat);
                     GlobalValues.PROJECT_STREAM_IMAGE.add(media_path);
                     object = new BaseResponse();
                     object.setMsg("上传成功");
@@ -2340,7 +2355,7 @@ public class RemoteService extends Service {
                                 if (new File(path).exists()){
                                     isSuccess = true;
                                 }else{
-                                    isSuccess = new ProgressDownloader(context,url,basePath,fileName,true).downloadByRange();
+                                    isSuccess = new ProjectionDownloader(context,url,basePath,fileName,true).downloadByRange();
                                 }
                                 if (isSuccess){
                                     handler.post(()->projectionImgListDialog.setImgDownloadProgress(img_id,100+"%"));
