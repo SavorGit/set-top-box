@@ -10,7 +10,6 @@ def releaseDate() {
 
 android {
     compileSdkVersion COMPILE_SDK_VERSION as int
-    buildToolsVersion BUILD_TOOLS_VERSION
     ndkVersion "11.2.2725575"
     defaultConfig {
         applicationId "com.savor.ads"
@@ -18,13 +17,13 @@ android {
         targetSdkVersion TARGET_SDK_VERSION as int
 
         //noinspection HighAppVersionCode
-        versionCode 2021080901
+        versionCode 2021081301
         versionName "2.3.6"
         multiDexEnabled true
     }
     compileOptions {
-        sourceCompatibility 1.8
-        targetCompatibility 1.8
+        sourceCompatibility 11
+        targetCompatibility 11
     }
 
     // 签名配置
