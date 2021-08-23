@@ -18,7 +18,7 @@ android {
 
         //noinspection HighAppVersionCode
         versionCode 2021082301
-        versionName "2.3.6"
+        versionName "2.3.7"
         multiDexEnabled true
     }
     compileOptions {
