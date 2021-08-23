@@ -43,6 +43,7 @@ import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.FORSCREEN_CH
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.FORSCREEN_ID;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.GOODS_ID;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.ID;
+import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.IS_SHARE;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.IS_STOREBUY;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.LOCATION_ID;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.MD5;
@@ -136,6 +137,7 @@ public class DBHelper extends SQLiteOpenHelper {
             public static final String AVATAR_URL = "avatar_url";
             public static final String TYPE = "type";
             public static final String PAGES = "pages";
+            public static final String IS_SHARE = "is_share";
             //是否已经上传,0:未上传，1：已上传
             public static final String UPLOADED = "uploaded";
             //是否已经上传,0:一投，1：重投
@@ -169,7 +171,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "dbsavor.db";
 
 
-    private static final int DB_VERSION = 38;
+    private static final int DB_VERSION = 39;
 
     private Context mContext;
 
@@ -404,6 +406,15 @@ public class DBHelper extends SQLiteOpenHelper {
                 e.printStackTrace();
             }
         }
+        if (oldVersion<39){
+            //versionName 2.3.7
+            try{
+                String addPages = "ALTER TABLE " + TableName.PROJECTION_LOG + " ADD " + IS_SHARE + " INTEGER;";
+                sqLiteDatabase.execSQL(addPages);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -593,6 +604,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 + REPEAT + " TEXT, "
                 + SMALL_APP_ID + " TEXT, "
                 + PAGES + " INTEGER, "
+                + IS_SHARE + " INTEGER, "
                 + CREATETIME + " TEXT "
                 +");";
         db.execSQL(DATABASE_CREATE);
@@ -1513,6 +1525,7 @@ public class DBHelper extends SQLiteOpenHelper {
             initialValues.put(UPLOADED,bean.getUpload());
             initialValues.put(REPEAT,bean.getRepeat());
             initialValues.put(PAGES,bean.getPages());
+            initialValues.put(IS_SHARE,bean.getIs_share());
             initialValues.put(SMALL_APP_ID,bean.getSmall_app_id());
             initialValues.put(CREATETIME,bean.getCreate_time());
             long success = db.insert(TableName.PROJECTION_LOG,null,initialValues);
@@ -1579,6 +1592,7 @@ public class DBHelper extends SQLiteOpenHelper {
                             bean.setMedia_path(cursor.getString(cursor.getColumnIndex(MEDIA_PATH)));
                             bean.setMedia_screenshot_path(cursor.getString(cursor.getColumnIndex(MEDIA_SCREENSHOT_PATH)));
                             bean.setPages(cursor.getInt(cursor.getColumnIndex(PAGES)));
+                            bean.setIs_share(cursor.getInt(cursor.getColumnIndex(IS_SHARE)));
                             bean.setSmall_app_id(cursor.getString(cursor.getColumnIndex(SMALL_APP_ID)));
                             bean.setCreate_time(cursor.getString(cursor.getColumnIndex(CREATETIME)));
                             logBeanList.add(bean);

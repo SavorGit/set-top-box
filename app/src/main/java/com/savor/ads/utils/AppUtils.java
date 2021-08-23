@@ -1249,7 +1249,7 @@ public class AppUtils {
                             //这个值就是文件名称
                             final String resourceId = bean.getResource_id();
                             String resourceType = bean.getResource_type();
-
+                            int is_share = bean.getIs_share();
                             long resuorceSize = 0;
                             if (!TextUtils.isEmpty(bean.getResource_size())){
                                 resuorceSize = Long.valueOf(bean.getResource_size());
@@ -1268,26 +1268,11 @@ public class AppUtils {
                             }
                             long simpleUploadSize = Session.get(context).getSimple_upload_size();
                             boolean flag;
-                            String ossPath=null;
+                            String ossPath;
                             String[] filePaths = bean.getMedia_path().split("\\/");
                             final String fileName = filePaths[filePaths.length-1];
-                            String action = bean.getAction();
-                            if (resuorceSize<simpleUploadSize||resourceType.equals("3")){
-                                if (action.equals("31")){
-                                    String forscreenId = bean.getForscreen_id();
-                                    selection = DBHelper.MediaDBInfo.FieldName.FORSCREEN_ID + "=? and "
-                                            + DBHelper.MediaDBInfo.FieldName.PAGES + "> 0";
-                                    selectionArgs = new String[]{forscreenId};
-                                    List<ProjectionLogDetail> listDetail = DBHelper.get(context).findProjectionDetail(selection,selectionArgs);
-                                    if (listDetail!=null&&listDetail.size()>0){
-                                        ProjectionLogDetail detail = listDetail.get(0);
-                                        String resourceName = detail.getResource_id();
-                                        String fileDir = AppUtils.getMD5(resourceName);
-                                        ossPath = OSSValues.uploadSimpleFilePath+fileDir+"/"+fileName;
-                                    }
-                                }else{
-                                    ossPath = OSSValues.uploadSimplePath+fileName;
-                                }
+                            if (resuorceSize<simpleUploadSize||is_share==1){
+                                ossPath = OSSValues.uploadSimplePath+fileName;
                                 OSSUtils ossUtils =  new OSSUtils(context,
                                         BuildConfig.OSS_BUCKET_NAME,
                                         ossPath,
@@ -1349,26 +1334,7 @@ public class AppUtils {
         }).start();
     }
 
-    public static void uplopadProjectionFile(final Context context,final String fileDir,final String fileName){
-        new Thread(() -> {
-            File fileList = new File(fileDir);
-            File [] listImg = fileList.listFiles();
-            String ossPath = OSSValues.uploadSimpleFilePath+fileName+"/";
-            for (File file:listImg){
-                String name = file.getName();
-                String ossPathImg = ossPath+name;
-                OSSUtils ossUtils =  new OSSUtils(context,
-                        BuildConfig.OSS_BUCKET_NAME,
-                        ossPathImg,
-                        file.getAbsolutePath());
-                ossUtils.syncUploadFile();
-            }
-            AppUtils.updateProjectionLog(context);
-        }).start();
-    }
-
     public static void updateSimpleProjectionLog(final Context context, ProjectionLogBean bean, JSONArray jsonArray){
-        long time  = Long.parseLong(bean.getCreate_time());
         if (jsonArray.length()==0){
             return;
         }

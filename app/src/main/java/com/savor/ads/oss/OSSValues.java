@@ -20,7 +20,6 @@ public class OSSValues {
     public static final String uploadDebugPath = "logs/box/debug/";
     //极简版投屏上传文件路径
     public static final String uploadSimplePath = "forscreen/resource/";
-    public static final String uploadSimpleFilePath = "forscreen/resource/file/";
 
 
 

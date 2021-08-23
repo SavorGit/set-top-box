@@ -34,7 +34,6 @@ import com.savor.ads.utils.ShowMessage;
 import com.shuyu.gsyvideoplayer.player.IjkPlayerManager;
 import com.shuyu.gsyvideoplayer.player.PlayerFactory;
 import com.shuyu.gsyvideoplayer.utils.GSYVideoType;
-import com.tom_roush.pdfbox.util.PDFBoxResourceLoader;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
 
@@ -67,7 +66,6 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this));
         // 初始化文件记录类
         LogFileUtil.init();
-        PDFBoxResourceLoader.init(getApplicationContext());
         // 映射真实健值
         mappingKeyCode();
         session = Session.get(context);

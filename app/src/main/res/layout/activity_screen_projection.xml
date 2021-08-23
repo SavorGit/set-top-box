@@ -324,4 +324,35 @@
             android:textColor="@color/color_white"
             android:textSize="30dp"/>
     </RelativeLayout>
+    <LinearLayout
+        android:id="@+id/projection_qrcode_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="30dp"
+        android:layout_marginBottom="20dp"
+        android:visibility="gone"
+        android:background="@mipmap/bg_qrcode"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/mini_program_tip1"
+            android:textColor="#e61f18"
+            android:textSize="15dp"/>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:gravity="center"
+            android:layout_gravity="center">
+            <ImageView
+                android:id="@+id/projection_qrcode"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center"/>
+        </RelativeLayout>
+    </LinearLayout>
 </RelativeLayout>

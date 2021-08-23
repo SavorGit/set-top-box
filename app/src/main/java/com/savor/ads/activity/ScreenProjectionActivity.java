@@ -1,5 +1,8 @@
 package com.savor.ads.activity;
 
+import static com.savor.ads.utils.ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE;
+import static com.savor.ads.utils.ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +22,7 @@ import android.os.IBinder;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -26,6 +30,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.savor.ads.bean.ProjectionImg;
+import com.savor.ads.core.Session;
 import com.savor.ads.service.RemoteService;
 import com.jar.savor.box.vo.PlayResponseVo;
 import com.jar.savor.box.vo.QueryPosBySessionIdResponseVo;
@@ -233,6 +238,8 @@ public class ScreenProjectionActivity extends BaseActivity{
 
     private RelativeLayout userShareLayout;
 
+    private LinearLayout proQrcodeLayout;
+    private ImageView proQrcodeIV;
     /**
      * 图片旋转角度
      */
@@ -363,6 +370,8 @@ public class ScreenProjectionActivity extends BaseActivity{
         storeSaleLayout = findViewById(R.id.store_sale_layout);
 
         userShareLayout = findViewById(R.id.user_share_layout);
+        proQrcodeLayout = findViewById(R.id.projection_qrcode_layout);
+        proQrcodeIV = findViewById(R.id.projection_qrcode);
     }
 
     private void setView() {
@@ -596,6 +605,7 @@ public class ScreenProjectionActivity extends BaseActivity{
             list.add(bean);
 
             mSavorVideoView.setMediaFiles(list);
+            showQrCodeWhenProjection();
         }else if (ConstantValues.PROJECT_TYPE_VIDEO_BIRTHDAY.equals(mProjectType)){
             // 生日点播
             mSavorVideoView.setVisibility(View.VISIBLE);
@@ -615,6 +625,7 @@ public class ScreenProjectionActivity extends BaseActivity{
             list.add(bean);
 
             mSavorVideoView.setMediaFiles(list);
+            showQrCodeWhenProjection();
         }else if (ConstantValues.PROJECT_TYPE_VIDEO.equals(mProjectType)) {
 
             if (currentAction==40){
@@ -656,6 +667,7 @@ public class ScreenProjectionActivity extends BaseActivity{
             if (currentAction==141){
                 userShareLayout.setVisibility(View.VISIBLE);
             }
+            showQrCodeWhenProjection();
         }else if (ConstantValues.PROJECT_TYPE_VIDEO_REST.equals(mProjectType)) {
             // 小程序餐厅端视频投屏
             mSavorVideoView.setVisibility(View.VISIBLE);
@@ -766,6 +778,11 @@ public class ScreenProjectionActivity extends BaseActivity{
                 mImageView.setScaleY(1);
                 rotatePicture();
                 mHandler.postDelayed(()->initSounds(),500);
+            }
+            if (mImageType==2){
+                proQrcodeLayout.setVisibility(View.GONE);
+            }else{
+                showQrCodeWhenProjection();
             }
             rescheduleToExit(true);
             mHandler.removeCallbacks(mCountDownRunnable);
@@ -974,6 +991,43 @@ public class ScreenProjectionActivity extends BaseActivity{
 
     }
 
+    private void showQrCodeWhenProjection(){
+        ((SavorApplication) getApplication()).hideMiniProgramQrCodeWindow();
+        String box_mac = Session.get(this).getEthernetMac();
+        String path = null;
+        String url = null;
+        proQrcodeLayout.setVisibility(View.VISIBLE);
+        if (mSession.isShowMiniProgramIcon()&& mSession.isShowSimpleMiniProgramIcon()){
+            if (mSession.isHeartbeatMiniNetty()) {
+                path = AppUtils.getFilePath( AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_NAME;
+                url = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ box_mac+"&type="+MINI_PROGRAM_QRCODE_SMALL_TYPE;
+            }else{
+                path = AppUtils.getFilePath( AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_SQRCODE_NAME;
+                url = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ box_mac+"&type="+MINI_PROGRAM_SQRCODE_SMALL_TYPE;
+            }
+        }else if (!mSession.isShowMiniProgramIcon()&& mSession.isShowSimpleMiniProgramIcon()){
+            path = AppUtils.getFilePath( AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_SQRCODE_NAME;
+            url = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ box_mac+"&type="+MINI_PROGRAM_SQRCODE_SMALL_TYPE;
+        }else if (mSession.isShowMiniProgramIcon()&& !mSession.isShowSimpleMiniProgramIcon()){
+            if (mSession.isHeartbeatMiniNetty()) {
+                path = AppUtils.getFilePath( AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_NAME;
+                url = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ box_mac+"&type="+MINI_PROGRAM_QRCODE_SMALL_TYPE;
+            }
+        }
+        if (!TextUtils.isEmpty(path)&&!TextUtils.isEmpty(url)){
+            ViewGroup.LayoutParams layoutParams = proQrcodeLayout.getLayoutParams();
+            layoutParams.width =DensityUtil.dip2px(mContext, 108);
+            layoutParams.height =DensityUtil.dip2px(mContext, 108*1.2f);
+            proQrcodeLayout.setLayoutParams(layoutParams);
+            File file = new File(path);
+            if (file.exists()){
+                GlideImageLoader.loadLocalImage(mContext,file,proQrcodeIV);
+            }else{
+                GlideImageLoader.loadImageWithoutCache(mContext,path,proQrcodeIV,0,0);
+            }
+        }
+    }
+
     private void showImgLog(){
         MiniProgramProjection mpp = MiniProgramNettyService.mpProjection;
         if (mpp!=null){
@@ -995,7 +1049,7 @@ public class ScreenProjectionActivity extends BaseActivity{
 
         if (mSession.getQrcodeType()==2){
             if (AppUtils.isNetworkAvailable(mContext) && mSession.isHeartbeatMiniNetty()) {
-                ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE);
+                ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(MINI_PROGRAM_QRCODE_SMALL_TYPE);
                 LogUtils.v("MiniProgramNettyService showMiniProgramQrCodeWindow");
             } else {
                 ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE);

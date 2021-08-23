@@ -25,6 +25,7 @@ public class ProjectionLogBean implements Serializable {
     private String small_app_id;
     //文件总共有多少页
     private int pages;
+    private int is_share;
     private String create_time;
 
     public String getAction() {
@@ -169,6 +170,14 @@ public class ProjectionLogBean implements Serializable {
 
     public void setPages(int pages) {
         this.pages = pages;
+    }
+
+    public int getIs_share() {
+        return is_share;
+    }
+
+    public void setIs_share(int is_share) {
+        this.is_share = is_share;
     }
 
     public String getCreate_time() {

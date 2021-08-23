@@ -59,8 +59,6 @@ import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.LogUtils;
 import com.savor.ads.utils.ShowMessage;
 import com.savor.ads.utils.StreamUtils;
-import com.tom_roush.pdfbox.pdmodel.PDDocument;
-import com.tom_roush.pdfbox.rendering.PDFRenderer;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Request;
@@ -603,7 +601,7 @@ public class RemoteService extends Service {
                             }else{
                                 GlobalValues.PROJECTION_VIDEO_PATH = null;
                                 RemoteService.listener.showVideo(media_path, true,forscreen_id,avatarUrl,nickName,null,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
-                                postSimpleMiniProgramProjectionLog(action,duration,null,forscreen_id,filename,resource_size,resource_type,media_path,serial_number,repeat);
+                                postSimpleMiniProgramProjectionLog(action,duration,"",forscreen_id,filename,resource_size,resource_type,media_path,serial_number,repeat);
                             }
 
                         }
@@ -669,6 +667,8 @@ public class RemoteService extends Service {
                 String chunkSize = request.getParameter("chunkSize");
                 String totalChunks = request.getParameter("totalChunks");
                 String serial_number = request.getParameter("serial_number");
+                String is_share = request.getParameter("is_share");
+                String public_text = request.getParameter("public_text");
                 String forscreen_char = "";
                 VideoQueueParam param = new VideoQueueParam();
                 param.setAction(action);
@@ -683,6 +683,10 @@ public class RemoteService extends Service {
                 param.setTotalChunks(totalChunks);
                 param.setInputContent(StreamUtils.toByteArray(inputStream));
                 param.setSerial_number(serial_number);
+                if (!TextUtils.isEmpty(is_share)){
+                    param.setIs_share(Integer.valueOf(is_share));
+                }
+                param.setPublic_text(public_text);
                 videoQueue.offer(param);
                 Log.d(TAG,"写入队列，数据块index==="+index+"||input=="+param.getInputContent());
                 String path = AppUtils.getFilePath(AppUtils.StorageFile.projection);
@@ -712,9 +716,11 @@ public class RemoteService extends Service {
                                 mpProjection.setForscreen_id(vqParam.getForscreen_id());
                                 mpProjection.setResource_id(vqParam.getFileName());
                                 mpProjection.setOpenid(deviceId);
+                                res_eup_time = String.valueOf(System.currentTimeMillis());
+                                int is_share = vqParam.getIs_share();
+                                String public_text = vqParam.getPublic_text();
+                                postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,filename,resource_size,resource_type,outPath,serial_number,null,is_share,public_text,false);
                             }
-                            res_eup_time = String.valueOf(System.currentTimeMillis());
-                            postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,filename,resource_size,resource_type,outPath,serial_number,false);
                         }
                     });
                     new Thread(writer).start();
@@ -752,8 +758,10 @@ public class RemoteService extends Service {
                     musicPath = basePath+bean.getName();
                     File file = new File(musicPath);
                     if (!file.exists()){
-                        musicPath = BuildConfig.OSS_ENDPOINT+music_oss_addr;
+                        musicPath = BuildConfig.OSS_ENDPOINT + music_oss_addr;
                     }
+                }else{
+                    musicPath = BuildConfig.OSS_ENDPOINT + music_oss_addr;
                 }
             }
         }
@@ -818,6 +826,8 @@ public class RemoteService extends Service {
                 String thumbnail = request.getParameter("thumbnail");
                 String music_id = request.getParameter("music_id");
                 String music_oss_addr = request.getParameter("music_oss_addr");
+                String is_share = request.getParameter("is_share");
+                String public_text = request.getParameter("public_text");
                 ImgQueueParam param = new ImgQueueParam();
                 param.setAction(action);
                 param.setForscreen_id(forscreen_id);
@@ -830,6 +840,10 @@ public class RemoteService extends Service {
                 param.setTotalChunks(totalChunks);
                 param.setSerial_number(serial_number);
                 param.setDeviceId(deviceId);
+                if (!TextUtils.isEmpty(is_share)){
+                    param.setIs_share(Integer.valueOf(is_share));
+                }
+                param.setPublic_text(public_text);
                 if (!acceptNum.containsKey(filename)){
                     String startTime = System.currentTimeMillis()+"";
                     acceptsTime.put(filename,startTime);
@@ -920,7 +934,9 @@ public class RemoteService extends Service {
 
                                 String outPath = imgQueue.getFilePath();
                                 LogUtils.d("数据插入，开始，forscreenId=" + imgQueue.getForscreen_id());
-                                postSimpleMiniProgramProjectionLog(action,"",forscreen_char,forscreen_id,imgQueue.getFileName(),imgQueue.getSize(),resource_type,outPath,serial_number,musicPath,music_id,music_oss_addr,false);
+                                int is_share = imgQueue.getIs_share();
+                                String public_text = imgQueue.getPublic_text();
+                                postSimpleMiniProgramProjectionLog(action,"",forscreen_char,forscreen_id,imgQueue.getFileName(),imgQueue.getSize(),resource_type,outPath,serial_number,musicPath,is_share,public_text,false);
 
                                 String img_id = System.currentTimeMillis()+"";
                                 ProjectionImg img = new ProjectionImg();
@@ -1065,7 +1081,7 @@ public class RemoteService extends Service {
                             handler.post(()->ShowMessage.showToast(context,"下载完成，开始转换文件"));
                             converted.clear();
                             converted.put(fParam.getFileName(),true);
-                            convertFileToImg(fParam,outPath);
+//                            convertFileToImg(fParam,outPath);
                         }
 
                     });
@@ -1094,91 +1110,91 @@ public class RemoteService extends Service {
             return respJson;
         }
 
-        private void convertFileToImg(FileQueueParam fParam,String filePath){
-            String action = fParam.getAction();
-            String filename = fParam.getFileName();
-            String fileDir = AppUtils.getMD5(filename);
-            String forscreen_id = fParam.getForscreen_id();
-            String resource_size = fParam.getTotalSize();
-            String resource_type = fParam.getResource_type();
-            String save_type = fParam.getSave_type();
-            String serial_number = fParam.getSerial_number();
-            Bitmap pageImage;
-            // Render the page and save it to an image file
-            FileOutputStream fileOut = null;
-            InputStream inputStream = null;
-            try {
-                /**
-                 *因为正常的文件名称中可能存在中文以及特殊字符
-                 * 所以创建文件目录时，将forscreenid当做文件目录名称
-                 */
-                String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-                File root = new File(basePath+fileDir);
-                if (root.isDirectory()&&root.listFiles().length>0){
-                    String path = root.getAbsolutePath() + "/1.jpg";
-                    if (new File(path).exists()){
-                        ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,"", avatarUrl, nickName,"","",currentAction, FROM_SERVICE_REMOTE);
-                    }
-                }else{
-                    if (!root.exists()){
-                        root.mkdir();
-                    }
-                }
-                // Load in an already created PDF
-                File pdfFile = new File(filePath);
-                if (!pdfFile.exists()){
-                    return;
-                }
-                String md5 = AppUtils.getMD5(pdfFile);
-                inputStream = new FileInputStream(pdfFile);
-//                  AssetManager assetManager = getAssets();
-//                  PDDocument document = PDDocument.load(assetManager.open("123.pdf"));
-                PDDocument document = PDDocument.load(inputStream);
-                // Create a renderer for the document
-                PDFRenderer renderer = new PDFRenderer(document);
-                // Render the image to an RGB Bitmap
-//                  pageImage = renderer.renderImage(0, 1, ImageType.RGB);
-                int pages = document.getNumberOfPages();
-                for (int i=0;i<pages;i++){
-//                        LogUtils.d("下载pdf完成，开始转换第"+i+"张");
-                    String path = root.getAbsolutePath() + "/"+(i+1)+".jpg";
-                    if (!new File(path).exists()){
-                        LogUtils.d("下载pdf完成，开始获取第"+i+"张的bitmap");
-                        pageImage = renderer.renderImage(i, 1f, Bitmap.Config.ARGB_4444);
-                        LogUtils.d("下载pdf完成，完成获取第"+i+"张的bitmap");
-                        // Save the render result to an image
-                        File renderFile = new File(path);
-                        fileOut = new FileOutputStream(renderFile);
-                        pageImage.compress(Bitmap.CompressFormat.JPEG, 100, fileOut);
-                    }
-//                        LogUtils.d("下载pdf完成，完成转换第"+i+"张");
-                    if (i == 0){
-                        ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,"", avatarUrl, nickName,"","",currentAction, FROM_SERVICE_REMOTE);
-                        postSimpleMiniProgramProjectionLog(action,forscreen_id,filename,resource_size,resource_type,filePath,serial_number,md5,pages,save_type);
-                    }
-                }
-                AppUtils.uplopadProjectionFile(context,root.getAbsolutePath(),fileDir);
-            }
-            catch (IOException e){
-                converted.put(filename,false);
-                Log.e("PdfBox-Android-Sample", "Exception thrown while rendering file", e);
-            }finally {
-                if (fileOut!=null){
-                    try{
-                        fileOut.close();
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-                if (inputStream!=null){
-                    try {
-                        inputStream.close();
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
+//        private void convertFileToImg(FileQueueParam fParam,String filePath){
+//            String action = fParam.getAction();
+//            String filename = fParam.getFileName();
+//            String fileDir = AppUtils.getMD5(filename);
+//            String forscreen_id = fParam.getForscreen_id();
+//            String resource_size = fParam.getTotalSize();
+//            String resource_type = fParam.getResource_type();
+//            String save_type = fParam.getSave_type();
+//            String serial_number = fParam.getSerial_number();
+//            Bitmap pageImage;
+//            // Render the page and save it to an image file
+//            FileOutputStream fileOut = null;
+//            InputStream inputStream = null;
+//            try {
+//                /**
+//                 *因为正常的文件名称中可能存在中文以及特殊字符
+//                 * 所以创建文件目录时，将forscreenid当做文件目录名称
+//                 */
+//                String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+//                File root = new File(basePath+fileDir);
+//                if (root.isDirectory()&&root.listFiles().length>0){
+//                    String path = root.getAbsolutePath() + "/1.jpg";
+//                    if (new File(path).exists()){
+//                        ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,"", avatarUrl, nickName,"","",currentAction, FROM_SERVICE_REMOTE);
+//                    }
+//                }else{
+//                    if (!root.exists()){
+//                        root.mkdir();
+//                    }
+//                }
+//                // Load in an already created PDF
+//                File pdfFile = new File(filePath);
+//                if (!pdfFile.exists()){
+//                    return;
+//                }
+//                String md5 = AppUtils.getMD5(pdfFile);
+//                inputStream = new FileInputStream(pdfFile);
+////                  AssetManager assetManager = getAssets();
+////                  PDDocument document = PDDocument.load(assetManager.open("123.pdf"));
+//                PDDocument document = PDDocument.load(inputStream);
+//                // Create a renderer for the document
+//                PDFRenderer renderer = new PDFRenderer(document);
+//                // Render the image to an RGB Bitmap
+////                  pageImage = renderer.renderImage(0, 1, ImageType.RGB);
+//                int pages = document.getNumberOfPages();
+//                for (int i=0;i<pages;i++){
+////                        LogUtils.d("下载pdf完成，开始转换第"+i+"张");
+//                    String path = root.getAbsolutePath() + "/"+(i+1)+".jpg";
+//                    if (!new File(path).exists()){
+//                        LogUtils.d("下载pdf完成，开始获取第"+i+"张的bitmap");
+//                        pageImage = renderer.renderImage(i, 1f, Bitmap.Config.ARGB_4444);
+//                        LogUtils.d("下载pdf完成，完成获取第"+i+"张的bitmap");
+//                        // Save the render result to an image
+//                        File renderFile = new File(path);
+//                        fileOut = new FileOutputStream(renderFile);
+//                        pageImage.compress(Bitmap.CompressFormat.JPEG, 100, fileOut);
+//                    }
+////                        LogUtils.d("下载pdf完成，完成转换第"+i+"张");
+//                    if (i == 0){
+//                        ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,"", avatarUrl, nickName,"","",currentAction, FROM_SERVICE_REMOTE);
+//                        postSimpleMiniProgramProjectionLog(action,forscreen_id,filename,resource_size,resource_type,filePath,serial_number,md5,pages,save_type);
+//                    }
+//                }
+//                AppUtils.uplopadProjectionFile(context,root.getAbsolutePath(),fileDir);
+//            }
+//            catch (IOException e){
+//                converted.put(filename,false);
+//                Log.e("PdfBox-Android-Sample", "Exception thrown while rendering file", e);
+//            }finally {
+//                if (fileOut!=null){
+//                    try{
+//                        fileOut.close();
+//                    }catch (Exception e){
+//                        e.printStackTrace();
+//                    }
+//                }
+//                if (inputStream!=null){
+//                    try {
+//                        inputStream.close();
+//                    }catch (Exception e){
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//        }
 
         private String showFileImgRequest(HttpServletRequest request){
             String resJson = null;
@@ -1263,7 +1279,7 @@ public class RemoteService extends Service {
 
         public void postSimpleMiniProgramProjectionLog(String action,String startTime,String endTime,String duration,String forscreen_char,String forscreen_id,
                                                        String resource_id,String resource_size,String resource_type,String media_path,String serial_number,
-                                                       String music_path,String music_id,String music_oss_addr,boolean repeat,String md5,int file_imgnum,String save_type){
+                                                       String music_path,int is_share,String public_text,boolean repeat){
             HashMap<String,Object> params = new HashMap<>();
             String create_time = String.valueOf(System.currentTimeMillis());
 
@@ -1277,15 +1293,8 @@ public class RemoteService extends Service {
             }else {
                 params.put("action",action);
             }
-            if (action.equals("30")){
-                params.put("md5", md5);
-                params.put("file_imgnum", file_imgnum);
-                params.put("save_type", save_type);
-                params.put("resource_name", AppUtils.getFileNameId(resource_id));
-                params.put("resource_id", AppUtils.getMD5(resource_id)+".pdf");
-            }else{
-                params.put("resource_id", resource_id);
-            }
+
+            params.put("resource_id", resource_id);
             params.put("forscreen_id", forscreen_id);
             params.put("mobile_brand", deviceName);
             params.put("mobile_model", device_model);
@@ -1294,6 +1303,8 @@ public class RemoteService extends Service {
             params.put("resource_type", resource_type);
             params.put("serial_number",serial_number);
             params.put("music_id", music_path);
+            params.put("is_share", is_share);
+            params.put("public_text", public_text);
             params.put("small_app_id", ConstantValues.SMALL_APP_ID_SIMPLE);
             params.put("create_time", create_time);
             params.put("res_sup_time",startTime);
@@ -1316,7 +1327,7 @@ public class RemoteService extends Service {
             bean.setResource_size(resource_size);
             bean.setResource_type(resource_type);
             bean.setMedia_path(media_path);
-            bean.setPages(file_imgnum);
+            bean.setIs_share(is_share);
             if (repeat){
                 bean.setRepeat("1");
             }else {
@@ -1354,32 +1365,20 @@ public class RemoteService extends Service {
 
         public void postSimpleMiniProgramProjectionLog(String action,String duration,String forscreen_char,String forscreen_id,String resource_id,
                                                        String resource_size,String resource_type,String media_path,String serial_number,
-                                                       String music_path,String music_id,String music_oss_addr,boolean repeat){
+                                                       String music_path,int is_share,String public_text,boolean repeat){
             String startTime = res_sup_time;
             String endTime = res_eup_time;
             postSimpleMiniProgramProjectionLog(action,startTime,endTime,duration,forscreen_char,forscreen_id,
-                    resource_id,resource_size,resource_type,media_path,serial_number,
-                    music_path,music_id,music_oss_addr,repeat,null,0,"");
+                    resource_id,resource_size,resource_type,media_path,serial_number,music_path,is_share,public_text,repeat);
         }
 
         public void postSimpleMiniProgramProjectionLog(String action,String duration,String forscreen_char,String forscreen_id,String resource_id,
                                                        String resource_size,String resource_type,String media_path,String serial_number,boolean repeat){
             String startTime = res_sup_time;
             String endTime = res_eup_time;
-            String music_about = "";
+            String music_path = "";
             postSimpleMiniProgramProjectionLog(action,startTime,endTime,duration,forscreen_char,forscreen_id,
-                    resource_id,resource_size,resource_type,media_path,serial_number,
-                    music_about,music_about,music_about,repeat,null,0,"");
-        }
-
-        public void postSimpleMiniProgramProjectionLog(String action,String forscreen_id,String resource_id,String resource_size,String resource_type,
-                                                       String media_path,String serial_number,String md5,int file_imgnum,String save_type){
-            String startTime = res_sup_time;
-            String endTime = res_eup_time;
-            String music_about = "";
-            postSimpleMiniProgramProjectionLog(action,startTime,endTime,"","",forscreen_id,
-                    resource_id,resource_size,resource_type,media_path,serial_number,
-                    music_about,music_about,music_about,false,md5,file_imgnum,save_type);
+                    resource_id,resource_size,resource_type,media_path,serial_number,music_path,0,"",repeat);
         }
 
         //展示下载时大屏右侧的窗口列表

@@ -13,6 +13,9 @@ public class VideoQueueParam {
     private String totalChunks;
     private byte[] inputContent;
     private String serial_number;
+    private int is_share;
+    private String public_text;
+
     public String getAction() {
         return action;
     }
@@ -107,5 +110,21 @@ public class VideoQueueParam {
 
     public void setSerial_number(String serial_number) {
         this.serial_number = serial_number;
+    }
+
+    public int getIs_share() {
+        return is_share;
+    }
+
+    public void setIs_share(int is_share) {
+        this.is_share = is_share;
+    }
+
+    public String getPublic_text() {
+        return public_text;
+    }
+
+    public void setPublic_text(String public_text) {
+        this.public_text = public_text;
     }
 }

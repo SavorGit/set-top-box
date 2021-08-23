@@ -1320,8 +1320,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         ArrayList<ProjectionImg> imgList = new ArrayList<>();
         imgList.addAll(program.getImg_list());
         ProjectionImg img = imgList.get(0);
-        String url = BuildConfig.OSS_ENDPOINT+img.getUrl()+ConstantValues.PROJECTION_IMG_THUMBNAIL_PARAM;
-        ProjectOperationListener.getInstance(context).showImage(1,url,false,forscreen_id,words, headPic, nickName, FROM_SERVICE_MINIPROGRAM);
         String basePath;
         if (currentAction==11){
             basePath = AppUtils.getFilePath(AppUtils.StorageFile.hot_content);
@@ -1332,6 +1330,10 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         }
         String fileName = img.getFilename();
         String imgpath = basePath + fileName;
+        if (!new File(imgpath).exists()){
+            String url = BuildConfig.OSS_ENDPOINT+img.getUrl()+ConstantValues.PROJECTION_IMG_THUMBNAIL_PARAM;
+            ProjectOperationListener.getInstance(context).showImage(1,url,false,forscreen_id,words, headPic, nickName, FROM_SERVICE_MINIPROGRAM);
+        }
         if (img_nums>1||(img_nums==1&&!new File(imgpath).exists())){
             if (currentAction!=142){
                 handler.post(new Runnable() {
@@ -1737,8 +1739,10 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 musicPath = basePath+bean.getName();
                 File file = new File(musicPath);
                 if (!file.exists()){
-                    musicPath = BuildConfig.OSS_ENDPOINT+mpProjection.getMusic_oss_addr();
+                    musicPath = BuildConfig.OSS_ENDPOINT + mpProjection.getMusic_oss_addr();
                 }
+            }else{
+                musicPath = BuildConfig.OSS_ENDPOINT + mpProjection.getMusic_oss_addr();
             }
         }
     }
@@ -2118,6 +2122,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
      */
     private void adjustVideo(int value){
         Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+        if(activity instanceof ScreenProjectionActivity){
+            activity.finish();
+        }
         if (activity instanceof AdsPlayerActivity){
             handler.post(()-> ((AdsPlayerActivity) activity).changeMedia(value));
         }

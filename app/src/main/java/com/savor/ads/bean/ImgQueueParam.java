@@ -19,6 +19,9 @@ public class ImgQueueParam {
     private String forscreen_nums;
     private String size;
     private String deviceId;
+    private int is_share;
+    private String public_text;
+
     public String getAction() {
         return action;
     }
@@ -145,5 +148,21 @@ public class ImgQueueParam {
 
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
+    }
+
+    public int getIs_share() {
+        return is_share;
+    }
+
+    public void setIs_share(int is_share) {
+        this.is_share = is_share;
+    }
+
+    public String getPublic_text() {
+        return public_text;
+    }
+
+    public void setPublic_text(String public_text) {
+        this.public_text = public_text;
     }
 }
