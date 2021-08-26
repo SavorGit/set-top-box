@@ -332,9 +332,9 @@ public class RemoteService extends Service {
                     currentAction = 8;
                     resJson = handleH5StopRequest();
                     break;
-                case "/h5/birthday_ondemand":
+                case "/showMiniProgramCode":
                     currentAction = 9;
-                    resJson = handleH5BirthdayOndemand(request);
+                    resJson = handleShowMiniProgramCode(request);
                     break;
                 case "/stop":
                     currentAction = 10;
@@ -364,9 +364,9 @@ public class RemoteService extends Service {
                     currentAction = 16;
                     resJson = handleProgramRequest(request);
                     break;
-                case "/showMiniProgramCode":
+                case "/h5/birthday_ondemand":
                     currentAction = 17;
-                    resJson = handleShowMiniProgramCode(request);
+                    resJson = handleH5BirthdayOndemand(request);
                     break;
                 case "/query":
                     currentAction = 18;
@@ -719,7 +719,7 @@ public class RemoteService extends Service {
                                 res_eup_time = String.valueOf(System.currentTimeMillis());
                                 int is_share = vqParam.getIs_share();
                                 String public_text = vqParam.getPublic_text();
-                                postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,filename,resource_size,resource_type,outPath,serial_number,null,is_share,public_text,false);
+                                postSimpleMiniProgramProjectionLog(action,duration,forscreen_char,forscreen_id,filename,resource_size,resource_type,outPath,serial_number,null,is_share,public_text,"",false);
                             }
                         }
                     });
@@ -936,7 +936,8 @@ public class RemoteService extends Service {
                                 LogUtils.d("数据插入，开始，forscreenId=" + imgQueue.getForscreen_id());
                                 int is_share = imgQueue.getIs_share();
                                 String public_text = imgQueue.getPublic_text();
-                                postSimpleMiniProgramProjectionLog(action,"",forscreen_char,forscreen_id,imgQueue.getFileName(),imgQueue.getSize(),resource_type,outPath,serial_number,musicPath,is_share,public_text,false);
+                                String forscreen_nums = imgQueue.getForscreen_nums();
+                                postSimpleMiniProgramProjectionLog(action,"",forscreen_char,forscreen_id,imgQueue.getFileName(),imgQueue.getSize(),resource_type,outPath,serial_number,musicPath,is_share,public_text,forscreen_nums,false);
 
                                 String img_id = System.currentTimeMillis()+"";
                                 ProjectionImg img = new ProjectionImg();
@@ -1279,7 +1280,7 @@ public class RemoteService extends Service {
 
         public void postSimpleMiniProgramProjectionLog(String action,String startTime,String endTime,String duration,String forscreen_char,String forscreen_id,
                                                        String resource_id,String resource_size,String resource_type,String media_path,String serial_number,
-                                                       String music_path,int is_share,String public_text,boolean repeat){
+                                                       String music_path,int is_share,String public_text,String forscreen_nums,boolean repeat){
             HashMap<String,Object> params = new HashMap<>();
             String create_time = String.valueOf(System.currentTimeMillis());
 
@@ -1305,6 +1306,7 @@ public class RemoteService extends Service {
             params.put("music_id", music_path);
             params.put("is_share", is_share);
             params.put("public_text", public_text);
+            params.put("forscreen_nums", forscreen_nums);
             params.put("small_app_id", ConstantValues.SMALL_APP_ID_SIMPLE);
             params.put("create_time", create_time);
             params.put("res_sup_time",startTime);
@@ -1365,11 +1367,11 @@ public class RemoteService extends Service {
 
         public void postSimpleMiniProgramProjectionLog(String action,String duration,String forscreen_char,String forscreen_id,String resource_id,
                                                        String resource_size,String resource_type,String media_path,String serial_number,
-                                                       String music_path,int is_share,String public_text,boolean repeat){
+                                                       String music_path,int is_share,String public_text,String forscreen_nums,boolean repeat){
             String startTime = res_sup_time;
             String endTime = res_eup_time;
             postSimpleMiniProgramProjectionLog(action,startTime,endTime,duration,forscreen_char,forscreen_id,
-                    resource_id,resource_size,resource_type,media_path,serial_number,music_path,is_share,public_text,repeat);
+                    resource_id,resource_size,resource_type,media_path,serial_number,music_path,is_share,public_text,forscreen_nums,repeat);
         }
 
         public void postSimpleMiniProgramProjectionLog(String action,String duration,String forscreen_char,String forscreen_id,String resource_id,
@@ -1378,7 +1380,7 @@ public class RemoteService extends Service {
             String endTime = res_eup_time;
             String music_path = "";
             postSimpleMiniProgramProjectionLog(action,startTime,endTime,duration,forscreen_char,forscreen_id,
-                    resource_id,resource_size,resource_type,media_path,serial_number,music_path,0,"",repeat);
+                    resource_id,resource_size,resource_type,media_path,serial_number,music_path,0,"","",repeat);
         }
 
         //展示下载时大屏右侧的窗口列表
@@ -1957,8 +1959,16 @@ public class RemoteService extends Service {
                 GlobalValues.PROJECT_STREAM_IMAGE.clear();
                 GlobalValues.PROJECT_STREAM_FAIL_IMAGE.clear();
                 GlobalValues.PROJECT_STREAM_IMAGE_NUMS.clear();
+//                String forscreen_id = request.getParameter("forscreen_id");
+                String forscreen_id = System.currentTimeMillis()+"";
+                String serial_number = System.currentTimeMillis()+"";
                 handler.removeCallbacks(new ProjectShowImageRunnable());
-                RemoteService.listener.showMiniProgramCode(filename,currentAction);
+                mpProjection.setReq_id(serial_number);
+                mpProjection.setFilename(filename);
+                mpProjection.setForscreen_id(forscreen_id);
+                mpProjection.setResource_id(filename);
+                mpProjection.setOpenid(deviceId);
+                RemoteService.listener.showMiniProgramCode(filename,currentAction, FROM_SERVICE_REMOTE);
                 BaseResponse vo = new BaseResponse();
 
                 vo.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);

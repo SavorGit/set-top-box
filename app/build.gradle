@@ -17,7 +17,7 @@ android {
         targetSdkVersion TARGET_SDK_VERSION as int
 
         //noinspection HighAppVersionCode
-        versionCode 2021082301
+        versionCode 2021082507
         versionName "2.3.7"
         multiDexEnabled true
     }

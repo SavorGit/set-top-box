@@ -44,6 +44,7 @@ import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.MiniProgramQrCodeWindowManager;
+import com.savor.ads.utils.QrCodeWindowManager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -660,27 +661,15 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
     }
 
     @Override
-    public void showMiniProgramCode(String filename,int action) {
-        Handler handler=new Handler(Looper.getMainLooper());
+    public void showMiniProgramCode(String filename,int action,int from_service) {
         Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
         if (activity instanceof AdsPlayerActivity||activity instanceof ScreenProjectionActivity) {
             String basePath = AppUtils.getSDCardPath()+AppUtils.Download;
             String path = basePath+filename;
             File file = new File(basePath,filename);
             if (file.exists()) {
-
-                VodAction vodAction = new VodAction(mContext, ConstantValues.QRCODE_CALL_VIDEO_ID, path, false, true,action,GlobalValues.FROM_SERVICE_MINIPROGRAM);
+                VodAction vodAction = new VodAction(mContext, ConstantValues.QRCODE_CALL_VIDEO_ID, path, false, true,action,from_service);
                 ProjectionManager.getInstance().enqueueAction(vodAction);
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        MiniProgramQrCodeWindowManager.get(mContext).setCurrentPlayMediaId(ConstantValues.QRCODE_CALL_VIDEO_ID);
-                        if (Session.get(mContext).getQrcodeType()==2){
-                            ((SavorApplication) activity.getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE);
-                        }
-
-                    }
-                }, 800);
             }
         }
     }

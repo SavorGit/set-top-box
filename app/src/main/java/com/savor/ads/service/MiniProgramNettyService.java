@@ -81,6 +81,7 @@ import cn.savor.small.netty.MiniProNettyClient;
 import cn.savor.small.netty.MiniProNettyClient.MiniNettyMsgCallback;
 
 import static com.savor.ads.utils.GlobalValues.FROM_SERVICE_MINIPROGRAM;
+import static com.savor.ads.utils.GlobalValues.FROM_SERVICE_REMOTE;
 
 /**
  * 启动小程序Netty服务
@@ -1939,26 +1940,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             params.put("is_break",projectionIdMap.get(forscreen_id));
         }
         String basePath = AppUtils.getSDCardPath()+AppUtils.Download;
-        String path = basePath+filename;
         File file = new File(basePath,filename);
         if (file.exists()) {
-
-            VodAction vodAction = new VodAction(context, ConstantValues.QRCODE_CALL_VIDEO_ID, path, false, true,currentAction, FROM_SERVICE_MINIPROGRAM);
-            ProjectionManager.getInstance().enqueueAction(vodAction);
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (session.isShowAnimQRcode()){
-                        MiniProgramQrCodeWindowManager.get(context).setCurrentPlayMediaId(ConstantValues.QRCODE_CALL_VIDEO_ID);
-                    }else{
-                        QrCodeWindowManager.get(context).setCurrentPlayMediaId(ConstantValues.QRCODE_CALL_VIDEO_ID);
-                    }
-                    if (session.getQrcodeType()==2){
-                        ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE);
-                    }
-
-                }
-            }, 800);
+            ProjectOperationListener.getInstance(context).showMiniProgramCode(filename,currentAction, FROM_SERVICE_MINIPROGRAM);
             long endTime = System.currentTimeMillis();
             long downloadTime =  endTime- startTime;
             params.put("used_time",downloadTime);

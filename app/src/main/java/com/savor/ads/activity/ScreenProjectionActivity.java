@@ -59,6 +59,8 @@ import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.KeyCode;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
+import com.savor.ads.utils.MiniProgramQrCodeWindowManager;
+import com.savor.ads.utils.QrCodeWindowManager;
 import com.savor.ads.utils.ShowMessage;
 
 import java.io.File;
@@ -605,7 +607,11 @@ public class ScreenProjectionActivity extends BaseActivity{
             list.add(bean);
 
             mSavorVideoView.setMediaFiles(list);
-            showQrCodeWhenProjection();
+            if (currentAction!=9){
+                showQrCodeWhenProjection();
+            }else{
+                proQrcodeLayout.setVisibility(View.GONE);
+            }
         }else if (ConstantValues.PROJECT_TYPE_VIDEO_BIRTHDAY.equals(mProjectType)){
             // 生日点播
             mSavorVideoView.setVisibility(View.VISIBLE);
@@ -1590,6 +1596,17 @@ public class ScreenProjectionActivity extends BaseActivity{
             if (projectionTime==0){
                 mHandler.removeCallbacks(mExitProjectionRunnable);
             }
+            if (currentAction==9){
+                if (mSession.isShowAnimQRcode()){
+                    MiniProgramQrCodeWindowManager.get(mContext).setCurrentPlayMediaId(ConstantValues.QRCODE_CALL_VIDEO_ID);
+                }else{
+                    QrCodeWindowManager.get(mContext).setCurrentPlayMediaId(ConstantValues.QRCODE_CALL_VIDEO_ID);
+                }
+                if (mSession.getQrcodeType()==2){
+                    ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE);
+                }
+            }
+
             return false;
         }
 
