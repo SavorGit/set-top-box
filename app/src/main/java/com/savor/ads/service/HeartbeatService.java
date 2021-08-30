@@ -135,6 +135,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
         session = Session.get(this);
         //  启动时立即心跳一次
         serial_no = 0;
+        session.setNormalUseWechat(1);
         LogFileUtil.write("开机立刻上报心跳和调用是否显示小程序码接口一次");
         doHeartbeat();
         doInitConfig();
@@ -159,6 +160,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
             if (mHeartbeatElapsedTime >= HEARTBEAT_DURATION) {
                 mHeartbeatElapsedTime = 0;
                 doInitConfig();
+                testWechat(GlobalValues.testWechatUrl);
                 doHeartbeat();
                 getUploadLogFileType();
                 try {
@@ -575,6 +577,15 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                             JSONObject json = jsonObject.getJSONObject("forscreen_call_code");
                             downloadCallQrcodeVideo(json);
                         }
+                        if (jsonObject.has("is_wifi_hotel")&&jsonObject.getInt("is_wifi_hotel")==1){
+                            session.setWifiHotel(true);
+                        }else{
+                            session.setWifiHotel(false);
+                        }
+                        if (jsonObject.has("test_wechat")){
+                            String test_wechat = jsonObject.getString("test_wechat");
+                            GlobalValues.testWechatUrl = test_wechat;
+                        }
                     }catch (Exception e){
                         e.printStackTrace();
                     }
@@ -622,6 +633,10 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                    handleUploadFileType(type);
                 }
                 break;
+            case CP_GET_TEST_WECHAT_JSON:
+                LogUtils.d("test_wechat_success");
+                session.setNormalUseWechat(1);
+                break;
         }
     }
     /**处理展示二维码的背景动态图*/
@@ -637,17 +652,14 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                 if (isExit){
                     session.setQrcodeGifBgPath(gifBgPath);
                 }else{
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            boolean isDownloaded = new FileDownloader(context,qrcode_gif_url,basePath, qrcode_gif_filename,false).downloadByRange();
+                    new Thread(()->{
+                        boolean isDownloaded = new FileDownloader(context,qrcode_gif_url,basePath, qrcode_gif_filename,false).downloadByRange();
                             if (isDownloaded){
-                                session.setQrcodeGifBgPath(gifBgPath);
-                            }
+                            session.setQrcodeGifBgPath(gifBgPath);
                         }
                     }).start();
-
                 }
+                AppUtils.deleteOverdueGifPictures(qrcode_gif_filename);
             }
             //二维码展示时长
             int qrcode_showtime = jsonObject.getInt("qrcode_showtime");
@@ -708,6 +720,13 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    private void testWechat(String wechatUrl){
+        if (TextUtils.isEmpty(wechatUrl)){
+            return;
+        }
+        AppApi.getTestWechat(context,this,wechatUrl);
     }
 
     public void startMiniProgramNettyService(){
@@ -833,6 +852,10 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
             case CP_GET_NETTY_BALANCING_FORM:
                 mHandler.postDelayed(() -> getNettyBalancingInfo(), 1000 * 30);
                 LogUtils.d("HeartbeatService getNettyBalancingInfo获取netty地址网络异常，重新请求");
+                break;
+            case CP_GET_TEST_WECHAT_JSON:
+                LogUtils.d("test_wechat_onNetworkFailed");
+                session.setNormalUseWechat(0);
                 break;
         }
     }

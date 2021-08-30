@@ -1235,6 +1235,21 @@ public class AppUtils {
         }).start();
     }
 
+    public static void deleteOverdueGifPictures(final String gifName){
+        new Thread(()-> {
+            String basePath = AppUtils.getSDCardPath()+AppUtils.PICTURES;
+            File[] fileList = new File(basePath).listFiles();
+                if (fileList!=null&&fileList.length>0){
+                for(File gifFile:fileList){
+                    String name = gifFile.getName();
+                    if (!name.equals(gifName)&&name.endsWith("gif")){
+                        gifFile.delete();
+                    }
+                }
+            }
+        }).start();
+    }
+
     public static void updateProjectionLog(final Context context){
         new Thread(new Runnable() {
             @Override

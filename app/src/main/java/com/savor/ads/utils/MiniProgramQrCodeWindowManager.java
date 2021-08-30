@@ -273,6 +273,7 @@ public class MiniProgramQrCodeWindowManager {
         mHandler.removeCallbacks(getToRightRunnable);
         QRCodeType = type;
         if (QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE
+                ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_NETWORK_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_HELP_TYPE){
             LogUtils.v("QrCodeWindowManager 开始addView");
@@ -282,25 +283,13 @@ public class MiniProgramQrCodeWindowManager {
             } else {
                 mHandler.post(()->addToWindow(context, url,path,qrcodeIV));
             }
-        }else if (QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_BIG_TYPE
-                    ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE
-                    ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_BIG_TYPE
+        }else if (QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE
                     ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_CALL_TYPE){
             final ImageView callQRCodeIv = mFloatCallLayout.findViewById(R.id.iv_mini_program_call_qrcode);
             if (Looper.myLooper() == Looper.getMainLooper()) {
                 addToWindow(context, url,path,callQRCodeIv);
             } else {
                 mHandler.post(()-> addToWindow(context, url,path,callQRCodeIv));
-            }
-        }else if (QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_NEW_TYPE
-                    ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_NEW_TYPE){
-            final ImageView newQRCodeIv = mFloatNewLayout.findViewById(R.id.iv_mini_program_new_qrcode);
-
-            LogUtils.v("QrCodeWindowManager 开始addView");
-            if (Looper.myLooper() == Looper.getMainLooper()) {
-                addToWindow(context, url,path, newQRCodeIv);
-            } else {
-                mHandler.post(()->addToWindow(context, url,path,newQRCodeIv));
             }
         }
     }
@@ -320,22 +309,15 @@ public class MiniProgramQrCodeWindowManager {
             url = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ session.getEthernetMac()+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_PARTAKE_DISH_TYPE;
         }
         if ((QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE
+                ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_NETWORK_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE)
                 &&isCompletePicture&&hour<2&&!GlobalValues.isActivity) {
             GlideImageLoader.loadLocalImage(context,localFile,qrCodeIv);
             handleWindowLayout();
-        }else if((QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_BIG_TYPE
-                    ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE
-                    ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_BIG_TYPE
+        }else if((QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE
                     ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_CALL_TYPE)
                 &&isCompletePicture&&hour<2&&!GlobalValues.isActivity){
             ImageView qrCodeIV = mFloatCallLayout.findViewById(R.id.iv_mini_program_call_qrcode);
-            GlideImageLoader.loadLocalImage(context,localFile,qrCodeIV);
-            handleWindowLayout();
-        }else if ((QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_NEW_TYPE
-                    ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_NEW_TYPE)
-                &&isCompletePicture&&hour<2&&!GlobalValues.isActivity){
-            ImageView qrCodeIV = mFloatNewLayout.findViewById(R.id.iv_mini_program_new_qrcode);
             GlideImageLoader.loadLocalImage(context,localFile,qrCodeIV);
             handleWindowLayout();
         }else{
@@ -460,9 +442,6 @@ public class MiniProgramQrCodeWindowManager {
             }
             if (QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE){
                 qrcodeLogoIV.setVisibility(View.VISIBLE);
-            }else if (QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_NEW_TYPE){
-                qrcodeNewLogoIV.setVisibility(View.VISIBLE);
-                qrcodeNewTipTV.setTextColor(Color.parseColor("#231816"));
             }else{
                 qrcodeNewTipTV.setTextColor(Color.parseColor("#e61f18"));
                 qrcodeLogoIV.setVisibility(View.GONE);
@@ -486,17 +465,13 @@ public class MiniProgramQrCodeWindowManager {
 //        mHandler.postDelayed(flipCardRunnable,1000*3);
         mIsHandling = false;
         if (QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE
+                ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_NETWORK_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_HELP_TYPE){
             mIsAdded = true;
-        }else if(QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_BIG_TYPE
-                    ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE
-                    ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_BIG_TYPE
+        }else if(QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE
                     ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_CALL_TYPE){
             mCallIsAdded = true;
-        }else if (QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_NEW_TYPE
-                    ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_NEW_TYPE){
-            mNewIsAdded = true;
         }
     }
 

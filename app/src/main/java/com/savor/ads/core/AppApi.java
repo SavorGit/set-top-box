@@ -142,20 +142,19 @@ public class AppApi {
         CP_POST_UPDATE_SIMPLE_FORSCREEN_LOG_JSON,
         SP_GET_QR_SMALL_JSON,
         SP_GET_QR_BIG_JSON,
-        SP_GET_QR_NEW_JSON,
         SP_GET_QR_CALL_JSON,
         SP_GET_QR_SIMPLE_SMALL_JSON,
         SP_GET_QR_SIMPLE_BIG_JSON,
-        SP_GET_QR_SIMPLE_NEW_JSON,
         SP_GET_QR_SIMPLE_CALL_JSON,
-        SP_GET_QR_EXTENSION_JSON,
+        SP_GET_QR_NETWORK_JSON,
         CP_GET_NETTY_BALANCING_FORM,
         CP_POST_LOGOUT_GAME_H5_JSON,
         CP_GET_BOX_TPMEDIAS_JSON,
         CP_GET_ADDPLAYLOG_JSON,
         CP_GET_GOODSCOUNTDOWN_JSON,
         CP_POST_FORSCREEN_ADSLOG_JSON,
-        CP_POST_WELCOME_PLAYLOG_JSON
+        CP_POST_WELCOME_PLAYLOG_JSON,
+        CP_GET_TEST_WECHAT_JSON
 
     }
 
@@ -503,18 +502,6 @@ public class AppApi {
     }
 
     /**
-     * 下载小程序码二维码新节目
-     * @param url
-     * @param context
-     * @param handler
-     * @param filePath
-     */
-    public static void downloadQRNewImg(String url,Context context, ApiRequestListener handler,String filePath){
-        final HashMap<String, Object> params = new HashMap<>();
-        new AppServiceOk(context, Action.SP_GET_QR_NEW_JSON, handler, params).downLoad(url, filePath);
-    }
-
-    /**
      * 下载小程序码二维码call
      * @param url
      * @param context
@@ -549,17 +536,6 @@ public class AppApi {
         new AppServiceOk(context, Action.SP_GET_QR_SIMPLE_BIG_JSON, handler, params).downLoad(url, filePath);
     }
     /**
-     * 下载极简小程序二维码新节目
-     * @param url
-     * @param context
-     * @param handler
-     * @param filePath
-     */
-    public static void downloadQRSimpleNewImg(String url,Context context, ApiRequestListener handler,String filePath){
-        final HashMap<String, Object> params = new HashMap<>();
-        new AppServiceOk(context, Action.SP_GET_QR_SIMPLE_NEW_JSON, handler, params).downLoad(url, filePath);
-    }
-    /**
      * 下载极简小程序二维码call
      * @param url
      * @param context
@@ -572,15 +548,15 @@ public class AppApi {
     }
 
     /**
-     * 下载推广互动小程序码
+     * 下载扫码上网二维码
      * @param url
      * @param context
      * @param handler
      * @param filePath
      */
-    public static void downloadQRCodeExtensionImg(String url,Context context, ApiRequestListener handler,String filePath){
+    public static void downloadQRCodeNetworkImg(String url,Context context, ApiRequestListener handler,String filePath){
         final HashMap<String, Object> params = new HashMap<>();
-        new AppServiceOk(context, Action.SP_GET_QR_EXTENSION_JSON, handler, params).downLoad(url, filePath);
+        new AppServiceOk(context, Action.SP_GET_QR_NETWORK_JSON, handler, params).downLoad(url, filePath);
     }
 
     /**
@@ -1118,6 +1094,11 @@ public class AppApi {
         params.put("box_mac",box_mac);
         new AppServiceOk(context,Action.CP_POST_WELCOME_PLAYLOG_JSON, handler,params).get();
     }
+
+    public static void getTestWechat(Context context,ApiRequestListener handler,String wechatUrl){
+        new AppServiceOk(context,Action.CP_GET_TEST_WECHAT_JSON, handler).simpleGet(wechatUrl);
+    }
+
 
     /**
      * 从这里定义业务的错误码

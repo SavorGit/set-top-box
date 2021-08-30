@@ -407,7 +407,7 @@ public class AppServiceOk {
     }
 
     public void simpleGet(String requestUrl) {
-        Callback<Object> callback = new Callback<Object>() {
+        Callback<Object> callback = new Callback<>() {
 
             @Override
             public Object parseNetworkResponse(Response response) {

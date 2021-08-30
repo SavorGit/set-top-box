@@ -46,14 +46,11 @@ import com.savor.ads.core.ApiRequestListener;
 import com.savor.ads.core.AppApi;
 import com.savor.ads.core.Session;
 import com.savor.ads.database.DBHelper;
-import com.savor.ads.dialog.ExtensionQrCodeDialog;
 import com.savor.ads.dialog.ProjectionImgListDialog;
 import com.savor.ads.dialog.ScanRedEnvelopeQrCodeDialog;
 import com.savor.ads.log.LogReportUtil;
 import com.savor.ads.okhttp.coreProgress.download.ProjectionDownloader;
 import com.savor.ads.oss.OSSUtils;
-import com.savor.ads.projection.ProjectionManager;
-import com.savor.ads.projection.action.VodAction;
 import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.Base64Utils;
@@ -81,7 +78,6 @@ import cn.savor.small.netty.MiniProNettyClient;
 import cn.savor.small.netty.MiniProNettyClient.MiniNettyMsgCallback;
 
 import static com.savor.ads.utils.GlobalValues.FROM_SERVICE_MINIPROGRAM;
-import static com.savor.ads.utils.GlobalValues.FROM_SERVICE_REMOTE;
 
 /**
  * 启动小程序Netty服务
@@ -135,7 +131,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     Handler handler=new Handler(Looper.getMainLooper());
     public static ConcurrentHashMap<String,String> projectionIdMap = new ConcurrentHashMap<>();
     private int currentAction;
-    private ExtensionQrCodeDialog extensionQrCodeDialog = null;
     /**霸王菜抽奖活动**/
     private PartakeDishDialog partakeDishDialog = null;
     /**发红包**/
@@ -166,7 +161,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         session = Session.get(context);
         dbHelper = DBHelper.get(context);
         pImgListDialog = new ProjectionImgListDialog(context);
-        extensionQrCodeDialog = new ExtensionQrCodeDialog(context);
         partakeDishDialog = new PartakeDishDialog(context);
         scanRedEnvelopeQrCodeDialog = new ScanRedEnvelopeQrCodeDialog(context);
         opRedEnvelopeQrCodeDialog = new OpRedEnvelopeQrCodeDialog(context);
@@ -497,36 +491,36 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             exitProjectionWelcome(mpProjection);
                             break;
                         case 133:
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
-                                    if (activity instanceof AdsPlayerActivity&&scanRedEnvelopeQrCodeDialog!=null&&!scanRedEnvelopeQrCodeDialog.isShowing()){
-                                        //如果是电视机的话，因为无法将tv模块放到activity的管理栈中，所有加下面的if判断
-                                        if (AppUtils.isSVT()&&GlobalValues.mIsGoneToTv){
-                                           return;
-                                        }
-                                        String qrcodeurl = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ session.getEthernetMac()+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_EXTENSION_TYPE;
-                                        String forscreen_num = "";
-                                        int countdown = 0;
-                                        try {
-                                            if (jsonObject.has("forscreen_number")){
-                                                forscreen_num = jsonObject.getString("forscreen_number");
-                                            }
-                                            if (jsonObject.has("countdown")){
-                                                countdown = jsonObject.getInt("countdown");
-                                            }
-                                        }catch (Exception e){
-                                            e.printStackTrace();
-                                        }
-                                        if (extensionQrCodeDialog.isShowing()){
-                                            extensionQrCodeDialog.dismiss();
-                                        }
-                                        extensionQrCodeDialog.show();
-                                        extensionQrCodeDialog.showExtensionWindow(context,qrcodeurl,countdown,forscreen_num);
-                                    }
-                                }
-                            });
+//                            handler.post(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+//                                    if (activity instanceof AdsPlayerActivity&&scanRedEnvelopeQrCodeDialog!=null&&!scanRedEnvelopeQrCodeDialog.isShowing()){
+//                                        //如果是电视机的话，因为无法将tv模块放到activity的管理栈中，所有加下面的if判断
+//                                        if (AppUtils.isSVT()&&GlobalValues.mIsGoneToTv){
+//                                           return;
+//                                        }
+//                                        String qrcodeurl = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ session.getEthernetMac()+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_EXTENSION_TYPE;
+//                                        String forscreen_num = "";
+//                                        int countdown = 0;
+//                                        try {
+//                                            if (jsonObject.has("forscreen_number")){
+//                                                forscreen_num = jsonObject.getString("forscreen_number");
+//                                            }
+//                                            if (jsonObject.has("countdown")){
+//                                                countdown = jsonObject.getInt("countdown");
+//                                            }
+//                                        }catch (Exception e){
+//                                            e.printStackTrace();
+//                                        }
+//                                        if (extensionQrCodeDialog.isShowing()){
+//                                            extensionQrCodeDialog.dismiss();
+//                                        }
+//                                        extensionQrCodeDialog.show();
+//                                        extensionQrCodeDialog.showExtensionWindow(context,qrcodeurl,countdown,forscreen_num);
+//                                    }
+//                                }
+//                            });
                             break;
                         case 134:
                             Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
@@ -638,9 +632,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     }
     /**一旦有netty请求进来，就关闭正在展示的dialog*/
     private void removeDialog(){
-        if (extensionQrCodeDialog!=null&&extensionQrCodeDialog.isShowing()){
-            extensionQrCodeDialog.dismiss();
-        }
         if (cardDialog!=null&&cardDialog.isShowing()){
             cardDialog.dismiss();
         }

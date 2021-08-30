@@ -261,6 +261,10 @@ public class Session {
     //每次開機只有第一個掃碼的人展示歡迎圖片，重啟復位
     private boolean isFirstWelcomeImg;
 
+    private boolean isWifiHotel;
+
+    private int normalUseWechat;
+
     private Session(Context context) {
 
         mContext = context;
@@ -368,7 +372,8 @@ public class Session {
         qrcodeGifBgPath = mPreference.loadStringKey(P_APP_QRCODE_GIFBG,"");
         qrcodeType = mPreference.loadIntKey(P_APP_BOX_QRCODETYPE,1);
         guideImg = (ProjectionGuideImg) getObj(P_APP_PROJECTION_GUIDE);
-        isShowAnimQRcode = mPreference.loadBooleanKey(P_APP_SHOW_ANIM,true);
+        isShowAnimQRcode = mPreference.loadBooleanKey(P_APP_SHOW_ANIM,false);
+        isWifiHotel = mPreference.loadBooleanKey(P_APP_WIFI_HOTEL,false);
     }
 
     /*
@@ -480,7 +485,8 @@ public class Session {
                 P_APP_SHOW_MIMIPROGRAM.equals(key)||
                 P_APP_SHOW_SIMPLE_MIMIPROGRAM.equals(key)||
                 P_APP_OPEN_INTERACTSCREENAD.equals(key)||
-                P_APP_SHOW_ANIM.equals(key)) {
+                P_APP_SHOW_ANIM.equals(key)||
+                P_APP_WIFI_HOTEL.equals(key)) {
             mPreference.saveBooleanKey(key, (boolean) updateItem.second);
         } else {
             String string = ObjectToString(updateItem.second);
@@ -1391,6 +1397,23 @@ public class Session {
         writePreference(new Pair<>(P_APP_SHOW_ANIM,showAnimQRcode));
     }
 
+    public boolean isWifiHotel() {
+        return isWifiHotel;
+    }
+
+    public void setWifiHotel(boolean wifiHotel) {
+        isWifiHotel = wifiHotel;
+        writePreference(new Pair<>(P_APP_WIFI_HOTEL,wifiHotel));
+    }
+
+    public int getNormalUseWechat() {
+        return normalUseWechat;
+    }
+
+    public void setNormalUseWechat(int normalUseWechat) {
+        this.normalUseWechat = normalUseWechat;
+    }
+
     //轮播播放声音
     public static final String P_APP_VOLUME = "com.savor.ads.volume";
     //投屏播放声音
@@ -1514,6 +1537,7 @@ public class Session {
     public static final String P_APP_QRCODE_GIFBG = "com.savor.ads.qrcode.gifbg";
     public static final String P_APP_PROJECTION_GUIDE = "com.savor.ads.projection.guide";
     public static final String P_APP_SHOW_ANIM = "com.savor.ads.show.anim";
+    public static final String P_APP_WIFI_HOTEL = "com.savor.ads.wifi.hotel";
 
     public String getAdsPeriod() {
         return adsPeriod == null ? "" : adsPeriod;

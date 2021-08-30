@@ -13,7 +13,6 @@ import com.savor.ads.core.ApiRequestListener;
 import com.savor.ads.core.AppApi;
 import com.savor.ads.core.ResponseErrorMessage;
 import com.savor.ads.core.Session;
-import com.savor.ads.dialog.ExtensionQrCodeDialog;
 import com.savor.ads.service.UMessageIntentService;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
@@ -53,7 +52,6 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
     private QrCodeWindowManager qrCodeWindowManager;
     private GoodsQrCodeWindowManager goodsQrCodeWindowManager;
     private GoodsCountdownQrCodeWindowManager goodsCountdownQrCodeWindowManager;
-    private ExtensionQrCodeDialog extensionQrCodeDialog;
     private ServiceConnection mConnection;
     private Context context;
     private Session session;
@@ -76,7 +74,6 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
         qrCodeWindowManager = QrCodeWindowManager.get(this);
         goodsQrCodeWindowManager = GoodsQrCodeWindowManager.get(this);
         goodsCountdownQrCodeWindowManager = new GoodsCountdownQrCodeWindowManager(this);
-        extensionQrCodeDialog = new ExtensionQrCodeDialog(this);
         //20191217:从此版本开始，清除小程序码，以后统一全部使用二维码
         AppUtils.deleteCacheData();
         // 启动投屏类操作处理的Service
@@ -355,29 +352,17 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
         String path=null;
         if (QRCodeType==8){
             path = AppUtils.getFilePath( AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_NAME;
-        }else if (QRCodeType==12){
-            path = AppUtils.getFilePath( AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_BIG_NAME;
         }else if (QRCodeType==13){
             path = AppUtils.getFilePath( AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_CALL_NAME;
-        }else if (QRCodeType==15){
-            path = AppUtils.getFilePath( AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_NEW_NAME;
         }else if (QRCodeType==16){
             path = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_SQRCODE_NAME;
-        }else if (QRCodeType==19){
-            path = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_SQRCODE_NEW_NAME;
-        }else if (QRCodeType==20){
-            path = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_SQRCODE_BIG_NAME;
         }else if (QRCodeType==21){
             path = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_SQRCODE_CALL_NAME;
+        }else if (QRCodeType==40){
+            path = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_NETWORK_NAME;
         }
-//        else if (QRCodeType==33){
-//            path = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_OFFICIAL_NAME;
-//        }
         String url;
-        if (QRCodeType==16
-                ||QRCodeType==19
-                ||QRCodeType==20
-                ||QRCodeType==21){
+        if (QRCodeType==16||QRCodeType==21||QRCodeType==40){
             url = AppApi.API_URLS.get(AppApi.Action.CP_SIMPLE_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ box_mac+"&type="+QRCodeType;
         }else{
             url = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ box_mac+"&type="+QRCodeType;
@@ -427,10 +412,6 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
 
     public void hideGoodsCountdownQrCodeWindow(){
         goodsCountdownQrCodeWindowManager.hideQrCode();
-    }
-
-    public void hideExtensionQrCodeDialog(){
-        extensionQrCodeDialog.hideQrCode();
     }
 
     public void stopScreenProjectionService() {
@@ -582,7 +563,6 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
                         hideMiniProgramQrCodeWindow();
                         hideGoodsQrCodeWindow();
                         hideGoodsCountdownQrCodeWindow();
-                        hideExtensionQrCodeDialog();
                     }
                 },1000*3);
 //                mHandler.postDelayed(mBackToAdsPlayerRunnable, 60 * 1000);

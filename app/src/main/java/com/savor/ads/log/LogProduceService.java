@@ -36,15 +36,6 @@ public class LogProduceService {
 	//单机版
 	private String standalone="standalone";
 
-//	private boolean isNewRequestQRcode = false;
-//	private boolean isNewRequestQRcodeBig = false;
-//	private boolean isNewRequestQRcodeNew = false;
-//	private boolean isNewRequestQRcodeCall = false;
-//	private boolean isNewRequestSQRcode = false;
-//	private boolean isNewRequestSQRcodeBig = false;
-//	private boolean isNewRequestSQRcodeNew = false;
-//	private boolean isNewRequestSQRcodeCall = false;
-//	private boolean isNewRequestQRcodeExtension = false;
 	public LogProduceService (Context context){
 		this.mContext = context;
 		session = Session.get(context);
@@ -132,21 +123,13 @@ public class LogProduceService {
 
 		downloadMiniProgramQRcodeSmall(box_mac);
 		//-----------------------------------
-		downloadMiniProgramQRcodeBig(box_mac);
-		//-----------------------------------
-		downloadMiniProgramQRcodeNew(box_mac);
-		//-----------------------------------
 		downloadMiniProgramQRcodeCall(box_mac);
 		//-----------------------------------
 		downloadMiniProgramSimpleQRcodeSmall(box_mac);
 		//-----------------------------------
-		downloadMiniProgramSimpleQRcodeBig(box_mac);
-		//-----------------------------------
-		downloadMiniProgramSimpleQRcodeNew(box_mac);
-		//-----------------------------------
 		downloadMiniProgramSimpleQRcodeCall(box_mac);
 		//-----------------------------------
-		downloadMiniProgramQRcodeExtension(box_mac);
+		downloadMiniProgramQRcodeNetwork(box_mac);
 	}
 
 
@@ -248,28 +231,6 @@ public class LogProduceService {
 						file.renameTo(tarFile);
 					}
 					break;
-				case SP_GET_QR_BIG_JSON:
-					if (obj instanceof File){
-						File file = (File)obj;
-						String pathQRcode = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_BIG_NAME;
-						File tarFile = new File(pathQRcode);
-						if (tarFile.exists()) {
-							tarFile.delete();
-						}
-						file.renameTo(tarFile);
-					}
-					break;
-				case SP_GET_QR_NEW_JSON:
-					if (obj instanceof File){
-						File file = (File)obj;
-						String pathQRcode = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_NEW_NAME;
-						File tarFile = new File(pathQRcode);
-						if (tarFile.exists()) {
-							tarFile.delete();
-						}
-						file.renameTo(tarFile);
-					}
-					break;
 				case SP_GET_QR_CALL_JSON:
 					if (obj instanceof File){
 						File file = (File)obj;
@@ -292,28 +253,6 @@ public class LogProduceService {
 						file.renameTo(tarFile);
 					}
 					break;
-				case SP_GET_QR_SIMPLE_BIG_JSON:
-					if (obj instanceof File){
-						File file = (File)obj;
-						String pathQRcode = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_SQRCODE_BIG_NAME;
-						File tarFile = new File(pathQRcode);
-						if (tarFile.exists()) {
-							tarFile.delete();
-						}
-						file.renameTo(tarFile);
-					}
-					break;
-				case SP_GET_QR_SIMPLE_NEW_JSON:
-					if (obj instanceof File){
-						File file = (File)obj;
-						String pathQRcode = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_SQRCODE_NEW_NAME;
-						File tarFile = new File(pathQRcode);
-						if (tarFile.exists()) {
-							tarFile.delete();
-						}
-						file.renameTo(tarFile);
-					}
-					break;
 				case SP_GET_QR_SIMPLE_CALL_JSON:
 					if (obj instanceof File){
 						File file = (File)obj;
@@ -325,10 +264,10 @@ public class LogProduceService {
 						file.renameTo(tarFile);
 					}
 					break;
-				case SP_GET_QR_EXTENSION_JSON:
+				case SP_GET_QR_NETWORK_JSON:
 					if (obj instanceof File){
 						File file = (File)obj;
-						String pathQRcode = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_EXTENSIOM_NAME;
+						String pathQRcode = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_NETWORK_NAME;
 						File tarFile = new File(pathQRcode);
 						if (tarFile.exists()) {
 							tarFile.delete();
@@ -417,26 +356,6 @@ public class LogProduceService {
 		}
 		AppApi.downloadQRSmallImg(urlQRcode,mContext,apiRequestListener,pathQRcode);
 	}
-	/**下载小程序码-二维码大**/
-	private void downloadMiniProgramQRcodeBig(String box_mac){
-		String urlQRcode = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ box_mac+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_BIG_TYPE;
-		String pathQRcode = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_BIG_TEMP_NAME;
-		File tarFile = new File(pathQRcode);
-		if (tarFile.exists()) {
-			tarFile.delete();
-		}
-		AppApi.downloadQRBigImg(urlQRcode,mContext,apiRequestListener,pathQRcode);
-	}
-	/**下载小程序码-二维码新节目**/
-	private void downloadMiniProgramQRcodeNew(String box_mac){
-		String urlQRcode = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ box_mac+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_NEW_TYPE;
-		String pathQRcode = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_NEW_TEMP_NAME;
-		File tarFile = new File(pathQRcode);
-		if (tarFile.exists()) {
-			tarFile.delete();
-		}
-		AppApi.downloadQRNewImg(urlQRcode,mContext,apiRequestListener,pathQRcode);
-	}
 	/**下载小程序码-二维码call**/
 	private void downloadMiniProgramQRcodeCall(String box_mac){
 		String urlQRcode = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ box_mac+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE;
@@ -457,26 +376,6 @@ public class LogProduceService {
 		}
 		AppApi.downloadQRSimpleSmallImg(urlSmall,mContext,apiRequestListener,pathSmall);
 	}
-	/**下载小程序码-极简二维码大**/
-	private void downloadMiniProgramSimpleQRcodeBig(String box_mac){
-		String urlSmall = AppApi.API_URLS.get(AppApi.Action.CP_SIMPLE_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ box_mac+"&type="+ ConstantValues.MINI_PROGRAM_SQRCODE_BIG_TYPE;
-		String pathSmall = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_SQRCODE_BIG_TEMP_NAME;
-		File tarFile = new File(pathSmall);
-		if (tarFile.exists()) {
-			tarFile.delete();
-		}
-		AppApi.downloadQRSimpleBigImg(urlSmall,mContext,apiRequestListener,pathSmall);
-	}
-	/**下载小程序码-极简二维码新节目**/
-	private void downloadMiniProgramSimpleQRcodeNew(String box_mac){
-		String urlSmall = AppApi.API_URLS.get(AppApi.Action.CP_SIMPLE_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ box_mac+"&type="+ ConstantValues.MINI_PROGRAM_SQRCODE_NEW_TYPE;
-		String pathSmall = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_SQRCODE_NEW_TEMP_NAME;
-		File tarFile = new File(pathSmall);
-		if (tarFile.exists()) {
-			tarFile.delete();
-		}
-		AppApi.downloadQRSimpleNewImg(urlSmall,mContext,apiRequestListener,pathSmall);
-	}
 	/**下载小程序码-极简二维码call**/
 	private void downloadMiniProgramSimpleQRcodeCall(String box_mac){
 		String urlSmall = AppApi.API_URLS.get(AppApi.Action.CP_SIMPLE_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ box_mac+"&type="+ ConstantValues.MINI_PROGRAM_SQRCODE_CALL_TYPE;
@@ -488,13 +387,13 @@ public class LogProduceService {
 		AppApi.downloadQRSimpleCallImg(urlSmall,mContext,apiRequestListener,pathSmall);
 	}
 
-	private void downloadMiniProgramQRcodeExtension(String box_mac){
-		String urlExtension = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ box_mac+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_EXTENSION_TYPE;
-		String pathExtension = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_EXTENSION_TEMP_NAME;
+	private void downloadMiniProgramQRcodeNetwork(String box_mac){
+		String urlExtension = AppApi.API_URLS.get(AppApi.Action.CP_SIMPLE_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ box_mac+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_NETWORK_TYPE;
+		String pathExtension = AppUtils.getFilePath(AppUtils.StorageFile.cache) + ConstantValues.MINI_PROGRAM_QRCODE_NETWORK_TEMP_NAME;
 		File tarFile = new File(pathExtension);
 		if (tarFile.exists()) {
 			tarFile.delete();
 		}
-		AppApi.downloadQRCodeExtensionImg(urlExtension,mContext,apiRequestListener,pathExtension);
+		AppApi.downloadQRCodeNetworkImg(urlExtension,mContext,apiRequestListener,pathExtension);
 	}
 }

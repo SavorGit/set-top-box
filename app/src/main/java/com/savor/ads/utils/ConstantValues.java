@@ -232,43 +232,47 @@ public class ConstantValues {
      * 30.投屏帮助视频
      * 31.霸王菜活动
      * 33.跳转公众号
+     * 40.扫码上网（其实等同于16，扫码即连接wifi，为了统计所有区分一个新的类型）
      * **/
 
     public static final int MINI_PROGRAM_QRCODE_SMALL_TYPE = 8;
-    public static final int MINI_PROGRAM_QRCODE_BIG_TYPE = 12;
+//    public static final int MINI_PROGRAM_QRCODE_BIG_TYPE = 12;
     public static final int MINI_PROGRAM_QRCODE_CALL_TYPE = 13;
-    public static final int MINI_PROGRAM_QRCODE_NEW_TYPE = 15;
+//    public static final int MINI_PROGRAM_QRCODE_NEW_TYPE = 15;
     public static final int MINI_PROGRAM_SQRCODE_SMALL_TYPE = 16;
-    public static final int MINI_PROGRAM_SQRCODE_NEW_TYPE = 19;
-    public static final int MINI_PROGRAM_SQRCODE_BIG_TYPE = 20;
+//    public static final int MINI_PROGRAM_SQRCODE_NEW_TYPE = 19;
+//    public static final int MINI_PROGRAM_SQRCODE_BIG_TYPE = 20;
     public static final int MINI_PROGRAM_SQRCODE_CALL_TYPE = 21;
-    public static final int MINI_PROGRAM_QRCODE_EXTENSION_TYPE = 29;
+//    public static final int MINI_PROGRAM_QRCODE_EXTENSION_TYPE = 29;
     public static final int MINI_PROGRAM_QRCODE_HELP_TYPE = 30;
     public static final int MINI_PROGRAM_QRCODE_PARTAKE_DISH_TYPE = 31;
 //    public static final int MINI_PROGRAM_QRCODE_OFFICIAL_TYPE = 33;
+    public static final int MINI_PROGRAM_QRCODE_NETWORK_TYPE = 40;
 
     /**存储到本地图片的名称**/
     public static final String MINI_PROGRAM_QRCODE_NAME = "get_box_qrcode.jpg";
     public static final String MINI_PROGRAM_QRCODE_TEMP_NAME = "getBoxQrcodeTemp.jpg";
-    public static final String MINI_PROGRAM_QRCODE_BIG_NAME = "getBoxQrcodeBig.jpg";
-    public static final String MINI_PROGRAM_QRCODE_BIG_TEMP_NAME = "getBoxQrcodeBigTemp.jpg";
-    public static final String MINI_PROGRAM_QRCODE_NEW_NAME = "getBoxQrcodeNew.jpg";
-    public static final String MINI_PROGRAM_QRCODE_NEW_TEMP_NAME = "getBoxQrcodeNewTemp.jpg";
+//    public static final String MINI_PROGRAM_QRCODE_BIG_NAME = "getBoxQrcodeBig.jpg";
+//    public static final String MINI_PROGRAM_QRCODE_BIG_TEMP_NAME = "getBoxQrcodeBigTemp.jpg";
+//    public static final String MINI_PROGRAM_QRCODE_NEW_NAME = "getBoxQrcodeNew.jpg";
+//    public static final String MINI_PROGRAM_QRCODE_NEW_TEMP_NAME = "getBoxQrcodeNewTemp.jpg";
     public static final String MINI_PROGRAM_QRCODE_CALL_NAME = "getBoxQrcodeCall.jpg";
     public static final String MINI_PROGRAM_QRCODE_CALL_TEMP_NAME = "getBoxQrcodeCallTemp.jpg";
-    public static final String MINI_PROGRAM_QRCODE_OFFICIAL_NAME = "boxOfficialQrcode.jpg";
-    public static final String MINI_PROGRAM_QRCODE_OFFICIAL_TEMP_NAME = "boxOfficialQrcodeTemp.jpg";
+//    public static final String MINI_PROGRAM_QRCODE_OFFICIAL_NAME = "boxOfficialQrcode.jpg";
+//    public static final String MINI_PROGRAM_QRCODE_OFFICIAL_TEMP_NAME = "boxOfficialQrcodeTemp.jpg";
 
     public static final String MINI_PROGRAM_SQRCODE_NAME = "getBoxQrcodeSimple.jpg";
     public static final String MINI_PROGRAM_SQRCODE_TEMP_NAME = "getBoxQrcodeSimpleTemp.jpg";
-    public static final String MINI_PROGRAM_SQRCODE_BIG_NAME = "getBoxQrcodeSimpleBig.jpg";
-    public static final String MINI_PROGRAM_SQRCODE_BIG_TEMP_NAME = "getBoxQrcodeSimpleBigTemp.jpg";
-    public static final String MINI_PROGRAM_SQRCODE_NEW_NAME = "getBoxQrcodeSimpleNew.jpg";
-    public static final String MINI_PROGRAM_SQRCODE_NEW_TEMP_NAME = "getBoxQrcodeSimpleNewTemp.jpg";
+//    public static final String MINI_PROGRAM_SQRCODE_BIG_NAME = "getBoxQrcodeSimpleBig.jpg";
+//    public static final String MINI_PROGRAM_SQRCODE_BIG_TEMP_NAME = "getBoxQrcodeSimpleBigTemp.jpg";
+//    public static final String MINI_PROGRAM_SQRCODE_NEW_NAME = "getBoxQrcodeSimpleNew.jpg";
+//    public static final String MINI_PROGRAM_SQRCODE_NEW_TEMP_NAME = "getBoxQrcodeSimpleNewTemp.jpg";
     public static final String MINI_PROGRAM_SQRCODE_CALL_NAME = "getBoxQrcodeSimpleCall.jpg";
     public static final String MINI_PROGRAM_SQRCODE_CALL_TEMP_NAME = "getBoxQrcodeSimpleCallTemp.jpg";
-    public static final String MINI_PROGRAM_QRCODE_EXTENSIOM_NAME = "getBoxQrcodeExtension.jpg";
-    public static final String MINI_PROGRAM_QRCODE_EXTENSION_TEMP_NAME = "getBoxQrcodeExtensionTemp.jpg";
+//    public static final String MINI_PROGRAM_QRCODE_EXTENSIOM_NAME = "getBoxQrcodeExtension.jpg";
+//    public static final String MINI_PROGRAM_QRCODE_EXTENSION_TEMP_NAME = "getBoxQrcodeExtensionTemp.jpg";
+    public static final String MINI_PROGRAM_QRCODE_NETWORK_NAME = "getBoxQrcodeNetwork.jpg";
+    public static final String MINI_PROGRAM_QRCODE_NETWORK_TEMP_NAME = "getBoxQrcodeNetworkTemp.jpg";
 
     public static String MEI_SSP_ADS_MONITOR_URL = "";
 

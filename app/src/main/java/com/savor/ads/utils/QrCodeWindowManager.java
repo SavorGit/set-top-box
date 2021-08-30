@@ -115,8 +115,14 @@ public class QrCodeWindowManager {
             LogUtils.e("Code is empty, will not show code window!!");
             return;
         }
+        if (session.isWifiHotel()){
+            qrCodeFrontTipTV.setText("扫码上网 ");
+        }else {
+            qrCodeFrontTipTV.setText("扫码投屏");
+        }
         QRCodeType = type;
         if (QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE
+                ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_NETWORK_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_HELP_TYPE){
             LogUtils.v("QrCodeWindowManager 开始addView");
@@ -126,9 +132,7 @@ public class QrCodeWindowManager {
             } else {
                 mHandler.post(()->addToWindow(context, url,path,qrCodeFrontIV));
             }
-        }else if (QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_BIG_TYPE
-                ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE
-                ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_BIG_TYPE
+        }else if (QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_CALL_TYPE){
             final ImageView callQRCodeIv = mFloatCallLayout.findViewById(R.id.iv_mini_program_call_qrcode);
             if (Looper.myLooper() == Looper.getMainLooper()) {
@@ -155,13 +159,12 @@ public class QrCodeWindowManager {
             url = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ session.getEthernetMac()+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_PARTAKE_DISH_TYPE;
         }
         if ((QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE
+                ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_NETWORK_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE)
                 &&isCompletePicture&&hour<2&&!GlobalValues.isActivity) {
             GlideImageLoader.loadLocalImage(context,localFile,qrCodeIv);
             handleWindowLayout();
-        }else if((QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_BIG_TYPE
-                ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE
-                ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_BIG_TYPE
+        }else if((QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_CALL_TYPE)
                 &&isCompletePicture&&hour<2&&!GlobalValues.isActivity){
             ImageView qrCodeIV = mFloatCallLayout.findViewById(R.id.iv_mini_program_call_qrcode);
@@ -259,12 +262,11 @@ public class QrCodeWindowManager {
         preMediaId = mediaId;
         mIsHandling = false;
         if (QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE
+                ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_NETWORK_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_HELP_TYPE){
             mIsAdded = true;
-        }else if(QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_BIG_TYPE
-                ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE
-                ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_BIG_TYPE
+        }else if(QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_CALL_TYPE){
             mCallIsAdded = true;
         }

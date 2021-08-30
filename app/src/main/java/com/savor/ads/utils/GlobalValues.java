@@ -168,4 +168,5 @@ public class GlobalValues <T extends MediaLibBean> {
     public static String currentVid;
     /**当前是否在展示红包弹出窗口*/
     public static boolean isOpenRedEnvelopeWin;
+    public static String testWechatUrl;
 }
