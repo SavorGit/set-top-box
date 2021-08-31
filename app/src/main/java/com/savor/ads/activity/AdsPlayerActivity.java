@@ -158,6 +158,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     private ScanRedEnvelopeQrCodeDialog scanRedEnvelopeQrCodeDialog=null;
     private ServiceConnection mConnection;
     private List<String> polyAdsList = new ArrayList<>();
+    private boolean changeMedia;
     private Handler mHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
@@ -685,11 +686,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         LogFileUtil.write("AdsPlayerActivity onResume " + this.hashCode());
         Log.d("StackTrack", "AdsPlayerActivity::onResume");
         mActivityResumeTime = System.currentTimeMillis();
-        if (AppUtils.isSVT()){
-            setVolume(mSession.getXiaxinVolume());
-        }else {
-            setVolume(mSession.getVolume());
-        }
+
         if (GlobalValues.mIsGoneToTv) {
             GlobalValues.IS_BOX_BUSY = true;
             mSavorVideoView.onResume();
@@ -865,6 +862,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 
     public void changeMedia(int value){
         if (mSavorVideoView!=null){
+            changeMedia = true;
             switch (value){
                 case 1:
                     mSavorVideoView.playPrevious();
@@ -1212,7 +1210,20 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             }
 
         }
-
+        if (changeMedia){
+            if (AppUtils.isSVT()) {
+                setVolume(mSession.getXxProjectionVolume());
+            } else {
+                setVolume(mSession.getProjectVolume());
+            }
+            changeMedia = false;
+        }else{
+            if (AppUtils.isSVT()){
+                setVolume(mSession.getXiaxinVolume());
+            }else {
+                setVolume(mSession.getVolume());
+            }
+        }
         toCheckIfPolyAds(index);
         return false;
     }
