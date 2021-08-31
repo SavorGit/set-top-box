@@ -259,12 +259,8 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                             getGoodsProgramListFromCloudPlatform();
                             //同步获取商城商品数据
                             getShopGoodsListFromCloudPlatform();
-                            //同步获取用户精选内容上大屏数据
-                            getSelectContentFromCloudPlatform();
                             //同步获取用户热播内容预下载
                             getHotContentFromCloudPlatform();
-                            //同步获取用户发现内容数据
-                            getDiscoverContentFromCloudPlatform();
                             //同步获取欢迎词资源数据(含封面和mp3音乐)
                             getWelcomeResourceFromCloudPlatform();
                             //同步获取本地生活广告数据
@@ -317,7 +313,6 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         //清除用户精选和发现视频数据，腾出空间
         DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.SELECT_CONTENT,null,null);
         DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.MEDIA_ITEM,null,null);
-        AppUtils.deleteSelectContentMedia(context);
 
         AppUtils.deleteProjectionData(context);
     }
@@ -928,98 +923,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             }
         }
     }
-    /**
-     * 获取用户精选内容(热播内容)数据（暂时不用）
-     */
-    private void getSelectContentFromCloudPlatform(){
-        try{
-            JsonBean jsonBean = AppApi.postSelectContentFromCloudfrom(context,this,session.getEthernetMac());
-            JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
-            if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
-                return;
-            }
-            SelectContentResult result = gson.fromJson(jsonObject.get("result").toString(), new TypeToken<SelectContentResult>() {
-            }.getType());
-            if (!isFirstRun&&result.getPeriod().equals(session.getSelectContentPeriod())){
-                return;
-            }
-            if (result.getDatalist()==null||result.getDatalist().size()==0){
-                String selection = DBHelper.MediaDBInfo.FieldName.TYPE + "=? ";
-                String[] selectionArgs = new String[]{ConstantValues.SELECT_CONTENT_HOT};
-                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.SELECT_CONTENT,selection,selectionArgs);
-                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.MEDIA_ITEM,selection,selectionArgs);
-            }
-            handleSelectContentData(result);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
 
-    private void handleSelectContentData(SelectContentResult result){
-        List<SelectContentBean> list = result.getDatalist();
-        if (list!=null&&list.size()>0){
-            List<List<String>> fileSize = new ArrayList<>();
-            List<String> fileNames = new ArrayList<>();
-            String selection = DBHelper.MediaDBInfo.FieldName.TYPE + "=? ";
-            String[] selectionArgs = new String[]{ConstantValues.SELECT_CONTENT_HOT};
-            dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.SELECT_CONTENT,selection,selectionArgs);
-            for (SelectContentBean bean:list){
-                if (bean.getSubdata()!=null&&bean.getSubdata().size()>0){
-                    selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
-                    selectionArgs = new String[]{bean.getId()+""};
-                    dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.MEDIA_ITEM,selection,selectionArgs);
-                    List<String> subNames = new ArrayList<>();
-                    for (MediaItemBean item:bean.getSubdata()){
-                        boolean isDownloaded = false;
-                        String basePath = AppUtils.getFilePath(AppUtils.StorageFile.select_content);
-                        String fileName = item.getName();
-                        String path = basePath + item.getName();
-                        if (bean.getMedia_type()==1){
-                            isDownloaded = AppUtils.isDownloadEasyCompleted(path, item.getMd5());
-                        }else if (bean.getMedia_type()==2||bean.getMedia_type()==21){
-                            isDownloaded = AppUtils.isDownloadCompleted(path, item.getMd5().toUpperCase());
-                        }
-                        if (!isDownloaded&&!AppUtils.isInProjection()){
-                            String url = BuildConfig.OSS_ENDPOINT + item.getOss_path();
-                            isDownloaded = new FileDownloader(context, url, basePath, fileName, true).downloadByRange();
-                            if (isDownloaded
-                                    && (AppUtils.isDownloadEasyCompleted(path, item.getMd5())
-                                    || AppUtils.isDownloadCompleted(path, item.getMd5().toUpperCase()))) {
-                                isDownloaded = true;
-                            } else {
-                                isDownloaded = false;
-                            }
-                        }
-                        if (isDownloaded){
-                            //下载成功以后将本地路径set到bean里，入库时使用
-                            item.setId(bean.getId());
-                            item.setCreateTime(System.currentTimeMillis()+"");
-                            item.setOss_path(path);
-                            item.setMedia_type(bean.getMedia_type());
-                            item.setType(result.getType());
-                            if (dbHelper.insertMediaItem(item)){
-                                subNames.add(item.getName());
-                            }
-
-                        }
-                    }
-                    if (subNames.size()==bean.getSubdata().size()){
-                        bean.setCreateTime(System.currentTimeMillis()+"");
-                        bean.setPeriod(result.getPeriod());
-                        bean.setType(result.getType());
-                        if (dbHelper.insertSelectContent(bean)){
-                            fileSize.add(subNames);
-                            fileNames.addAll(subNames);
-                        }
-                    }
-                }
-            }
-            if (fileSize.size()==list.size()){
-                //精选内容下载完成
-                session.setSelectContentPeriod(result.getPeriod());
-            }
-        }
-    }
     /***
      * 获取用户热播内容预下载
      */
@@ -1098,104 +1002,6 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             }
         }
 
-    }
-
-    /**
-     * 获取用户发现内容数据
-     */
-    private void getDiscoverContentFromCloudPlatform(){
-        try{
-            JsonBean jsonBean = AppApi.getDiscoverContentFromCloudfrom(context,this,session.getEthernetMac());
-            JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
-            if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
-                return;
-            }
-            SelectContentResult result = gson.fromJson(jsonObject.get("result").toString(), new TypeToken<SelectContentResult>() {
-            }.getType());
-            if (!isFirstRun&&result.getPeriod().equals(session.getDiscoverContentPeriod())){
-                return;
-            }
-            if (result.getDatalist()==null||result.getDatalist().size()==0){
-                String selection = DBHelper.MediaDBInfo.FieldName.TYPE + "=? ";
-                String[] selectionArgs = new String[]{ConstantValues.SELECT_CONTENT_DISCOVER};
-                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.SELECT_CONTENT,selection,selectionArgs);
-                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.MEDIA_ITEM,selection,selectionArgs);
-                AppUtils.deleteSelectContentMedia(context);
-                notifyToPlay();
-            }
-            handleDiscoverContentData(result);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    private void handleDiscoverContentData(SelectContentResult result){
-        List<SelectContentBean> list = result.getDatalist();
-        if (list!=null&&list.size()>0){
-            List<List<String>> fileSize = new ArrayList<>();
-            List<String> fileNames = new ArrayList<>();
-            String selection = DBHelper.MediaDBInfo.FieldName.TYPE + "=? ";
-            String[] selectionArgs = new String[]{ConstantValues.SELECT_CONTENT_DISCOVER};
-            dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.SELECT_CONTENT,selection,selectionArgs);
-            for (SelectContentBean bean:list){
-                if (bean.getSubdata()!=null&&bean.getSubdata().size()>0){
-                    selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
-                    selectionArgs = new String[]{bean.getId()+""};
-                    dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.MEDIA_ITEM,selection,selectionArgs);
-                    List<String> subNames = new ArrayList<>();
-                    for (MediaItemBean item:bean.getSubdata()){
-                        boolean isDownloaded = false;
-                        String basePath = AppUtils.getFilePath(AppUtils.StorageFile.select_content);
-                        String fileName = item.getName();
-                        String path = basePath + item.getName();
-                        if (bean.getMedia_type()==1){
-                            isDownloaded = AppUtils.isDownloadEasyCompleted(path, item.getMd5());
-                        }else if (bean.getMedia_type()==2||bean.getMedia_type()==21){
-                            isDownloaded = AppUtils.isDownloadCompleted(path, item.getMd5().toUpperCase());
-                        }
-                        if (!isDownloaded&&!AppUtils.isInProjection()){
-                            String url = BuildConfig.OSS_ENDPOINT+item.getOss_path();
-                            isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
-                            if (isDownloaded
-                                    && (AppUtils.isDownloadEasyCompleted(path, item.getMd5())
-                                    ||AppUtils.isDownloadCompleted(path, item.getMd5().toUpperCase()))) {
-                                isDownloaded = true;
-                            }else{
-                                isDownloaded = false;
-                            }
-                        }
-                        if (isDownloaded){
-                            //下载成功以后将本地路径set到bean里，入库时使用
-                            item.setId(bean.getId());
-                            item.setCreateTime(System.currentTimeMillis()+"");
-                            item.setOss_path(path);
-                            item.setMedia_type(bean.getMedia_type());
-                            item.setType(result.getType());
-                            if (dbHelper.insertMediaItem(item)){
-                                subNames.add(item.getName());
-                            }
-
-                        }
-                    }
-                    if (subNames.size()==bean.getSubdata().size()){
-                        bean.setCreateTime(System.currentTimeMillis()+"");
-                        bean.setPeriod(result.getPeriod());
-                        bean.setType(result.getType());
-                        if (dbHelper.insertSelectContent(bean)){
-                            fileSize.add(subNames);
-                            fileNames.addAll(subNames);
-                        }
-                    }
-                }
-            }
-            if (fileSize.size()==list.size()){
-                //精选内容下载完成
-                session.setDiscoverContentPeriod(result.getPeriod());
-
-                AppUtils.deleteSelectContentMedia(context);
-                notifyToPlay();
-            }
-        }
     }
 
     /**

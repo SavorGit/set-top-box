@@ -737,7 +737,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 && !libBean.getType().equals(ConstantValues.ACTGOODS_OPTI)
                 && !libBean.getType().equals(ConstantValues.ACTGOODS_ACTIVITY)
                 && !libBean.getType().equals(ConstantValues.ACTGOODS_COUNTDOWN)
-                && !libBean.getType().equals(ConstantValues.SELECT_CONTENT)
                 && !libBean.getType().equals(ConstantValues.SHOP_GOODS_ADS)) {
             if (mSession.isShowMiniProgramIcon()&& mSession.isShowSimpleMiniProgramIcon()){
                 if (mSession.isWifiHotel()){
@@ -988,9 +987,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 mPlayList.get(index).setMediaPath(null);
                 mPlayList.get(index).setChinese_name("已过期");
             }
-            if (ConstantValues.SELECT_CONTENT.equals(item.getType())){
-                AppApi.reportSelectContentPlayLog(this,this,item.getVid());
-            }
             if (ConstantValues.LOCAL_LIFE.equals(item.getType())){
                 AppApi.postForscreenAdsLog(this,this,item.getAds_id(),mSession.getEthernetMac());
             }
@@ -1027,8 +1023,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                     ||libBean.getType().equals(ConstantValues.POLY_ADS_ONLINE)
                     ||libBean.getType().equals(ConstantValues.ACTGOODS_OPTI)
                     ||libBean.getType().equals(ConstantValues.ACTGOODS_ACTIVITY)
-                    ||libBean.getType().equals(ConstantValues.ACTGOODS_COUNTDOWN)
-                    ||libBean.getType().equals(ConstantValues.SELECT_CONTENT)){
+                    ||libBean.getType().equals(ConstantValues.ACTGOODS_COUNTDOWN)){
                 if (scanRedEnvelopeQrCodeDialog!=null&&scanRedEnvelopeQrCodeDialog.isShowing()){
                     scanRedEnvelopeQrCodeDialog.dismiss();
                 }
@@ -1184,16 +1179,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 
             }else{
                 ((SavorApplication) getApplication()).hideGoodsQrCodeWindow();
-            }
-
-            if(libBean.getType().equals(ConstantValues.SELECT_CONTENT)
-                    &&!TextUtils.isEmpty(libBean.getNickName())
-                    &&!TextUtils.isEmpty(libBean.getAvatarUrl())){
-                wxProjectionTipLayout.setVisibility(View.VISIBLE);
-                wxProjectionTxtTipTV.setText(libBean.getNickName());
-                GlideImageLoader.loadRoundImage(mContext,libBean.getAvatarUrl(),wxProjectionIconTipIV,R.mipmap.wxavatar);
-            }else{
-                wxProjectionTipLayout.setVisibility(View.GONE);
             }
 
             if (ConstantValues.POLY_ADS.equals(libBean.getType())

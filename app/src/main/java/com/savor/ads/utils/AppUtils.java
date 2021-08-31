@@ -135,7 +135,7 @@ public class AppUtils {
     public static final String GoodsAds = "goods_ads";
     public static final String OptimizeAds = "optimize_ads";//已删除
     public static final String BoxProjectionDir = "projection";
-    public static final String BoxSelectContentDir = "select_content";
+    public static final String BoxSelectContentDir = "select_content";//已删除
     public static final String cacheDir = "cache";
     public static final String welcomdeResourceDir = "welcome_resource";
     public static final String HotContentDir = "hot_content";
@@ -213,10 +213,6 @@ public class AppUtils {
          * 投屏文件存储目录(视频，图片)
          */
         projection,
-        /**
-         * 用户精选内容
-         */
-        select_content,
         /**
          * 欢迎词资源
          */
@@ -400,10 +396,6 @@ public class AppUtils {
         if (!projectionFile.exists()){
             projectionFile.mkdir();
         }
-        File userSelectFile = new File(path+File.separator,BoxSelectContentDir);
-        if (!userSelectFile.exists()){
-            userSelectFile.mkdir();
-        }
         File welcomeResourceFile = new File(path+File.separator,welcomdeResourceDir);
         if (!welcomeResourceFile.exists()){
             welcomeResourceFile.mkdir();
@@ -444,8 +436,6 @@ public class AppUtils {
             path = goodsFile.getAbsolutePath()+File.separator;
         } else if (mode == StorageFile.projection){
             path = projectionFile.getAbsolutePath()+File.separator;
-        } else if (mode == StorageFile.select_content){
-            path = userSelectFile.getAbsolutePath() +File.separator;
         } else if (mode == StorageFile.welcome_resource){
             path = welcomeResourceFile.getAbsolutePath()+File.separator;
         } else if (mode == StorageFile.hot_content){
@@ -478,6 +468,13 @@ public class AppUtils {
                     }
                     specialtyFile.delete();
                 }
+                File multicastFile = new File(path+File.separator,BoxMulticast);
+                if (multicastFile.exists()){
+                    if (multicastFile.isDirectory()&&multicastFile.listFiles().length>0){
+                        com.savor.ads.utils.FileUtils.deleteFile(multicastFile);
+                    }
+                    multicastFile.delete();
+                }
                 File optimizeFile = new File(path+File.separator,OptimizeAds);
                 if (optimizeFile.exists()){
                     if (optimizeFile.isDirectory()&&optimizeFile.listFiles().length>0){
@@ -485,12 +482,12 @@ public class AppUtils {
                     }
                     optimizeFile.delete();
                 }
-                File multicastFile = new File(path+File.separator,BoxMulticast);
-                if (multicastFile.exists()){
-                    if (multicastFile.isDirectory()&&multicastFile.listFiles().length>0){
-                        com.savor.ads.utils.FileUtils.deleteFile(multicastFile);
+                File selectContentFile = new File(path+File.separator,BoxSelectContentDir);
+                if (selectContentFile.exists()){
+                    if (selectContentFile.isDirectory()&&selectContentFile.listFiles().length>0){
+                        com.savor.ads.utils.FileUtils.deleteFile(selectContentFile);
                     }
-                    multicastFile.delete();
+                    selectContentFile.delete();
                 }
             }
         }).start();
@@ -1015,50 +1012,6 @@ public class AppUtils {
                     String selection = "";
                     String[] selectionArgs = new String[]{};
                     DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.SHOP_GOODS_ADS,selection,selectionArgs);
-                }catch (Exception e){
-                    LogUtils.e("删除视频失败",e);
-                }
-
-            }
-        }).start();
-    }
-
-    public static void deleteSelectContentMedia(final Context context) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    LogUtils.d("删除精选和发现视频");
-                    List<MediaLibBean> selectContentList = DBHelper.get(context).findSelectContentList(null,null);
-                    String media = AppUtils.getFilePath(StorageFile.select_content);
-                    File[] adsFiles = new File(media).listFiles();
-                    if (selectContentList==null){
-
-                        for (File file : adsFiles) {
-                            if (file.isFile()) {
-                                file.delete();
-                                LogUtils.d("删除文件===================" + file.getName());
-                            } else {
-                                com.savor.ads.utils.FileUtils.deleteFile(file);
-                            }
-                        }
-                        DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.SELECT_CONTENT,null,null);
-                        DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.MEDIA_ITEM,null,null);
-                    }else{
-
-                        for (File file:adsFiles){
-                            String fileName = file.getName();
-                            String selection = DBHelper.MediaDBInfo.FieldName.MEDIANAME + "=? ";
-                            String[] selectionArgs = new String[]{fileName};
-                            List<MediaItemBean> listItem = DBHelper.get(context).findMediaItemList(selection,selectionArgs);
-                            if (listItem==null){
-                                file.delete();
-                            }
-                        }
-
-                    }
-
-
                 }catch (Exception e){
                     LogUtils.e("删除视频失败",e);
                 }
@@ -2528,72 +2481,72 @@ public class AppUtils {
                     }
                 }
                 //精选内容上大屏
-                if (ConstantValues.SELECT_CONTENT.equals(bean.getType())){
-                    if (selectContentList!=null&&!selectContentList.isEmpty()){
-                        if (selectContentIndex>=selectContentList.size()){
-                            selectContentIndex = 0;
-                        }
-                        MediaLibBean scItem = selectContentList.get(selectContentIndex);
-                        try {
-                            selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
-                            selectionArgs = new String[]{String.valueOf(scItem.getId())};
-                            List<MediaItemBean> listItem = dbHelper.findMediaItemList(selection,selectionArgs);
-                            String paths = "";
-                            if (listItem!=null&&listItem.size()>0){
-                                for(MediaItemBean item:listItem){
-                                    if (!TextUtils.isEmpty(item.getOss_path())){
-                                        File file = new File(item.getOss_path());
-                                        if (!TextUtils.isEmpty(item.getMd5()) &&file.exists()) {
-                                            if (item.getMd5().equals(AppUtils.getEasyMd5(file))
-                                                    ||item.getMd5().toUpperCase().equals(AppUtils.getMD5(file))) {
-                                                paths = paths+item.getOss_path()+",";
-                                                if (item.getMedia_type()==1){
-                                                    //处理遇到视频情况下，把子条目md5赋值给父，为了下面校验使用
-                                                    scItem.setMd5(item.getMd5());
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                if (!TextUtils.isEmpty(paths)){
-                                    paths = paths.substring(0,paths.length()-1);
-                                }
-
-                            }
-
-                            long nowTime = System.currentTimeMillis();
-                            Date dateStart = AppUtils.parseDate(scItem.getStart_date());
-                            Date dateEnd = AppUtils.parseDate(scItem.getEnd_date());
-                            long startTime = dateStart.getTime();
-                            long endTime = dateEnd.getTime();
-                            if (nowTime>startTime&&nowTime<endTime){
-                                bean.setVid(scItem.getId()+"");
-                                bean.setId(scItem.getId());
-                                bean.setName(scItem.getName());
-                                bean.setChinese_name("用户精选");
-                                bean.setMedia_type(scItem.getMedia_type());
-                                bean.setMd5(scItem.getMd5());
-                                bean.setDuration(scItem.getDuration());
-                                bean.setMediaPath(paths);
-                                bean.setCreateTime(scItem.getCreateTime());
-                                bean.setStart_date(scItem.getStart_date());
-                                bean.setEnd_date(scItem.getEnd_date());
-                                bean.setNickName(scItem.getNickName());
-                                bean.setAvatarUrl(scItem.getAvatarUrl());
-                            }else if (nowTime>endTime){
-                                selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
-                                selectionArgs = new String[]{scItem.getVid()};
-                                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.SELECT_CONTENT,selection,selectionArgs);
-                                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.MEDIA_ITEM,selection,selectionArgs);
-                                selectContentList.remove(scItem);
-                            }
-                            selectContentIndex++;
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
-
-                    }
-                }
+//                if (ConstantValues.SELECT_CONTENT.equals(bean.getType())){
+//                    if (selectContentList!=null&&!selectContentList.isEmpty()){
+//                        if (selectContentIndex>=selectContentList.size()){
+//                            selectContentIndex = 0;
+//                        }
+//                        MediaLibBean scItem = selectContentList.get(selectContentIndex);
+//                        try {
+//                            selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
+//                            selectionArgs = new String[]{String.valueOf(scItem.getId())};
+//                            List<MediaItemBean> listItem = dbHelper.findMediaItemList(selection,selectionArgs);
+//                            String paths = "";
+//                            if (listItem!=null&&listItem.size()>0){
+//                                for(MediaItemBean item:listItem){
+//                                    if (!TextUtils.isEmpty(item.getOss_path())){
+//                                        File file = new File(item.getOss_path());
+//                                        if (!TextUtils.isEmpty(item.getMd5()) &&file.exists()) {
+//                                            if (item.getMd5().equals(AppUtils.getEasyMd5(file))
+//                                                    ||item.getMd5().toUpperCase().equals(AppUtils.getMD5(file))) {
+//                                                paths = paths+item.getOss_path()+",";
+//                                                if (item.getMedia_type()==1){
+//                                                    //处理遇到视频情况下，把子条目md5赋值给父，为了下面校验使用
+//                                                    scItem.setMd5(item.getMd5());
+//                                                }
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                                if (!TextUtils.isEmpty(paths)){
+//                                    paths = paths.substring(0,paths.length()-1);
+//                                }
+//
+//                            }
+//
+//                            long nowTime = System.currentTimeMillis();
+//                            Date dateStart = AppUtils.parseDate(scItem.getStart_date());
+//                            Date dateEnd = AppUtils.parseDate(scItem.getEnd_date());
+//                            long startTime = dateStart.getTime();
+//                            long endTime = dateEnd.getTime();
+//                            if (nowTime>startTime&&nowTime<endTime){
+//                                bean.setVid(scItem.getId()+"");
+//                                bean.setId(scItem.getId());
+//                                bean.setName(scItem.getName());
+//                                bean.setChinese_name("用户精选");
+//                                bean.setMedia_type(scItem.getMedia_type());
+//                                bean.setMd5(scItem.getMd5());
+//                                bean.setDuration(scItem.getDuration());
+//                                bean.setMediaPath(paths);
+//                                bean.setCreateTime(scItem.getCreateTime());
+//                                bean.setStart_date(scItem.getStart_date());
+//                                bean.setEnd_date(scItem.getEnd_date());
+//                                bean.setNickName(scItem.getNickName());
+//                                bean.setAvatarUrl(scItem.getAvatarUrl());
+//                            }else if (nowTime>endTime){
+//                                selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
+//                                selectionArgs = new String[]{scItem.getVid()};
+//                                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.SELECT_CONTENT,selection,selectionArgs);
+//                                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.MEDIA_ITEM,selection,selectionArgs);
+//                                selectContentList.remove(scItem);
+//                            }
+//                            selectContentIndex++;
+//                        }catch (Exception e){
+//                            e.printStackTrace();
+//                        }
+//
+//                    }
+//                }
                 //本地生活广告上大屏
                 if (ConstantValues.LOCAL_LIFE.equals(bean.getType())){
                     if (localLifeAdsList!=null&&localLifeAdsList.size()>0){
