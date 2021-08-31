@@ -614,6 +614,7 @@ public class AppApi {
         params.put("apk_time", Session.get(context).getVersionCode());
         params.put("war", "");
         params.put("serial_no", serial_no);
+        params.put("is_normaluse_wechat", Session.get(context).getNormalUseWechat());
         params.put("logo", Session.get(context).getSplashVersion());
         params.put("p_load_version", Session.get(context).getLoadingVersion());
         params.put("ip", AppUtils.getLocalIPAddress());
