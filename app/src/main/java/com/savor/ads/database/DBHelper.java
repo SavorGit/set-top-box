@@ -33,6 +33,7 @@ import java.util.List;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.ACTION;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.ADS_ID;
+import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.ADS_ORDER;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.AVATAR_URL;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.BOX_MAC;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.CHINESE_NAME;
@@ -43,6 +44,7 @@ import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.FORSCREEN_CH
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.FORSCREEN_ID;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.GOODS_ID;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.ID;
+import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.IS_SAPP_QRCODE;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.IS_SHARE;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.IS_STOREBUY;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.LOCATION_ID;
@@ -793,22 +795,22 @@ public class DBHelper extends SQLiteOpenHelper {
         try {
 //            open();
             ContentValues initialValues = new ContentValues();
-            initialValues.put(FieldName.VID, playList.getVid());
+            initialValues.put(VID, playList.getVid());
             initialValues.put(MEDIANAME, playList.getName());
             initialValues.put(MEDIATYPE, playList.getType());
             initialValues.put(RESOURCE_TYPE,playList.getMedia_type());
             initialValues.put(CHINESE_NAME, playList.getChinese_name());
             initialValues.put(SURFIX, playList.getSuffix());
-            initialValues.put(FieldName.CREATETIME, AppUtils.getCurTime("yyyyMMddHHmm"));
+            initialValues.put(CREATETIME, AppUtils.getCurTime("yyyyMMddHHmm"));
             initialValues.put(MD5, playList.getMd5());
-            initialValues.put(FieldName.PERIOD, playList.getPeriod());
-            initialValues.put(FieldName.ADS_ORDER, playList.getOrder());
-            initialValues.put(FieldName.DURATION, playList.getDuration());
-            initialValues.put(FieldName.LOCATION_ID, playList.getLocation_id());
+            initialValues.put(PERIOD, playList.getPeriod());
+            initialValues.put(ADS_ORDER, playList.getOrder());
+            initialValues.put(DURATION, playList.getDuration());
+            initialValues.put(LOCATION_ID, playList.getLocation_id());
             initialValues.put(MEDIA_PATH, playList.getMediaPath());
-            initialValues.put(FieldName.IS_SAPP_QRCODE,playList.getIs_sapp_qrcode());
+            initialValues.put(IS_SAPP_QRCODE,playList.getIs_sapp_qrcode());
             if (-1 != id) {
-                String selection = FieldName.ID + "=? ";
+                String selection = ID + "=? ";
                 String[] selectionArgs = new String[]{String.valueOf(id)};
                 in = db.update(TableName.NEWPLAYLIST, initialValues, selection, selectionArgs);
             } else {
@@ -881,23 +883,25 @@ public class DBHelper extends SQLiteOpenHelper {
         List<MediaLibBean> playList = null;
         try {
 //            open();
-            cursor = db.query(TableName.PLAYLIST, columns,
-                    selection, selectionArgs, groupBy, having, orderBy, null);
+            cursor = db.query(TableName.PLAYLIST, columns,selection, selectionArgs, groupBy, having, orderBy, null);
             if (cursor != null && cursor.moveToFirst()) {
                 playList = new ArrayList<>();
                 for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
                     MediaLibBean bean = new MediaLibBean();
                     bean.setId(cursor.getInt(cursor.getColumnIndex(FieldName.ID)));
-                    bean.setVid(cursor.getString(cursor.getColumnIndex(FieldName.VID)));
-                    bean.setMd5(cursor.getString(cursor.getColumnIndex(MD5)));
+                    bean.setVid(cursor.getString(cursor.getColumnIndex(VID)));
+                    bean.setPeriod(cursor.getString(cursor.getColumnIndex(PERIOD)));
+                    bean.setOrder(cursor.getInt(cursor.getColumnIndex(ADS_ORDER)));
                     bean.setName(cursor.getString(cursor.getColumnIndex(MEDIANAME)));
                     bean.setType(cursor.getString(cursor.getColumnIndex(MEDIATYPE)));
-                    bean.setMedia_type(cursor.getInt(cursor.getColumnIndex(RESOURCE_TYPE)));
                     bean.setChinese_name(cursor.getString(cursor.getColumnIndex(CHINESE_NAME)));
-                    bean.setMediaPath(cursor.getString(cursor.getColumnIndex(MEDIA_PATH)));
                     bean.setSuffix(cursor.getString(cursor.getColumnIndex(SURFIX)));
-                    bean.setPeriod(cursor.getString(cursor.getColumnIndex(FieldName.PERIOD)));
-                    bean.setIs_sapp_qrcode(cursor.getInt(cursor.getColumnIndex(FieldName.IS_SAPP_QRCODE)));
+                    bean.setDuration(cursor.getString(cursor.getColumnIndex(DURATION)));
+                    bean.setMediaPath(cursor.getString(cursor.getColumnIndex(MEDIA_PATH)));
+                    bean.setLocation_id(cursor.getString(cursor.getColumnIndex(LOCATION_ID)));
+                    bean.setMd5(cursor.getString(cursor.getColumnIndex(MD5)));
+                    bean.setIs_sapp_qrcode(cursor.getInt(cursor.getColumnIndex(IS_SAPP_QRCODE)));
+                    bean.setMedia_type(cursor.getInt(cursor.getColumnIndex(RESOURCE_TYPE)));
                     playList.add(bean);
                 }
             }
@@ -915,7 +919,6 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return playList;
     }
-
 
     public List<MediaLibBean> findAdsByWhere(String selection, String[] selectionArgs) throws SQLException {
         Cursor cursor = null;
@@ -2104,11 +2107,11 @@ public class DBHelper extends SQLiteOpenHelper {
                             bean.setName(cursor.getString(cursor.getColumnIndex(MEDIANAME)));
                             bean.setChinese_name(cursor.getString(cursor.getColumnIndex(CHINESE_NAME)));
                             bean.setMedia_type(cursor.getInt(cursor.getColumnIndex(RESOURCE_TYPE)));
+                            bean.setMd5(cursor.getString(cursor.getColumnIndex(MD5)));
+                            bean.setDuration(cursor.getString(cursor.getColumnIndex(DURATION)));
                             bean.setType(cursor.getString(cursor.getColumnIndex(TYPE)));
                             bean.setLocation_id(cursor.getString(cursor.getColumnIndex(LOCATION_ID)));
-                            bean.setMd5(cursor.getString(cursor.getColumnIndex(MD5)));
                             bean.setMediaPath(cursor.getString(cursor.getColumnIndex(MEDIA_PATH)));
-                            bean.setDuration(cursor.getString(cursor.getColumnIndex(DURATION)));
                             bean.setQrcode_path(cursor.getString(cursor.getColumnIndex(QRCODE_PATH)));
                             bean.setQrcode_url(cursor.getString(cursor.getColumnIndex(QRCODE_URL)));
                             bean.setPeriod(cursor.getString(cursor.getColumnIndex(PERIOD)));

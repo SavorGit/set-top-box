@@ -18,6 +18,7 @@ import android.graphics.drawable.NinePatchDrawable;
 import android.media.MediaMetadataRetriever;
 import android.media.ThumbnailUtils;
 import android.net.ConnectivityManager;
+import android.net.DhcpInfo;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiConfiguration;
@@ -1685,21 +1686,29 @@ public class AppUtils {
      * wifi IP
      */
     public static String getWifiIp(Context con) {
-        WifiManager wifiManager = (WifiManager) con
-                .getSystemService(Context.WIFI_SERVICE);// 获取WifiManager
-
+        // 获取WifiManager
+        WifiManager wifiManager = (WifiManager) con.getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiinfo = wifiManager.getConnectionInfo();
-
-        int i = wifiinfo.getIpAddress();
-        return (i & 0xFF) + "." + ((i >> 8) & 0xFF) + "." + ((i >> 16) & 0xFF)
-                + "." + ((i >> 24) & 0xFF);
-
+        DhcpInfo dchp = wifiManager.getDhcpInfo();
+        String dchpIp = formatIP(dchp.gateway);
+        int ip = wifiinfo.getIpAddress();
+        return formatIP(ip);
     }
 
-    public static String getWifiName(Context con) {
+    public static String formatIP(int ip) {
+        return String.format(
+                "%d.%d.%d.%d",
+                (ip & 0xff),
+                (ip >> 8 & 0xff),
+                (ip >> 16 & 0xff),
+                (ip >> 24 & 0xff)
+        );
+    }
 
-        WifiManager wifiManager = (WifiManager) con
-                .getSystemService(Context.WIFI_SERVICE);// 获取WifiManager
+
+    public static String getWifiName(Context con) {
+        // 获取WifiManager
+        WifiManager wifiManager = (WifiManager) con.getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiinfo = wifiManager.getConnectionInfo();
         return wifiinfo.getSSID();
     }

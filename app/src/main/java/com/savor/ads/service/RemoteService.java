@@ -28,6 +28,7 @@ import com.jar.savor.box.vo.SeekResponseVo;
 import com.jar.savor.box.vo.StopResponseVo;
 import com.jar.savor.box.vo.VolumeResponseVo;
 import com.savor.ads.BuildConfig;
+import com.savor.ads.bean.AdsMeiSSPResult;
 import com.savor.ads.bean.BigImgBean;
 import com.savor.ads.bean.BirthdayOndemandBean;
 import com.savor.ads.bean.ContentInfo;
@@ -40,6 +41,7 @@ import com.savor.ads.bean.ProjectionGuideImg;
 import com.savor.ads.bean.ProjectionImg;
 import com.savor.ads.bean.ProjectionLogBean;
 import com.savor.ads.bean.ProjectionLogHistory;
+import com.savor.ads.bean.SetTopBoxBean;
 import com.savor.ads.bean.VideoQueueParam;
 import com.savor.ads.bean.WelcomeResourceBean;
 import com.savor.ads.callback.ProjectOperationListener;
@@ -404,6 +406,18 @@ public class RemoteService extends Service {
                     break;
                 case "/h5/fileImgList":
                     resJson = findFileImgList(request);
+                    break;
+                case "/WLAN/getProAdvListData":
+                    resJson = findProAdvListData();
+                    break;
+                case "/WLAN/getAdsListData":
+                    resJson = findAdsListData();
+                    break;
+                case "/WLAN/getShopgoodsProData":
+                    resJson = findshowgoodsData();
+                    break;
+                case "/WLAN/getHotPlayProData":
+                    resJson = findHotPlayProData();
                     break;
                 default:
                     currentAction = -1;
@@ -2173,6 +2187,109 @@ public class RemoteService extends Service {
             }
             return new Gson().toJson(response);
         }
+        /**
+         * 局域网提供节目单-节目下载数据
+         */
+        private String findProAdvListData(){
+            BaseResponse response = new BaseResponse();
+            String selection = "";
+            String[] selectionArgs = new String[]{};
+            List<MediaLibBean> list = DBHelper.get(context).findPlayListByWhere(selection,selectionArgs);
+            try{
+                if (list!=null){
+                    SetTopBoxBean setTopBoxBean = new SetTopBoxBean();
+                    for (MediaLibBean bean:list){
+                        if (bean.getType().equals(ConstantValues.PRO)){
+                            setTopBoxBean.setPeriod(bean.getPeriod());
+                            break;
+                        }
+                    }
+                    setTopBoxBean.setPlay_list((ArrayList<MediaLibBean>) list);
+                    response.setResult(list);
+                    response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
+                    response.setMsg("查询节目列表成功");
+                }else{
+                    response.setCode(ConstantValues.SERVER_RESPONSE_CODE_NULL);
+                    response.setMsg("查询节目列表數據誒空");
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return new Gson().toJson(response);
+        }
+        /**
+         * 局域网提供节目单-广告下载数据
+         */
+        private String findAdsListData(){
+            BaseResponse response = new BaseResponse();
+            String selection = "";
+            String[] selectionArgs = new String[]{};
+            List<MediaLibBean> list = DBHelper.get(context).findAdsByWhere(selection,selectionArgs);
+            try{
+                if (list!=null){
+                    response.setResult(list);
+                    response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
+                    response.setMsg("查询广告列表成功");
+                }else{
+                    response.setCode(ConstantValues.SERVER_RESPONSE_CODE_NULL);
+                    response.setMsg("查询广告列表數據誒空");
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return new Gson().toJson(response);
+        }
+        /**
+         * 局域网提供商城商品数据
+         * @return
+         */
+        private String findshowgoodsData(){
+            BaseResponse response = new BaseResponse();
+            String selection = "";
+            String[] selectionArgs = new String[]{};
+            List<MediaLibBean> list = DBHelper.get(context).findShopGoodsAdsByWhere(selection,selectionArgs);
+            try{
+                if (list!=null){
+                    response.setResult(list);
+                    response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
+                    response.setMsg("查询商城商品列表成功");
+                }else{
+                    response.setCode(ConstantValues.SERVER_RESPONSE_CODE_NULL);
+                    response.setMsg("查询商城商品列表數據誒空");
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return new Gson().toJson(response);
+        }
+        /**
+         * 局域网提供热播内容数据
+         * @return
+         */
+        private String findHotPlayProData(){
+            BaseResponse response = new BaseResponse();
+            String basePath = AppUtils.getFilePath(AppUtils.StorageFile.hot_content);
+            File[] listFiles = new File(basePath).listFiles();
+            try{
+                if (listFiles!=null){
+                    List list = new ArrayList();
+                    for (File file:listFiles){
+                        String name = file.getName();
+                        list.add(name);
+                    }
+                    response.setResult(list);
+                    response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
+                    response.setMsg("查询商城商品列表成功");
+                }else{
+                    response.setCode(ConstantValues.SERVER_RESPONSE_CODE_NULL);
+                    response.setMsg("查询商城商品列表數據誒空");
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return new Gson().toJson(response);
+        }
+
 
         /**
          * 在每次新的投屏动作开始之前需要清除一下之前的投屏痕迹，相当于抢断

@@ -43,7 +43,9 @@ public class AppApi {
     public static String SP_BASE_URL = "http://192.168.1.2/";
 
     private static String PHONE_BASE_URL = "http://192.168.0.1:8080/";
-    
+
+    public static String WLAN_BASE_URL = "";
+
     /**MeiSSP平台广告**/
     public static final String MEI_SSP_ADS_URL = "http://meiadx.meichuanmei.com/ps/std_json";
     /**奥凌广告平台**/
@@ -79,6 +81,10 @@ public class AppApi {
             }
         }
         PHONE_BASE_URL = "http://"+newIP+":8080/";
+    }
+
+    public static void resetWLANBaseUrl(String baseIP){
+        WLAN_BASE_URL = "http://"+baseIP+":8080/";
     }
 
     /**
@@ -152,7 +158,8 @@ public class AppApi {
         CP_GET_GOODSCOUNTDOWN_JSON,
         CP_POST_FORSCREEN_ADSLOG_JSON,
         CP_POST_WELCOME_PLAYLOG_JSON,
-        CP_GET_TEST_WECHAT_JSON
+        CP_GET_TEST_WECHAT_JSON,
+        WLAN_GET_PROGRAM_GUIDES_JSON
 
     }
 
@@ -221,6 +228,7 @@ public class AppApi {
             put(Action.CP_GET_GOODSCOUNTDOWN_JSON,BuildConfig.BASE_URL+"box/program/getGoodsCountdown");
             put(Action.CP_POST_FORSCREEN_ADSLOG_JSON,BuildConfig.BASE_URL+"box/boxLog/adsPlaylog");
             put(Action.CP_POST_WELCOME_PLAYLOG_JSON,BuildConfig.BASE_URL+"box/boxLog/welcomePlaylog");
+            put(Action.WLAN_GET_PROGRAM_GUIDES_JSON,WLAN_BASE_URL+"WLAN/getProAdvListData");
 
         }
     };
@@ -1065,10 +1073,27 @@ public class AppApi {
         new AppServiceOk(context,Action.CP_POST_WELCOME_PLAYLOG_JSON, handler,params).get();
     }
 
+    /**
+     * 测试微信接口接口是否正常返回
+     * @param context
+     * @param handler
+     * @param wechatUrl
+     */
     public static void getTestWechat(Context context,ApiRequestListener handler,String wechatUrl){
         new AppServiceOk(context,Action.CP_GET_TEST_WECHAT_JSON, handler).simpleGet(wechatUrl);
     }
 
+    /**
+     * 获取局域网内节目单数据
+     * @param context
+     * @param handler
+     * @param boxMac
+     */
+    public static JsonBean getProgramGuidesData(Context context,ApiRequestListener handler,String boxMac) throws IOException{
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("boxMac",boxMac);
+        return new AppServiceOk(context,Action.WLAN_GET_PROGRAM_GUIDES_JSON, handler,params).syncGet();
+    }
 
     /**
      * 从这里定义业务的错误码

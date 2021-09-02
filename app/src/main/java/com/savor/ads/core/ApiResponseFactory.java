@@ -86,6 +86,8 @@ public class ApiResponseFactory {
                 e.printStackTrace();
             }
             return zmAdResponse;
+        }else if (action == AppApi.Action.CP_GET_TEST_WECHAT_JSON){
+            return response.body().toString();
         }
 
         //转换器

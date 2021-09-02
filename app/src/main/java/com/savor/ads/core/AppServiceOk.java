@@ -239,7 +239,7 @@ public class AppServiceOk {
             headers.put("systemVersion", Build.VERSION.RELEASE);
             headers.put("appVersion", "3.2.0");
 
-            Callback<Object> callback = new Callback<Object>() {
+            Callback<Object> callback = new Callback<>() {
 
                 @Override
                 public Object parseNetworkResponse(Response response) {
@@ -354,13 +354,13 @@ public class AppServiceOk {
         if (mParameter instanceof HashMap) {
             requestParams = (HashMap<String, String>) mParameter;
         }
-        Map<String, String> headers = new HashMap<String, String>();
+        Map<String, String> headers = new HashMap<>();
         headers.put("traceinfo", appSession.getDeviceInfo());
         LogUtils.d("traceinfo-->" + appSession.getDeviceInfo());
         headers.put("boxMac", appSession.getEthernetMac());
         headers.put("hotelId", appSession.getBoiteId());
         headers.put("X-VERSION",appSession.getVersionCode()+"");
-        Callback<Object> callback = new Callback<Object>() {
+        Callback<Object> callback = new Callback<>() {
 
             @Override
             public Object parseNetworkResponse(Response response){
@@ -413,8 +413,8 @@ public class AppServiceOk {
             public Object parseNetworkResponse(Response response) {
                 Object object = null;
                 try {
-                    object = response.body().string();
-                } catch (IOException e) {
+                    object = ApiResponseFactory.getResponse(mContext, action, response, "", "");
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
