@@ -150,6 +150,10 @@
             android:name=".service.HandleMediaDataService"
             android:exported="false">
         </service>
+        <service
+            android:name=".service.WLANDownloadDataService"
+            android:exported="false">
+        </service>
         <service android:name=".service.ProjectionService"
             android:exported="false">
         </service>

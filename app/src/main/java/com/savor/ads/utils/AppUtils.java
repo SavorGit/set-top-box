@@ -1084,31 +1084,53 @@ public class AppUtils {
         }).start();
     }
 
-    public static void deleteAdsData(final Context context){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    LogUtils.d("删除广告视频");
-                    List<MediaLibBean> listAds = DBHelper.get(context).findAdsByWhere(null,null);
-                    if (listAds!=null&&listAds.size()>0){
-                        for (MediaLibBean bean:listAds){
-                           String mediaPath = bean.getMediaPath();
-                           if (!TextUtils.isEmpty(mediaPath)){
-                               File file = new File(mediaPath);
-                               if (file.isFile()){
-                                   file.delete();
-                               }
+    public static void deleteAllAdsData(final Context context){
+        new Thread(() -> {
+            try{
+                LogUtils.d("删除广告视频");
+                List<MediaLibBean> listAds = DBHelper.get(context).findAdsByWhere(null,null);
+                if (listAds!=null&&listAds.size()>0){
+                    for (MediaLibBean bean:listAds){
+                       String mediaPath = bean.getMediaPath();
+                       if (!TextUtils.isEmpty(mediaPath)){
+                           File file = new File(mediaPath);
+                           if (file.isFile()){
+                               file.delete();
                            }
+                       }
+                    }
+                }
+                DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.NEWADSLIST,null,null);
+                DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.ADSLIST,null,null);
+            }catch (Exception e){
+                LogUtils.e("删除视频失败",e);
+            }
+
+        }).start();
+    }
+
+    public static void deleteAdsData(final Context context,List<String> fileNames){
+        new Thread(() -> {
+            try{
+                LogUtils.d("删除广告视频");
+                List<MediaLibBean> listAds = DBHelper.get(context).findAdsByWhere(null,null);
+                if (listAds!=null&&listAds.size()>0){
+                    for (MediaLibBean bean:listAds){
+                        String mediaPath = bean.getMediaPath();
+                        if (!TextUtils.isEmpty(mediaPath)){
+                            File file = new File(mediaPath);
+                            if (file.isFile()){
+                                file.delete();
+                            }
                         }
                     }
-                    DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.NEWADSLIST,null,null);
-                    DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.ADSLIST,null,null);
-                }catch (Exception e){
-                    LogUtils.e("删除视频失败",e);
                 }
-
+                DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.NEWADSLIST,null,null);
+                DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.ADSLIST,null,null);
+            }catch (Exception e){
+                LogUtils.e("删除视频失败",e);
             }
+
         }).start();
     }
 

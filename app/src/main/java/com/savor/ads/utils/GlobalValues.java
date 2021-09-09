@@ -169,4 +169,14 @@ public class GlobalValues <T extends MediaLibBean> {
     /**当前是否在展示红包弹出窗口*/
     public static boolean isOpenRedEnvelopeWin;
     public static String testWechatUrl;
+    /**
+     * 下载完成率，如果该值被置成-1证明就是超时了,则终止下载
+     * 目前是用的以下5个接口作为局域网传输使用：
+     * 1.box/program/getShopgoodsProgramList 商城商品广告
+     * 2.box/program/getHotPlayProgramList 热播内容预下载
+     * 3.small/api/download/vod/config/v2 轮播节目数据
+     * 4.small/api/download/adv/config 宣传片节目数据
+     * 5.small/api/download/ads/config 广告节目数据
+     * */
+    public static int completionRate;
 }

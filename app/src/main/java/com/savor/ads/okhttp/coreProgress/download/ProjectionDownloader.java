@@ -148,8 +148,6 @@ public class ProjectionDownloader {
         try {
             File cacheFile = new File(filePath,fileName+ ConstantValues.CACHE);
             long startTime = System.currentTimeMillis();
-            GlobalValues.isDownload = true;
-            GlobalValues.currentDownlaodFileName = fileName;
             downloadState();
             if (cacheFile.exists()){
                 RandomAccessFile cacheAccessFile = new RandomAccessFile(cacheFile,"rwd");
@@ -172,7 +170,6 @@ public class ProjectionDownloader {
             }
             String useTime = String.valueOf(System.currentTimeMillis()-startTime);
             if (flag){
-                GlobalValues.isDownload = false;
                 downloadState();
                 String resourceSize = String.valueOf(new File(filePath+fileName).length());
                 String mUUID = String.valueOf(System.currentTimeMillis());

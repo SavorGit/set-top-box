@@ -8,6 +8,7 @@ import java.util.List;
 public class SelectContentResult {
 
     private String period;
+    private List<String> list;
     private List<SelectContentBean> datalist;
     /**type:类型 1热播内容(上大屏内容) 2发现内容*/
     private int type;
@@ -17,6 +18,14 @@ public class SelectContentResult {
 
     public void setPeriod(String period) {
         this.period = period;
+    }
+
+    public List<String> getList() {
+        return list;
+    }
+
+    public void setList(List<String> list) {
+        this.list = list;
     }
 
     public List<SelectContentBean> getDatalist() {

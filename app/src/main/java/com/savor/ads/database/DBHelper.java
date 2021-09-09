@@ -2090,6 +2090,50 @@ public class DBHelper extends SQLiteOpenHelper {
         return flag;
     }
 
+    public List<ShopGoodsBean> findShopGoodsAds(String selection, String[] selectionArgs){
+        List<ShopGoodsBean> list = null;
+        synchronized (dbHelper) {
+            Cursor cursor = null;
+            try {
+                cursor = db.query(TableName.SHOP_GOODS_ADS, null,
+                        selection, selectionArgs, null, null, null, null);
+                if (cursor != null) {
+                    if (cursor.moveToFirst()) {
+                        list = new ArrayList<>();
+                        do {
+                            ShopGoodsBean bean = new ShopGoodsBean();
+                            bean.setGoods_id(cursor.getInt(cursor.getColumnIndex(GOODS_ID)));
+                            bean.setName(cursor.getString(cursor.getColumnIndex(MEDIANAME)));
+                            bean.setChinese_name(cursor.getString(cursor.getColumnIndex(CHINESE_NAME)));
+                            bean.setMedia_type(cursor.getInt(cursor.getColumnIndex(RESOURCE_TYPE)));
+                            bean.setMd5(cursor.getString(cursor.getColumnIndex(MD5)));
+                            bean.setDuration(cursor.getString(cursor.getColumnIndex(DURATION)));
+                            bean.setType(cursor.getInt(cursor.getColumnIndex(TYPE)));
+                            bean.setLocation_id(cursor.getString(cursor.getColumnIndex(LOCATION_ID)));
+                            bean.setMediaPath(cursor.getString(cursor.getColumnIndex(MEDIA_PATH)));
+                            bean.setQrcode_path(cursor.getString(cursor.getColumnIndex(QRCODE_PATH)));
+                            bean.setQrcode_url(cursor.getString(cursor.getColumnIndex(QRCODE_URL)));
+                            bean.setPeriod(cursor.getString(cursor.getColumnIndex(PERIOD)));
+                            bean.setCreateTime(cursor.getString(cursor.getColumnIndex(CREATETIME)));
+                            list.add(bean);
+                        } while (cursor.moveToNext());
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (cursor != null && !cursor.isClosed()) {
+                        cursor.close();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return list;
+    }
+
     public List<MediaLibBean> findShopGoodsAdsByWhere(String selection, String[] selectionArgs){
         List<MediaLibBean> list = null;
         synchronized (dbHelper) {

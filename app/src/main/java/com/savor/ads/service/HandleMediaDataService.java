@@ -144,6 +144,9 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
     private int pro_timeout_count = 0;
     private int ads_timeout_count = 0;
     private int adv_timeout_count = 0;
+
+    private Handler handler=new Handler(Looper.getMainLooper());
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -195,7 +198,6 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                                 int localVersionCode = session.getVersionCode();
                                 long remoteVersionCode = Long.valueOf(upgradeInfo.getNewestApkVersion());
                                 if (localVersionCode<remoteVersionCode){
-                                    Handler handler=new Handler(Looper.getMainLooper());
                                     handler.post(()->ShowMessage.showToast(context,"发现新版本，开始下载"));
 
                                     String basePath = AppUtils.getMainMediaPath()+File.separator;
@@ -236,10 +238,10 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                             AppApi.reportSDCardState(context, HandleMediaDataService.this, 2);
 
                         } else {
-                            // 空间充足，开始更新资源
+                            /***************空间充足，开始更新资源******************/
+                            //获取局域网IP地址和端口
 
-//                            getPrizeInfo();
-
+                            getWLANServerBox();
                             LogFileUtil.write("HandleMediaDataService will start getBoxInfo");
                             // 同步获取机顶盒基本信息，包括logo、loading图
                             getBoxInfo();
@@ -276,7 +278,8 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                             LogFileUtil.write("HandleMediaDataService will start getAdsDataFromSmallPlatform");
                             //同步获取广告片媒体数据
                             getAdsDataFromSmallPlatform();
-                            //同步获取本地生活广告列表
+                            //上报下载状态
+                            reportDownloadState();
                             LogFileUtil.write("HandleMediaDataService will start getTVMatchDataFromSmallPlatform");
                             // 异步获取电视节目信息
                             getTVMatchDataFromSmallPlatform();
@@ -323,6 +326,50 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
     private void getBoxSupportPolyAdsTpmedias(){
         AppApi.getBoxSupportPolyAdsTpmedias(context,this);
     }
+
+    private void getWLANServerBox(){
+        try {
+            session.setType(0);
+            JsonBean jsonBean = AppApi.getWLANServerBox(context,this,session.getEthernetMac());
+            JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
+            if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
+                return;
+            }
+            JSONObject result = jsonObject.getJSONObject("result");
+            // 1:云端下载 2:局域网下载
+            int type = result.getInt("type");
+            session.setType(type);
+            if (type==1){
+                GlobalValues.completionRate = 0;
+                //下载1小时如果未下载完成则停止下载
+                handler.postDelayed(completionRunnable,1000*60*60);
+            }else {
+                String lan_ip = result.getString("lan_ip");
+                String lan_mac = result.getString("lan_mac");
+                if (TextUtils.isEmpty(lan_ip)||TextUtils.isEmpty(lan_mac)){
+                    return;
+                }
+                /********************************/
+//                session.setType(2);
+//                String lan_ip = "192.168.168.166";
+//                String lan_mac = "00226D655598";
+                /********************************/
+                session.setLan_ip(lan_ip);
+                session.setLan_mac(lan_mac);
+                String url = "http://"+lan_ip+":"+ConstantValues.SERVER_REQUEST_PORT+File.separator;
+                AppApi.resetWLANBaseUrl(url);
+                if (!GlobalValues.isDownload){
+                    Intent intent = new Intent(context, WLANDownloadDataService.class);
+                    startService(intent);
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private Runnable completionRunnable = ()->GlobalValues.completionRate =-1;
+
 
     private void getBoxInfo() {
         try {
@@ -838,6 +885,9 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
     /**获取商城商品广告数据*/
     private void getShopGoodsListFromCloudPlatform(){
         try{
+            if (session.getType()==2){
+                return;
+            }
             JsonBean jsonBean = AppApi.getShopGoodsListFromCloudfrom(context,this,session.getEthernetMac());
             JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
             if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
@@ -850,6 +900,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             }
             if (result.getDatalist()==null||result.getDatalist().size()==0){
                 AppUtils.deleteShopGoodsAdsMedia(context);
+                GlobalValues.completionRate +=1;
                 notifyToPlay();
                 return;
             }
@@ -908,8 +959,8 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             }
             if (fileNames.size()/2==list.size()){
                 //互动广告下载完成
-                session.setActivityAdsPeriod(result.getPeriod());
-
+                session.setShopGoodsAdsPeriod(result.getPeriod());
+                GlobalValues.completionRate +=1;
                 String activityAds = AppUtils.getFilePath(AppUtils.StorageFile.goods_ads);
                 File[] activityFiles = new File(activityAds).listFiles();
                 for (File file : activityFiles) {
@@ -929,6 +980,9 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
      */
     private void getHotContentFromCloudPlatform(){
         try{
+            if (session.getType()==2){
+                return;
+            }
             JsonBean jsonBean = AppApi.getHotContentFromCloudfrom(context,this,session.getEthernetMac());
             JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
             if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
@@ -947,6 +1001,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                         file.delete();
                     }
                 }
+                GlobalValues.completionRate +=1;
                 GlobalValues.getInstance().HOT_CONTENT_LIST = null;
                 return;
             }
@@ -996,6 +1051,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         if (fileSize.size()==fileNames.size()){
             //精选内容下载完成
             session.setHotContentPeriod(result.getPeriod());
+            GlobalValues.completionRate +=1;
             AppUtils.deleteHotContentMedia(fileNames);
             if (contentIds!=null&&contentIds.size()>0){
                 GlobalValues.getInstance().HOT_CONTENT_LIST = contentIds;
@@ -1170,6 +1226,9 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         isProCompleted = false;
         String smallType=null;
         try {
+            if (session.getType()==2){
+                return;
+            }
             JsonBean jsonBean = AppApi.getProgramDataFromSmallPlatform(this, this, session.getEthernetMac());
             // 保存拿到的数据到本地
             FileUtils.write(ConstantValues.PRO_DATA_PATH, jsonBean.getConfigJson());
@@ -1333,6 +1392,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                     LogUtils.d("---------节目视频下载完成---------");
                     LogFileUtil.write("轮播视完成");
                     isProCompleted = true;
+                    GlobalValues.completionRate +=1;
                     mProCompletedPeriod = proPeriod;
                     // 记录日志
                     // 记录下载完成日志
@@ -1370,6 +1430,9 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
     private void getAdvDataFromSmallPlatform() {
         String smallType=null;
         try {
+            if (session.getType()==2){
+                return;
+            }
             JsonBean jsonBean = AppApi.getAdvDataFromSmallPlatform(this, this, session.getEthernetMac());
             // 保存拿到的数据到本地
             FileUtils.write(ConstantValues.ADV_DATA_PATH, jsonBean.getConfigJson());
@@ -1382,6 +1445,8 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                     advProgramBean = programBeanResult.getResult();
                     smallType = jsonBean.getSmallType();
                     handleSmallPlatformAdvData(smallType);
+                }else{
+                    GlobalValues.completionRate +=1;
                 }
             }
         } catch (Exception e) {
@@ -1399,6 +1464,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         if (advProgramBean == null
                 || advProgramBean.getVersion() == null
                 || TextUtils.isEmpty(advProgramBean.getVersion().getVersion())) {
+            GlobalValues.completionRate +=1;
             return;
         }
         LogFileUtil.write("宣传片下载进入下载逻辑");
@@ -1506,6 +1572,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             }
 
             if (advDownloadedCount == advProgramBean.getMedia_lib().size()) {
+                GlobalValues.completionRate +=1;
                 LogFileUtil.write("宣传片下载完成");
                 isAdvCompleted = true;
             } else {
@@ -1601,6 +1668,9 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
     private void getAdsDataFromSmallPlatform() {
         String smallType = null;
         try {
+            if (session.getType()==2){
+                return;
+            }
             JsonBean jsonBean = AppApi.getAdsDataFromSmallPlatform(this, this, session.getEthernetMac());
             // 保存拿到的数据到本地
             FileUtils.write(ConstantValues.ADS_DATA_PATH, jsonBean.getConfigJson());
@@ -1612,6 +1682,8 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                     adsProgramBean = programBeanResult.getResult();
                     smallType = jsonBean.getSmallType();
                     handleSmallPlatformAdsData(smallType);
+                }else{
+                    GlobalValues.completionRate +=1;
                 }
             }
         } catch (Exception e) {
@@ -1631,7 +1703,8 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 || TextUtils.isEmpty(adsProgramBean.getVersion().getVersion())
                 || adsProgramBean.getMedia_lib()==null
                 || adsProgramBean.getMedia_lib().size()==0) {
-            AppUtils.deleteAdsData(context);
+            GlobalValues.completionRate +=1;
+            AppUtils.deleteAllAdsData(context);
             return;
         }
         String adsPeriod = adsProgramBean.getVersion().getVersion();
@@ -1651,7 +1724,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
 
         session.setAdsDownloadPeriod(adsPeriod);
         boolean isAdsCompleted ;
-        int adsDownloadedCount = 0;
+        List<String> fileNames = new ArrayList<>();
         if (adsProgramBean.getMedia_lib() != null && adsProgramBean.getMedia_lib().size() > 0) {
             ServerInfo serverInfo = session.getServerInfo();
             if (serverInfo == null) {
@@ -1701,7 +1774,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                         bean.setMediaPath(path);
                         // 插库成功，mDownloadedList中加入一条
                         if (dbHelper.insertOrUpdateNewAdsList(bean, -1)) {
-                            adsDownloadedCount++;
+                            fileNames.add(fileName);
                         }
                     }
                 } catch (Exception e) {
@@ -1709,7 +1782,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 }
             }
 
-            if (adsDownloadedCount == adsProgramBean.getMedia_lib().size()) {
+            if (fileNames.size() == adsProgramBean.getMedia_lib().size()) {
                 isAdsCompleted = true;
             } else {
                 isAdsCompleted = false;
@@ -1720,6 +1793,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
 
         if (isAdsCompleted) {
             isAdsFirstRun = false;
+            GlobalValues.completionRate +=1;
             session.setAdsPeriod(adsPeriod);
             // 从ADS下载表拷贝到正式表
             dbHelper.copyTableMethod(DBHelper.MediaDBInfo.TableName.NEWADSLIST, DBHelper.MediaDBInfo.TableName.ADSLIST);
@@ -1727,7 +1801,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             // 记录下载完成日志
             LogReportUtil.get(this).sendAdsLog(logUUID, session.getBoiteId(), session.getRoomId(),
                     String.valueOf(System.currentTimeMillis()), "end", "ads_down", adsPeriod,
-                    "", session.getVersionName(), session.getAdsPeriod(), session.getBirthdayOndemandPeriod(), String.valueOf(adsDownloadedCount));
+                    "", session.getVersionName(), session.getAdsPeriod(), session.getBirthdayOndemandPeriod(), String.valueOf(fileNames.size()));
             LogReportUtil.get(context).sendAdsLog(String.valueOf(System.currentTimeMillis()),
                     Session.get(context).getBoiteId(), Session.get(context).getRoomId(),
                     String.valueOf(System.currentTimeMillis()), "update", adsProgramBean.getVersion().getType(), "",
@@ -1739,7 +1813,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             // 记录下载中止日志
             LogReportUtil.get(this).sendAdsLog(logUUID, session.getBoiteId(), session.getRoomId(),
                     String.valueOf(System.currentTimeMillis()), "suspend", "ads_down", adsPeriod,
-                    "", session.getVersionName(), session.getAdsPeriod(), session.getBirthdayOndemandPeriod(), String.valueOf(adsDownloadedCount));
+                    "", session.getVersionName(), session.getAdsPeriod(), session.getBirthdayOndemandPeriod(), String.valueOf(fileNames.size()));
             if (ads_timeout_count <5){
                 ads_timeout_count ++;
                 handleSmallPlatformAdsData(smallType);
@@ -1747,6 +1821,20 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 ads_timeout_count = 0;
             }
 
+        }
+    }
+
+    private void reportDownloadState(){
+        if (session.getType()==1){
+            if (GlobalValues.completionRate==5){
+                AppApi.reportBoxDownloadState(context,this,session.getEthernetMac(),1);
+            }else if (GlobalValues.completionRate==-1){
+                AppApi.reportBoxDownloadState(context,this,session.getEthernetMac(),2);
+            }else if (GlobalValues.completionRate>=0&&GlobalValues.completionRate<5){
+                AppApi.reportBoxDownloadState(context,this,session.getEthernetMac(),3);
+            }
+            handler.removeCallbacks(completionRunnable);
+            GlobalValues.completionRate = 0;
         }
     }
 

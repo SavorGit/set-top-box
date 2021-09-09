@@ -1243,7 +1243,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             }else{
                 GlobalValues.IMG_NUM.put(openid,1);
             }
-            if (!session.isOpenInteractscreenad()&&!new File(imgpath).exists()){
+            if (!session.isOpenInteractscreenad()&&!new File(imgpath).exists()&&!img.getUrl().endsWith("gif")){
                 ProjectOperationListener.getInstance(context).showImage(1, url, false,forscreen_id, words, headPic, nickName, FROM_SERVICE_MINIPROGRAM);
             }
         }
@@ -1322,8 +1322,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         }
         String fileName = img.getFilename();
         String imgpath = basePath + fileName;
-        if (!new File(imgpath).exists()){
-            String url = BuildConfig.OSS_ENDPOINT+img.getUrl()+ConstantValues.PROJECTION_IMG_THUMBNAIL_PARAM;
+        String url = BuildConfig.OSS_ENDPOINT+img.getUrl()+ConstantValues.PROJECTION_IMG_THUMBNAIL_PARAM;
+        if (!new File(imgpath).exists()&&!img.getUrl().endsWith("gif")){
             ProjectOperationListener.getInstance(context).showImage(1,url,false,forscreen_id,words, headPic, nickName, FROM_SERVICE_MINIPROGRAM);
         }
         if (img_nums>1||(img_nums==1&&!new File(imgpath).exists())){

@@ -118,7 +118,6 @@ public class Session {
     private String advDownloadPeriod;
     /**下载中的广告期号*/
     private String adsDownloadPeriod;
-    private String rtbadsDownloadPeriod;
     private String polyAdsDownloadPeriod;
     /**下一期节目单期号（含节目）*/
     private String proNextPeriod;
@@ -140,7 +139,6 @@ public class Session {
     private String selectContentPeriod;
     /**热播内容期号*/
     private String hotContentPeriod;
-    private String discoverContentPeriod;
     /**欢迎词内容期号*/
     private String welcomeResourcePeriod;
     /**本地生活广告期号*/
@@ -187,8 +185,7 @@ public class Session {
     private String mAuthCode;
     /** 启动图路径*/
     private String mSplashPath;
-    /** 加载图路径*/
-    private String mLoadingPath;
+
     /** 小平台中的所有版本号期号等信息*/
     private ArrayList<VersionInfo> mSPVersionInfo;
     /**电视机尺寸**/
@@ -207,7 +204,6 @@ public class Session {
 	/**上次U盘更新时间*/
     private String lastUDiskUpdateTime;
 
-    private ArrayList<PushRTBItem> mPushRTBItems;
     /**记录下载速度**/
 	private String netSpeed;
 	/**后台配置时候是显示小程序码的屏**/
@@ -264,6 +260,10 @@ public class Session {
     private boolean isWifiHotel;
 
     private int normalUseWechat;
+    /**下载来源类型|1:云端下载 2:局域网下载*/
+    private int type;
+    private String lan_ip;
+    private String lan_mac;
 
     private Session(Context context) {
 
@@ -317,7 +317,6 @@ public class Session {
         adsPeriod = mPreference.loadStringKey(P_APP_ADS_MEIDA_PERIOD,"");
         adsDownloadPeriod = mPreference.loadStringKey(P_APP_ADS_DOWNLOAD_MEIDA_PERIOD, "");
         rtbadsPeriod = mPreference.loadStringKey(P_APP_RTBADS_MEIDA_PERIOD,"");
-        rtbadsDownloadPeriod = mPreference.loadStringKey(P_APP_RTBADS_DOWNLOAD_MEIDA_PERIOD, "");
         polyAdsPeriod = mPreference.loadStringKey(P_APP_POLYADS_MEDIA_PERIOD,"");
         polyAdsDownloadPeriod = mPreference.loadStringKey(P_APP_POLYADS_DOWNLOAD_MEDIA_PERIOD,"");
 
@@ -328,7 +327,6 @@ public class Session {
         shopGoodsAdsPeriod = mPreference.loadStringKey(P_APP_SHOP_GOODS_ADS_PERIOD,"");
         selectContentPeriod = mPreference.loadStringKey(P_APP_SELECT_CONTENT_PERIOD,"");
         hotContentPeriod = mPreference.loadStringKey(P_APP_HOT_CONTENT_PERIOD,"");
-        discoverContentPeriod = mPreference.loadStringKey(P_APP_DISCOVER_CONTENT_PERIOD,"");
         welcomeResourcePeriod = mPreference.loadStringKey(P_APP_WELCOME_RESOURCE_PERIOD,"");
         localLifeAdsPeriod = mPreference.loadStringKey(P_APP_LOCAL_LIFE_ADS_PERIOD,"");
         startTime = mPreference.loadStringKey(P_APP_STARTTIME, null);
@@ -343,7 +341,6 @@ public class Session {
         ossAreaId = mPreference.loadStringKey(P_APP_OSS_AREA_ID,null);
         mAuthCode = mPreference.loadStringKey(P_APP_AUTH_CODE,null);
         mSplashPath = mPreference.loadStringKey(P_APP_SPLASH_PATH, "/Pictures/logo.jpg");
-        mLoadingPath = mPreference.loadStringKey(P_APP_LOADING_PATH, "/Pictures/loading.jpg");
         mSplashVersion = mPreference.loadStringKey(P_APP_SPLASH_VERSION, "");
         mLoadingVersion = mPreference.loadStringKey(P_APP_LOADING_VERSION, "");
         mSPVersionInfo = (ArrayList<VersionInfo>) StringToObject(mPreference.loadStringKey(P_APP_SP_VERSION_INFO, ""));
@@ -356,7 +353,6 @@ public class Session {
         mUseVirtualSp = mPreference.loadBooleanKey(P_APP_USE_VIRTUAL_SP, false);
         standalone = mPreference.loadBooleanKey(P_APP_STAND_ALONE,false);
         lastUDiskUpdateTime = mPreference.loadStringKey(P_APP_LAST_UDISK_UPDATE_TIME, "");
-        mPushRTBItems = (ArrayList<PushRTBItem>) StringToObject(mPreference.loadStringKey(P_APP_RTB_PUSH_CONTENT, ""));
         netSpeed = mPreference.loadStringKey(P_APP_DOWNLOAD_NET_SPEED,"");
         isShowMiniProgramIcon = mPreference.loadBooleanKey(P_APP_SHOW_MIMIPROGRAM,false);
         isShowSimpleMiniProgramIcon = mPreference.loadBooleanKey(P_APP_SHOW_SIMPLE_MIMIPROGRAM,false);
@@ -441,7 +437,6 @@ public class Session {
                 || P_APP_OSS_AREA_ID.equals(key)
                 || P_APP_AUTH_CODE.equals(key)
                 || P_APP_SPLASH_PATH.equals(key)
-                || P_APP_LOADING_PATH.equals(key)
                 || P_APP_SPLASH_VERSION.equals(key)
                 || P_APP_LOADING_VERSION.equals(key)
                 || P_APP_LAST_UDISK_UPDATE_TIME.equals(key)
@@ -456,7 +451,6 @@ public class Session {
                 || P_APP_ACTIVITY_ADS_PERIOD.equals(key)
                 || P_APP_SELECT_CONTENT_PERIOD.equals(key)
                 || P_APP_HOT_CONTENT_PERIOD.equals(key)
-                || P_APP_DISCOVER_CONTENT_PERIOD.equals(key)
                 || P_APP_WELCOME_RESOURCE_PERIOD.equals(key)
                 || P_APP_SHOP_GOODS_ADS_PERIOD.equals(key)
                 || P_APP_LOCAL_LIFE_ADS_PERIOD.equals(key)) {
@@ -950,11 +944,6 @@ public class Session {
         writePreference(new Pair<>(P_APP_ADS_DOWNLOAD_MEIDA_PERIOD, adsDownloadPeriod));
     }
 
-    public void setRtbadsDownloadPeriod(String rtbadsDownloadPeriod) {
-        this.rtbadsDownloadPeriod = rtbadsDownloadPeriod;
-        writePreference(new Pair<>(P_APP_ADS_DOWNLOAD_MEIDA_PERIOD, rtbadsDownloadPeriod));
-    }
-
     public void setProNextPeriod(String proNextPeriod) {
         this.proNextPeriod = proNextPeriod;
         writePreference(new Pair<>(P_APP_PRO_NEXT_MEDIA_PERIOD,proNextPeriod));
@@ -1089,15 +1078,6 @@ public class Session {
         writePreference(new Pair<>(P_APP_SPLASH_PATH, splashPath));
     }
 
-    public String getLoadingPath() {
-        return mLoadingPath;
-    }
-
-    public void setLoadingPath(String loadingPath) {
-        mLoadingPath = loadingPath;
-        writePreference(new Pair<>(P_APP_LOADING_PATH, loadingPath));
-    }
-
     public String getSplashVersion() {
         return mSplashVersion == null ? "" : mSplashVersion;
     }
@@ -1200,15 +1180,6 @@ public class Session {
     public void setHotContentPeriod(String hotContentPeriod) {
         this.hotContentPeriod = hotContentPeriod;
         writePreference(new Pair<>(P_APP_HOT_CONTENT_PERIOD,hotContentPeriod));
-    }
-
-    public String getDiscoverContentPeriod() {
-        return discoverContentPeriod;
-    }
-
-    public void setDiscoverContentPeriod(String discoverContentPeriod) {
-        this.discoverContentPeriod = discoverContentPeriod;
-        writePreference(new Pair<>(P_APP_DISCOVER_CONTENT_PERIOD,discoverContentPeriod));
     }
 
     public String getWelcomeResourcePeriod() {
@@ -1468,8 +1439,6 @@ public class Session {
     public static final String P_APP_SELECT_CONTENT_PERIOD = "com.savor.ads.select_content_period";
     /**用户热播内容期号KEY*/
     public static final String P_APP_HOT_CONTENT_PERIOD = "com.savor.ads.hot_content_period";
-    /**用户发现内容期号KEY*/
-    public static final String P_APP_DISCOVER_CONTENT_PERIOD = "com.savor.ads.discover_content_period";
     /**欢迎词内容期号KEY*/
     public static final String P_APP_WELCOME_RESOURCE_PERIOD = "com.savor.ads.welcome_resource_period";
     /**本地生活广告期号KEY*/
@@ -1498,8 +1467,6 @@ public class Session {
     public static final String P_APP_AUTH_CODE = "com.savor.ads.authCode";
     //启动图路径key
     public static final String P_APP_SPLASH_PATH = "com.savor.ads.splashPath";
-    //加载图路径key
-    public static final String P_APP_LOADING_PATH = "com.savor.ads.loadingPath";
     //加载图版本key
     public static final String P_APP_LOADING_VERSION = "com.savor.ads.loadingVersion";
     //小平台中的各种版本信息key
@@ -1515,8 +1482,6 @@ public class Session {
     public static final String P_APP_PLAY_LIST_VERSION = "com.savor.ads.play_list_version";
     public static final String P_APP_DOWNLOADING_PLAY_LIST_VERSION = "com.savor.ads.downloading_play_list_version";
     public static final String P_APP_NEXT_PLAY_LIST_VERSION = "com.savor.ads.next_play_list_version";
-
-    public static final String P_APP_RTB_PUSH_CONTENT = "com.savor.ads.rtb_push_content";
 
     public static final String P_APP_DOWNLOAD_NET_SPEED = "com.savor.download.net_speed";
 
@@ -1560,10 +1525,6 @@ public class Session {
         return adsDownloadPeriod == null ? "" : adsDownloadPeriod;
     }
 
-    public String getRtbadsDownloadPeriod() {
-        return rtbadsDownloadPeriod == null ? "" : rtbadsDownloadPeriod;
-    }
-
     public String getAdvDownloadPeriod() {
         return advDownloadPeriod == null ? "" : advDownloadPeriod;
     }
@@ -1604,12 +1565,27 @@ public class Session {
         writePreference(new Pair<>(P_APP_LAST_UDISK_UPDATE_TIME, lastUDiskUpdateTime));
     }
 
-    public ArrayList<PushRTBItem> getRTBPushItems() {
-        return mPushRTBItems;
+    public int getType() {
+        return type;
     }
 
-    public void setRTBPushItems(ArrayList<PushRTBItem> PushRTBItems) {
-        mPushRTBItems = PushRTBItems;
-        writePreference(new Pair<>(P_APP_RTB_PUSH_CONTENT, mPushRTBItems));
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public String getLan_ip() {
+        return lan_ip;
+    }
+
+    public void setLan_ip(String lan_ip) {
+        this.lan_ip = lan_ip;
+    }
+
+    public String getLan_mac() {
+        return lan_mac;
+    }
+
+    public void setLan_mac(String lan_mac) {
+        this.lan_mac = lan_mac;
     }
 }

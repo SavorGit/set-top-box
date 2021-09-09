@@ -177,7 +177,7 @@ public class FileDownloader {
             int length;
             boolean isBreak = false;
             while ((length = is.read(buffer)) > 0) {//读取流
-                if (AppUtils.isInProjection()){
+                if (AppUtils.isInProjection()||GlobalValues.completionRate ==-1){
                     isBreak = true;
                     break;
                 }

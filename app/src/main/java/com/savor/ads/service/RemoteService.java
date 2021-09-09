@@ -37,11 +37,16 @@ import com.savor.ads.bean.ImgQueueParam;
 import com.savor.ads.bean.MediaItemBean;
 import com.savor.ads.bean.MediaLibBean;
 import com.savor.ads.bean.MiniProgramProjection;
+import com.savor.ads.bean.ProgramBean;
 import com.savor.ads.bean.ProjectionGuideImg;
 import com.savor.ads.bean.ProjectionImg;
 import com.savor.ads.bean.ProjectionLogBean;
 import com.savor.ads.bean.ProjectionLogHistory;
+import com.savor.ads.bean.SelectContentResult;
 import com.savor.ads.bean.SetTopBoxBean;
+import com.savor.ads.bean.ShopGoodsBean;
+import com.savor.ads.bean.ShopGoodsResult;
+import com.savor.ads.bean.VersionInfo;
 import com.savor.ads.bean.VideoQueueParam;
 import com.savor.ads.bean.WelcomeResourceBean;
 import com.savor.ads.callback.ProjectOperationListener;
@@ -2205,7 +2210,7 @@ public class RemoteService extends Service {
                         }
                     }
                     setTopBoxBean.setPlay_list((ArrayList<MediaLibBean>) list);
-                    response.setResult(list);
+                    response.setResult(setTopBoxBean);
                     response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
                     response.setMsg("查询节目列表成功");
                 }else{
@@ -2227,6 +2232,10 @@ public class RemoteService extends Service {
             List<MediaLibBean> list = DBHelper.get(context).findAdsByWhere(selection,selectionArgs);
             try{
                 if (list!=null){
+                    ProgramBean programBean = new ProgramBean();
+                    programBean.setMedia_lib(list);
+                    VersionInfo version = new VersionInfo();
+                    version.setVersion(list.get(0).getPeriod());
                     response.setResult(list);
                     response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
                     response.setMsg("查询广告列表成功");
@@ -2247,10 +2256,13 @@ public class RemoteService extends Service {
             BaseResponse response = new BaseResponse();
             String selection = "";
             String[] selectionArgs = new String[]{};
-            List<MediaLibBean> list = DBHelper.get(context).findShopGoodsAdsByWhere(selection,selectionArgs);
+            List<ShopGoodsBean> list = DBHelper.get(context).findShopGoodsAds(selection,selectionArgs);
             try{
                 if (list!=null){
-                    response.setResult(list);
+                    ShopGoodsResult result = new ShopGoodsResult();
+                    result.setDatalist(list);
+                    result.setPeriod(list.get(0).getPeriod());
+                    response.setResult(result);
                     response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
                     response.setMsg("查询商城商品列表成功");
                 }else{
@@ -2272,11 +2284,14 @@ public class RemoteService extends Service {
             File[] listFiles = new File(basePath).listFiles();
             try{
                 if (listFiles!=null){
-                    List list = new ArrayList();
+                    List<String> list = new ArrayList();
                     for (File file:listFiles){
                         String name = file.getName();
                         list.add(name);
                     }
+                    SelectContentResult result = new SelectContentResult();
+                    result.setList(list);
+                    result.setPeriod(Session.get(context).getHotContentPeriod());
                     response.setResult(list);
                     response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
                     response.setMsg("查询商城商品列表成功");

@@ -2,6 +2,7 @@ package com.savor.ads.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import android.text.Html;
@@ -256,6 +257,9 @@ public class BoxInfoDialog extends Dialog {
             tvDownloadStateTv.setText("下载中---"+GlobalValues.currentDownlaodFileName+"|当前网速---"+session.getNetSpeed());
         }else{
             tvDownloadStateTv.setText("未下载");
+        }
+        if (session.getType()==2){
+            tvDownloadStateTv.setTextColor(Color.parseColor("#FF0000"));
         }
     }
 }

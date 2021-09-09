@@ -44,7 +44,7 @@ public class AppApi {
 
     private static String PHONE_BASE_URL = "http://192.168.0.1:8080/";
 
-    public static String WLAN_BASE_URL = "";
+    public static String WLAN_BASE_URL = "http://192.168.168.1:"+ConstantValues.SERVER_REQUEST_PORT+File.separator;
 
     /**MeiSSP平台广告**/
     public static final String MEI_SSP_ADS_URL = "http://meiadx.meichuanmei.com/ps/std_json";
@@ -84,7 +84,16 @@ public class AppApi {
     }
 
     public static void resetWLANBaseUrl(String baseIP){
-        WLAN_BASE_URL = "http://"+baseIP+":8080/";
+        if (!TextUtils.isEmpty(baseIP)) {
+            for(Action action:API_URLS.keySet()){
+                if (action.name().startsWith("WLAN_")){
+                    String url = API_URLS.get(action);
+                    url = url.replace(WLAN_BASE_URL,baseIP);
+                    API_URLS.put(action,url);
+                }
+            }
+            WLAN_BASE_URL = baseIP;
+        }
     }
 
     /**
@@ -159,7 +168,12 @@ public class AppApi {
         CP_POST_FORSCREEN_ADSLOG_JSON,
         CP_POST_WELCOME_PLAYLOG_JSON,
         CP_GET_TEST_WECHAT_JSON,
-        WLAN_GET_PROGRAM_GUIDES_JSON
+        WLAN_GET_PROGRAM_GUIDES_JSON,
+        WLAN_GET_ADS_LIST_JSON,
+        WLAN_GET_SHOP_GOODS_JSON,
+        WLAN_GET_HOT_PLAY_JSON,
+        CP_GET_WLAN_SERVER_BOX_JSON,
+        CP_REPORT_DOWNLOAD_STATE_JSON
 
     }
 
@@ -229,6 +243,11 @@ public class AppApi {
             put(Action.CP_POST_FORSCREEN_ADSLOG_JSON,BuildConfig.BASE_URL+"box/boxLog/adsPlaylog");
             put(Action.CP_POST_WELCOME_PLAYLOG_JSON,BuildConfig.BASE_URL+"box/boxLog/welcomePlaylog");
             put(Action.WLAN_GET_PROGRAM_GUIDES_JSON,WLAN_BASE_URL+"WLAN/getProAdvListData");
+            put(Action.WLAN_GET_ADS_LIST_JSON,WLAN_BASE_URL+"WLAN/getAdsListData");
+            put(Action.WLAN_GET_SHOP_GOODS_JSON,WLAN_BASE_URL+"WLAN/getShopgoodsProData");
+            put(Action.WLAN_GET_HOT_PLAY_JSON,WLAN_BASE_URL+"WLAN/getHotPlayProData");
+            put(Action.CP_GET_WLAN_SERVER_BOX_JSON,BuildConfig.BASE_URL+"box/download/getLanip");
+            put(Action.CP_REPORT_DOWNLOAD_STATE_JSON,BuildConfig.BASE_URL+"box/download/report");
 
         }
     };
@@ -1091,8 +1110,76 @@ public class AppApi {
      */
     public static JsonBean getProgramGuidesData(Context context,ApiRequestListener handler,String boxMac) throws IOException{
         final HashMap<String, Object> params = new HashMap<>();
-        params.put("boxMac",boxMac);
+        params.put("box_mac",boxMac);
         return new AppServiceOk(context,Action.WLAN_GET_PROGRAM_GUIDES_JSON, handler,params).syncGet();
+    }
+
+    /**
+     * 获取局域网内节目单-广告数据
+     * @param context
+     * @param handler
+     * @param boxMac
+     * @return
+     * @throws IOException
+     */
+    public static JsonBean getAdsListData(Context context,ApiRequestListener handler,String boxMac) throws IOException{
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("box_mac",boxMac);
+        return new AppServiceOk(context,Action.WLAN_GET_ADS_LIST_JSON, handler,params).syncGet();
+    }
+
+    /**
+     * 获取局域网内商城商品数据
+     * @param context
+     * @param handler
+     * @param boxMac
+     * @return
+     * @throws IOException
+     */
+    public static JsonBean getShopGoodsListData(Context context,ApiRequestListener handler,String boxMac) throws IOException{
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("box_mac",boxMac);
+        return new AppServiceOk(context,Action.WLAN_GET_SHOP_GOODS_JSON, handler,params).syncGet();
+    }
+
+    /**
+     * 获取局域网内热播内容数据
+     * @param context
+     * @param handler
+     * @param boxMac
+     * @return
+     * @throws IOException
+     */
+    public static JsonBean getHotPlayProData(Context context,ApiRequestListener handler,String boxMac) throws IOException{
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("box_mac",boxMac);
+        return new AppServiceOk(context,Action.WLAN_GET_HOT_PLAY_JSON, handler,params).syncGet();
+    }
+
+    /**
+     * 获取局域网内可以提供下载的机顶盒IP
+     * @param context
+     * @param handler
+     * @param boxMac
+     */
+    public static JsonBean getWLANServerBox(Context context,ApiRequestListener handler,String boxMac) throws IOException {
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("box_mac",boxMac);
+        return new AppServiceOk(context,Action.CP_GET_WLAN_SERVER_BOX_JSON, handler,params).syncGet();
+    }
+
+    /**
+     *  上报机顶盒下载状态
+     * @param context
+     * @param handler
+     * @param boxMac
+     * @param status 状态: 1下载成功 2下载超时 3下载失败
+     */
+    public static void reportBoxDownloadState(Context context,ApiRequestListener handler,String boxMac,int status) {
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("box_mac",boxMac);
+        params.put("status",status);
+        new AppServiceOk(context,Action.CP_REPORT_DOWNLOAD_STATE_JSON, handler,params).get();
     }
 
     /**
