@@ -362,6 +362,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 String url = "http://"+lan_ip+":"+ConstantValues.SERVER_REQUEST_PORT+File.separator;
                 AppApi.resetWLANBaseUrl(url);
                 boolean WLANServiceRunning =  AppUtils.isServiceRunning(context,ConstantValues.WLANServiceClaName);
+                LogUtils.d("WLAN客户端----当前客户端状态==="+WLANServiceRunning);
                 if (!WLANServiceRunning){
                     //启动局域网内下载服务
                     Intent intent = new Intent(context, WLANDownloadDataService.class);
