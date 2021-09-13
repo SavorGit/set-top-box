@@ -368,4 +368,6 @@ public class ConstantValues {
     public static final String SELECT_CONTENT_HOT = "1";
     /**用户精选-发现内容*/
     public static final String SELECT_CONTENT_DISCOVER = "2";
+
+    public static final String WLANServiceClaName = ".service.WLANDownloadDataService";
 }

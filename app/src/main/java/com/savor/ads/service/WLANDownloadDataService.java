@@ -13,10 +13,13 @@ import androidx.annotation.Nullable;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.savor.ads.BuildConfig;
 import com.savor.ads.bean.BirthdayOndemandResult;
 import com.savor.ads.bean.JsonBean;
+import com.savor.ads.bean.MediaItemBean;
 import com.savor.ads.bean.MediaLibBean;
 import com.savor.ads.bean.ProgramBean;
+import com.savor.ads.bean.SelectContentBean;
 import com.savor.ads.bean.SelectContentResult;
 import com.savor.ads.bean.SetBoxTopResult;
 import com.savor.ads.bean.SetTopBoxBean;
@@ -92,6 +95,7 @@ public class WLANDownloadDataService extends Service {
             }.getType());
             if (setTopBoxBean.getPeriod().equals(session.getProPeriod())) {
                 GlobalValues.completionRate +=1;
+                LogUtils.d("WLAN客户端----节目和宣传片最新==="+GlobalValues.completionRate);
                 return;
             }
             List<MediaLibBean> listLib = setTopBoxBean.getPlay_list();
@@ -139,6 +143,7 @@ public class WLANDownloadDataService extends Service {
                     session.setProPeriod(currentProPeriod);
                     session.setAdvPeriod(currentAdvPeriod);
                     GlobalValues.completionRate +=1;
+                    LogUtils.d("WLAN客户端----节目和宣传片下载完成==="+GlobalValues.completionRate);
                     AppUtils.deleteOldMedia(context,true);
                     notifyToPlay();
                 }
@@ -154,12 +159,16 @@ public class WLANDownloadDataService extends Service {
             JsonBean jsonBean = AppApi.getAdsListData(context,requestListener,session.getLan_mac());
             JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
             if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
+                GlobalValues.completionRate +=1;
+                LogUtils.d("WLAN客户端----广告没有数据==="+GlobalValues.completionRate);
+                AppUtils.deleteOldMedia(context,true);
                 return;
             }
-            ProgramBean programBean = gson.fromJson(jsonBean.getConfigJson(), new TypeToken<ProgramBean>() {
+            ProgramBean programBean = gson.fromJson(jsonObject.getString("result"), new TypeToken<ProgramBean>() {
             }.getType());
-            if (programBean.getVersion().getVersion().equals(session.getProPeriod())) {
+            if (programBean.getVersion().getVersion().equals(session.getAdsPeriod())) {
                 GlobalValues.completionRate +=1;
+                LogUtils.d("WLAN客户端----广告最新==="+GlobalValues.completionRate);
                 return;
             }
             List<MediaLibBean> listLib = programBean.getMedia_lib();
@@ -197,6 +206,7 @@ public class WLANDownloadDataService extends Service {
                     dbHelper.copyTableMethod(DBHelper.MediaDBInfo.TableName.NEWADSLIST,DBHelper.MediaDBInfo.TableName.ADSLIST);
                     session.setProPeriod(currentAdsPeriod);
                     GlobalValues.completionRate +=1;
+                    LogUtils.d("WLAN客户端----广告下载完成==="+GlobalValues.completionRate);
                     AppUtils.deleteOldMedia(context,true);
                     notifyToPlay();
                 }
@@ -214,16 +224,18 @@ public class WLANDownloadDataService extends Service {
             if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
                 return;
             }
-            ShopGoodsResult result = gson.fromJson(jsonBean.getConfigJson(), new TypeToken<ShopGoodsResult>() {
+            ShopGoodsResult result = gson.fromJson(jsonObject.getString("result"), new TypeToken<ShopGoodsResult>() {
             }.getType());
             if (result.getPeriod().equals(session.getShopGoodsAdsPeriod())) {
                 GlobalValues.completionRate +=1;
+                LogUtils.d("WLAN客户端----商城商品最新==="+GlobalValues.completionRate);
                 return;
             }
             List<ShopGoodsBean> shopGoodsBeanList = result.getDatalist();
             if (shopGoodsBeanList==null||shopGoodsBeanList.size()==0){
                 AppUtils.deleteShopGoodsAdsMedia(context);
                 GlobalValues.completionRate +=1;
+                LogUtils.d("WLAN客户端----商城商品为空==="+GlobalValues.completionRate);
                 notifyToPlay();
                 return;
             }
@@ -261,6 +273,7 @@ public class WLANDownloadDataService extends Service {
                 if (downloadedCount==shopGoodsBeanList.size()){
                     session.setShopGoodsAdsPeriod(result.getPeriod());
                     GlobalValues.completionRate +=1;
+                    LogUtils.d("WLAN客户端----商城商品下载完成==="+GlobalValues.completionRate);
                     String goodsAds = AppUtils.getFilePath(AppUtils.StorageFile.goods_ads);
                     File[] goodsFiles = new File(goodsAds).listFiles();
                     for (File file : goodsFiles) {
@@ -282,55 +295,87 @@ public class WLANDownloadDataService extends Service {
         try {
             JsonBean jsonBean = AppApi.getHotPlayProData(context,requestListener,session.getLan_mac());
             JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
-            if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
-                return;
-            }
-            SelectContentResult result = gson.fromJson(jsonBean.getConfigJson(), new TypeToken<SelectContentResult>() {
-            }.getType());
-            if (result.getPeriod().equals(session.getShopGoodsAdsPeriod())) {
-                GlobalValues.completionRate +=1;
-                return;
-            }
+            //记录接口总共返回多少条数据
+            List<String> fileSize = new ArrayList<>();
+            //记录成功下载多少条数据
             List<String> fileNames = new ArrayList<>();
-            List<String> list = result.getList();
-            if (list==null||list.size()==0){
+            String selection = "";
+            String[] selectionArgs = new String[]{};
+            if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
                 AppUtils.deleteHotContentMedia(fileNames);
                 GlobalValues.completionRate +=1;
-                notifyToPlay();
+                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.SELECT_CONTENT,selection,selectionArgs);
+                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.MEDIA_ITEM,selection,selectionArgs);
+                LogUtils.d("WLAN客户端----热播内容为空==="+GlobalValues.completionRate);
                 return;
             }
-            if (list!=null&&list.size()>0){
-                for (String fileName:list){
-                    boolean checked = false;
-                    String basePath = AppUtils.getFilePath(AppUtils.StorageFile.hot_content);
-                    String path = basePath + fileName;
-                    String url = AppApi.WLAN_BASE_URL+"hot_content/"+fileName;
-                    if (new File(path).exists()){
-                        checked = true;
-                    }else{
-                        boolean isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
+            SelectContentResult result = gson.fromJson(jsonObject.getString("result"), new TypeToken<SelectContentResult>() {
+            }.getType());
+            if (result.getPeriod().equals(session.getHotContentPeriod())) {
+                GlobalValues.completionRate +=1;
+                LogUtils.d("WLAN客户端----热播内容最新==="+GlobalValues.completionRate);
+                return;
+            }
+            List<SelectContentBean> list = result.getDatalist();
+            if (list==null ||list.size()==0){
+                AppUtils.deleteHotContentMedia(fileNames);
+                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.SELECT_CONTENT,selection,selectionArgs);
+                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.MEDIA_ITEM,selection,selectionArgs);
+                GlobalValues.completionRate +=1;
+                return;
+            }
+            String basePath = AppUtils.getFilePath(AppUtils.StorageFile.hot_content);
+            for (SelectContentBean bean:list){
+                if (bean.getSubdata()!=null&&bean.getSubdata().size()>0){
+                    List<String> subNames = new ArrayList<>();
+                    for (MediaItemBean item:bean.getSubdata()){
+                        boolean isDownloaded = false;
+                        String fileName = item.getName();
+                        String path = basePath + item.getName();
+                        fileSize.add(fileName);
+                        if (bean.getMedia_type()==1){
+                            isDownloaded = AppUtils.isDownloadEasyCompleted(path, item.getMd5());
+                        }else if (bean.getMedia_type()==2||bean.getMedia_type()==21){
+                            isDownloaded = AppUtils.isDownloadCompleted(path, item.getMd5().toUpperCase());
+                        }
+                        if (!isDownloaded&&!AppUtils.isInProjection()){
+                            String url = BuildConfig.OSS_ENDPOINT+item.getOss_path();
+                            isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
+                            if (isDownloaded
+                                    && (AppUtils.isDownloadEasyCompleted(path, item.getMd5())
+                                    ||AppUtils.isDownloadCompleted(path, item.getMd5().toUpperCase()))) {
+                                isDownloaded = true;
+                            }else{
+                                isDownloaded = false;
+                            }
+                        }
                         if (isDownloaded){
-                            checked = true;
+                            item.setId(bean.getId());
+                            item.setCreateTime(System.currentTimeMillis()+"");
+                            item.setOss_path(path);
+                            item.setMedia_type(bean.getMedia_type());
+                            item.setType(result.getType());
+                            if (dbHelper.insertMediaItem(item)){
+                                subNames.add(item.getName());
+                            }
                         }
                     }
-                    if (checked){
-                        fileNames.add(fileName);
-                    }
-                }
-                if (fileNames.size()==list.size()){
-                    session.setHotContentPeriod(result.getPeriod());
-                    GlobalValues.completionRate +=1;
-                    String hotplay = AppUtils.getFilePath(AppUtils.StorageFile.hot_content);
-                    File[] hotplayFiles = new File(hotplay).listFiles();
-                    for (File file : hotplayFiles) {
-                        String fileName = file.getName();
-                        if (!fileNames.contains(fileName)) {
-                            file.delete();
-                            LogUtils.d("删除文件===================" + file.getName());
+                    if (subNames.size()==bean.getSubdata().size()){
+                        bean.setCreateTime(System.currentTimeMillis()+"");
+                        bean.setPeriod(result.getPeriod());
+                        bean.setType(result.getType());
+                        if (dbHelper.insertSelectContent(bean)){
+                            fileNames.addAll(subNames);
                         }
                     }
-                    notifyToPlay();
                 }
+            }
+            if (fileSize.size()==fileNames.size()){
+                //热播精选内容下载完成
+                session.setHotContentPeriod(result.getPeriod());
+                GlobalValues.completionRate +=1;
+                LogUtils.d("WLAN客户端----热播内容下载完成==="+GlobalValues.completionRate);
+                AppUtils.deleteHotContentMedia(fileNames);
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -346,10 +391,13 @@ public class WLANDownloadDataService extends Service {
 
     private void reportDownloadState(){
         if (GlobalValues.completionRate==4){
+            LogUtils.d("WLAN客户端----下载成功,开始上传=="+GlobalValues.completionRate);
             AppApi.reportBoxDownloadState(context,requestListener,session.getEthernetMac(),1);
         }else if (GlobalValues.completionRate==-1){
+            LogUtils.d("WLAN客户端----下载超时,开始上传=="+GlobalValues.completionRate);
             AppApi.reportBoxDownloadState(context,requestListener,session.getEthernetMac(),2);
         }else if (GlobalValues.completionRate>=0&&GlobalValues.completionRate<4){
+            LogUtils.d("WLAN客户端----下载失败,开始上传=="+GlobalValues.completionRate);
             AppApi.reportBoxDownloadState(context,requestListener,session.getEthernetMac(),3);
         }
         handler.removeCallbacks(completionRunnable);

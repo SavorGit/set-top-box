@@ -1030,7 +1030,7 @@ public class AppUtils {
                 if (files.length>0){
                     for (File file:files){
                         String name = file.getName();
-                        if (fileNames.contains(name)){
+                        if (fileNames.size()>0&&fileNames.contains(name)){
                             continue;
                         }else {
                             file.delete();
@@ -2388,9 +2388,9 @@ public class AppUtils {
         String[] selectionArgs = new String[]{"1"};
         List<MediaLibBean> activityAdsList = dbHelper.findActivityAdsByWhere(selection,selectionArgs);
         /**用户精选数据:type|类型 1热播内容(上大屏内容) 2发现内容**/
-        selection = DBHelper.MediaDBInfo.FieldName.TYPE + "=? ";
-        selectionArgs = new String[]{"1"};
-        List<MediaLibBean> selectContentList = dbHelper.findSelectContentList(selection,selectionArgs);
+//        selection = DBHelper.MediaDBInfo.FieldName.TYPE + "=? ";
+//        selectionArgs = new String[]{"1"};
+//        List<MediaLibBean> selectContentList = dbHelper.findSelectContentList(selection,selectionArgs);
 
         /**本地生活广告数据**/
         List<MediaLibBean> localLifeAdsList = dbHelper.findLocalLifeAdsByWhere(new String(),new String[]{});
@@ -2918,10 +2918,8 @@ public class AppUtils {
             if (!TextUtils.isEmpty(md5) && md5.equals(realMd5)) {
                 return true;
             }
-            return false;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
@@ -3099,5 +3097,20 @@ public class AppUtils {
         int pos = filename.lastIndexOf(".");
         fileNameId = filename.substring(0,pos);
         return fileNameId;
+    }
+
+
+    public static boolean isServiceRunning(Context context,final String className){
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningServiceInfo> info = activityManager.getRunningServices(Integer.MAX_VALUE);
+        if (info == null||info.size()==0){
+            return false;
+        }
+        for (ActivityManager.RunningServiceInfo aInfo:info){
+            if (className.equals(aInfo.service.getShortClassName())){
+                return true;
+            }
+        }
+        return false;
     }
 }

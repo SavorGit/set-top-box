@@ -6,7 +6,7 @@ import java.util.List;
  * 该实体类用于发现接口和用户精选热播内容接口公用,通过type来区分接口数据
  */
 public class SelectContentBean {
-    /**位置ID*/
+    /**数据标识ID*/
     private long id;
     /**播放时间*/
     private int duration;

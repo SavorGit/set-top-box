@@ -42,6 +42,7 @@ import com.savor.ads.bean.ProjectionGuideImg;
 import com.savor.ads.bean.ProjectionImg;
 import com.savor.ads.bean.ProjectionLogBean;
 import com.savor.ads.bean.ProjectionLogHistory;
+import com.savor.ads.bean.SelectContentBean;
 import com.savor.ads.bean.SelectContentResult;
 import com.savor.ads.bean.SetTopBoxBean;
 import com.savor.ads.bean.ShopGoodsBean;
@@ -2235,8 +2236,9 @@ public class RemoteService extends Service {
                     ProgramBean programBean = new ProgramBean();
                     programBean.setMedia_lib(list);
                     VersionInfo version = new VersionInfo();
-                    version.setVersion(list.get(0).getPeriod());
-                    response.setResult(list);
+                    version.setVersion(Session.get(context).getAdsPeriod());
+                    programBean.setVersion(version);
+                    response.setResult(programBean);
                     response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
                     response.setMsg("查询广告列表成功");
                 }else{
@@ -2258,17 +2260,12 @@ public class RemoteService extends Service {
             String[] selectionArgs = new String[]{};
             List<ShopGoodsBean> list = DBHelper.get(context).findShopGoodsAds(selection,selectionArgs);
             try{
-                if (list!=null){
-                    ShopGoodsResult result = new ShopGoodsResult();
-                    result.setDatalist(list);
-                    result.setPeriod(list.get(0).getPeriod());
-                    response.setResult(result);
-                    response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
-                    response.setMsg("查询商城商品列表成功");
-                }else{
-                    response.setCode(ConstantValues.SERVER_RESPONSE_CODE_NULL);
-                    response.setMsg("查询商城商品列表數據誒空");
-                }
+                ShopGoodsResult result = new ShopGoodsResult();
+                result.setDatalist(list);
+                result.setPeriod(Session.get(context).getShopGoodsAdsPeriod());
+                response.setResult(result);
+                response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
+                response.setMsg("查询商城商品列表成功");
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -2280,19 +2277,15 @@ public class RemoteService extends Service {
          */
         private String findHotPlayProData(){
             BaseResponse response = new BaseResponse();
-            String basePath = AppUtils.getFilePath(AppUtils.StorageFile.hot_content);
-            File[] listFiles = new File(basePath).listFiles();
+            String selection = "";
+            String[] selectionArgs = new String[]{};
+            List<SelectContentBean> hotPlayContentList = DBHelper.get(context).findHotPlayContentList(selection,selectionArgs);
             try{
-                if (listFiles!=null){
-                    List<String> list = new ArrayList();
-                    for (File file:listFiles){
-                        String name = file.getName();
-                        list.add(name);
-                    }
+                if (hotPlayContentList!=null&&hotPlayContentList.size()>0){
                     SelectContentResult result = new SelectContentResult();
-                    result.setList(list);
+                    result.setDatalist(hotPlayContentList);
                     result.setPeriod(Session.get(context).getHotContentPeriod());
-                    response.setResult(list);
+                    response.setResult(result);
                     response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
                     response.setMsg("查询商城商品列表成功");
                 }else{

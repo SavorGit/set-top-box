@@ -1887,51 +1887,6 @@ public class DBHelper extends SQLiteOpenHelper {
         return flag;
     }
 
-    /**
-     * 条件查询用户精选内容
-     * @return
-     */
-    public List<MediaLibBean> findSelectContentList(String selection, String[] selectionArgs){
-        List<MediaLibBean> list = null;
-        synchronized (dbHelper) {
-            Cursor cursor = null;
-            try {
-                cursor = db.query(TableName.SELECT_CONTENT, null,
-                        selection, selectionArgs, null, null, null, null);
-                if (cursor != null) {
-                    if (cursor.moveToFirst()) {
-                        list = new ArrayList<>();
-                        do {
-                            MediaLibBean bean = new MediaLibBean();
-                            bean.setId(cursor.getInt(cursor.getColumnIndex(ID)));
-                            bean.setMedia_type(cursor.getInt(cursor.getColumnIndex(RESOURCE_TYPE)));
-                            bean.setDuration(cursor.getString(cursor.getColumnIndex(DURATION)));
-                            bean.setPeriod(cursor.getString(cursor.getColumnIndex(PERIOD)));
-                            bean.setNickName(cursor.getString(cursor.getColumnIndex(NICK_NAME)));
-                            bean.setAvatarUrl(cursor.getString(cursor.getColumnIndex(AVATAR_URL)));
-                            bean.setStart_date(cursor.getString(cursor.getColumnIndex(START_DATE)));
-                            bean.setEnd_date(cursor.getString(cursor.getColumnIndex(END_DATE)));
-                            bean.setCreateTime(cursor.getString(cursor.getColumnIndex(CREATETIME)));
-                            bean.setSelectContentType(cursor.getInt(cursor.getColumnIndex(TYPE)));
-                            list.add(bean);
-                        } while (cursor.moveToNext());
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (cursor != null && !cursor.isClosed()) {
-                        cursor.close();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return list;
-    }
-
     public boolean insertMediaItem(MediaItemBean item){
         if (item == null) {
             return false;
@@ -1956,6 +1911,55 @@ public class DBHelper extends SQLiteOpenHelper {
             e.printStackTrace();
         }
         return flag;
+    }
+
+    /**
+     * 条件查询用户精选内容
+     * @return
+     */
+    public List<SelectContentBean> findHotPlayContentList(String selection, String[] selectionArgs){
+        List<SelectContentBean> list = null;
+        synchronized (dbHelper) {
+            Cursor cursor = null;
+            try {
+                cursor = db.query(TableName.SELECT_CONTENT, null,
+                        selection, selectionArgs, null, null, null, null);
+                if (cursor != null) {
+                    if (cursor.moveToFirst()) {
+                        list = new ArrayList<>();
+                        do {
+                            SelectContentBean bean = new SelectContentBean();
+                            bean.setId(cursor.getInt(cursor.getColumnIndex(ID)));
+                            bean.setDuration(cursor.getInt(cursor.getColumnIndex(DURATION)));
+                            bean.setMedia_type(cursor.getInt(cursor.getColumnIndex(RESOURCE_TYPE)));
+                            bean.setPeriod(cursor.getString(cursor.getColumnIndex(PERIOD)));
+                            bean.setNickName(cursor.getString(cursor.getColumnIndex(NICK_NAME)));
+                            bean.setAvatarUrl(cursor.getString(cursor.getColumnIndex(AVATAR_URL)));
+                            bean.setCreateTime(cursor.getString(cursor.getColumnIndex(CREATETIME)));
+                            bean.setStart_date(cursor.getString(cursor.getColumnIndex(START_DATE)));
+                            bean.setEnd_date(cursor.getString(cursor.getColumnIndex(END_DATE)));
+                            bean.setType(cursor.getInt(cursor.getColumnIndex(TYPE)));
+                            String selectionSub = ID + "=? ";
+                            String[] selectionArgsSub = new String[]{String.valueOf(bean.getId())};
+                            List<MediaItemBean> item = findMediaItemList(selectionSub,selectionArgsSub);
+                            bean.setSubdata(item);
+                            list.add(bean);
+                        } while (cursor.moveToNext());
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (cursor != null && !cursor.isClosed()) {
+                        cursor.close();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return list;
     }
 
     public List<MediaItemBean> findMediaItemList(String selection, String[] selectionArgs){

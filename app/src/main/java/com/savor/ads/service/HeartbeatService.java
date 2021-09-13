@@ -24,6 +24,7 @@ import com.savor.ads.bean.PlaylistDetailRequestBean;
 import com.savor.ads.bean.ProgramBean;
 import com.savor.ads.bean.ProgramBeanResult;
 import com.savor.ads.bean.ProjectionGuideImg;
+import com.savor.ads.bean.SelectContentBean;
 import com.savor.ads.bean.ServerInfo;
 import com.savor.ads.bean.SetBoxTopResult;
 import com.savor.ads.core.ApiRequestListener;
@@ -88,6 +89,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
     private int mServerInfoCheckElapsedTime = 0;
 
     private long total_data = TrafficStats.getTotalRxBytes();
+
     private Handler mHandler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -112,9 +114,13 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
     private int serial_no;
     private Session session;
     private String gifBgPath;
+    private DBHelper dbHelper;
+    //上报热播内容相关的ID集合
+    ArrayList<String> contentIds = new ArrayList<>();
     public HeartbeatService() {
         super("HeartbeatService");
         context = this;
+        dbHelper = DBHelper.get(context);
     }
 
     @Override
@@ -384,8 +390,16 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                 }
             }
             playlistDetailRequestBean.setList(playlist);
-            if (GlobalValues.getInstance().HOT_CONTENT_LIST!=null){
-                playlistDetailRequestBean.setHotplay(GlobalValues.getInstance().HOT_CONTENT_LIST);
+            String selection = "";
+            String[] selectionArgs = new String[]{};
+            List<SelectContentBean> listLib = dbHelper.findHotPlayContentList(selection,selectionArgs);
+            if (listLib!=null&&listLib.size()>0){
+                for (SelectContentBean libBean:listLib){
+                    contentIds.add(libBean.getId()+"");
+                }
+            }
+            if (contentIds!=null&&contentIds.size()>0){
+                playlistDetailRequestBean.setHotplay(contentIds);
             }
             AppApi.reportPlaylist(this, this, playlistDetailRequestBean);
         }

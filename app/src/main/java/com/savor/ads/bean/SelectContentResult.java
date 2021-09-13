@@ -3,7 +3,7 @@ package com.savor.ads.bean;
 import java.util.List;
 
 /**
- * 用户精选内容
+ * 用户精选内容就是热播内容
  */
 public class SelectContentResult {
 
