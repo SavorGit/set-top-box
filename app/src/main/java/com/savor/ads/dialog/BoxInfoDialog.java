@@ -128,6 +128,9 @@ public class BoxInfoDialog extends Dialog {
         try {
             mHotelNameTv.setText(session.getBoiteName());
             tvDownloadStateTv.setText("未下载");
+            if (session.getType()==2){
+                tvDownloadStateTv.setTextColor(Color.parseColor("#FF0000"));
+            }
             mRomVersionTv.setText(session.getRomVersion());
             mAppVersionTv.setText(session.getVersionName() + "_" + session.getVersionCode());
             mSystemTimeTv.setText(AppUtils.getCurTime());
@@ -257,9 +260,6 @@ public class BoxInfoDialog extends Dialog {
             tvDownloadStateTv.setText("下载中---"+GlobalValues.currentDownlaodFileName+"|当前网速---"+session.getNetSpeed());
         }else{
             tvDownloadStateTv.setText("未下载");
-        }
-        if (session.getType()==2){
-            tvDownloadStateTv.setTextColor(Color.parseColor("#FF0000"));
         }
     }
 }

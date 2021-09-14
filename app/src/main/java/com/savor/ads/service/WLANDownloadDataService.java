@@ -339,7 +339,7 @@ public class WLANDownloadDataService extends Service {
                             isDownloaded = AppUtils.isDownloadCompleted(path, item.getMd5().toUpperCase());
                         }
                         if (!isDownloaded&&!AppUtils.isInProjection()){
-                            String url = BuildConfig.OSS_ENDPOINT+item.getOss_path();
+                            String url = AppApi.WLAN_BASE_URL+"hot_content/"+fileName;;
                             isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
                             if (isDownloaded
                                     && (AppUtils.isDownloadEasyCompleted(path, item.getMd5())

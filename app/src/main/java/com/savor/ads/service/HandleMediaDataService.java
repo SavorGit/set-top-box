@@ -902,6 +902,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             ShopGoodsResult result = gson.fromJson(jsonObject.get("result").toString(), new TypeToken<ShopGoodsResult>() {
             }.getType());
             if (!isFirstRun&&result.getPeriod().equals(session.getShopGoodsAdsPeriod())){
+                GlobalValues.completionRate +=1;
                 return;
             }
             if (result.getDatalist()==null||result.getDatalist().size()==0){
@@ -1000,6 +1001,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             SelectContentResult result = gson.fromJson(jsonObject.get("result").toString(), new TypeToken<SelectContentResult>() {
             }.getType());
             if (!isFirstRun&&result.getPeriod().equals(session.getHotContentPeriod())){
+                GlobalValues.completionRate +=1;
                 return;
             }
             if (result.getDatalist()==null||result.getDatalist().size()==0){
@@ -1303,6 +1305,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                         (session.getProPeriod().equals(proPeriod) || session.getProNextPeriod().equals(proPeriod))) {
                     isProCompleted = true;
                     mProCompletedPeriod = proPeriod;
+                    GlobalValues.completionRate +=1;
                     continue;
                 }
                 String selection = DBHelper.MediaDBInfo.FieldName.MEDIATYPE + "=? and " +
@@ -1498,6 +1501,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         String advPeriod = advProgramBean.getVersion().getVersion();
         if (!isFirstRun &&
                 (session.getAdvPeriod().equals(advPeriod) || session.getAdvNextPeriod().equals(advPeriod))) {
+            GlobalValues.completionRate +=1;
             return;
         }
 
@@ -1739,6 +1743,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         }
         String adsPeriod = adsProgramBean.getVersion().getVersion();
         if (!isAdsFirstRun && session.getAdsPeriod().equals(adsPeriod)) {
+            GlobalValues.completionRate +=1;
             return;
         }
 

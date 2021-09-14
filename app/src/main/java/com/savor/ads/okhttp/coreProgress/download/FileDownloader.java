@@ -15,6 +15,7 @@ import com.savor.ads.core.Session;
 import com.savor.ads.log.LogReportUtil;
 import com.savor.ads.service.HandleMediaDataService;
 import com.savor.ads.service.MiniProgramNettyService;
+import com.savor.ads.service.WLANDownloadDataService;
 import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
@@ -126,7 +127,7 @@ public class FileDownloader {
             GlobalValues.isDownload = true;
             GlobalValues.currentDownlaodFileName = fileName;
             downloadState();
-            if (cacheFile.exists()){
+            if (cacheFile.exists()&&!(context instanceof WLANDownloadDataService)){
                 RandomAccessFile cacheAccessFile = new RandomAccessFile(cacheFile,"rwd");
                 try {
                     startIndex = cacheAccessFile.length();
