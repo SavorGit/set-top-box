@@ -2204,12 +2204,8 @@ public class RemoteService extends Service {
             try{
                 if (list!=null){
                     SetTopBoxBean setTopBoxBean = new SetTopBoxBean();
-                    for (MediaLibBean bean:list){
-                        if (bean.getType().equals(ConstantValues.PRO)){
-                            setTopBoxBean.setPeriod(bean.getPeriod());
-                            break;
-                        }
-                    }
+                    setTopBoxBean.setPeriod(Session.get(context).getProPeriod());
+                    setTopBoxBean.setAdvPeriod(Session.get(context).getAdvPeriod());
                     setTopBoxBean.setPlay_list((ArrayList<MediaLibBean>) list);
                     response.setResult(setTopBoxBean);
                     response.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);

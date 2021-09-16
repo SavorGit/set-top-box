@@ -5,16 +5,12 @@ import android.app.Service;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.TextUtils;
-import android.util.Log;
 
 import com.savor.ads.activity.AdsPlayerActivity;
-import com.savor.ads.dialog.BoxInfoDialog;
-import com.savor.ads.log.LogParamValues;
 import com.savor.ads.core.Session;
+import com.savor.ads.log.LogParamValues;
 import com.savor.ads.log.LogReportUtil;
 import com.savor.ads.service.HandleMediaDataService;
-import com.savor.ads.service.MiniProgramNettyService;
 import com.savor.ads.service.WLANDownloadDataService;
 import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
@@ -27,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
-import java.math.BigDecimal;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -37,12 +32,12 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /**
- * Created by Administrator on 2016/12/9.
- * Modify  by bichao on 2019-06-25 13:41
+ * 局域网内下载使用
+ * Created by bichao on 2021/09/16 13:58.
  */
 
-public class FileDownloader {
-    public static final String TAG = "FileDownloader";
+public class WLANFileDownloader {
+    public static final String TAG = "WLANFileDownloader";
     public final static int CONNECT_TIMEOUT =60;
     public final static int READ_TIMEOUT=10;
     public final static int WRITE_TIMEOUT=10;
@@ -61,18 +56,7 @@ public class FileDownloader {
 //    public static int count =0;
     Handler handler = new Handler(Looper.getMainLooper());
 
-    public FileDownloader(Context context, String url, String filePath, String fileName){
-        this.context = context;
-        session = Session.get(context);
-        this.url = url;
-        this.filePath = filePath;
-        this.fileName = fileName;
-        this.standard = false;
-        //在下载、暂停后的继续下载中可复用同一个client对象
-        client = getProgressClient();
-    }
-
-    public FileDownloader(Context context, String url, String filePath, String fileName, boolean standard){
+    public WLANFileDownloader(Context context, String url, String filePath, String fileName, boolean standard){
         this.context = context;
         session = Session.get(context);
         this.url = url;
@@ -83,13 +67,6 @@ public class FileDownloader {
     }
 
     //每次下载需要新建新的Call对象
-    private Call newRangeCall(long startPoints){
-        Request request = new Request.Builder()
-                .url(url)
-                .header("Range","bytes="+startPoints+"-")//断点续传下载需要用到的，提示下载的区域
-                .build();
-        return client.newCall(request);
-    }
     private Call newCall(){
         Request request = new Request.Builder()
                 .url(url)
@@ -124,31 +101,18 @@ public class FileDownloader {
         try {
             File cacheFile = new File(filePath,fileName+ ConstantValues.CACHE);
             long startTime = System.currentTimeMillis();
-
-            GlobalValues.isDownload = true;
+            if (!GlobalValues.isWLANDownload){
+                GlobalValues.isWLANDownload = true;
+            }
             GlobalValues.currentDownlaodFileName = fileName;
             downloadState();
-            if (cacheFile.exists()&&!(context instanceof WLANDownloadDataService)){
-                RandomAccessFile cacheAccessFile = new RandomAccessFile(cacheFile,"rwd");
-                try {
-                    startIndex = cacheAccessFile.length();
-                }catch (NumberFormatException e){
-                        e.printStackTrace();
-                }
-                call = newRangeCall(startIndex);
-                Response response = call.execute();
-                if (response.code()==206){
-                    flag = saveRangeFile(response,startIndex,cacheFile);
-                }
-            }else{
-                call = newCall();
-                Response response = call.execute();
-                if (response.code() == 200) {
-                    flag = saveRangeFile(response,startIndex,cacheFile);
-                }
+            call = newCall();
+            Response response = call.execute();
+            if (response.code() == 200) {
+                flag = saveRangeFile(response,startIndex,cacheFile);
             }
             String useTime = String.valueOf(System.currentTimeMillis()-startTime);
-            GlobalValues.isDownload = false;
+            GlobalValues.isWLANDownload = false;
             if (flag){
                 String resourceSize = String.valueOf(new File(filePath+fileName).length());
                 String mUUID = String.valueOf(System.currentTimeMillis());
@@ -212,13 +176,13 @@ public class FileDownloader {
             if (context instanceof Service){
                 service = (Service)context;
             }
-            if (activity!=null&&service !=null&&service instanceof HandleMediaDataService){
+            if (activity!=null&&service !=null&&service instanceof  WLANDownloadDataService){
                 if (Looper.myLooper() == Looper.getMainLooper()) {
                     ((AdsPlayerActivity) activity).showDownloadState();
                 }else {
                     handler.post(()->((AdsPlayerActivity) activity).showDownloadState());
                 }
-                if (GlobalValues.isDownload){
+                if (GlobalValues.isWLANDownload){
                     handler.postDelayed(downloadStateRunnable,500);
                 }
             }

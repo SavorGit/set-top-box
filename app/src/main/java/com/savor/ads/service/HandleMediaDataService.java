@@ -354,8 +354,8 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 }
                 /********************************/
 //                session.setType(2);
-//                String lan_ip = "192.168.168.166";
-//                String lan_mac = "00226D655598";
+//                String lan_ip = "192.168.168.104";
+//                String lan_mac = "00226D583D6A";
                 /********************************/
                 session.setLan_ip(lan_ip);
                 session.setLan_mac(lan_mac);
@@ -903,6 +903,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             }.getType());
             if (!isFirstRun&&result.getPeriod().equals(session.getShopGoodsAdsPeriod())){
                 GlobalValues.completionRate +=1;
+                LogUtils.d("WLAN服务端----商城商品最新");
                 return;
             }
             if (result.getDatalist()==null||result.getDatalist().size()==0){
@@ -1002,6 +1003,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             }.getType());
             if (!isFirstRun&&result.getPeriod().equals(session.getHotContentPeriod())){
                 GlobalValues.completionRate +=1;
+                LogUtils.d("WLAN服务端----热播内容最新");
                 return;
             }
             if (result.getDatalist()==null||result.getDatalist().size()==0){
@@ -1306,6 +1308,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                     isProCompleted = true;
                     mProCompletedPeriod = proPeriod;
                     GlobalValues.completionRate +=1;
+                    LogUtils.d("WLAN服务端----轮播节目最新");
                     continue;
                 }
                 String selection = DBHelper.MediaDBInfo.FieldName.MEDIATYPE + "=? and " +
@@ -1501,6 +1504,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         String advPeriod = advProgramBean.getVersion().getVersion();
         if (!isFirstRun &&
                 (session.getAdvPeriod().equals(advPeriod) || session.getAdvNextPeriod().equals(advPeriod))) {
+            LogUtils.d("WLAN服务端----宣传片最新");
             GlobalValues.completionRate +=1;
             return;
         }
@@ -1611,6 +1615,8 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 isAdvCompleted = false;
             }
         } else {
+            GlobalValues.completionRate +=1;
+            LogUtils.d("WLAN服务端----宣传片为空==="+GlobalValues.completionRate);
             isAdvCompleted = true;
         }
 
@@ -1743,6 +1749,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         }
         String adsPeriod = adsProgramBean.getVersion().getVersion();
         if (!isAdsFirstRun && session.getAdsPeriod().equals(adsPeriod)) {
+            LogUtils.d("WLAN服务端----广告片最新");
             GlobalValues.completionRate +=1;
             return;
         }
@@ -1874,6 +1881,9 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             }
             handler.removeCallbacks(completionRunnable);
             GlobalValues.completionRate = 0;
+            GlobalValues.isDownload = false;
+        }else if (session.getType()==0){
+            GlobalValues.isDownload = false;
         }
     }
 

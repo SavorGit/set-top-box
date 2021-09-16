@@ -143,6 +143,7 @@ public class GlobalValues <T extends MediaLibBean> {
     /**----------------------------------**/
     /**当前机顶盒是否处于下载状态*/
     public static boolean isDownload;
+    public static boolean isWLANDownload;
     /**当前机顶盒下载文件*/
     public static String currentDownlaodFileName;
 

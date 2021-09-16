@@ -130,6 +130,8 @@ public class BoxInfoDialog extends Dialog {
             tvDownloadStateTv.setText("未下载");
             if (session.getType()==2){
                 tvDownloadStateTv.setTextColor(Color.parseColor("#FF0000"));
+            }else{
+                tvDownloadStateTv.setTextColor(Color.parseColor("#FFFFFFFF"));
             }
             mRomVersionTv.setText(session.getRomVersion());
             mAppVersionTv.setText(session.getVersionName() + "_" + session.getVersionCode());
@@ -256,7 +258,7 @@ public class BoxInfoDialog extends Dialog {
     }
 
     public void setTvDownloadState(){
-        if (GlobalValues.isDownload){
+        if (GlobalValues.isDownload||GlobalValues.isWLANDownload){
             tvDownloadStateTv.setText("下载中---"+GlobalValues.currentDownlaodFileName+"|当前网速---"+session.getNetSpeed());
         }else{
             tvDownloadStateTv.setText("未下载");

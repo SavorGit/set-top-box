@@ -346,9 +346,9 @@ public class Session {
         mSPVersionInfo = (ArrayList<VersionInfo>) StringToObject(mPreference.loadStringKey(P_APP_SP_VERSION_INFO, ""));
         tvSize = mPreference.loadIntKey(P_APP_TV_SIZE,0);
         // 以下三个方法目前作为新老期号存储方式过渡使用
-        setPlayListVersion((ArrayList<VersionInfo>)StringToObject(mPreference.loadStringKey(P_APP_PLAY_LIST_VERSION, "")));
-        setDownloadingPlayListVersion((ArrayList<VersionInfo>) StringToObject(mPreference.loadStringKey(P_APP_DOWNLOADING_PLAY_LIST_VERSION, "")));
-        setNextPlayListVersion((ArrayList<VersionInfo>) StringToObject(mPreference.loadStringKey(P_APP_NEXT_PLAY_LIST_VERSION, "")));
+//        setPlayListVersion((ArrayList<VersionInfo>)StringToObject(mPreference.loadStringKey(P_APP_PLAY_LIST_VERSION, "")));
+//        setDownloadingPlayListVersion((ArrayList<VersionInfo>) StringToObject(mPreference.loadStringKey(P_APP_DOWNLOADING_PLAY_LIST_VERSION, "")));
+//        setNextPlayListVersion((ArrayList<VersionInfo>) StringToObject(mPreference.loadStringKey(P_APP_NEXT_PLAY_LIST_VERSION, "")));
 
         mUseVirtualSp = mPreference.loadBooleanKey(P_APP_USE_VIRTUAL_SP, false);
         standalone = mPreference.loadBooleanKey(P_APP_STAND_ALONE,false);
@@ -864,32 +864,32 @@ public class Session {
         writePreference(new Pair<>(P_APP_PRO_NEXT_MEDIA_PUBTIME,proNextMediaPubTime));
     }
 
-    public void setPlayListVersion(ArrayList<VersionInfo> playListVersion) {
-        if (playListVersion != null) {
-            setAdsPeriod(AppUtils.findSpecifiedPeriodByType(playListVersion, "ads"));
-            setAdvPeriod(AppUtils.findSpecifiedPeriodByType(playListVersion, "adv"));
-            setProPeriod(AppUtils.findSpecifiedPeriodByType(playListVersion, "pro"));
-            mPreference.removeKey(P_APP_PLAY_LIST_VERSION);
-        }
-    }
+//    public void setPlayListVersion(ArrayList<VersionInfo> playListVersion) {
+//        if (playListVersion != null) {
+//            setAdsPeriod(AppUtils.findSpecifiedPeriodByType(playListVersion, "ads"));
+//            setAdvPeriod(AppUtils.findSpecifiedPeriodByType(playListVersion, "adv"));
+//            setProPeriod(AppUtils.findSpecifiedPeriodByType(playListVersion, "pro"));
+//            mPreference.removeKey(P_APP_PLAY_LIST_VERSION);
+//        }
+//    }
 
-    public void setNextPlayListVersion(ArrayList<VersionInfo> nextPlayListVersion) {
-        if (nextPlayListVersion != null) {
-            setAdsNextPeriod(AppUtils.findSpecifiedPeriodByType(nextPlayListVersion, "ads"));
-            setAdvNextPeriod(AppUtils.findSpecifiedPeriodByType(nextPlayListVersion, "adv"));
-            setProNextPeriod(AppUtils.findSpecifiedPeriodByType(nextPlayListVersion, "pro"));
-            mPreference.removeKey(P_APP_NEXT_PLAY_LIST_VERSION);
-        }
-    }
+//    public void setNextPlayListVersion(ArrayList<VersionInfo> nextPlayListVersion) {
+//        if (nextPlayListVersion != null) {
+//            setAdsNextPeriod(AppUtils.findSpecifiedPeriodByType(nextPlayListVersion, "ads"));
+//            setAdvNextPeriod(AppUtils.findSpecifiedPeriodByType(nextPlayListVersion, "adv"));
+//            setProNextPeriod(AppUtils.findSpecifiedPeriodByType(nextPlayListVersion, "pro"));
+//            mPreference.removeKey(P_APP_NEXT_PLAY_LIST_VERSION);
+//        }
+//    }
 
-   public void setDownloadingPlayListVersion(ArrayList<VersionInfo> downloadingPlayListVersion) {
-       if (downloadingPlayListVersion != null) {
-           setAdsDownloadPeriod(AppUtils.findSpecifiedPeriodByType(downloadingPlayListVersion, "ads"));
-           setAdvDownloadPeriod(AppUtils.findSpecifiedPeriodByType(downloadingPlayListVersion, "adv"));
-           setProDownloadPeriod(AppUtils.findSpecifiedPeriodByType(downloadingPlayListVersion, "pro"));
-           mPreference.removeKey(P_APP_DOWNLOADING_PLAY_LIST_VERSION);
-       }
-   }
+//   public void setDownloadingPlayListVersion(ArrayList<VersionInfo> downloadingPlayListVersion) {
+//       if (downloadingPlayListVersion != null) {
+//           setAdsDownloadPeriod(AppUtils.findSpecifiedPeriodByType(downloadingPlayListVersion, "ads"));
+//           setAdvDownloadPeriod(AppUtils.findSpecifiedPeriodByType(downloadingPlayListVersion, "adv"));
+//           setProDownloadPeriod(AppUtils.findSpecifiedPeriodByType(downloadingPlayListVersion, "pro"));
+//           mPreference.removeKey(P_APP_DOWNLOADING_PLAY_LIST_VERSION);
+//       }
+//   }
 
     public void setProPeriod(String proPeriod) {
         this.proPeriod = proPeriod;

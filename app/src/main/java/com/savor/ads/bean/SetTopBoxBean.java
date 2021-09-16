@@ -17,8 +17,9 @@ public class SetTopBoxBean implements Serializable{
     private int  switch_time;
     //视频title
     private String subtitle;
-    //期刊号
+    //节目单期刊号
     private String period;
+    private String advPeriod;
     //声音设置
     private int volume;
     //盒子位置
@@ -76,6 +77,14 @@ public class SetTopBoxBean implements Serializable{
 
     public void setPeriod(String period) {
         this.period = period;
+    }
+
+    public String getAdvPeriod() {
+        return advPeriod;
+    }
+
+    public void setAdvPeriod(String advPeriod) {
+        this.advPeriod = advPeriod;
     }
 
     public int getVolume() {

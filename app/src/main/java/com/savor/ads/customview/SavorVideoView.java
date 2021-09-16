@@ -834,7 +834,9 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
 
         mIsPauseByOut = false;
         mAssignedPlayPosition = 0;
-        mCurrentFileIndex = (mCurrentFileIndex - 1 + mMediaFiles.size()) % mMediaFiles.size();
+        do{
+            mCurrentFileIndex = (mCurrentFileIndex - 1 + mMediaFiles.size()) % mMediaFiles.size();
+        }while (TextUtils.isEmpty(mMediaFiles.get(mCurrentFileIndex)));
         LogUtils.d(TAG + " playPrevious mCurrentFileIndex:" + mCurrentFileIndex + " size = " + mMediaFiles.size() + " " + SavorVideoView.this.hashCode());
         resetAndPreparePlayer();
     }
