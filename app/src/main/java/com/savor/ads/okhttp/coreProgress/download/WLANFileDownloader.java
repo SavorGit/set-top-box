@@ -18,8 +18,10 @@ import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.LogFileUtil;
 
+import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -109,6 +111,9 @@ public class WLANFileDownloader {
             call = newCall();
             Response response = call.execute();
             if (response.code() == 200) {
+                if (cacheFile.exists()){
+                    cacheFile.delete();
+                }
                 flag = saveRangeFile(response,startIndex,cacheFile);
             }
             String useTime = String.valueOf(System.currentTimeMillis()-startTime);
@@ -134,11 +139,13 @@ public class WLANFileDownloader {
         LogFileUtil.writeDownloadLog("下载文件--开始--fileName="+fileName+",fileLength="+startIndex);
         boolean flag;
         InputStream is = null;
-        RandomAccessFile tmpAccessFile = new RandomAccessFile(cacheFile, "rw");// 获取前面已创建的文
-        tmpAccessFile.seek(startIndex);
+        FileOutputStream fileOutputStream = null;
+        BufferedOutputStream bufferedOutputStream = null;
         try {
+            fileOutputStream = new FileOutputStream(cacheFile);// 获取前面已创建的文
+            bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
             is = response.body().byteStream();// 获取流
-            byte[] buffer = new byte[1024*1024*3];
+            byte[] buffer = new byte[1024*1024*5];
             int length;
             boolean isBreak = false;
             while ((length = is.read(buffer)) > 0) {//读取流
@@ -146,7 +153,8 @@ public class WLANFileDownloader {
                     isBreak = true;
                     break;
                 }
-                tmpAccessFile.write(buffer, 0, length);
+                bufferedOutputStream.write(buffer, 0, length);
+                bufferedOutputStream.flush();
             }
             if (isBreak){
                 flag = false;
@@ -160,11 +168,16 @@ public class WLANFileDownloader {
             if (is!=null){
                 is.close();
             }
+            if (fileOutputStream!=null){
+                fileOutputStream.close();
+            }
+            if (bufferedOutputStream!=null){
+                bufferedOutputStream.close();
+            }
             close(response);
         }
         if (flag){
             cacheFile.renameTo(new File(filePath+fileName));
-            LogFileUtil.writeDownloadLog("下载文件--完成--fileName="+fileName+",fileLength="+tmpAccessFile.length());
         }
         return flag;
     }

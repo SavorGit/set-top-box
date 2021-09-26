@@ -314,9 +314,9 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.NEWPLAYLIST, selection, selectionArgs);
         AppUtils.deleteOldMedia(this,true);
         //清除用户精选和发现视频数据，腾出空间
-        DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.SELECT_CONTENT,null,null);
-        DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.MEDIA_ITEM,null,null);
-
+//        DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.SELECT_CONTENT,null,null);
+//        DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.MEDIA_ITEM,null,null);
+        //清楚投屏记录数据
         AppUtils.deleteProjectionData(context);
     }
 
@@ -329,15 +329,23 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
 
     private void getWLANServerBox(){
         try {
+            //该逻辑的目的是为了处理盒子初始化以后的下载动作
+            if (TextUtils.isEmpty(session.getProPeriod())||TextUtils.isEmpty(session.getProDownloadPeriod())){
+                session.setType(-1);
+                return;
+            }
             session.setType(0);
             JsonBean jsonBean = AppApi.getWLANServerBox(context,this,session.getEthernetMac());
             JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
             if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
                 LogUtils.d("WLAN服务端----初始化异常信息==="+jsonObject.get("msg"));
+                if (70006==jsonObject.getInt("code")){
+                    session.setType(-1);
+                }
                 return;
             }
             JSONObject result = jsonObject.getJSONObject("result");
-            // 1:云端下载 2:局域网下载
+            //-1:走之前的下载逻辑 0:逻辑条件咱不支持走下载逻辑 1:云端下载 2:局域网下载
             int type = result.getInt("type");
             session.setType(type);
             if (type==1){
@@ -345,7 +353,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 GlobalValues.completionRate = 0;
                 //下载1小时如果未下载完成则停止下载
                 handler.postDelayed(completionRunnable,1000*60*60);
-            }else {
+            }else if(type==2){
                 LogUtils.d("WLAN客户端----初始化该设备为客户端");
                 String lan_ip = result.getString("lan_ip");
                 String lan_mac = result.getString("lan_mac");
@@ -891,7 +899,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
     /**获取商城商品广告数据*/
     private void getShopGoodsListFromCloudPlatform(){
         try{
-            if (session.getType()==2){
+            if (session.getType()==2||session.getType()==0){
                 return;
             }
             JsonBean jsonBean = AppApi.getShopGoodsListFromCloudfrom(context,this,session.getEthernetMac());
@@ -991,7 +999,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
      */
     private void getHotContentFromCloudPlatform(){
         try{
-            if (session.getType()==2){
+            if (session.getType()==2||session.getType()==0){
                 return;
             }
             JsonBean jsonBean = AppApi.getHotContentFromCloudfrom(context,this,session.getEthernetMac());
@@ -1254,7 +1262,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         isProCompleted = false;
         String smallType=null;
         try {
-            if (session.getType()==2){
+            if (session.getType()==2||session.getType()==0){
                 return;
             }
             JsonBean jsonBean = AppApi.getProgramDataFromSmallPlatform(this, this, session.getEthernetMac());
@@ -1461,7 +1469,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
     private void getAdvDataFromSmallPlatform() {
         String smallType=null;
         try {
-            if (session.getType()==2){
+            if (session.getType()==2||session.getType()==0){
                 return;
             }
             JsonBean jsonBean = AppApi.getAdvDataFromSmallPlatform(this, this, session.getEthernetMac());
@@ -1706,7 +1714,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
     private void getAdsDataFromSmallPlatform() {
         String smallType = null;
         try {
-            if (session.getType()==2){
+            if (session.getType()==2||session.getType()==0){
                 return;
             }
             JsonBean jsonBean = AppApi.getAdsDataFromSmallPlatform(this, this, session.getEthernetMac());

@@ -260,7 +260,7 @@ public class Session {
     private boolean isWifiHotel;
 
     private int normalUseWechat;
-    /**下载来源类型|1:云端下载 2:局域网下载*/
+    /**下载来源类型|-1:走之前下载逻辑 1:云端下载 2:局域网下载*/
     private int type;
     private String lan_ip;
     private String lan_mac;
