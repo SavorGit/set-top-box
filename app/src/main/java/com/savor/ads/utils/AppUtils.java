@@ -1211,6 +1211,17 @@ public class AppUtils {
         }).start();
     }
 
+    public static void deleteBirthdayMedia(final Context context){
+        new Thread(()-> {
+                DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.BIRTHDAY_ONDEMAND,null,null);
+                String birthday = AppUtils.getFilePath(AppUtils.StorageFile.birthday_ondemand);
+                File[] birthdayFiles = new File(birthday).listFiles();
+                for (File file : birthdayFiles) {
+                    file.delete();
+                }
+        }).start();
+    }
+
     public static void deleteOverdueGifPictures(final String gifName){
         new Thread(()-> {
             String basePath = AppUtils.getSDCardPath()+AppUtils.PICTURES;

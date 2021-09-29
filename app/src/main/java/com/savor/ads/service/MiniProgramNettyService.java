@@ -272,6 +272,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 160:商务宴请-個人名片推送
          * 170:商务宴请-文件分享
          * 171:预下载投屏资源（含图片，视频，文件）
+         * 998:根据类型删除目录下的视频文件,处理机顶盒满的情况
+         * 999:测试下载速度
          * 000:活动广告
          */
         if (ConstantValues.NETTY_MINI_PROGRAM_COMMAND.equals(msg)){
@@ -322,10 +324,13 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         MonkeyGameActivity activity = (MonkeyGameActivity) ActivitiesManager.getInstance().getCurrentActivity();
                         activity.exitGame();
                     }
-                    handler.removeCallbacks(mProjectShowImageRunnable);
-                    handler.removeCallbacks(downloadFileRunnable);
-                    handler.removeCallbacks(downloadFileNoDialogRunnable);
-                    handler.post(mProjectExitDownloadRunnable);
+                    if (currentAction!=998&&currentAction!=999){
+                        //998和999相当于是后台动作，所以不需要中断当前前台正在执行的操作
+                        handler.removeCallbacks(mProjectShowImageRunnable);
+                        handler.removeCallbacks(downloadFileRunnable);
+                        handler.removeCallbacks(downloadFileNoDialogRunnable);
+                        handler.post(mProjectExitDownloadRunnable);
+                    }
                     if (action!=110){
                         Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
                         if (activity instanceof WebviewGameActivity){
@@ -617,6 +622,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             break;
                         case 171:
                             new Thread(this::preDownloadResource).start();
+                            break;
+                        case 998:
+                            deleteMediaWhenSpaceLow();
                             break;
                         case 999:
                             testNetDownload(mpProjection);
@@ -2623,6 +2631,39 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 GlobalValues.INTERACTION_ADS_PLAY=0;
             }
             LogUtils.d("handleImgAndVideo333>>>INTERACTION_ADS_PLAY="+GlobalValues.INTERACTION_ADS_PLAY);
+        }
+    }
+
+    private void deleteMediaWhenSpaceLow(){
+        if (mpProjection==null){
+            return;
+        }
+         //1.删除当前正在下载的一期视频内容，腾出空间
+         //2.删除正在播放的广告数据
+         //3.删除生日歌
+        int type = mpProjection.getType();
+        switch (type){
+            case 1:
+                String selection = DBHelper.MediaDBInfo.FieldName.PERIOD + " =? OR " + DBHelper.MediaDBInfo.FieldName.PERIOD + "=? ";
+                String[] selectionArgs;
+                selectionArgs = new String[]{session.getProDownloadPeriod(),session.getAdvDownloadPeriod()};
+                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.NEWPLAYLIST, selection, selectionArgs);
+                AppUtils.deleteOldMedia(this,true);
+                break;
+            case 2:
+                AppUtils.deleteAllAdsData(context);
+                break;
+            case 3:
+                AppUtils.deleteBirthdayMedia(context);
+                break;
+        }
+        notifyToPlay();
+    }
+
+    private void notifyToPlay() {
+        if (AppUtils.fillPlaylist(this, null, 1)) {
+            LogUtils.d("发送通知更新播放列表广播");
+            context.sendBroadcast(new Intent(ConstantValues.UPDATE_PLAYLIST_ACTION));
         }
     }
 }
