@@ -23,6 +23,8 @@ import java.util.List;
 public interface OnRemoteOperationListener {
 
     PrepareResponseVoNew showVod(String mediaName, String vodType, int position, boolean isFromWeb, boolean isNewDevice,int currentAction,int fromService);
+    /**插播广告*/
+    PrepareResponseVoNew showImage(int imageType, String imageUrl,boolean isThumbnail,String forscreenId,String delayTime,int action,int fromService);
     /**投屏引导图*/
     PrepareResponseVoNew showImage(int imageType, String imageUrl,boolean isThumbnail,String forscreenId,String delayTime,String avatarUrl,String nickname,int action,int fromService);
     PrepareResponseVoNew showImage(int imageType, String imageUrl,boolean isThumbnail,String forscreenId,String words,String avatarUrl,String nickname,int fromService);

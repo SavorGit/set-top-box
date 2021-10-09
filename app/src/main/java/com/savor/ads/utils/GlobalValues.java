@@ -174,4 +174,6 @@ public class GlobalValues <T extends MediaLibBean> {
      * 5.small/api/download/ads/config 广告节目数据
      * */
     public static int completionRate;
+    /**是否正在展示插播广告*/
+    public static boolean isShowInsertAds;
 }

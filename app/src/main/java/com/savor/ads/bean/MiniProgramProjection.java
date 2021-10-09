@@ -115,9 +115,10 @@ public class MiniProgramProjection implements Serializable{
     private String price;
     private String jd_price;
     private List<String> prize_list;
-    /**1：标准版，2：极简版*/
+    /**1：标准版，2：极简版(已废弃)*/
     private int small_app_id;
-    //活动专用
+    //插播图片广告地址
+    private String ads_img_url;
 
     public int getAction() {
         return action;
@@ -598,5 +599,13 @@ public class MiniProgramProjection implements Serializable{
 
     public void setSmall_app_id(int small_app_id) {
         this.small_app_id = small_app_id;
+    }
+
+    public String getAds_img_url() {
+        return ads_img_url;
+    }
+
+    public void setAds_img_url(String ads_img_url) {
+        this.ads_img_url = ads_img_url;
     }
 }

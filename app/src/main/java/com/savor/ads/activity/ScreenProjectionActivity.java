@@ -145,6 +145,7 @@ public class ScreenProjectionActivity extends BaseActivity{
      * 7: 销售端投欢迎词
      * 8: 用户端评价完服务人员显示的欢迎词
      * 9: 用户端欢迎词图片（多图）
+     * 10:插播广告
      */
     private int mImageType;
     //是否是前置后置广告广告视频
@@ -545,7 +546,6 @@ public class ScreenProjectionActivity extends BaseActivity{
         startTime = System.currentTimeMillis();
         if (!ConstantValues.PROJECT_TYPE_REST_PICTURE.equals(mProjectType)||
                 (ConstantValues.PROJECT_TYPE_REST_PICTURE.equals(mProjectType)&&mIsThumbnail)){
-
             ((SavorApplication) getApplication()).hideMiniProgramQrCodeWindow();
         }
         ((SavorApplication) getApplication()).hideGoodsCountdownQrCodeWindow();
@@ -723,6 +723,10 @@ public class ScreenProjectionActivity extends BaseActivity{
                 priceLayout.setVisibility(View.GONE);
                 storeSaleLayout.setVisibility(View.GONE);
             }
+            //图片类型为10の时候设置为插播广告状态
+            if (mImageType==10){
+                GlobalValues.isShowInsertAds = true;
+            }
             // 图片投屏
             mSavorVideoView.setVisibility(View.GONE);
             mSavorVideoView.release();
@@ -785,7 +789,7 @@ public class ScreenProjectionActivity extends BaseActivity{
                 rotatePicture();
                 mHandler.postDelayed(()->initSounds(),500);
             }
-            if (mImageType==2){
+            if (mImageType==2||mImageType==10){
                 proQrcodeLayout.setVisibility(View.GONE);
             }else{
                 showQrCodeWhenProjection();
@@ -1362,7 +1366,7 @@ public class ScreenProjectionActivity extends BaseActivity{
 
         if (scheduleNewOne) {
             int duration = PROJECT_DURATION;
-            if (1==mImageType||5==mImageType||6==mImageType){
+            if (1==mImageType||5==mImageType||6==mImageType||10==mImageType){
                 if (!TextUtils.isEmpty(delayTime)){
                     duration = Integer.valueOf(delayTime)*1000;
                 }
@@ -1401,6 +1405,7 @@ public class ScreenProjectionActivity extends BaseActivity{
     private void handleProjectionEndResult(){
         downloadLog(true);
         showProjectionPlayState(1);
+        GlobalValues.isShowInsertAds = false;
         LogUtils.d(TAG+"handleProjectionEndResult " + ScreenProjectionActivity.this.hashCode());
         if (miniProgramNettyService!=null&&from_service == GlobalValues.FROM_SERVICE_MINIPROGRAM){
             LogUtils.d("handleImgAndVideo=000>>>currentAction="+currentAction+"&mForscreenId="+mForscreenId);
@@ -1411,9 +1416,6 @@ public class ScreenProjectionActivity extends BaseActivity{
                 remoteJettyService.controllHandler.startRemoteProjecion(currentAction,mForscreenId);
             }
         }
-
-        mMediaPath = null;
-        mMediaUrl = null;
         AppApi.notifyStop(mContext, apiRequestListener, 2, "");
         resetGlobalFlag();
         exitProjection();
@@ -1427,6 +1429,8 @@ public class ScreenProjectionActivity extends BaseActivity{
         if (4==mImageType||9==mImageType){
             GlobalValues.PROJECT_IMAGES.clear();
         }
+        mMediaPath = null;
+        mMediaUrl = null;
         GlobalValues.LAST_PROJECT_DEVICE_ID = GlobalValues.CURRENT_PROJECT_DEVICE_ID;
         GlobalValues.LAST_PROJECT_ID = GlobalValues.CURRENT_PROJECT_ID;
         GlobalValues.CURRENT_PROJECT_DEVICE_ID = null;

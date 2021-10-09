@@ -30,6 +30,7 @@ import com.savor.ads.bean.JsonBean;
 import com.savor.ads.bean.PartakeDishBean;
 import com.savor.ads.bean.ProjectionGuideImg;
 import com.savor.ads.dialog.BusinessFileDialog;
+import com.savor.ads.dialog.ReceiveBaijiuDialog;
 import com.savor.ads.dialog.JuhuasuanResultDialog;
 import com.savor.ads.dialog.JuhuasuanShowDialog;
 import com.savor.ads.dialog.LuckyDrawDialog;
@@ -66,7 +67,6 @@ import com.umeng.analytics.MobclickAgent;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -147,6 +147,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private JuhuasuanShowDialog juhuasuanShowDialog = null;
     /**聚划算活动结果窗口*/
     private JuhuasuanResultDialog juhuasuanResultDialog = null;
+    /**领取品鉴酒弹窗*/
+    private ReceiveBaijiuDialog receiveBaijiuDialog = null;
     private AdsBinder adsBinder = new AdsBinder();
     /**增加投屏前置或者后置广告,前置：1，后置：2*/
     private MediaLibBean preOrNextAdsBean=null;
@@ -169,6 +171,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         fileDialog = new BusinessFileDialog(context);
         juhuasuanShowDialog = new JuhuasuanShowDialog(context);
         juhuasuanResultDialog = new JuhuasuanResultDialog(context);
+        receiveBaijiuDialog = new ReceiveBaijiuDialog(context);
     }
 
     @Override
@@ -362,6 +365,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             new Thread(()->projectionVideo(mpProjection)).start();
                             break;
                         case 3:
+                            showReceiveBaijiuDialog();
                             exitProjection();
                             break;
                         case 4:
@@ -907,7 +911,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         if (minipp == null||TextUtils.isEmpty(minipp.getUrl())) {
             return;
         }
-        boolean isDownloaded = false;
         String forscreen_id = minipp.getForscreen_id();
         //更新投屏状态
         updateProjectionState(forscreen_id);
@@ -924,94 +927,56 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         params.put("forscreen_id", forscreen_id);
         params.put("resource_id", minipp.getImg_id());
         params.put("openid", openid);
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (pImgListDialog!=null){
-                    if (!pImgListDialog.isShowing()){
-                        pImgListDialog.show();
-                        pImgListDialog.setProjectionPersonInfo(headPic,nickName);
-                    }
-                    pImgListDialog.clearContent();
-                    ArrayList<ProjectionImg> list = new ArrayList<>();
-                    ProjectionImg img = new ProjectionImg();
-                    img.setImg_id(minipp.getImg_id());
-                    img.setUrl(minipp.getUrl());
-                    list.add(img);
-                    pImgListDialog.setContent(list,TYPE_IMG);
-                }
-            }
-        });
-        String path=null;
+//        handler.post(()-> {
+//
+//                if (pImgListDialog!=null){
+//                    if (!pImgListDialog.isShowing()){
+//                        pImgListDialog.show();
+//                        pImgListDialog.setProjectionPersonInfo(headPic,nickName);
+//                    }
+//                    pImgListDialog.clearContent();
+//                    ArrayList<ProjectionImg> list = new ArrayList<>();
+//                    ProjectionImg img = new ProjectionImg();
+//                    img.setImg_id(minipp.getImg_id());
+//                    img.setUrl(minipp.getUrl());
+//                    list.add(img);
+//                    pImgListDialog.setContent(list,TYPE_IMG);
+//                }
+//        });
         String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-        int small_app_id = minipp.getSmall_app_id();
-        if (small_app_id==2){
-            if (fileName.contains("_")){
-                String[] fileDirs = fileName.split("_");
-                path = basePath +fileDirs[1]+"/"+ fileDirs[2];
-            }
-            if (!new File(path).exists()){
-                path = basePath + fileName;
-            }
+        String path = basePath + fileName;
 
-        }else{
-            path = basePath + fileName;
-        }
+        boolean isDownloaded = false;
         File file = new File(path);
         if (path!=null&&file.exists()) {
             isDownloaded = true;
             LogUtils.d("MiniProgramNettyService:投屏视频已存在");
             params.put("is_exist", 1);
-            handler.post(()->pImgListDialog.setImgDownloadProgress(minipp.getVideo_id(),"100%"));
+//            handler.post(()->pImgListDialog.setImgDownloadProgress(minipp.getImg_id(),"100%"));
 
         } else {
             LogUtils.d("MiniProgramNettyService:需要下载视频的url=="+url);
             LogUtils.d("MiniProgramNettyService:file=="+file.getAbsolutePath());
             params.put("is_exist", 0);
-            if (session.isWhether4gNetwork()){
-                try {
-                    String oss_url = BuildConfig.OSS_ENDPOINT+url;
-                    isDownloaded = new ProjectionDownloader(context,oss_url, basePath,fileName,true,serial_number).downloadByRange();
-                    if (isDownloaded){
-                        handler.post(()->pImgListDialog.setImgDownloadProgress(minipp.getVideo_id(),"100%"));
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }else{
-                OSSUtils ossUtils = new OSSUtils(context,BuildConfig.OSS_BUCKET_NAME,url,file,true);
-                ossUtils.setDownloadProgressListener(new DownloadProgressListener() {
-
-                    @Override
-                    public void getDownloadProgress(String progress) {
-
-                    }
-
-                    @Override
-                    public void getDownloadProgress(final long currentSize, final long totalSize) {
-
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-
-                                BigDecimal b = new BigDecimal(currentSize * 1.0 / totalSize);
-                                Log.d("circularProgress", "原始除法得到的值" + currentSize * 1.0 / totalSize);
-                                float f1 = b.setScale(2, BigDecimal.ROUND_HALF_UP).floatValue();
-                                Log.d("circularProgress", "保留两位小数得到的值" + f1);
-                                if (f1 >= 0.01f) {
-                                    String value = String.valueOf(f1 * 100);
-                                    int progress = Integer.valueOf(value.split("\\.")[0]);
-                                    Log.d("circularProgress", "乘以100并且转成整数得到的值" + progress);
-                                    pImgListDialog.setImgDownloadProgress(minipp.getVideo_id(),progress+"%");
-                                }
-
-                            }
-                        });
-                    }
-                });
-                LogUtils.d("12345+:开始下载投屏视频的url="+url);
-                isDownloaded = ossUtils.syncNativeOSSDownload();
+            try {
+                String oss_url = BuildConfig.OSS_ENDPOINT+url;
+                ProjectionDownloader downloader = new ProjectionDownloader(context,oss_url, basePath,fileName,true,serial_number);
+//                downloader.setDownloadProgressListener(new DownloadProgressListener() {
+//                    @Override
+//                    public void getDownloadProgress(long currentSize, long totalSize) {
+//
+//                    }
+//
+//                    @Override
+//                    public void getDownloadProgress(String progress) {
+//                        handler.post(()->pImgListDialog.setImgDownloadProgress(minipp.getImg_id(),progress));
+//                    }
+//                });
+                isDownloaded = downloader.downloadByRange();
+            }catch (Exception e){
+                e.printStackTrace();
             }
+
         }
         if (isDownloaded) {
             LogUtils.d("12345+下载完成="+url);
@@ -1035,16 +1000,24 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             }
             GlobalValues.PROJECT_IMAGES.clear();
             GlobalValues.PROJECT_FAIL_IMAGES.clear();
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (pImgListDialog!=null){
-                        pImgListDialog.clearContent();
-                        pImgListDialog.dismiss();
-                    }
+//            handler.post(new Runnable() {
+//                @Override
+//                public void run() {
+//                    if (pImgListDialog!=null){
+//                        pImgListDialog.clearContent();
+//                        pImgListDialog.dismiss();
+//                    }
+//                }
+//            });
+            if (mpProjection!=null&&!TextUtils.isEmpty(mpProjection.getAds_img_url())){
+                showImgAds(currentAction);
+            }else{
+                //只有不展示插播广告的时候，才直接显示文件
+                //插播广告播放结束或者被其他类型的投屏动作打断的时候，状态才会被置成false
+                if (!GlobalValues.isShowInsertAds){
+                    ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,playTimes, headPic, nickName,currentAction, FROM_SERVICE_MINIPROGRAM);
                 }
-            });
-            ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,playTimes, headPic, nickName,currentAction, FROM_SERVICE_MINIPROGRAM);
+            }
         } else {
             params.put("is_exist", 2);
             long endTime = System.currentTimeMillis();
@@ -1056,15 +1029,15 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             postProjectionResourceLog(params);
 
             MobclickAgent.onEvent(context, "screenProjctionDownloadError" + file.getName());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (pImgListDialog!=null){
-                        pImgListDialog.clearContent();
-                        pImgListDialog.dismiss();
-                    }
-                }
-            });
+//            handler.post(new Runnable() {
+//                @Override
+//                public void run() {
+//                    if (pImgListDialog!=null){
+//                        pImgListDialog.clearContent();
+//                        pImgListDialog.dismiss();
+//                    }
+//                }
+//            });
         }
     }
 
@@ -2405,6 +2378,18 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             }
         });
     }
+    /**展示领取品鉴酒窗口*/
+    private void showReceiveBaijiuDialog(){
+        handler.post(()-> {
+            if (receiveBaijiuDialog.isShowing()){
+                receiveBaijiuDialog.dismiss();
+            }
+            receiveBaijiuDialog = new ReceiveBaijiuDialog(context);
+            receiveBaijiuDialog.show();
+            receiveBaijiuDialog.setDatas(headPic,nickName,"",15);
+        });
+    }
+
     /**预下载资源*/
     private void preDownloadResource(){
         if (mpProjection!=null&&mpProjection.getResource_list()!=null){
@@ -2475,6 +2460,39 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         return isBreak;
     }
 
+    private void deleteMediaWhenSpaceLow(){
+        if (mpProjection==null){
+            return;
+        }
+        //1.删除当前正在下载的一期视频内容，腾出空间
+        //2.删除正在播放的广告数据
+        //3.删除生日歌
+        int type = mpProjection.getType();
+        switch (type){
+            case 1:
+                String selection = DBHelper.MediaDBInfo.FieldName.PERIOD + " =? OR " + DBHelper.MediaDBInfo.FieldName.PERIOD + "=? ";
+                String[] selectionArgs;
+                selectionArgs = new String[]{session.getProDownloadPeriod(),session.getAdvDownloadPeriod()};
+                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.NEWPLAYLIST, selection, selectionArgs);
+                AppUtils.deleteOldMedia(this,true);
+                break;
+            case 2:
+                AppUtils.deleteAllAdsData(context);
+                break;
+            case 3:
+                AppUtils.deleteBirthdayMedia(context);
+                break;
+        }
+        notifyToPlay();
+    }
+
+    private void notifyToPlay() {
+        if (AppUtils.fillPlaylist(this, null, 1)) {
+            LogUtils.d("发送通知更新播放列表广播");
+            context.sendBroadcast(new Intent(ConstantValues.UPDATE_PLAYLIST_ACTION));
+        }
+    }
+
     public void startProjection(int action,String forscreen_id){
         try {
             if (GlobalValues.INTERACTION_ADS_PLAY==0){
@@ -2516,7 +2534,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     }
                 }
             }
-            if (action!=2&&action!=4&&action==currentAction){
+            if (action!=2&&action!=4&&action!=6&&action!=7&&action==currentAction){
                 return;
             }
             if (mpProjection==null){
@@ -2533,7 +2551,14 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     onDemandSetTopBoxVideo(mpProjection);
                     break;
                 case 6:
-                    onDemandBirthdayVideo(mpProjection);
+                    if (action!=0){
+                        new Thread(()->showImgAds(0)).start();
+                    }
+                    break;
+                case 7:
+                    if (action!=0) {
+                        new Thread(()->handleFileProjection(0)).start();
+                    }
                     break;
                 case 9:
                     callBigQrCodeVideo(mpProjection);
@@ -2633,37 +2658,54 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             LogUtils.d("handleImgAndVideo333>>>INTERACTION_ADS_PLAY="+GlobalValues.INTERACTION_ADS_PLAY);
         }
     }
-
-    private void deleteMediaWhenSpaceLow(){
-        if (mpProjection==null){
-            return;
+    //生日歌播放完成以后插播广告
+    private void showImgAds(int action){
+        if (mpProjection!=null&&!TextUtils.isEmpty(mpProjection.getAds_img_url())){
+            int countDown = mpProjection.getCountdown();
+            String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+            String ads_url = mpProjection.getAds_img_url();
+            String oss_url = BuildConfig.OSS_ENDPOINT+ads_url;
+            String[] strs = oss_url.split("/");
+            String fileName = strs[strs.length-1];
+            String path = basePath + fileName;
+            boolean isDownloaded;
+            if (new File(path).exists()){
+                isDownloaded = true;
+            }else{
+                ProjectionDownloader downloader = new ProjectionDownloader(context,oss_url, basePath,fileName,true,serial_number);
+                isDownloaded = downloader.downloadByRange();
+            }
+            if (isDownloaded){
+                ProjectOperationListener.getInstance(context).showImage(10, path, true,forscreen_id,String.valueOf(countDown),action,FROM_SERVICE_MINIPROGRAM);
+            }
+            handler.postDelayed(()->((SavorApplication) getApplication()).hideMiniProgramQrCodeWindow(),1000);
         }
-         //1.删除当前正在下载的一期视频内容，腾出空间
-         //2.删除正在播放的广告数据
-         //3.删除生日歌
-        int type = mpProjection.getType();
-        switch (type){
-            case 1:
-                String selection = DBHelper.MediaDBInfo.FieldName.PERIOD + " =? OR " + DBHelper.MediaDBInfo.FieldName.PERIOD + "=? ";
-                String[] selectionArgs;
-                selectionArgs = new String[]{session.getProDownloadPeriod(),session.getAdvDownloadPeriod()};
-                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.NEWPLAYLIST, selection, selectionArgs);
-                AppUtils.deleteOldMedia(this,true);
-                break;
-            case 2:
-                AppUtils.deleteAllAdsData(context);
-                break;
-            case 3:
-                AppUtils.deleteBirthdayMedia(context);
-                break;
-        }
-        notifyToPlay();
     }
 
-    private void notifyToPlay() {
-        if (AppUtils.fillPlaylist(this, null, 1)) {
-            LogUtils.d("发送通知更新播放列表广播");
-            context.sendBroadcast(new Intent(ConstantValues.UPDATE_PLAYLIST_ACTION));
+    private void handleFileProjection(int action){
+        String forscreen_id = mpProjection.getForscreen_id();
+        String fileName = mpProjection.getFilename();
+        String url = mpProjection.getUrl();
+        String playTimes = mpProjection.getPlay_times()==0 ? "0":String.valueOf(mpProjection.getPlay_times());
+        String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+        String path = basePath + fileName;
+
+        boolean isDownloaded = false;
+        File file = new File(path);
+        if (path!=null&&file.exists()) {
+            isDownloaded = true;
+        } else {
+            try {
+                String oss_url = BuildConfig.OSS_ENDPOINT+url;
+                ProjectionDownloader downloader = new ProjectionDownloader(context,oss_url, basePath,fileName,true,serial_number);
+                isDownloaded = downloader.downloadByRange();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
+        if (isDownloaded){
+            ProjectOperationListener.getInstance(context).showImage(2, path, true,forscreen_id,playTimes, headPic, nickName,action, FROM_SERVICE_MINIPROGRAM);
         }
     }
 }

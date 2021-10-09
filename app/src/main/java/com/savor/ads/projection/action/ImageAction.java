@@ -36,6 +36,19 @@ public class ImageAction extends ProjectionActionBase implements Serializable {
     private String musicPath;
     private int action;
 
+    public ImageAction(Context context, int imageType, String imagePath, boolean isThumbnail,String forscreenId,String delayTime,int action,int fromService) {
+        super();
+
+        mPriority = ProjectPriority.HIGH;
+        this.mContext = context;
+        this.imageType = imageType;
+        this.imagePath = imagePath;
+        this.isThumbnail = isThumbnail;
+        this.forscreenId = forscreenId;
+        this.delayTime = delayTime;
+        this.action = action;
+        this.fromService = fromService;
+    }
 
     public ImageAction(Context context, int imageType, String imagePath, boolean isThumbnail,String forscreenId,String projectionTime,String avatarUrl,String nickname,int action,int fromService) {
         super();
