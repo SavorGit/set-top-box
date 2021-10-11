@@ -80,7 +80,7 @@ public class ReceiveBaijiuDialog extends Dialog {
 
     public void setDatas(String avatarUrl,String nickName,String judgeImgUrl,int countdownTime) {
         if (!TextUtils.isEmpty(avatarUrl)){
-            GlideImageLoader.loadImage(mContext,avatarUrl,avatarIV);
+            GlideImageLoader.loadRoundImage(mContext,avatarUrl,avatarIV,R.mipmap.wxavatar);
         }
         if (!TextUtils.isEmpty(nickName)){
             nickNameTV.setText(nickName);
