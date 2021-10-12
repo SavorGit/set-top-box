@@ -365,7 +365,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             new Thread(()->projectionVideo(mpProjection)).start();
                             break;
                         case 3:
-                            showReceiveBaijiuDialog();
                             exitProjection();
                             break;
                         case 4:
@@ -602,6 +601,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         case 152:
                             juhuasuanResult();
                             break;
+                        case 153:
+                            showReceiveBaijiuDialog();
+                            break;
                         case 160:
                             activity = ActivitiesManager.getInstance().getCurrentActivity();
                             if (activity instanceof ScreenProjectionActivity) {
@@ -658,6 +660,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         }
         if (juhuasuanResultDialog!=null&&juhuasuanResultDialog.isShowing()){
             juhuasuanResultDialog.dismiss();
+        }
+        if (receiveBaijiuDialog!=null&&receiveBaijiuDialog.isShowing()){
+            receiveBaijiuDialog.dismiss();
         }
     }
 
@@ -2381,12 +2386,15 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     /**展示领取品鉴酒窗口*/
     private void showReceiveBaijiuDialog(){
         handler.post(()-> {
-            if (receiveBaijiuDialog.isShowing()){
-                receiveBaijiuDialog.dismiss();
+            if (mpProjection!=null&&!TextUtils.isEmpty(mpProjection.getUrl())){
+                if (receiveBaijiuDialog.isShowing()){
+                    receiveBaijiuDialog.dismiss();
+                }
+                receiveBaijiuDialog = new ReceiveBaijiuDialog(context);
+                receiveBaijiuDialog.show();
+                String baijiuImgeUrl = BuildConfig.OSS_ENDPOINT+mpProjection.getUrl();
+                receiveBaijiuDialog.setDatas(headPic,nickName,baijiuImgeUrl,15);
             }
-            receiveBaijiuDialog = new ReceiveBaijiuDialog(context);
-            receiveBaijiuDialog.show();
-            receiveBaijiuDialog.setDatas(headPic,nickName,"",15);
         });
     }
 
