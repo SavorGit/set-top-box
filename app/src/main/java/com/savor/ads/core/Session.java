@@ -228,6 +228,8 @@ public class Session {
      * 极简版投屏上传文件大小分界
      */
     private long simple_upload_size;
+    /**文件投屏插播广告间隔次数*/
+    private int scenceadv_show_num;
     /**二维码展示时长s*/
     private int qrcode_showtime;
     /**二维码间隔时长s*/
@@ -359,6 +361,7 @@ public class Session {
         isOpenInteractscreenad = mPreference.loadBooleanKey(P_APP_OPEN_INTERACTSCREENAD,false);
         systemSappForscreenNums = mPreference.loadIntKey(P_APP_SYSTEM_FORSCREEN_NUMS,0);
         simple_upload_size = mPreference.loadLongKey(P_APP_SIMPLE_UPLOAD_SIZE,0);
+        scenceadv_show_num = mPreference.loadIntKey(P_APP_SCENCEADV_SHOW_NUM,0);
         qrcode_showtime = mPreference.loadIntKey(P_APP_QRCODE_SHOW_TIME,0);
         qrcode_takttime = mPreference.loadIntKey(P_APP_QRCODE_TAKT_TIME,0);
         nettyUrl = mPreference.loadStringKey(P_APP_NETTY_URL,null);
@@ -469,7 +472,8 @@ public class Session {
                 P_APP_SYSTEM_FORSCREEN_NUMS.equals(key)||
                 P_APP_QRCODE_SHOW_TIME.equals(key)||
                 P_APP_QRCODE_TAKT_TIME.equals(key)||
-                P_APP_BOX_QRCODETYPE.equals(key)) {
+                P_APP_BOX_QRCODETYPE.equals(key)||
+                P_APP_SCENCEADV_SHOW_NUM.equals(key)) {
             mPreference.saveIntKey(key, (int) updateItem.second);
         } else if (P_APP_SIMPLE_UPLOAD_SIZE.equals(key)){
             mPreference.saveLongKey(key, (long) updateItem.second);
@@ -1254,6 +1258,15 @@ public class Session {
         writePreference(new Pair<>(P_APP_SIMPLE_UPLOAD_SIZE,simple_upload_size));
     }
 
+    public int getScenceadv_show_num() {
+        return scenceadv_show_num;
+    }
+
+    public void setScenceadv_show_num(int scenceadv_show_num) {
+        this.scenceadv_show_num = scenceadv_show_num;
+        writePreference(new Pair<>(P_APP_SCENCEADV_SHOW_NUM,scenceadv_show_num));
+    }
+
     public int getQrcode_showtime() {
         return qrcode_showtime;
     }
@@ -1497,6 +1510,7 @@ public class Session {
     public static final String P_APP_BOX_TPMEDIAS = "com.savor.ads.box.tm_medias";
     public static final String P_APP_BOX_QRCODETYPE = "com.savor.ads.box.qrcodeType";
     public static final String P_APP_SIMPLE_UPLOAD_SIZE = "com.savor.ads.simple.uploadSize";
+    public static final String P_APP_SCENCEADV_SHOW_NUM = "com.savor.ads.simple.scenceadv_show_num";
     public static final String P_APP_QRCODE_SHOW_TIME = "com.savor.ads.qrcode.showtime";
     public static final String P_APP_QRCODE_TAKT_TIME = "com.savor.ads.qrcode.takttime";
     public static final String P_APP_QRCODE_GIFBG = "com.savor.ads.qrcode.gifbg";

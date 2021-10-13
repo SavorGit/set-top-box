@@ -1429,6 +1429,7 @@ public class ScreenProjectionActivity extends BaseActivity{
         if (4==mImageType||9==mImageType){
             GlobalValues.PROJECT_IMAGES.clear();
         }
+        GlobalValues.isShowInsertAds = false;
         mMediaPath = null;
         mMediaUrl = null;
         GlobalValues.LAST_PROJECT_DEVICE_ID = GlobalValues.CURRENT_PROJECT_DEVICE_ID;

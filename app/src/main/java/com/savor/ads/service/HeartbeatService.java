@@ -552,6 +552,8 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                         int activity_adv_playtype = jsonObject.getInt("activity_adv_playtype");
                         //极简版投屏上传文件大小分界
                         int simple_upload_size = jsonObject.getInt("simple_upload_size");
+                        //投文件每隔几次插播一条图片广告
+                        int scenceadv_show_num = jsonObject.getInt("scenceadv_show_num");
                         if (is_open_netty==1 && is_sapp_forscreen==1){
                             LogFileUtil.write("开始立刻调用小程序码接口返回成功，启动小程序NETTY服务");
                             Log.d("HeartbeatService","showMiniProgramIcon(true)");
@@ -584,6 +586,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                         session.setQrcodeType(qrcode_type);
                         session.setActivityPlayType(activity_adv_playtype);
                         session.setSimple_upload_size(simple_upload_size);
+                        session.setScenceadv_show_num(scenceadv_show_num);
                         downloadQrcodeGifBg(jsonObject);
                         String guide = jsonObject.getString("forscreen_help_images");
                         handleProjectionGuideImg(guide);
