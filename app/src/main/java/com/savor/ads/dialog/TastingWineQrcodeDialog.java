@@ -3,6 +3,7 @@ package com.savor.ads.dialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.PixelFormat;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -13,6 +14,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -22,19 +24,18 @@ import com.savor.ads.R;
 import com.savor.ads.utils.DensityUtil;
 import com.savor.ads.utils.GlideImageLoader;
 
-public class ReceiveBaijiuDialog extends Dialog {
+import java.io.File;
+
+public class TastingWineQrcodeDialog extends Dialog {
     private Context mContext;
-    private LinearLayout judgeLayout;
-    private ImageView avatarIV;
-    private TextView nickNameTV;
-    private TextView judgeTipTV;
-    private ImageView judgeImgIV;
-    private TextView countdowTV;
+    private LinearLayout wineLayout;
+    private ImageView qrcodeIV;
+    private TextView countdownTV;
 
     private int countdownTime;
     private Handler mHandler = new Handler();
 
-    public ReceiveBaijiuDialog(@NonNull Context context) {
+    public TastingWineQrcodeDialog(@NonNull Context context) {
         super(context, R.style.miniProgramImagesDialog);
         mContext = context;
     }
@@ -42,7 +43,7 @@ public class ReceiveBaijiuDialog extends Dialog {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.dialog_receive_baijiu);
+        setContentView(R.layout.dialog_tasting_wine_qrcode);
         setDialogAttributes();
         initViews();
     }
@@ -64,29 +65,22 @@ public class ReceiveBaijiuDialog extends Dialog {
         window.setAttributes(wl);
     }
     private void initViews() {
-        judgeLayout = findViewById(R.id.judge_layout);
-        avatarIV = findViewById(R.id.lucky_avatar);
-        nickNameTV = findViewById(R.id.lucky_nickname);
-        judgeTipTV = findViewById(R.id.judge_tip);
-        judgeImgIV = findViewById(R.id.judge_img);
-        countdowTV = findViewById(R.id.countdown_tip);
+        wineLayout = findViewById(R.id.wine_layout);
+        qrcodeIV = findViewById(R.id.qrcode_img);
+        countdownTV = findViewById(R.id.countdown_tip);
         int height = DensityUtil.getScreenHeight(mContext);
-        ViewGroup.LayoutParams layoutParams = judgeLayout.getLayoutParams();
-        layoutParams.width = height/7*5;
-        layoutParams.height = height/7*5;
-        judgeLayout.setLayoutParams(layoutParams);
+        int width = DensityUtil.getScreenWidth(mContext);
+        ViewGroup.LayoutParams layoutParams = wineLayout.getLayoutParams();
+        layoutParams.width = width/7*4;
+        layoutParams.height = height/7*4;
+        wineLayout.setLayoutParams(layoutParams);
     }
 
 
-    public void setDatas(String avatarUrl,String nickName,String judgeImgUrl,int countdownTime) {
-        if (!TextUtils.isEmpty(avatarUrl)){
-            GlideImageLoader.loadRoundImage(mContext,avatarUrl,avatarIV,R.mipmap.wxavatar);
-        }
-        if (!TextUtils.isEmpty(nickName)){
-            nickNameTV.setText(nickName);
-        }
-        if (!TextUtils.isEmpty(judgeImgUrl)){
-            GlideImageLoader.loadImage(mContext,judgeImgUrl,judgeImgIV);
+    public void setDatas(String wineBgPath,String qrcodeImgUrl,int countdownTime) {
+        wineLayout.setBackground(Drawable.createFromPath(wineBgPath));
+        if (!TextUtils.isEmpty(qrcodeImgUrl)){
+            GlideImageLoader.loadImage(mContext,qrcodeImgUrl,qrcodeIV);
         }
         this.countdownTime = countdownTime;
         mHandler.removeCallbacks(mCountDownRunnable);
@@ -106,11 +100,11 @@ public class ReceiveBaijiuDialog extends Dialog {
         try{
             if (countdownTime!=0){
                 countdownTime = countdownTime-1;
-                countdowTV.setText(countdownTime+"s");
+                countdownTV.setText(countdownTime+"s");
                 if (countdownTime!=0){
                     mHandler.postDelayed(mCountDownRunnable,1000);
                 }else{
-                    countdowTV.setVisibility(View.GONE);
+                    countdownTV.setVisibility(View.GONE);
                     dismiss();
                 }
             }

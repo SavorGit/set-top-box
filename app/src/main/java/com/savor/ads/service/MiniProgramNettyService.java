@@ -30,7 +30,8 @@ import com.savor.ads.bean.JsonBean;
 import com.savor.ads.bean.PartakeDishBean;
 import com.savor.ads.bean.ProjectionGuideImg;
 import com.savor.ads.dialog.BusinessFileDialog;
-import com.savor.ads.dialog.ReceiveBaijiuDialog;
+import com.savor.ads.dialog.TastingWineQrcodeDialog;
+import com.savor.ads.dialog.TastingWineReceivedDialog;
 import com.savor.ads.dialog.JuhuasuanResultDialog;
 import com.savor.ads.dialog.JuhuasuanShowDialog;
 import com.savor.ads.dialog.LuckyDrawDialog;
@@ -148,7 +149,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     /**聚划算活动结果窗口*/
     private JuhuasuanResultDialog juhuasuanResultDialog = null;
     /**领取品鉴酒弹窗*/
-    private ReceiveBaijiuDialog receiveBaijiuDialog = null;
+    private TastingWineReceivedDialog wineReceivedDialog = null;
+    private TastingWineQrcodeDialog wineQrcodeDialog = null;
     private AdsBinder adsBinder = new AdsBinder();
     /**增加投屏前置或者后置广告,前置：1，后置：2*/
     private MediaLibBean preOrNextAdsBean=null;
@@ -171,7 +173,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         fileDialog = new BusinessFileDialog(context);
         juhuasuanShowDialog = new JuhuasuanShowDialog(context);
         juhuasuanResultDialog = new JuhuasuanResultDialog(context);
-        receiveBaijiuDialog = new ReceiveBaijiuDialog(context);
+        wineReceivedDialog = new TastingWineReceivedDialog(context);
+        wineQrcodeDialog = new TastingWineQrcodeDialog(context);
     }
 
     @Override
@@ -272,6 +275,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 142:推送用户审核通过的图片内容,走10的逻辑
          * 150:小程序连接机顶盒成功后推送引导投屏图
          * 151:开始聚划算活动
+         * 153:领取品鉴酒成功展示窗口
+         * 154:销售人员发起弹窗展示可以领取品鉴酒的二维码
          * 160:商务宴请-個人名片推送
          * 170:商务宴请-文件分享
          * 171:预下载投屏资源（含图片，视频，文件）
@@ -604,6 +609,10 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         case 153:
                             showReceiveBaijiuDialog();
                             break;
+                        case 154:
+                            new Thread(this::showTastingWineQrcodeDialog).start();
+
+                            break;
                         case 160:
                             activity = ActivitiesManager.getInstance().getCurrentActivity();
                             if (activity instanceof ScreenProjectionActivity) {
@@ -646,6 +655,13 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     }
     /**一旦有netty请求进来，就关闭正在展示的dialog*/
     private void removeDialog(){
+        /**
+         * 销售人员展示领取品鉴酒的窗口，级别最高
+         * 如果当前窗口在展示中，其他业务窗口不展示
+         */
+        if (wineQrcodeDialog!=null&&wineQrcodeDialog.isShowing()){
+            return;
+        }
         if (cardDialog!=null&&cardDialog.isShowing()){
             cardDialog.dismiss();
         }
@@ -661,8 +677,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         if (juhuasuanResultDialog!=null&&juhuasuanResultDialog.isShowing()){
             juhuasuanResultDialog.dismiss();
         }
-        if (receiveBaijiuDialog!=null&&receiveBaijiuDialog.isShowing()){
-            receiveBaijiuDialog.dismiss();
+        if (wineReceivedDialog!=null&&wineReceivedDialog.isShowing()){
+            wineReceivedDialog.dismiss();
         }
     }
 
@@ -2383,19 +2399,53 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             }
         });
     }
-    /**展示领取品鉴酒窗口*/
+
+    /**展示领取品鉴酒成功窗口*/
     private void showReceiveBaijiuDialog(){
         handler.post(()-> {
             if (mpProjection!=null&&!TextUtils.isEmpty(mpProjection.getUrl())){
-                if (receiveBaijiuDialog.isShowing()){
-                    receiveBaijiuDialog.dismiss();
+                if (wineReceivedDialog.isShowing()){
+                    wineReceivedDialog.dismiss();
                 }
-                receiveBaijiuDialog = new ReceiveBaijiuDialog(context);
-                receiveBaijiuDialog.show();
+                wineReceivedDialog = new TastingWineReceivedDialog(context);
+                wineReceivedDialog.show();
                 String baijiuImgeUrl = BuildConfig.OSS_ENDPOINT+mpProjection.getUrl();
-                receiveBaijiuDialog.setDatas(headPic,nickName,baijiuImgeUrl,15);
+                wineReceivedDialog.setDatas(headPic,nickName,baijiuImgeUrl,15);
             }
         });
+    }
+
+    /**销售人员发起展示可以领取的品鉴酒（含品鉴酒图片和可以领取品鉴酒的码）**/
+    private void showTastingWineQrcodeDialog(){
+        if (mpProjection!=null&&!TextUtils.isEmpty(mpProjection.getUrl())){
+            handler.post(() -> {
+                if (wineQrcodeDialog.isShowing()){
+                    wineQrcodeDialog.dismiss();
+                }
+                wineQrcodeDialog = new TastingWineQrcodeDialog(context);
+                wineQrcodeDialog.show();
+            });
+            int countdown = mpProjection.getCountdown();
+            String fileName = mpProjection.getFilename();
+            String qrCodeUrl = mpProjection.getQrcode_url();
+            String wineBg = BuildConfig.OSS_ENDPOINT+mpProjection.getUrl();
+            boolean isDownloaded;
+            String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+            String path = AppUtils.getFilePath(AppUtils.StorageFile.projection) + fileName;
+            if (new File(path).exists()){
+                isDownloaded = true;
+            }else{
+                ProjectionDownloader downloader = new ProjectionDownloader(context,wineBg, basePath,fileName,true,serial_number);
+                isDownloaded = downloader.downloadByRange();
+            }
+            handler.post(()->{
+                if (isDownloaded){
+                    wineQrcodeDialog.setDatas(path,qrCodeUrl,countdown);
+                }else{
+                    wineQrcodeDialog.dismiss();
+                }
+            });
+        }
     }
 
     /**预下载资源*/
