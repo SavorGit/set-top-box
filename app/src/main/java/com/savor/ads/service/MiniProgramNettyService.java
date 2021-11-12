@@ -19,6 +19,8 @@ import com.savor.ads.BuildConfig;
 import com.savor.ads.R;
 import com.savor.ads.SavorApplication;
 import com.savor.ads.activity.AdsPlayerActivity;
+import com.savor.ads.activity.LotteryDrawingActivity;
+import com.savor.ads.bean.LotteryResult;
 import com.savor.ads.bean.MediaFileBean;
 import com.savor.ads.dialog.BusinessCardDialog;
 import com.savor.ads.activity.MonkeyGameActivity;
@@ -30,6 +32,7 @@ import com.savor.ads.bean.JsonBean;
 import com.savor.ads.bean.PartakeDishBean;
 import com.savor.ads.bean.ProjectionGuideImg;
 import com.savor.ads.dialog.BusinessFileDialog;
+import com.savor.ads.dialog.PrizeQrcodeDialog;
 import com.savor.ads.dialog.TastingWineQrcodeDialog;
 import com.savor.ads.dialog.TastingWineReceivedDialog;
 import com.savor.ads.dialog.JuhuasuanResultDialog;
@@ -104,6 +107,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private int currentIndex;
     public static MiniProgramProjection mpProjection;
     private PartakeDishBean partakeDishBean;
+    private LotteryResult lotteryResult;
     private String headPic;
     private String nickName;
     private String openid;
@@ -150,7 +154,10 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private JuhuasuanResultDialog juhuasuanResultDialog = null;
     /**领取品鉴酒弹窗*/
     private TastingWineReceivedDialog wineReceivedDialog = null;
+    /**销售端发起的品鉴酒活动*/
     private TastingWineQrcodeDialog wineQrcodeDialog = null;
+    /**公司发起的抽奖活动*/
+    private PrizeQrcodeDialog prizeQrcodeDialog = null;
     private AdsBinder adsBinder = new AdsBinder();
     /**增加投屏前置或者后置广告,前置：1，后置：2*/
     private MediaLibBean preOrNextAdsBean=null;
@@ -175,6 +182,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         juhuasuanResultDialog = new JuhuasuanResultDialog(context);
         wineReceivedDialog = new TastingWineReceivedDialog(context);
         wineQrcodeDialog = new TastingWineQrcodeDialog(context);
+        prizeQrcodeDialog = new PrizeQrcodeDialog(context);
     }
 
     @Override
@@ -277,6 +285,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 151:开始聚划算活动
          * 153:领取品鉴酒成功展示窗口
          * 154:销售人员发起弹窗展示可以领取品鉴酒的二维码
+         * 155:推送任务参加抽奖
+         * 156:推送任务抽奖中奖信息
          * 160:商务宴请-個人名片推送
          * 170:商务宴请-文件分享
          * 171:预下载投屏资源（含图片，视频，文件）
@@ -309,6 +319,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     if (action==136){
                         PartakeDishBean partakeDishBean = gson.fromJson(content, new TypeToken<PartakeDishBean>() {}.getType());
                         this.partakeDishBean = partakeDishBean;
+                    }else if (action==156){
+                        LotteryResult lotteryResult = gson.fromJson(content, new TypeToken<LotteryResult>() {}.getType());
+                        this.lotteryResult = lotteryResult;
                     }else{
                         MiniProgramProjection mpProjection = gson.fromJson(content, new TypeToken<MiniProgramProjection>() {}.getType());
                         if (mpProjection!=null&&action!=3&&action!=133){
@@ -534,18 +547,18 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
 //                                    }
 //                                }
 //                            });
-                            break;
+//                            break;
                         case 134:
-                            Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
-                            if (activity instanceof AdsPlayerActivity){
+//                            Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+//                            if (activity instanceof AdsPlayerActivity){
 //                                if (AppUtils.isSVT()&&GlobalValues.mIsGoneToTv){
 //                                    return;
 //                                }
-                                onDemandExtensionVideo(mpProjection);
-                            }
-                            break;
+//                                onDemandExtensionVideo(mpProjection);
+//                            }
+//                            break;
                         case 135:
-                           activity = ActivitiesManager.getInstance().getCurrentActivity();
+                            Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
                            if (activity instanceof AdsPlayerActivity||activity instanceof PartakeDishDrawActivity) {
                                if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
                                    return;
@@ -613,6 +626,27 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             new Thread(this::showTastingWineQrcodeDialog).start();
 
                             break;
+                        case 155:
+                            new Thread(this::showPrizeQrcodeDialog).start();
+                            break;
+                        case 156:
+                            activity = ActivitiesManager.getInstance().getCurrentActivity();
+                            if (activity instanceof AdsPlayerActivity) {
+                                if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
+                                    return;
+                                }
+                                lotteryDrawActivity(lotteryResult);
+                            }
+                            break;
+                        case 157:
+                            activity = ActivitiesManager.getInstance().getCurrentActivity();
+                            if (activity instanceof AdsPlayerActivity) {
+                                if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
+                                    return;
+                                }
+                                lotteryNumberShortage();
+                            }
+                            break;
                         case 160:
                             activity = ActivitiesManager.getInstance().getCurrentActivity();
                             if (activity instanceof ScreenProjectionActivity) {
@@ -660,6 +694,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 如果当前窗口在展示中，其他业务窗口不展示
          */
         if (wineQrcodeDialog!=null&&wineQrcodeDialog.isShowing()){
+            return;
+        }
+        if (prizeQrcodeDialog!=null&&prizeQrcodeDialog.isShowing()){
             return;
         }
         if (cardDialog!=null&&cardDialog.isShowing()){
@@ -834,7 +871,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             if (AppUtils.isSVT()&&GlobalValues.mIsGoneToTv){
                 return;
             }
-            ((AdsPlayerActivity) activity).toCheckMediaIsShowMiniProgramIcon();
+            handler.post(()->((AdsPlayerActivity) activity).toCheckMediaIsShowMiniProgramIcon());
+
         }
     }
 
@@ -1674,6 +1712,91 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         startActivity(intent);
 
     }
+
+    private void showPrizeQrcodeDialog(){
+        if (mpProjection!=null
+                &&!TextUtils.isEmpty(mpProjection.getUrl())
+                &&!TextUtils.isEmpty(mpProjection.getLottery_time())){
+            handler.post(() -> {
+                if (wineQrcodeDialog.isShowing()){
+                    wineQrcodeDialog.dismiss();
+                }
+                prizeQrcodeDialog = new PrizeQrcodeDialog(context);
+                prizeQrcodeDialog.show();
+            });
+            int countdown = mpProjection.getCountdown();
+            String fileName = mpProjection.getFilename();
+            String qrCodeUrl = mpProjection.getQrcode_url();
+            String lottery_time = mpProjection.getLottery_time();
+            String activity_name = mpProjection.getActivity_name();
+            if(TextUtils.isEmpty(lottery_time)||TextUtils.isEmpty(activity_name)){
+                return;
+            }
+            String wineBg = BuildConfig.OSS_ENDPOINT+mpProjection.getUrl();
+            boolean isDownloaded;
+            String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+            String path = AppUtils.getFilePath(AppUtils.StorageFile.projection) + fileName;
+            if (new File(path).exists()){
+                isDownloaded = true;
+            }else{
+                ProjectionDownloader downloader = new ProjectionDownloader(context,wineBg, basePath,fileName,true,serial_number);
+                isDownloaded = downloader.downloadByRange();
+            }
+            handler.post(()->{
+                if (isDownloaded){
+                    prizeQrcodeDialog.setDatas(path,qrCodeUrl,countdown,lottery_time);
+                    Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+                    if (activity instanceof AdsPlayerActivity){
+                        GlobalValues.isPrize = true;
+                        GlobalValues.prizeQrcodeUrl = qrCodeUrl;
+                        AdsPlayerActivity adsPlayerActivity = (AdsPlayerActivity) activity;
+                        adsPlayerActivity.isClosePrizeHeadLayout(true);
+                        adsPlayerActivity.setLotteryStartTime(activity_name,lottery_time);
+                        adsPlayerActivity.toCheckMediaIsShowMiniProgramIcon();
+                    }
+                }else{
+                    prizeQrcodeDialog.dismiss();
+                }
+            });
+        }
+    }
+
+    /**活动抽奖*/
+    private void lotteryDrawActivity(LotteryResult lotteryResult){
+        GlobalValues.isPrize = false;
+        Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+        if (activity instanceof LotteryDrawingActivity){
+            activity.finish();
+        }
+        handler.post(()->{
+            if (activity instanceof AdsPlayerActivity){
+                ((AdsPlayerActivity<?>) activity).isClosePrizeHeadLayout(true);
+            }
+        });
+        Intent intent =new Intent();
+        intent.setClass(context, LotteryDrawingActivity.class);
+        intent.putExtra("lottery",lotteryResult);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+
+    }
+
+    private void lotteryNumberShortage(){
+        GlobalValues.isPrize = false;
+        Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+        handler.post(()->{
+            if (activity instanceof AdsPlayerActivity){
+                ((AdsPlayerActivity<?>) activity).isClosePrizeHeadLayout(true);
+            }
+        });
+        Intent intent =new Intent();
+        intent.setClass(context, LotteryDrawingActivity.class);
+        intent.putExtra("action",currentAction);
+        intent.putExtra("content",mpProjection.getContent());
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
     /**商务宴请欢迎词*/
     private void businessWelcome(){
         if (mpProjection == null || mpProjection.getImg_list()==null||mpProjection.getImg_list().size()==0) {

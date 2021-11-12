@@ -12,7 +12,7 @@
         android:background="@android:color/black"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
-    <!--餐厅抽奖活动头部布局-->
+    <!--餐厅霸王菜活动头部布局-->
     <FrameLayout
         android:id="@+id/partake_dish_layout"
         android:layout_width="wrap_content"
@@ -40,6 +40,41 @@
             android:layout_height="wrap_content"
             android:maxLength="10"
             android:text="测试活动测试好不好啊"
+            android:textSize="40dp"
+            android:layout_marginTop="5dp"
+            android:layout_gravity="start"
+            android:lines="1"
+            android:layout_marginLeft="40dp"
+            android:textColor="@color/color_black"/>
+    </FrameLayout>
+    <!--餐厅抽奖活动头部布局-->
+    <FrameLayout
+        android:id="@+id/prize_head_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="30dp"
+        android:visibility="invisible"
+        android:layout_alignParentRight="true">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/lottery_head_img"/>
+        <TextView
+            android:id="@+id/lottery_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="45dp"
+            android:layout_gravity="right|bottom"
+            android:layout_marginRight="25dp"
+            android:textColor="#f14040"/>
+        <com.savor.ads.customview.StrokeTextView
+            android:id="@+id/lottery_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLength="10"
+            android:text=""
             android:textSize="40dp"
             android:layout_marginTop="5dp"
             android:layout_gravity="start"

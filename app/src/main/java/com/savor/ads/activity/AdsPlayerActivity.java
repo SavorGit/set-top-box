@@ -116,6 +116,9 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     private FrameLayout partakeDishLayout;
     private TextView pdCountdownTV;
     private StrokeTextView pdActivityNameTV;
+    private FrameLayout prizeHeadLayout;
+    private TextView lotteryTimeTV;
+    private TextView lotteryNameTV;
     private ImageView imgView;
     private RelativeLayout priceLayout;
     private TextView goodsPriceTV;
@@ -159,22 +162,21 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     private ServiceConnection mConnection;
     private List<String> polyAdsList = new ArrayList<>();
     private boolean changeMedia;
-    private Handler mHandler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            switch (msg.what){
-                case 1:
-                    String qrcode_url = msg.getData().getString("qrcode_url");
-                    String qrcode_path = msg.getData().getString("qrcode_path");
-                    Long countdownTime = msg.getData().getLong("countdownTime");
-                    if (countdownTime!=0){
-                        ((SavorApplication) getApplication()).showGoodsCountdownQrCodeWindow(qrcode_url,qrcode_path,countdownTime);
-                    }else {
-                        ((SavorApplication) getApplication()).showGoodsQrCodeWindow(qrcode_url,qrcode_path);
-                    }
-            }
-            return true;
+    /**抽奖活动开奖时间*/
+    private String lotteryTime;
+    private Handler mHandler = new Handler(msg -> {
+        switch (msg.what){
+            case 1:
+                String qrcode_url = msg.getData().getString("qrcode_url");
+                String qrcode_path = msg.getData().getString("qrcode_path");
+                Long countdownTime = msg.getData().getLong("countdownTime");
+                if (countdownTime!=0){
+                    ((SavorApplication) getApplication()).showGoodsCountdownQrCodeWindow(qrcode_url,qrcode_path,countdownTime);
+                }else {
+                    ((SavorApplication) getApplication()).showGoodsQrCodeWindow(qrcode_url,qrcode_path);
+                }
         }
+        return true;
     });
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -189,6 +191,10 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         partakeDishLayout = findViewById(R.id.partake_dish_layout);
         pdCountdownTV = findViewById(R.id.pd_countdown);
         pdActivityNameTV = findViewById(R.id.pd_activity_name);
+        prizeHeadLayout = findViewById(R.id.prize_head_layout);
+        lotteryTimeTV = findViewById(R.id.lottery_time);
+        lotteryNameTV = findViewById(R.id.lottery_name);
+
         imgView = findViewById(R.id.img_view);
         priceLayout = findViewById(R.id.price_layout);
         goodsPriceTV = findViewById(R.id.goods_price);
@@ -249,6 +255,26 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     }
 
     private Runnable partakedishRunnable = ()->partakeDishCountdown();
+
+    /**抽奖活动头部布局开关*/
+    public void isClosePrizeHeadLayout(boolean close){
+        if (close){
+            prizeHeadLayout.setVisibility(View.INVISIBLE);
+        }else{
+            prizeHeadLayout.setVisibility(View.VISIBLE);
+        }
+    }
+    /**设置抽奖活动开奖时间*/
+    public void setLotteryStartTime(String lotteryName,String lotteryTime){
+        if (!TextUtils.isEmpty(lotteryName)){
+            lotteryNameTV.setText(lotteryName);
+        }
+        if (!TextUtils.isEmpty(lotteryTime)){
+            this.lotteryTime = lotteryTime;
+            lotteryTimeTV.setText(lotteryTime);
+        }
+    }
+
 
     public void setScanRedEnvelopeQrCodeDialogListener(ScanRedEnvelopeQrCodeDialog sreqcd){
         this.scanRedEnvelopeQrCodeDialog = sreqcd;
@@ -685,6 +711,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         }
         LogFileUtil.write("AdsPlayerActivity onResume " + this.hashCode());
         Log.d("StackTrack", "AdsPlayerActivity::onResume");
+        judegeCurrentLotteryState();
         mActivityResumeTime = System.currentTimeMillis();
 
         if (GlobalValues.mIsGoneToTv) {
@@ -1211,6 +1238,27 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         }
         toCheckIfPolyAds(index);
         return false;
+    }
+
+    private void judegeCurrentLotteryState(){
+        if (!TextUtils.isEmpty(lotteryTime)){
+            long currentHour = AppUtils.getHour(new Date());
+            long currentMinute = AppUtils.getMinute(new Date());
+            String[] prizeTime = lotteryTime.split(":");
+            int prizeHour =Integer.valueOf(prizeTime[0]);
+            int prizeMinute = Integer.valueOf(prizeTime[1]);
+            if (currentHour>prizeHour){
+                GlobalValues.isPrize= false;
+                this.lotteryTime = null;
+                isClosePrizeHeadLayout(true);
+            }else if (currentHour==prizeHour){
+                if (currentMinute>=prizeMinute){
+                    GlobalValues.isPrize = false;
+                    this.lotteryTime = null;
+                    isClosePrizeHeadLayout(true);
+                }
+            }
+        }
     }
 
     private long getGoodsCountdown(int goods_id){

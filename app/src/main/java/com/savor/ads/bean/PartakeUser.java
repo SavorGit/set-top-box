@@ -4,12 +4,21 @@ import java.io.Serializable;
 
 public class PartakeUser implements Serializable {
 
+    private String openid;
     private String avatarUrl;
     private String nickName;
     /**
      * 是否中奖，1：中奖，0：未中奖
      * */
     private int is_lottery;
+
+    public String getOpenid() {
+        return openid;
+    }
+
+    public void setOpenid(String openid) {
+        this.openid = openid;
+    }
 
     public String getAvatarUrl() {
         return avatarUrl;

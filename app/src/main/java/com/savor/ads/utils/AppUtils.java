@@ -785,6 +785,19 @@ public class AppUtils {
         return mTime;// new Date()为获取当前系统时间
     }
 
+
+    public static int getHour(Date date) {
+        Calendar calendar= Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.HOUR_OF_DAY);
+    }
+
+    public static int getMinute(Date date){
+        Calendar calendar= Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.MINUTE);
+    }
+
     /**
      * 时间戳转字符串格式
      * @param seconds
@@ -800,6 +813,25 @@ public class AppUtils {
             }
          SimpleDateFormat sdf = new SimpleDateFormat(format);
          return sdf.format(new Date(seconds));
+     }
+
+    /**
+     * 字符串转时间戳
+     * @param time
+     * @param format
+     * @return
+     */
+     public static long stringToStamp(String time,String format){
+        long ts = 0;
+         SimpleDateFormat sdf;
+        try{
+            sdf = new SimpleDateFormat(format);
+            Date date = sdf.parse(time);
+            ts = date.getTime();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return ts;
      }
 
 

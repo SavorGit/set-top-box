@@ -158,15 +158,18 @@ public class QrCodeWindowManager {
         if (GlobalValues.isActivity){
             url = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ session.getEthernetMac()+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_PARTAKE_DISH_TYPE;
         }
+        if (GlobalValues.isPrize){
+            url = GlobalValues.prizeQrcodeUrl;
+        }
         if ((QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_NETWORK_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE)
-                &&isCompletePicture&&hour<2&&!GlobalValues.isActivity) {
+                &&isCompletePicture&&hour<2&&!GlobalValues.isActivity&&!GlobalValues.isPrize) {
             GlideImageLoader.loadLocalImage(context,localFile,qrCodeIv);
             handleWindowLayout();
         }else if((QRCodeType==ConstantValues.MINI_PROGRAM_QRCODE_CALL_TYPE
                 ||QRCodeType==ConstantValues.MINI_PROGRAM_SQRCODE_CALL_TYPE)
-                &&isCompletePicture&&hour<2&&!GlobalValues.isActivity){
+                &&isCompletePicture&&hour<2&&!GlobalValues.isActivity&&!GlobalValues.isPrize){
             ImageView qrCodeIV = mFloatCallLayout.findViewById(R.id.iv_mini_program_call_qrcode);
             GlideImageLoader.loadLocalImage(context,localFile,qrCodeIV);
             handleWindowLayout();

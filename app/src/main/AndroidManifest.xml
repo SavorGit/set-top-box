@@ -206,6 +206,14 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:launchMode="singleTask">
         </activity>
+        <activity android:name=".activity.LotteryDrawingActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:launchMode="singleTask">
+        </activity>
+        <activity android:name=".activity.LotteryDrawResultActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:launchMode="singleTask">
+        </activity>
         <!-- 应用设置页面 -->
         <activity
             android:name=".activity.SettingActivity"
