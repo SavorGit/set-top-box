@@ -636,26 +636,13 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
 
     @Override
     public VolumeResponseVo volume(int action, String projectId) {
-        Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
-        if (!TextUtils.isEmpty(projectId)) {
-            VolumeResponseVo responseVo = new VolumeResponseVo();
-            if (activity instanceof ScreenProjectionActivity){
-                VolumeAction volumeAction = new VolumeAction(action, projectId);
-                ProjectionManager.getInstance().enqueueAction(volumeAction);
-                responseVo.setMsg("操作成功");
-                responseVo.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
-            }else{
-                responseVo.setMsg("操作失败");
-                responseVo.setCode(ConstantValues.SERVER_RESPONSE_CODE_FAILED);
-            }
 
-            return responseVo;
-        } else {
-            VolumeResponseVo responseVo = new VolumeResponseVo();
-            responseVo.setCode(ConstantValues.SERVER_RESPONSE_CODE_PROJECT_ID_CHECK_FAILED);
-            responseVo.setMsg("操作失败");
-            return responseVo;
-        }
+        VolumeResponseVo responseVo = new VolumeResponseVo();
+        VolumeAction volumeAction = new VolumeAction(action, projectId);
+        ProjectionManager.getInstance().enqueueAction(volumeAction);
+        responseVo.setMsg("操作成功");
+        responseVo.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
+        return responseVo;
     }
 
     @Override

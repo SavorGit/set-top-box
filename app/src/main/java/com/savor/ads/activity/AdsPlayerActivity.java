@@ -22,12 +22,14 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.admaster.sdk.api.AdmasterSdk;
 import com.google.protobuf.ByteString;
 import com.jar.savor.box.ServiceUtil;
+import com.jar.savor.box.vo.VolumeResponseVo;
 import com.savor.ads.service.RemoteService;
 import com.savor.ads.R;
 import com.savor.ads.SavorApplication;
@@ -128,6 +130,12 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     private LinearLayout wxProjectionTipLayout;
     private ImageView wxProjectionIconTipIV;
     private TextView wxProjectionTxtTipTV;
+    //声音布局
+    private RelativeLayout mVolumeRl;
+    private TextView mVolumeTv;
+    private ProgressBar mVolumePb;
+
+    private int mCurrentVolume = 60;
     private int delayTime;
     private ArrayList<T> mPlayList;
     private String mListPeriod;
@@ -206,6 +214,9 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         wxProjectionIconTipIV = findViewById(R.id.wx_projection_icon_tip);
         wxProjectionTxtTipTV = findViewById(R.id.wx_projection_nickname_tip);
 
+        mVolumeRl = findViewById(R.id.rl_volume_view);
+        mVolumeTv = findViewById(R.id.tv_volume);
+        mVolumePb =  findViewById(R.id.pb_volume);
         registerDownloadReceiver();
         // 启动投屏类操作处理的Service
 
@@ -218,6 +229,56 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 //        AppApi.getAdMasterConfig(this,this);
         AtlasDialog atlasDialog = new AtlasDialog(getApplicationContext());
         atlasDialog.show();
+    }
+
+    public VolumeResponseVo volume(int action) {
+        VolumeResponseVo responseVo = new VolumeResponseVo();
+        switch (action) {
+            case 1:
+                //TODO:静音
+                break;
+            case 2:
+                //TODO:取消静音
+                break;
+            case 3:
+                // 音量减
+                mCurrentVolume -= 5;
+                if (mCurrentVolume < 0) {
+                    mCurrentVolume = 0;
+                }
+                setVolume(mCurrentVolume);
+                mHandler.post(()->showVolume(mCurrentVolume));
+                break;
+            case 4:
+                // 音量加
+                mCurrentVolume += 5;
+                if (mCurrentVolume > 100) {
+                    mCurrentVolume = 100;
+                }
+                setVolume(mCurrentVolume);
+                mHandler.post(()->showVolume(mCurrentVolume));
+                break;
+        }
+        responseVo.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
+        responseVo.setVol(mCurrentVolume);
+        return responseVo;
+    }
+
+    private void showVolume(int currentVolume) {
+        mVolumePb.setProgress(currentVolume);
+        mVolumeTv.setText(currentVolume + "");
+        mVolumeRl.setVisibility(View.VISIBLE);
+        mHandler.removeCallbacks(mHideVolumeViewRunnable);
+        mHandler.postDelayed(mHideVolumeViewRunnable, 1000 * 5);
+    }
+
+    /**
+     * 隐藏音量显示Runnable
+     */
+    private Runnable mHideVolumeViewRunnable = ()->hideVolumeView();
+
+    private void hideVolumeView(){
+        mVolumeRl.setVisibility(View.GONE);
     }
 
     /**霸王菜头部布局开关*/

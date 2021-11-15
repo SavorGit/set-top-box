@@ -24,6 +24,11 @@ public class VolumeAction extends ProjectionActionBase {
         this.action = action;
         this.projectId = projectId;
     }
+    public VolumeAction(int action) {
+        super();
+        mPriority = ProjectPriority.NORMAL;
+        this.action = action;
+    }
 
     @Override
     public void execute() {
@@ -34,6 +39,9 @@ public class VolumeAction extends ProjectionActionBase {
             if (!TextUtils.isEmpty(projectId)) {
                 ((ScreenProjectionActivity) activity).volume(action);
             }
+        }
+        if (activity instanceof AdsPlayerActivity){
+            ((AdsPlayerActivity)activity).volume(action);
         }
 
         onActionEnd();
