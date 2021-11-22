@@ -510,11 +510,11 @@
 
                     <TextView
                         style="@style/box_info_item_label"
-                        android:text="保留字段"
+                        android:text="电视节目音量"
                         />
 
                     <TextView
-                        android:id="@+id/tv_vod_volume"
+                        android:id="@+id/tv_tv_volume"
                         style="@style/box_info_item_content"/>
                 </LinearLayout>
 
@@ -552,11 +552,11 @@
 
                     <TextView
                         style="@style/box_info_item_label"
-                        android:text="投屏音量"
+                        android:text="用户内容音量"
                         />
 
                     <TextView
-                        android:id="@+id/tv_project_volume"
+                        android:id="@+id/tv_content_demand_volume"
                         style="@style/box_info_item_content"/>
                 </LinearLayout>
 
@@ -569,11 +569,11 @@
 
                     <TextView
                         style="@style/box_info_item_label"
-                        android:text="电视节目音量"
+                        android:text="节目内容音量"
                         />
 
                     <TextView
-                        android:id="@+id/tv_tv_volume"
+                        android:id="@+id/tv_pro_demand_volume"
                         style="@style/box_info_item_content"/>
                 </LinearLayout>
 
@@ -595,7 +595,64 @@
                 </LinearLayout>
 
             </LinearLayout>
+            <!--各种音量-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="图片投屏音量"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_img_projection_volume"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="视频投屏音量"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_video_projection_volume"
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/box_info_item"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        style="@style/box_info_item_label"
+                        android:text="备用字段"
+                        />
+
+                    <TextView
+                        style="@style/box_info_item_content"/>
+                </LinearLayout>
+
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>

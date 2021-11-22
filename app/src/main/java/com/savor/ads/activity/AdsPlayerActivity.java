@@ -135,7 +135,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     private TextView mVolumeTv;
     private ProgressBar mVolumePb;
 
-    private int mCurrentVolume = 60;
+    private int mCurrentVolume = 0;
     private int delayTime;
     private ArrayList<T> mPlayList;
     private String mListPeriod;
@@ -169,7 +169,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     private ScanRedEnvelopeQrCodeDialog scanRedEnvelopeQrCodeDialog=null;
     private ServiceConnection mConnection;
     private List<String> polyAdsList = new ArrayList<>();
-    private boolean changeMedia;
     /**抽奖活动开奖时间*/
     private String lotteryTime;
     private Handler mHandler = new Handler(msg -> {
@@ -233,6 +232,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 
     public VolumeResponseVo volume(int action) {
         VolumeResponseVo responseVo = new VolumeResponseVo();
+
         switch (action) {
             case 1:
                 //TODO:静音
@@ -377,17 +377,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             } else if (AppUtils.isGiec()){
                 Intent intent = new Intent(this, TvPlayerGiecActivity.class);
                 startActivity(intent);
-            }else if (AppUtils.isLeTV()){
-                Intent intent = new Intent();
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-                intent.setClassName(ConstantValues.LETV_SIGNAL_SOURCE_PAKAGE, ConstantValues.LETV_SIGNAL_SOURCE_CLASS);
-                try{
-                    startActivity(intent);
-                }catch (ActivityNotFoundException e){
-                    LogUtils.d("Can't find signalsourcemanager activity.", e);
-                }catch (Exception e){
-                    LogUtils.d("Error while switching to signalsourcemanager.", e);
-                }
             }else if (AppUtils.isSVT()){
                 Intent intent = new Intent();
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
@@ -774,7 +763,17 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         Log.d("StackTrack", "AdsPlayerActivity::onResume");
         judegeCurrentLotteryState();
         mActivityResumeTime = System.currentTimeMillis();
-
+        if (AppUtils.isSVT()){
+            setVolume(mSession.getTvCarouselVolume());
+            if (mCurrentVolume==0){
+                mCurrentVolume = mSession.getTvCarouselVolume();
+            }
+        }else if(AppUtils.isGiec()){
+            setVolume(mSession.getBoxCarouselVolume());
+            if (mCurrentVolume==0) {
+                mCurrentVolume = mSession.getBoxCarouselVolume();
+            }
+        }
         if (GlobalValues.mIsGoneToTv) {
             GlobalValues.IS_BOX_BUSY = true;
             mSavorVideoView.onResume();
@@ -949,7 +948,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 
     public void changeMedia(int value){
         if (mSavorVideoView!=null){
-            changeMedia = true;
             switch (value){
                 case 1:
                     mSavorVideoView.playPrevious();
@@ -1282,20 +1280,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 }
             }
 
-        }
-        if (changeMedia){
-            if (AppUtils.isSVT()) {
-                setVolume(mSession.getXxProjectionVolume());
-            } else {
-                setVolume(mSession.getProjectVolume());
-            }
-            changeMedia = false;
-        }else{
-            if (AppUtils.isSVT()){
-                setVolume(mSession.getXiaxinVolume());
-            }else {
-                setVolume(mSession.getVolume());
-            }
         }
         toCheckIfPolyAds(index);
         return false;

@@ -93,7 +93,7 @@ public class SettingActivity extends BaseActivity {
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        if (AppUtils.isLeTV()||AppUtils.isSVT()){
+        if (AppUtils.isSVT()){
             searchRL.setVisibility(View.GONE);
             titleTV.setText("电视机设置");
         }else{

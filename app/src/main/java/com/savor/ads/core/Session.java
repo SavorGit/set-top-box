@@ -75,16 +75,28 @@ public class Session {
     private String token;
 
     private ServerInfo serverInfo;
-    /** 轮播音量 */
-    private int volume;
-    /** 投屏音量 */
-    private int projectVolume;
-    /** 夏新轮播音量 */
-    private int xiaxinVolume;
-    /** 夏新投屏音量 */
-    private int xxProjectionVolume;
-    /** 电视节目音量 */
-    private int tvVolume;
+    /** 机顶盒轮播音量 */
+    private int boxCarouselVolume;
+    /** 机顶盒内容点播音量 */
+    private int boxContentDemandVolume;
+    /** 机顶盒节目点播音量 */
+    private int boxProDemandVolume;
+    /** 机顶盒图片投屏音量 */
+    private int boxImgFroscreenVolume;
+    /** 机顶盒视频投屏音量 */
+    private int boxVideoFroscreenVolume;
+    /** 机顶盒电视节目音量 */
+    private int boxTvVolume;
+    /** 电视轮播音量 */
+    private int tvCarouselVolume;
+    /** 电视内容点播音量 */
+    private int tvContentDemandVolume;
+    /** 电视节目点播音量 */
+    private int tvProDemandVolume;
+    /** 电视图片投屏音量 */
+    private int tvImgFroscreenVolume;
+    /** 电视视频投屏音量 */
+    private int tvVideoFroscreenVolume;
     //酒楼名称
     private String boiteName;
     //酒楼ID
@@ -296,11 +308,19 @@ public class Session {
     private void readSettings() {
 
         getApplicationInfo();
-        volume = mPreference.loadIntKey(P_APP_VOLUME, ConstantValues.DEFAULT_ADS_VOLUME);
-        projectVolume = mPreference.loadIntKey(P_APP_PROJECT_VOLUME, ConstantValues.DEFAULT_PROJECT_VOLUME);
-        xiaxinVolume = mPreference.loadIntKey(P_APP_XIAXIN_VOLUME, ConstantValues.DEFAULT_XIAXIN_VOLUME);
-        xxProjectionVolume = mPreference.loadIntKey(P_APP_XX_PROJECTION_VOLUME, ConstantValues.DEFAULT_XIAXIN_VOLUME);
-        tvVolume = mPreference.loadIntKey(P_APP_TV_VOLUME, ConstantValues.DEFAULT_TV_VOLUME);
+        boxCarouselVolume = mPreference.loadIntKey(P_APP_BOX_CAROUSEL_VOLUME, ConstantValues.BOX_CAROUSEL_VOLUME);
+        boxContentDemandVolume = mPreference.loadIntKey(P_APP_BOX_CONTENT_DEMAND_VOLUME, ConstantValues.BOX_CONTENT_DEMAND_VOLUME);
+        boxProDemandVolume = mPreference.loadIntKey(P_APP_BOX_PRO_DEMAND_VOLUME, ConstantValues.BOX_PRO_DEMAND_VOLUME);
+        boxImgFroscreenVolume = mPreference.loadIntKey(P_APP_BOX_IMG_FORSCREEN_VOLUME, ConstantValues.BOX_IMG_FORSCREEN_VOLUME);
+        boxVideoFroscreenVolume = mPreference.loadIntKey(P_APP_BOX_VIDEO_FORSCREEN_VOLUME, ConstantValues.BOX_VIDEO_FORSCREEN_VOLUME);
+        boxTvVolume = mPreference.loadIntKey(P_APP_BOX_TV_VOLUME, ConstantValues.BOX_TV_VOLUME);
+
+        tvCarouselVolume = mPreference.loadIntKey(P_APP_TV_CAROUSEL_VOLUME, ConstantValues.TV_CAROUSEL_VOLUME);
+        tvContentDemandVolume = mPreference.loadIntKey(P_APP_TV_CONTENT_DEMAND_VOLUME, ConstantValues.TV_CONTENT_DEMAND_VOLUME);
+        tvProDemandVolume = mPreference.loadIntKey(P_APP_TV_PRO_DEMAND_VOLUME, ConstantValues.TV_PRO_DEMAND_VOLUME);
+        tvImgFroscreenVolume = mPreference.loadIntKey(P_APP_TV_IMG_FORSCREEN_VOLUME, ConstantValues.TV_IMG_FORSCREEN_VOLUME);
+        tvVideoFroscreenVolume = mPreference.loadIntKey(P_APP_TV_VIDEO_FORSCREEN_VOLUME, ConstantValues.TV_VIDEO_FORSCREEN_VOLUME);
+
         boiteName = mPreference.loadStringKey(P_APP_BOITENAME, null);
         boiteId = mPreference.loadStringKey(P_APP_BOITEID, null);
         roomName = mPreference.loadStringKey(P_APP_ROOMNAME, null);
@@ -459,11 +479,17 @@ public class Session {
                 || P_APP_LOCAL_LIFE_ADS_PERIOD.equals(key)) {
 
             mPreference.saveStringKey(key, (String) updateItem.second);
-        } else if (P_APP_VOLUME.equals(key) ||
-                P_APP_PROJECT_VOLUME.equals(key) ||
-                P_APP_XIAXIN_VOLUME.equals(key) ||
-                P_APP_XX_PROJECTION_VOLUME.equals(key) ||
-                P_APP_TV_VOLUME.equals(key) ||
+        } else if (P_APP_BOX_CAROUSEL_VOLUME.equals(key) ||
+                P_APP_BOX_CONTENT_DEMAND_VOLUME.equals(key) ||
+                P_APP_BOX_PRO_DEMAND_VOLUME.equals(key) ||
+                P_APP_BOX_IMG_FORSCREEN_VOLUME.equals(key) ||
+                P_APP_BOX_VIDEO_FORSCREEN_VOLUME.equals(key) ||
+                P_APP_BOX_TV_VOLUME.equals(key) ||
+                P_APP_TV_CAROUSEL_VOLUME.equals(key) ||
+                P_APP_TV_CONTENT_DEMAND_VOLUME.equals(key) ||
+                P_APP_TV_PRO_DEMAND_VOLUME.equals(key) ||
+                P_APP_TV_IMG_FORSCREEN_VOLUME.equals(key) ||
+                P_APP_TV_VIDEO_FORSCREEN_VOLUME.equals(key) ||
                 P_APP_TV_DEFAULT_CHANNEL.equals(key) ||
                 P_APP_TV_CURRENT_INPUT.equals(key) ||
                 P_APP_SWITCHTIME.equals(key) ||
@@ -753,47 +779,103 @@ public class Session {
         writePreference(new Pair<>(P_APP_TV_SIZE, tvSize));
     }
 
-    public int getVolume() {
-        return volume;
+    public int getBoxCarouselVolume() {
+        return boxCarouselVolume;
     }
 
-    public void setVolume(int volume) {
-        this.volume = volume;
-        writePreference(new Pair<>(P_APP_VOLUME, volume));
-    }
-    public int getProjectVolume() {
-        return projectVolume;
+    public void setBoxCarouselVolume(int boxCarouselVolume) {
+        this.boxCarouselVolume = boxCarouselVolume;
+        writePreference(new Pair<>(P_APP_BOX_CAROUSEL_VOLUME,boxCarouselVolume));
     }
 
-    public void setProjectVolume(int volume) {
-        this.projectVolume = volume;
-        writePreference(new Pair<>(P_APP_PROJECT_VOLUME, volume));
-    }
-    public int getXiaxinVolume() {
-        return xiaxinVolume;
+    public int getBoxContentDemandVolume() {
+        return boxContentDemandVolume;
     }
 
-    public void setXiaxinVolume(int xiaxinVolume) {
-        this.xiaxinVolume = xiaxinVolume;
-        writePreference(new Pair<>(P_APP_XIAXIN_VOLUME, xiaxinVolume));
+    public void setBoxContentDemandVolume(int boxContentDemandVolume) {
+        this.boxContentDemandVolume = boxContentDemandVolume;
+        writePreference(new Pair<>(P_APP_BOX_CONTENT_DEMAND_VOLUME,boxContentDemandVolume));
     }
 
-    public int getXxProjectionVolume() {
-        return xxProjectionVolume;
+    public int getBoxProDemandVolume() {
+        return boxProDemandVolume;
     }
 
-    public void setXxProjectionVolume(int xxProjectionVolume) {
-        this.xxProjectionVolume = xxProjectionVolume;
-        writePreference(new Pair<>(P_APP_XX_PROJECTION_VOLUME, xxProjectionVolume));
+    public void setBoxProDemandVolume(int boxProDemandVolume) {
+        this.boxProDemandVolume = boxProDemandVolume;
+        writePreference(new Pair<>(P_APP_BOX_PRO_DEMAND_VOLUME,boxProDemandVolume));
     }
 
-    public int getTvVolume() {
-        return tvVolume;
+    public int getBoxImgFroscreenVolume() {
+        return boxImgFroscreenVolume;
     }
 
-    public void setTvVolume(int volume) {
-        this.tvVolume = volume;
-        writePreference(new Pair<>(P_APP_TV_VOLUME, volume));
+    public void setBoxImgFroscreenVolume(int boxImgFroscreenVolume) {
+        this.boxImgFroscreenVolume = boxImgFroscreenVolume;
+        writePreference(new Pair<>(P_APP_BOX_IMG_FORSCREEN_VOLUME,boxImgFroscreenVolume));
+    }
+
+    public int getBoxVideoFroscreenVolume() {
+        return boxVideoFroscreenVolume;
+    }
+
+    public void setBoxVideoFroscreenVolume(int boxVideoFroscreenVolume) {
+        this.boxVideoFroscreenVolume = boxVideoFroscreenVolume;
+        writePreference(new Pair<>(P_APP_BOX_VIDEO_FORSCREEN_VOLUME,boxVideoFroscreenVolume));
+    }
+
+    public int getBoxTvVolume() {
+        return boxTvVolume;
+    }
+
+    public void setBoxTvVolume(int boxTvVolume) {
+        this.boxTvVolume = boxTvVolume;
+        writePreference(new Pair<>(P_APP_BOX_TV_VOLUME,boxTvVolume));
+    }
+
+    public int getTvCarouselVolume() {
+        return tvCarouselVolume;
+    }
+
+    public void setTvCarouselVolume(int tvCarouselVolume) {
+        this.tvCarouselVolume = tvCarouselVolume;
+        writePreference(new Pair<>(P_APP_TV_CAROUSEL_VOLUME,tvCarouselVolume));
+    }
+
+    public int getTvContentDemandVolume() {
+        return tvContentDemandVolume;
+    }
+
+    public void setTvContentDemandVolume(int tvContentDemandVolume) {
+        this.tvContentDemandVolume = tvContentDemandVolume;
+        writePreference(new Pair<>(P_APP_TV_CONTENT_DEMAND_VOLUME,tvContentDemandVolume));
+    }
+
+    public int getTvProDemandVolume() {
+        return tvProDemandVolume;
+    }
+
+    public void setTvProDemandVolume(int tvProDemandVolume) {
+        this.tvProDemandVolume = tvProDemandVolume;
+        writePreference(new Pair<>(P_APP_TV_PRO_DEMAND_VOLUME,tvProDemandVolume));
+    }
+
+    public int getTvImgFroscreenVolume() {
+        return tvImgFroscreenVolume;
+    }
+
+    public void setTvImgFroscreenVolume(int tvImgFroscreenVolume) {
+        this.tvImgFroscreenVolume = tvImgFroscreenVolume;
+        writePreference(new Pair<>(P_APP_TV_IMG_FORSCREEN_VOLUME,tvImgFroscreenVolume));
+    }
+
+    public int getTvVideoFroscreenVolume() {
+        return tvVideoFroscreenVolume;
+    }
+
+    public void setTvVideoFroscreenVolume(int tvVideoFroscreenVolume) {
+        this.tvVideoFroscreenVolume = tvVideoFroscreenVolume;
+        writePreference(new Pair<>(P_APP_TV_VIDEO_FORSCREEN_VOLUME,tvVideoFroscreenVolume));
     }
 
     public String getBoiteName() {
@@ -1398,16 +1480,28 @@ public class Session {
         this.normalUseWechat = normalUseWechat;
     }
 
-    //轮播播放声音
-    public static final String P_APP_VOLUME = "com.savor.ads.volume";
-    //投屏播放声音
-    public static final String P_APP_PROJECT_VOLUME = "com.savor.ads.project_volume";
-    //夏新电视播放声音
-    public static final String P_APP_XIAXIN_VOLUME = "com.savor.ads.vod_volume";
-    //夏新电视投屏声音
-    public static final String P_APP_XX_PROJECTION_VOLUME = "com.savor.ads.xxprojection_volume";
-    //电视节目播放声音
-    public static final String P_APP_TV_VOLUME = "com.savor.ads.tv_volume";
+    //机顶盒轮播音量
+    public static final String P_APP_BOX_CAROUSEL_VOLUME = "com.savor.box.carousel.volume";
+    //机顶盒用户内容点播音量
+    public static final String P_APP_BOX_CONTENT_DEMAND_VOLUME = "com.savor.box.content.demand.volume";
+    //机顶盒公司节目点播音量
+    public static final String P_APP_BOX_PRO_DEMAND_VOLUME = "com.savor.box.pro.demand.volume";
+    //机顶盒图片投屏音量
+    public static final String P_APP_BOX_IMG_FORSCREEN_VOLUME = "com.savor.box.img.froscreen.volume";
+    //机顶盒视频投屏音量
+    public static final String P_APP_BOX_VIDEO_FORSCREEN_VOLUME = "com.savor.box.video.froscreen.volume";
+    //机顶盒电视音量
+    public static final String P_APP_BOX_TV_VOLUME = "com.savor.box.tv_volume";
+    //电视机轮播音量
+    public static final String P_APP_TV_CAROUSEL_VOLUME = "com.savor.tv.carousel.volume";
+    //机顶盒用户内容点播音量
+    public static final String P_APP_TV_CONTENT_DEMAND_VOLUME = "com.savor.tv.content.demand.volume";
+    //机顶盒公司节目点播音量
+    public static final String P_APP_TV_PRO_DEMAND_VOLUME = "com.savor.tv.pro.demand.volume";
+    //机顶盒图片投屏音量
+    public static final String P_APP_TV_IMG_FORSCREEN_VOLUME = "com.savor.tv.img.froscreen.volume";
+    //机顶盒视频投屏音量
+    public static final String P_APP_TV_VIDEO_FORSCREEN_VOLUME = "com.savor.tv.video.froscreen.volume";
     //酒楼名称
     public static final String P_APP_BOITENAME = "com.savor.ads.boiteName";
     //酒楼ID

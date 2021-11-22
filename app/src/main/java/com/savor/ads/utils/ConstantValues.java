@@ -127,14 +127,53 @@ public class ConstantValues {
 
     /** 默认电视切换时间*/
     public static final int DEFAULT_SWITCH_TIME = 999;
-    /** 默认轮播音量*/
-    public static final int DEFAULT_ADS_VOLUME = 20;
-    /** 默认投屏音量*/
-    public static final int DEFAULT_PROJECT_VOLUME = 100;
-    /** 夏新默认音量*/
-    public static final int DEFAULT_XIAXIN_VOLUME = 20;
+
+    /** 机顶盒默认轮播音量*/
+    public static final int BOX_CAROUSEL_VOLUME = 30;
+    /** 机顶盒默认用户内容音量*/
+    public static final int BOX_CONTENT_DEMAND_VOLUME = 30;
+    /** 机顶盒默认公司节目音量*/
+    public static final int BOX_PRO_DEMAND_VOLUME = 30;
+    /** 机顶盒默认图片投屏音量*/
+    public static final int BOX_IMG_FORSCREEN_VOLUME=30;
+    /** 机顶盒默认视频投屏音量*/
+    public static final int BOX_VIDEO_FORSCREEN_VOLUME=30;
     /** 默认电视音量*/
-    public static final int DEFAULT_TV_VOLUME = 100;
+    public static final int BOX_TV_VOLUME = 30;
+    /** 电视机默认轮播音量*/
+    public static final int TV_CAROUSEL_VOLUME = 6;
+    /** 电视机默认用户内容音量*/
+    public static final int TV_CONTENT_DEMAND_VOLUME = 6;
+    /** 电视机默认公司节目音量*/
+    public static final int TV_PRO_DEMAND_VOLUME = 6;
+    /** 电视机默认图片投屏音量*/
+    public static final int TV_IMG_FORSCREEN_VOLUME=6;
+    /** 电视机默认视频投屏音量*/
+    public static final int TV_VIDEO_FORSCREEN_VOLUME=6;
+
+    /** 机顶盒默认轮播音量KEY*/
+    public static final String BOX_CAROUSEL_VOLUME_KEY = "box_carousel_volume";
+    /** 机顶盒默认用户内容音量KEY*/
+    public static final String BOX_CONTENT_DEMAND_VOLUME_KEY = "box_content_demand_volume";
+    /** 机顶盒默认公司节目音量KEY*/
+    public static final String BOX_PRO_DEMAND_VOLUME_KEY = "box_pro_demand_volume";
+    /** 机顶盒默认图片投屏音量KEY*/
+    public static final String BOX_IMG_FORSCREEN_VOLUME_KEY="box_img_froscreen_volume";
+    /** 机顶盒默认视频投屏音量KEY*/
+    public static final String BOX_VIDEO_FORSCREEN_VOLUME_KEY="box_video_froscreen_volume";
+    /** 默认电视音量KEY*/
+    public static final String BOX_TV_VOLUME_KEY = "box_tv_volume";
+    /** 电视机默认轮播音量KEY*/
+    public static final String TV_CAROUSEL_VOLUME_KEY = "tv_carousel_volume";
+    /** 电视机默认用户内容音量KEY*/
+    public static final String TV_CONTENT_DEMAND_VOLUME_KEY = "tv_content_demand_volume";
+    /** 电视机默认公司节目音量KEY*/
+    public static final String TV_PRO_DEMAND_VOLUME_KEY = "tv_pro_demand_volume";
+    /** 电视机默认图片投屏音量KEY*/
+    public static final String TV_IMG_FORSCREEN_VOLUME_KEY="tv_img_froscreen_volume";
+    /** 电视机默认视频投屏音量KEY*/
+    public static final String TV_VIDEO_FORSCREEN_VOLUME_KEY="tv_video_froscreen_volume";
+
     /**节目单-节目*/
     public static final String PRO = "pro";
     /**节目单-宣传单*/

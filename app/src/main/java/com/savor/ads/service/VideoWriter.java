@@ -45,11 +45,13 @@ public class VideoWriter implements Runnable {
     private String nickName = null;
     private String forscreen_id;
     private RemoteService.ToPlayInterface playListener;
-    public VideoWriter(Context context,String screen_id, ConcurrentLinkedQueue<VideoQueueParam> q, String outPath) {
+    private int currentAction;
+    public VideoWriter(Context context,String screen_id, ConcurrentLinkedQueue<VideoQueueParam> q, String outPath,int action) {
         this.mContext = context;
         this.forscreen_id = screen_id;
         this.queue = q;
         this.filePath = outPath;
+        this.currentAction = action;
         overTime = true;
         writedBytes = 0;
         mHander.postDelayed(overTimeRunnable, 1000 * 30);
@@ -146,7 +148,7 @@ public class VideoWriter implements Runnable {
                     preparedPart = 0;
                     if (playListener!=null){
                         this.playListener.playProjection(param);
-                        ProjectOperationListener.getInstance(mContext).showVideo(filePath,true,forscreen_id,avatarUrl,nickName, GlobalValues.FROM_SERVICE_REMOTE);
+                        ProjectOperationListener.getInstance(mContext).showVideo(filePath,true,forscreen_id,avatarUrl,nickName,currentAction, GlobalValues.FROM_SERVICE_REMOTE);
                     }
                 }
                 if (writedParts-1==totalParts){

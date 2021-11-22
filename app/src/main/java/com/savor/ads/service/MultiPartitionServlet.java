@@ -117,7 +117,7 @@ public class MultiPartitionServlet extends AbstractHandler {
 //                String path2 = AppUtils.getFilePath(AppUtils.StorageFile.cache);
 //                String baseurl = "http://192.168.99.2:8080/projection/";
 //                ProjectOperationListener.getInstance(mContext).showVideo(path2,baseurl+fileName+".mp4", true,forscreen_id,avatarUrl,nickName, GlobalValues.FROM_SERVICE_REMOTE);
-                ProjectOperationListener.getInstance(mContext).showVideo(outFile.getAbsolutePath(), true,forscreen_id,avatarUrl,nickName, GlobalValues.FROM_SERVICE_REMOTE);
+                ProjectOperationListener.getInstance(mContext).showVideo(outFile.getAbsolutePath(), true,forscreen_id,avatarUrl,nickName,currentAction, GlobalValues.FROM_SERVICE_REMOTE);
             }
             outRandomAccessFile = new RandomAccessFile(outFile, "rwd");
             if (!outFile.exists() || outFile.length() < 1) {

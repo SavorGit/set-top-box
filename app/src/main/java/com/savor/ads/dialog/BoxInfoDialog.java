@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.savor.ads.BuildConfig;
 import com.savor.ads.R;
+import com.savor.ads.SavorApplication;
 import com.savor.ads.core.Session;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
@@ -59,11 +60,17 @@ public class BoxInfoDialog extends Dialog {
     private TextView mLoadingPeriodTv;
     private TextView mServerIpTv;
     private TextView mLastPowerOnTimeTv;
+    //轮播音量
     private TextView mVolumeTv;
-
-    private TextView mProjectVolumeTv;
-    private TextView mXiaxinVolumeTv;
+    //电视节目音量
     private TextView mTvVolumeTv;
+    //用户内容点播音量
+    private TextView contentDemandVolumeTV;
+    //轮播内容点播音量
+    private TextView proDemandVolumeTV;
+    private TextView imgProjectionVolumeTV;
+    private TextView videoProjectionVolumeTV;
+
 
     public BoxInfoDialog(Context context) {
         super(context, R.style.box_info_dialog_theme);
@@ -100,10 +107,12 @@ public class BoxInfoDialog extends Dialog {
         mServerIpTv = findViewById(R.id.tv_server_ip);
         mLastPowerOnTimeTv = findViewById(R.id.tv_last_power_on_time);
         mVolumeTv = findViewById(R.id.tv_volume);
-        mProjectVolumeTv = findViewById(R.id.tv_project_volume);
         mTvVolumeTv = findViewById(R.id.tv_tv_volume);
+        contentDemandVolumeTV = findViewById(R.id.tv_content_demand_volume);
+        proDemandVolumeTV = findViewById(R.id.tv_pro_demand_volume);
+        imgProjectionVolumeTV = findViewById(R.id.tv_img_projection_volume);
+        videoProjectionVolumeTV = findViewById(R.id.tv_video_projection_volume);
         //保存字段
-        mXiaxinVolumeTv = findViewById(R.id.tv_vod_volume);
         mBoxNameTv = findViewById(R.id.tv_box_name);
         mAdsDownloadPeriodTv = findViewById(R.id.tv_ads_download_period);
         mAdvDownloadPeriodTv = findViewById(R.id.tv_adv_download_period);
@@ -126,6 +135,7 @@ public class BoxInfoDialog extends Dialog {
     public void show() {
         super.show();
         try {
+            ((SavorApplication) mContext.getApplicationContext()).hideMiniProgramQrCodeWindow();
             mHotelNameTv.setText(session.getBoiteName());
             tvDownloadStateTv.setText("未下载");
             if (session.getType()==2){
@@ -215,13 +225,18 @@ public class BoxInfoDialog extends Dialog {
             }
             mLastPowerOnTimeTv.setText(TextUtils.isEmpty(session.getLastStartTime()) ? "初次开机" : session.getLastStartTime());
             if (AppUtils.isSVT()){
-                mVolumeTv.setText(String.valueOf(session.getXiaxinVolume()));
-                mProjectVolumeTv.setText(String.valueOf(session.getXxProjectionVolume()));
-                mTvVolumeTv.setText(String.valueOf(session.getXiaxinVolume()));
+                mVolumeTv.setText(String.valueOf(session.getTvCarouselVolume()));
+                contentDemandVolumeTV.setText(String.valueOf(session.getTvContentDemandVolume()));
+                proDemandVolumeTV.setText(String.valueOf(session.getTvProDemandVolume()));
+                imgProjectionVolumeTV.setText(String.valueOf(session.getTvImgFroscreenVolume()));
+                videoProjectionVolumeTV.setText(String.valueOf(session.getTvVideoFroscreenVolume()));
             }else {
-                mVolumeTv.setText(String.valueOf(session.getVolume()));
-                mProjectVolumeTv.setText(String.valueOf(session.getProjectVolume()));
-                mTvVolumeTv.setText(String.valueOf(session.getTvVolume()));
+                mVolumeTv.setText(String.valueOf(session.getBoxCarouselVolume()));
+                mTvVolumeTv.setText(String.valueOf(session.getBoxTvVolume()));
+                contentDemandVolumeTV.setText(String.valueOf(session.getBoxContentDemandVolume()));
+                proDemandVolumeTV.setText(String.valueOf(session.getBoxProDemandVolume()));
+                imgProjectionVolumeTV.setText(String.valueOf(session.getBoxImgFroscreenVolume()));
+                videoProjectionVolumeTV.setText(String.valueOf(session.getBoxVideoFroscreenVolume()));
             }
 
         }catch (Exception e){

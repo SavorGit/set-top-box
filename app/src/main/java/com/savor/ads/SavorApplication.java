@@ -95,8 +95,6 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
             initMStarPush();
         } else if (AppUtils.isGiec()){
             initGiecPush();
-        }else if (AppUtils.isLeTV()){
-            initLetvPush();
         }
     }
 
@@ -302,43 +300,6 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
         }).start();
     }
 
-    private void initLetvPush(){
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                PushAgent pushAgent = PushAgent.getInstance(SavorApplication.this);
-                pushAgent.setPushIntentServiceClass(UMessageIntentService.class);
-                //注册推送服务，每次调用register方法都会回调该接口
-                pushAgent.register(new IUmengRegisterCallback() {
-
-                    @Override
-                    public void onSuccess(String deviceToken) {
-                        //注册成功会返回device token
-                        Log.e("register", "UPush register success, deviceToken is " + deviceToken);
-                        LogFileUtil.write("UPush register success, deviceToken is " + deviceToken);
-
-                        GlobalValues.IS_UPUSH_REGISTER_SUCCESS = true;
-                        reportDeviceToken(deviceToken);
-
-                        mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                PushAgent.getInstance(SavorApplication.this).onAppStart();
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onFailure(String s, String s1) {
-                        Log.e("register", "UPush register failed, s is " + s + ", s1 is " + s1);
-                        LogFileUtil.write("UPush register failed, s is " + s + ", s1 is " + s1);
-                        GlobalValues.IS_UPUSH_REGISTER_SUCCESS = false;
-                    }
-                });
-            }
-        });
-    }
-
     private void reportDeviceToken(String deviceToken) {
         AppApi.reportDeviceToken(this, this, deviceToken);
     }
@@ -447,28 +408,6 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
             KeyCode.KEY_CODE_UDISK_UPDATE = KeyCodeConstant.KEY_CODE_UDISK_UPDATE;
             KeyCode.KEY_CODE_UDISK_COPY = KeyCodeConstant.KEY_CODE_UDISK_COPY;
             KeyCode.KEY_CODE_SHOW_PLAYLIST = KeyCodeConstant.KEY_CODE_SHOW_PLAYLIST;
-        } else if (AppUtils.isLeTV()){
-            KeyCode.KEY_CODE_BACK = KeyCodeConstantY55C.KEY_CODE_BACK;
-            KeyCode.KEY_CODE_CHANGE_MODE = KeyCodeConstantY55C.KEY_CODE_CHANGE_MODE;
-            KeyCode.KEY_CODE_CHANGE_SIGNAL = KeyCodeConstantY55C.KEY_CODE_CHANGE_SIGNAL;
-            KeyCode.KEY_CODE_CHANNEL_LIST = KeyCodeConstantY55C.KEY_CODE_CHANNEL_LIST;
-            KeyCode.KEY_CODE_DOWN = KeyCodeConstantY55C.KEY_CODE_DOWN;
-            KeyCode.KEY_CODE_LEFT = KeyCodeConstantY55C.KEY_CODE_LEFT;
-            KeyCode.KEY_CODE_MANUAL_HEARTBEAT = KeyCodeConstantY55C.KEY_CODE_MANUAL_HEARTBEAT;
-            KeyCode.KEY_CODE_NEXT_ADS = KeyCodeConstantY55C.KEY_CODE_NEXT_ADS;
-            KeyCode.KEY_CODE_PLAY_PAUSE = KeyCodeConstantY55C.KEY_CODE_PLAY_PAUSE;
-            KeyCode.KEY_CODE_PREVIOUS_ADS = KeyCodeConstantY55C.KEY_CODE_PREVIOUS_ADS;
-            KeyCode.KEY_CODE_RIGHT = KeyCodeConstantY55C.KEY_CODE_RIGHT;
-            KeyCode.KEY_CODE_SETTING = KeyCodeConstantY55C.KEY_CODE_SETTING;
-            KeyCode.KEY_CODE_SHOW_APP_INSTALLED = KeyCodeConstantY55C.KEY_CODE_SHOW_APP_INSTALLED;
-            KeyCode.KEY_CODE_SHOW_INFO = KeyCodeConstantY55C.KEY_CODE_SHOW_INFO;
-            KeyCode.KEY_CODE_SHOW_QRCODE = KeyCodeConstantY55C.KEY_CODE_SHOW_QRCODE;
-            KeyCode.KEY_CODE_SYSTEM_SETTING = KeyCodeConstantY55C.KEY_CODE_SYSTEM_SETTING;
-            KeyCode.KEY_CODE_UP = KeyCodeConstantY55C.KEY_CODE_UP;
-            KeyCode.KEY_CODE_UPLOAD_CHANNEL_INFO = KeyCodeConstantY55C.KEY_CODE_UPLOAD_CHANNEL_INFO;
-            KeyCode.KEY_CODE_UDISK_UPDATE = KeyCodeConstantY55C.KEY_CODE_UDISK_UPDATE;
-            KeyCode.KEY_CODE_UDISK_COPY = KeyCodeConstantY55C.KEY_CODE_UDISK_COPY;
-            KeyCode.KEY_CODE_SHOW_PLAYLIST = KeyCodeConstantY55C.KEY_CODE_SHOW_PLAYLIST;
         } else if (AppUtils.isSVT()){
             KeyCode.KEY_CODE_BACK = KeyCodeConstantSVT.KEY_CODE_BACK;
             KeyCode.KEY_CODE_CHANGE_MODE = KeyCodeConstantSVT.KEY_CODE_CHANGE_MODE;
@@ -555,7 +494,7 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
         super.onTrimMemory(level);
         if (level == TRIM_MEMORY_UI_HIDDEN) {
             Log.i("SavorApplication123", "APP遁入后台");
-            if (AppUtils.isLeTV()||AppUtils.isSVT()){
+            if (AppUtils.isSVT()){
                 GlobalValues.mIsGoneToTv = true;
                 mHandler.postDelayed(new Runnable() {
                     @Override

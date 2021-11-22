@@ -259,7 +259,7 @@ public class ScreenProjectionActivity extends BaseActivity{
     private boolean mIsFirstResume = true;
     private boolean mHasInitializedVolume;
 
-    private int mCurrentVolume = 60;
+    private int mCurrentVolume = 0;
     private String mType;
     private String mInnerType;
 
@@ -407,10 +407,42 @@ public class ScreenProjectionActivity extends BaseActivity{
 
     private void initVolume() {
         if (!mHasInitializedVolume) {
-            if (AppUtils.isSVT()) {
-                mCurrentVolume = mSession.getXxProjectionVolume();
-            } else {
-                mCurrentVolume = mSession.getProjectVolume();
+            if (from_service==GlobalValues.FROM_SERVICE_MINIPROGRAM){
+                if (AppUtils.isSVT()) {
+                    if (currentAction==4||currentAction==10){
+                        mCurrentVolume = mSession.getTvImgFroscreenVolume();
+                    }else if (currentAction==2){
+                        mCurrentVolume = mSession.getTvVideoFroscreenVolume();
+                    }else if (currentAction==12){
+                        mCurrentVolume = mSession.getTvContentDemandVolume();
+                    }else {
+                        mCurrentVolume = mSession.getTvProDemandVolume();
+                    }
+                } else {
+                    if (currentAction==4||currentAction==10){
+                        mCurrentVolume = mSession.getBoxImgFroscreenVolume();
+                    }else if (currentAction==2||currentAction==23){
+                        mCurrentVolume = mSession.getBoxVideoFroscreenVolume();
+                    }else if (currentAction==12){
+                        mCurrentVolume = mSession.getBoxContentDemandVolume();
+                    }else {
+                        mCurrentVolume = mSession.getBoxProDemandVolume();
+                    }
+                }
+            }else{
+                if (AppUtils.isSVT()) {
+                    if (currentAction==5||currentAction==22){
+                        mCurrentVolume = mSession.getTvImgFroscreenVolume();
+                    }else if (currentAction==23){
+                        mCurrentVolume = mSession.getTvVideoFroscreenVolume();
+                    }
+                } else {
+                    if (currentAction==5||currentAction==22){
+                        mCurrentVolume = mSession.getBoxImgFroscreenVolume();
+                    }else if (currentAction==23){
+                        mCurrentVolume = mSession.getBoxVideoFroscreenVolume();
+                    }
+                }
             }
             setVolume(mCurrentVolume);
             mHasInitializedVolume = true;

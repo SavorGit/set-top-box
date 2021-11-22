@@ -2341,14 +2341,6 @@ public class AppUtils {
         return  Build.MODEL.contains("t962e");
     }
 
-    public static boolean isLeTV() {
-        boolean flag = false;
-        if (Build.MODEL.contains("Y55")||Build.MODEL.contains("Y65")){
-            flag = true;
-        }
-        return flag;
-    }
-
     /**
      * 根据Pid获取当前进程的名字，一般就是当前app的包名
      *

@@ -242,7 +242,7 @@ public class TvPlayerGiecActivity extends BaseActivity {
             if (mSession.getTvInputSource() >= TVSignal.values().length)
                 mSession.setTvInputSource(0);
         }
-        setVolume(mSession.getTvVolume());
+        setVolume(mSession.getBoxTvVolume());
 
         int switchTime = mSession.getSwitchTime();
         if (switchTime > 0 && switchTime != 999) {

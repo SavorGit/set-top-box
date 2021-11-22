@@ -71,15 +71,6 @@ public class MainActivity extends BaseActivity {
             mHandler.postDelayed(()->gotoAdsActivity(), 1000*30);
         }else if (AppUtils.isGiec()){
             mHandler.postDelayed(()->gotoAdsActivity(), 1000*5);
-        }else if (AppUtils.isLeTV()){
-            LogUtils.d("MainActivity++进入乐视电视");
-            while(true){
-                if (isBootVideoFinished()){
-                    LogUtils.d("MainActivity++进入已经播放完开机动画");
-                    mHandler.postDelayed(()->gotoAdsActivity(), 1000*5);
-                    break;
-                }
-            }
         }else if (AppUtils.isSVT()){
             verifyStoragePermissions(mContext);
             mHandler.postDelayed(()->gotoAdsActivity(), 1000*5);

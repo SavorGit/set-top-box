@@ -697,7 +697,7 @@ public class RemoteService extends Service {
                     }else{
                         GlobalValues.VIDEO_NUM.put(deviceId,1);
                     }
-                    VideoWriter writer = new VideoWriter(context,forscreen_id,videoQueue,outPath);
+                    VideoWriter writer = new VideoWriter(context,forscreen_id,videoQueue,outPath,currentAction);
                     writer.setUserInfo(avatarUrl,nickName);
                     writer.setToPlayListener(new ToPlayInterface() {
                         @Override
@@ -2460,7 +2460,7 @@ public class RemoteService extends Service {
                                 projectShowImage(words,fid,0);
                             }
                         }else if (GlobalValues.PROJECTION_VIDEO_PATH!=null){
-                            ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH,true,forscreenId, avatarUrl, nickName,GlobalValues.FROM_SERVICE_REMOTE);
+                            ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH,true,forscreenId, avatarUrl, nickName,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                         }
                         GlobalValues.INTERACTION_ADS_PLAY=0;
                     }else if (GlobalValues.INTERACTION_ADS_PLAY==2){
@@ -2474,7 +2474,7 @@ public class RemoteService extends Service {
                                     projectShowImage(words,fid,0);
                                 }
                             }else if (GlobalValues.PROJECTION_VIDEO_PATH!=null){
-                                ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH,true,forscreenId, avatarUrl, nickName,GlobalValues.FROM_SERVICE_REMOTE);
+                                ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH,true,forscreenId, avatarUrl, nickName,currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                             }
                         }
                         GlobalValues.INTERACTION_ADS_PLAY=0;

@@ -90,13 +90,6 @@ public class UMessageIntentService extends UmengMessageService {
                     handler.post(()->ShowMessage.showToast(getApplicationContext(),"推送新版本，开始下载，准备升级"));
 
                     downloadApk(context);
-                }else if (ConstantValues.PUSH_TYPE_SHUTDOWN==type&&AppUtils.isLeTV()){
-                    ComponentName componentName = new ComponentName("com.stv.commonservice",
-                            "com.stv.commonservice.module.business.receiver.BusinessReceiver");
-                    intent = new Intent("com.stv.commonservice.action.BUSINESS_SHUTDOWN_BY_SDK");
-                    intent.setPackage("com.stv.commonservice");
-                    intent.setComponent(componentName);
-                    sendBroadcast(intent);
                 }
             }
         } catch (Exception e) {

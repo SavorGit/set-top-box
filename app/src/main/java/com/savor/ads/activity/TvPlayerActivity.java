@@ -219,7 +219,7 @@ public class TvPlayerActivity extends BaseActivity {
             if (mSession.getTvInputSource() >= mInputSource.length)
                 mSession.setTvInputSource(0);
         }
-        setVolume(mSession.getTvVolume());
+        setVolume(mSession.getBoxTvVolume());
 
         int switchTime = mSession.getSwitchTime();
         if (switchTime > 0 && switchTime != 999) {

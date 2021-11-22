@@ -60,6 +60,8 @@ public class BoxInitBean {
     /**开机视频*/
     private BootVideo bootvideo;
 
+    private String sys_volume;
+
     public void setSwitch_time(int switch_time) {
         this.switch_time = switch_time;
     }
@@ -282,5 +284,13 @@ public class BoxInitBean {
 
     public void setBootvideo(BootVideo bootvideo) {
         this.bootvideo = bootvideo;
+    }
+
+    public String getSys_volume() {
+        return sys_volume;
+    }
+
+    public void setSys_volume(String sys_volume) {
+        this.sys_volume = sys_volume;
     }
 }

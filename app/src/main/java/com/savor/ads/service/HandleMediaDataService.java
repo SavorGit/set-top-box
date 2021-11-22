@@ -36,6 +36,7 @@ import com.savor.ads.bean.SetBoxTopResult;
 import com.savor.ads.bean.SetTopBoxBean;
 import com.savor.ads.bean.ShopGoodsBean;
 import com.savor.ads.bean.ShopGoodsResult;
+import com.savor.ads.bean.SysVolume;
 import com.savor.ads.bean.Television;
 import com.savor.ads.bean.TvProgramGiecResponse;
 import com.savor.ads.bean.TvProgramResponse;
@@ -65,6 +66,7 @@ import com.savor.tvlibrary.AtvChannel;
 import com.savor.tvlibrary.ITVOperator;
 import com.savor.tvlibrary.TVOperatorFactory;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -420,78 +422,127 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         boxInitBean = boiteBean;
 
         // 应后端统计要求，只要某个音量改变，就产生4条音量的记录
-        if (!isProduceLog || boiteBean.getAds_volume() != session.getVolume() ||
-                boiteBean.getProject_volume() != session.getProjectVolume() ||
-                boiteBean.getDemand_volume() != session.getXiaxinVolume() ||
-                boiteBean.getTv_volume() != session.getTvVolume()) {
-            String volumeUUID = String.valueOf(System.currentTimeMillis());
-            //生产电视播放音量日志
-            LogReportUtil.get(context).sendAdsLog(volumeUUID,
-                    session.getBoiteId(),
-                    session.getRoomId(),
-                    String.valueOf(System.currentTimeMillis()),
-                    "player_volume",
-                    "system",
-                    "",
-                    "",
-                    session.getVersionName(),
-                    session.getAdsPeriod(),
-                    session.getBirthdayOndemandPeriod(),
-                    String.valueOf(boiteBean.getAds_volume()));
-            LogReportUtil.get(context).sendAdsLog(volumeUUID,
-                    session.getBoiteId(),
-                    session.getRoomId(),
-                    String.valueOf(System.currentTimeMillis()),
-                    "project_volume",
-                    "system",
-                    "",
-                    "",
-                    session.getVersionName(),
-                    session.getAdsPeriod(),
-                    session.getBirthdayOndemandPeriod(),
-                    String.valueOf(boiteBean.getProject_volume()));
-            LogReportUtil.get(context).sendAdsLog(volumeUUID,
-                    session.getBoiteId(),
-                    session.getRoomId(),
-                    String.valueOf(System.currentTimeMillis()),
-                    "vod_volume",
-                    "system",
-                    "",
-                    "",
-                    session.getVersionName(),
-                    session.getAdsPeriod(),
-                    session.getBirthdayOndemandPeriod(),
-                    String.valueOf(boiteBean.getDemand_volume()));
-            LogReportUtil.get(context).sendAdsLog(volumeUUID,
-                    session.getBoiteId(),
-                    session.getRoomId(),
-                    String.valueOf(System.currentTimeMillis()),
-                    "tv_volume",
-                    "system",
-                    "",
-                    "",
-                    session.getVersionName(),
-                    session.getAdsPeriod(),
-                    session.getBirthdayOndemandPeriod(),
-                    String.valueOf(boiteBean.getTv_volume()));
-
-            if (boiteBean.getAds_volume() > 0) {
-                session.setVolume(boiteBean.getAds_volume());
-            }
-            if (boiteBean.getProject_volume() > 0) {
-                session.setProjectVolume(boiteBean.getProject_volume());
-            }
-            if (boiteBean.getDemand_volume() > 0) {
-                session.setXiaxinVolume(boiteBean.getDemand_volume());
-            }
-            if (boiteBean.getForscreen_volume()>0){
-                session.setXxProjectionVolume(boiteBean.getForscreen_volume());
-            }
-            if (boiteBean.getTv_volume() > 0) {
-                session.setTvVolume(boiteBean.getTv_volume());
+//        if (!isProduceLog || boiteBean.getAds_volume() != session.getVolume() ||
+//                boiteBean.getProject_volume() != session.getProjectVolume() ||
+//                boiteBean.getDemand_volume() != session.getXiaxinVolume() ||
+//                boiteBean.getTv_volume() != session.getTvVolume()) {
+//            String volumeUUID = String.valueOf(System.currentTimeMillis());
+//            //生产电视播放音量日志
+//            LogReportUtil.get(context).sendAdsLog(volumeUUID,
+//                    session.getBoiteId(),
+//                    session.getRoomId(),
+//                    String.valueOf(System.currentTimeMillis()),
+//                    "player_volume",
+//                    "system",
+//                    "",
+//                    "",
+//                    session.getVersionName(),
+//                    session.getAdsPeriod(),
+//                    session.getBirthdayOndemandPeriod(),
+//                    String.valueOf(boiteBean.getAds_volume()));
+//            LogReportUtil.get(context).sendAdsLog(volumeUUID,
+//                    session.getBoiteId(),
+//                    session.getRoomId(),
+//                    String.valueOf(System.currentTimeMillis()),
+//                    "project_volume",
+//                    "system",
+//                    "",
+//                    "",
+//                    session.getVersionName(),
+//                    session.getAdsPeriod(),
+//                    session.getBirthdayOndemandPeriod(),
+//                    String.valueOf(boiteBean.getProject_volume()));
+//            LogReportUtil.get(context).sendAdsLog(volumeUUID,
+//                    session.getBoiteId(),
+//                    session.getRoomId(),
+//                    String.valueOf(System.currentTimeMillis()),
+//                    "vod_volume",
+//                    "system",
+//                    "",
+//                    "",
+//                    session.getVersionName(),
+//                    session.getAdsPeriod(),
+//                    session.getBirthdayOndemandPeriod(),
+//                    String.valueOf(boiteBean.getDemand_volume()));
+//            LogReportUtil.get(context).sendAdsLog(volumeUUID,
+//                    session.getBoiteId(),
+//                    session.getRoomId(),
+//                    String.valueOf(System.currentTimeMillis()),
+//                    "tv_volume",
+//                    "system",
+//                    "",
+//                    "",
+//                    session.getVersionName(),
+//                    session.getAdsPeriod(),
+//                    session.getBirthdayOndemandPeriod(),
+//                    String.valueOf(boiteBean.getTv_volume()));
+//
+//            if (boiteBean.getAds_volume() > 0) {
+//                session.setVolume(boiteBean.getAds_volume());
+//            }
+//            if (boiteBean.getProject_volume() > 0) {
+//                session.setProjectVolume(boiteBean.getProject_volume());
+//            }
+//            if (boiteBean.getDemand_volume() > 0) {
+//                session.setXiaxinVolume(boiteBean.getDemand_volume());
+//            }
+//            if (boiteBean.getForscreen_volume()>0){
+//                session.setXxProjectionVolume(boiteBean.getForscreen_volume());
+//            }
+//            if (boiteBean.getTv_volume() > 0) {
+//                session.setTvVolume(boiteBean.getTv_volume());
+//            }
+//        }
+        String sys_volume = boxInitBean.getSys_volume();
+        if (!TextUtils.isEmpty(sys_volume)){
+            try {
+                JSONArray jsonArray = new JSONArray(sys_volume);
+                List<SysVolume> volumeList = gson.fromJson(jsonArray.toString(), new TypeToken<List<SysVolume>>() {
+                }.getType());
+                if (volumeList!=null&&volumeList.size()>0){
+                    for (SysVolume volume:volumeList){
+                        int value = volume.getConfigValue();
+                       switch (volume.getConfigKey()){
+                           case ConstantValues.BOX_CAROUSEL_VOLUME_KEY:
+                               session.setBoxCarouselVolume(value);
+                               break;
+                           case ConstantValues.BOX_CONTENT_DEMAND_VOLUME_KEY:
+                               session.setBoxContentDemandVolume(value);
+                               break;
+                           case ConstantValues.BOX_PRO_DEMAND_VOLUME_KEY:
+                               session.setBoxProDemandVolume(value);
+                               break;
+                           case ConstantValues.BOX_IMG_FORSCREEN_VOLUME_KEY:
+                               session.setBoxImgFroscreenVolume(value);
+                               break;
+                           case ConstantValues.BOX_VIDEO_FORSCREEN_VOLUME_KEY:
+                               session.setBoxVideoFroscreenVolume(value);
+                               break;
+                           case ConstantValues.BOX_TV_VOLUME_KEY:
+                               session.setBoxTvVolume(value);
+                               break;
+                           case ConstantValues.TV_CAROUSEL_VOLUME_KEY:
+                               session.setTvCarouselVolume(value);
+                               break;
+                           case ConstantValues.TV_CONTENT_DEMAND_VOLUME_KEY:
+                               session.setTvContentDemandVolume(value);
+                               break;
+                           case ConstantValues.TV_PRO_DEMAND_VOLUME_KEY:
+                               session.setTvProDemandVolume(value);
+                               break;
+                           case ConstantValues.TV_IMG_FORSCREEN_VOLUME_KEY:
+                               session.setTvImgFroscreenVolume(value);
+                               break;
+                           case ConstantValues.TV_VIDEO_FORSCREEN_VOLUME_KEY:
+                               session.setTvVideoFroscreenVolume(value);
+                               break;
+                       }
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         }
-
         if (!isProduceLog || boiteBean.getSwitch_time() != session.getSwitchTime()) {
             //生产电视切换时间日志
             LogReportUtil.get(context).sendAdsLog(String.valueOf(System.currentTimeMillis()),
@@ -513,10 +564,6 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         }
 
         isProduceLog = true;
-//        if (!TextUtils.isEmpty(session.getBoiteId()) &&
-//                !session.getBoiteId().equals(boiteBean.getHotel_id())){
-//            deleteDataByChangeBoite();
-//        }
         session.setBoxId(boiteBean.getBox_id());
         session.setBoiteId(boiteBean.getHotel_id());
         session.setBoiteName(boiteBean.getHotel_name());
@@ -525,10 +572,6 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         session.setRoomName(boiteBean.getRoom_name());
         session.setRoomType(boiteBean.getRoom_type());
         session.setBoxName(boiteBean.getBox_name());
-//        /**桶名称*/
-//        if (!TextUtils.isEmpty(boiteBean.getOssBucketName())) {
-//            session.setOss_bucket(boiteBean.getOssBucketName());
-//        }
         /**桶地址*/
         if (!TextUtils.isEmpty(boiteBean.getArea_id())) {
             session.setOssAreaId(boiteBean.getArea_id());
@@ -542,12 +585,6 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         if (boiteBean.getDemand_version_list() != null && !boiteBean.getDemand_version_list().isEmpty()) {
             spVersionInfo.addAll(boiteBean.getDemand_version_list());
         }
-//        if (boiteBean.getLogo_version_list() != null && !boiteBean.getLogo_version_list().isEmpty()) {
-//            spVersionInfo.addAll(boiteBean.getLogo_version_list());
-//        }
-//        if (boiteBean.getLoading_version_list() != null && !boiteBean.getLoading_version_list().isEmpty()) {
-//            spVersionInfo.addAll(boiteBean.getLoading_version_list());
-//        }
         if (boiteBean.getApk_version_list() != null && !boiteBean.getApk_version_list().isEmpty()) {
             spVersionInfo.addAll(boiteBean.getApk_version_list());
         }

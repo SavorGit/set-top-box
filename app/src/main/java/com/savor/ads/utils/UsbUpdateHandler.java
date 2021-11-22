@@ -266,18 +266,7 @@ public class UsbUpdateHandler {
                                 if (boxBean.getSwitch_time() > 0) {
                                     mSession.setSwitchTime(boxBean.getSwitch_time());
                                 }
-                                if (boxBean.getAds_volume() > 0) {
-                                    mSession.setVolume(boxBean.getAds_volume());
-                                }
-                                if (boxBean.getProject_volume() > 0) {
-                                    mSession.setProjectVolume(boxBean.getProject_volume());
-                                }
-                                if (boxBean.getDemand_volume() > 0) {
-                                    mSession.setXiaxinVolume(boxBean.getDemand_volume());
-                                }
-                                if (boxBean.getTv_volume() > 0) {
-                                    mSession.setTvVolume(boxBean.getTv_volume());
-                                }
+                                //TODO:设置声音
                                 isfounded = true;
                                 break;
                             }
