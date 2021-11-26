@@ -433,14 +433,18 @@ public class ScreenProjectionActivity extends BaseActivity{
                 if (AppUtils.isSVT()) {
                     if (currentAction==5||currentAction==22){
                         mCurrentVolume = mSession.getTvImgFroscreenVolume();
-                    }else if (currentAction==23){
+                    }else if (currentAction==2||currentAction==23){
                         mCurrentVolume = mSession.getTvVideoFroscreenVolume();
+                    }else if (currentAction==9){
+                        mCurrentVolume = mSession.getTvProDemandVolume();
                     }
                 } else {
                     if (currentAction==5||currentAction==22){
                         mCurrentVolume = mSession.getBoxImgFroscreenVolume();
-                    }else if (currentAction==23){
+                    }else if (currentAction==2||currentAction==23){
                         mCurrentVolume = mSession.getBoxVideoFroscreenVolume();
+                    }else if (currentAction==9){
+                        mCurrentVolume = mSession.getBoxProDemandVolume();
                     }
                 }
             }
@@ -1131,6 +1135,7 @@ public class ScreenProjectionActivity extends BaseActivity{
      */
     public void setNewProjection(Bundle bundle) {
         isNewProjection = false;
+        mHasInitializedVolume = false;
         handleNewProjection(bundle);
     }
 

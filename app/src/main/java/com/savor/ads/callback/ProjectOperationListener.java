@@ -636,7 +636,7 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
 
     @Override
     public VolumeResponseVo volume(int action, String projectId) {
-
+        GlobalValues.CURRENT_PROJECT_ID = UUID.randomUUID().toString();
         VolumeResponseVo responseVo = new VolumeResponseVo();
         VolumeAction volumeAction = new VolumeAction(action, projectId);
         ProjectionManager.getInstance().enqueueAction(volumeAction);
