@@ -252,12 +252,20 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                             if (!isFirstRun && AppUtils.checkPlayTime(context)) {
                                 notifyToPlay();
                             }
-
-                            LogFileUtil.write("HandleMediaDataService will start getBirthdayOndemandFromCloudPlatform");
+                            // 同步获取轮播节目媒体数据
+                            LogFileUtil.write("HandleMediaDataService will start getProgramDataFromSmallPlatform");
+                            getProgramDataFromSmallPlatform();
+                            //同步获取宣传片媒体数据
+                            LogFileUtil.write("HandleMediaDataService will start getAdvDataFromSmallPlatform");
+                            getAdvDataFromSmallPlatform();
+                            //同步获取广告片媒体数据
+                            LogFileUtil.write("HandleMediaDataService will start getAdsDataFromSmallPlatform");
+                            getAdsDataFromSmallPlatform();
                             //同步获取生日歌相关视频数据
+                            LogFileUtil.write("HandleMediaDataService will start getBirthdayOndemandFromCloudPlatform");
                             getBirthdayOndemandFromCloudPlatform();
-                            LogFileUtil.write("HandleMediaDataService will start getInteractionAdsFromCloudPlatform");
                             //同步获取投屏互动前后广告媒体数据
+                            LogFileUtil.write("HandleMediaDataService will start getInteractionAdsFromCloudPlatform");
                             getInteractionAdsFromCloudPlatform();
                             //同步获取活动商品数据（主干版本是优选，销售端是活动商品）
                             getGoodsProgramListFromCloudPlatform();
@@ -269,21 +277,13 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                             getWelcomeResourceFromCloudPlatform();
                             //同步获取本地生活广告数据
                             getLifeAdsDataFromCloudPlatform();
-                            // 同步获取轮播节目媒体数据
-                            getProgramDataFromSmallPlatform();
-                            LogFileUtil.write("HandleMediaDataService will start getAdvDataFromSmallPlatform");
-                            //同步获取宣传片媒体数据
-                            getAdvDataFromSmallPlatform();
-                            LogFileUtil.write("HandleMediaDataService will start getPolyAdsFromSmallPlatform");
                             // 同步获取聚屏物料媒体数据
+                            LogFileUtil.write("HandleMediaDataService will start getPolyAdsFromSmallPlatform");
                             getPolyAdsFromSmallPlatform();
-                            LogFileUtil.write("HandleMediaDataService will start getAdsDataFromSmallPlatform");
-                            //同步获取广告片媒体数据
-                            getAdsDataFromSmallPlatform();
                             //上报下载状态
                             reportDownloadState();
-                            LogFileUtil.write("HandleMediaDataService will start getTVMatchDataFromSmallPlatform");
                             // 异步获取电视节目信息
+                            LogFileUtil.write("HandleMediaDataService will start getTVMatchDataFromSmallPlatform");
                             getTVMatchDataFromSmallPlatform();
                         }
                     } catch (Exception e) {

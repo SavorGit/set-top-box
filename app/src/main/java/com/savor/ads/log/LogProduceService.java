@@ -196,16 +196,9 @@ public class LogProduceService {
 			String path = AppUtils.getFilePath(AppUtils.StorageFile.log);
 			logTime = AppUtils.getCurTime("yyyyMMddHH");
 			tempTime = System.currentTimeMillis();
-			if (session.isStandalone()){
-				mLogWriter = new FileWriter(path + boxMac + "_" + logTime +"_"+standalone+".blog",true);
-				file = new File(path + boxMac + "_" + logTime + "_" +standalone +".blog");
-			}else {
-				mLogWriter = new FileWriter(path + boxMac + "_" + logTime + ".blog",true);
-				file = new File(path + boxMac + "_" + logTime + ".blog");
-			}
 
-//			String pathCode = AppUtils.getFilePath(mContext,AppUtils.StorageFile.qrcode_log);
-//			mQRCodeLogWriter = new FileWriter(pathCode+boxMac+"_"+logTime+".blog",true);
+			mLogWriter = new FileWriter(path + boxMac + "_" + logTime + ".blog",true);
+			file = new File(path + boxMac + "_" + logTime + ".blog");
 		} catch (Exception e2) {
 			e2.printStackTrace();
 			LogFileUtil.writeException(e2);

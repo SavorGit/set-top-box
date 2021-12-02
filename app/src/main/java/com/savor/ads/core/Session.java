@@ -211,8 +211,6 @@ public class Session {
     private boolean mUseVirtualSp;
     /**单机版U盘目录*/
     private String usbPath;
-    /**是否是单机版机顶盒*/
-    private boolean standalone=false;
 	/**上次U盘更新时间*/
     private String lastUDiskUpdateTime;
 
@@ -373,7 +371,6 @@ public class Session {
 //        setNextPlayListVersion((ArrayList<VersionInfo>) StringToObject(mPreference.loadStringKey(P_APP_NEXT_PLAY_LIST_VERSION, "")));
 
         mUseVirtualSp = mPreference.loadBooleanKey(P_APP_USE_VIRTUAL_SP, false);
-        standalone = mPreference.loadBooleanKey(P_APP_STAND_ALONE,false);
         lastUDiskUpdateTime = mPreference.loadStringKey(P_APP_LAST_UDISK_UPDATE_TIME, "");
         netSpeed = mPreference.loadStringKey(P_APP_DOWNLOAD_NET_SPEED,"");
         isShowMiniProgramIcon = mPreference.loadBooleanKey(P_APP_SHOW_MIMIPROGRAM,false);
@@ -504,7 +501,6 @@ public class Session {
         } else if (P_APP_SIMPLE_UPLOAD_SIZE.equals(key)){
             mPreference.saveLongKey(key, (long) updateItem.second);
         } else if (P_APP_USE_VIRTUAL_SP.equals(key)||
-                P_APP_STAND_ALONE.equals(key)||
                 P_APP_4G_NETWORK.equals(key)||
                 P_APP_SHOW_MIMIPROGRAM.equals(key)||
                 P_APP_SHOW_SIMPLE_MIMIPROGRAM.equals(key)||
@@ -1195,15 +1191,6 @@ public class Session {
         this.usbPath = usbPath;
     }
 
-    public boolean isStandalone() {
-        return standalone;
-    }
-
-    public void setStandalone(boolean standalone) {
-        this.standalone = standalone;
-        writePreference(new Pair<>(P_APP_STAND_ALONE, standalone));
-    }
-
     public String getBirthdayOndemandDownloadPeriod() {
         return birthdayOndemandDownloadPeriod;
     }
@@ -1581,8 +1568,6 @@ public class Session {
     public static final String P_APP_TV_SIZE = "com.savor.ads.tvSize";
     // 是否使用虚拟小平台key
     public static final String P_APP_USE_VIRTUAL_SP = "com.savor.ads.use_virtual_sp";
-    //是否是单机版机顶盒
-    public static final String P_APP_STAND_ALONE = "com.savor.ads.stand_alone";
     //上次U盘动作时间
     public static final String P_APP_LAST_UDISK_UPDATE_TIME = "com.savor.ads.last_udisk_update_time";
 

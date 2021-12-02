@@ -1125,15 +1125,10 @@ public class DBHelper extends SQLiteOpenHelper {
                 String selection = null;
                 String[] args = null;
                 //            open();
-                if (session.isStandalone()) {
-                    // 拼接查询条件
-                    selection = FieldName.PERIOD + "=?";
-                    args = new String[]{session.getProPeriod()};
-                } else {
-                    // 拼接查询条件
-                    selection = FieldName.PERIOD + "=? OR " + FieldName.PERIOD + "=?";
-                    args = new String[]{session.getProPeriod(), session.getAdvPeriod()};
-                }
+                // 拼接查询条件
+                selection = FieldName.PERIOD + "=? OR " + FieldName.PERIOD + "=?";
+                args = new String[]{session.getProPeriod(), session.getAdvPeriod()};
+
 
 
                 cursor = db.query(TableName.PLAYLIST, null, selection, args, null, null, FieldName.ADS_ORDER);

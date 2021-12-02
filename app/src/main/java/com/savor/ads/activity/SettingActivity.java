@@ -34,8 +34,6 @@ public class SettingActivity extends BaseActivity {
     private RelativeLayout mServerIpRl;
     private RelativeLayout searchRL;
     private Switch mUseVirtualSwitch;
-    private ViewGroup mStandaloneVg;
-    private Switch mStandaloneSwitch;
     private TextView mServerIpTv;
     private IPEditText mIPEditText;
     private Button mConfirmBtn;
@@ -57,8 +55,6 @@ public class SettingActivity extends BaseActivity {
         mServerIpRl = findViewById(R.id.rl_server_ip);
         searchRL = findViewById(R.id.rl_search);
         mUseVirtualSwitch = findViewById(R.id.use_switch);
-        mStandaloneVg = findViewById(R.id.rl_standalone);
-        mStandaloneSwitch = findViewById(R.id.standalone_switch);
         mServerIpTv = findViewById(R.id.tv_server_ip);
         mIPEditText = findViewById(R.id.et_ip);
         mConfirmBtn = findViewById(R.id.btn_ok);
@@ -74,20 +70,6 @@ public class SettingActivity extends BaseActivity {
                 }
             }
         });
-        mStandaloneSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    mSession.setStandalone(true);
-                    mUseVirtualVp.setVisibility(View.GONE);
-                    mServerIpRl.setVisibility(View.GONE);
-                } else {
-                    mSession.setStandalone(false);
-                    mUseVirtualVp.setVisibility(View.VISIBLE);
-                    mServerIpRl.setVisibility(View.VISIBLE);
-                }
-            }
-        });
     }
 
     @Override
@@ -100,23 +82,17 @@ public class SettingActivity extends BaseActivity {
             searchRL.setVisibility(View.VISIBLE);
             titleTV.setText("机顶盒设置");
         }
-        if (mSession.isStandalone()) {
-            mStandaloneSwitch.setChecked(true);
+        if (mSession.isUseVirtualSp()) {
+            mServerIpTv.setText(BuildConfig.VIRTUAL_SP_HOST);
+            mUseVirtualSwitch.setChecked(true);
+            mServerIpRl.setFocusable(false);
         } else {
-            mStandaloneSwitch.setChecked(false);
-
-            if (mSession.isUseVirtualSp()) {
-                mServerIpTv.setText(BuildConfig.VIRTUAL_SP_HOST);
-                mUseVirtualSwitch.setChecked(true);
-                mServerIpRl.setFocusable(false);
-            } else {
-                mUseVirtualSwitch.setChecked(false);
-                if (mSession.getServerInfo() != null) {
-                    mServerIp = mSession.getServerInfo().getServerIp();
-                }
-                mServerIpTv.setText(mServerIp);
-                mServerIpRl.setFocusable(true);
+            mUseVirtualSwitch.setChecked(false);
+            if (mSession.getServerInfo() != null) {
+                mServerIp = mSession.getServerInfo().getServerIp();
             }
+            mServerIpTv.setText(mServerIp);
+            mServerIpRl.setFocusable(true);
         }
         mBaseLl.requestFocus();
 
@@ -269,10 +245,6 @@ public class SettingActivity extends BaseActivity {
             }
             mUseVirtualDialog.show();
         }
-    }
-
-    public void switchStandalone(View v) {
-        mStandaloneSwitch.setChecked(!mStandaloneSwitch.isChecked());
     }
 
     @Override

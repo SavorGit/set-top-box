@@ -157,17 +157,12 @@ public class BoxInfoDialog extends Dialog {
             mBoxNameTv.setText(session.getBoxName());
             mEthernetIpTv.setText(AppUtils.getEthernetIP());
             mEthernetMacTv.setText(session.getEthernetMac());
-            if (session.isStandalone()) {
-                mWlanIpLabelTv.setText("U盘更新时间");
-                mWlanIpTv.setText(session.getLastUDiskUpdateTime());
-                mWlanMacLabelTv.setText("是否单机版");
-                mWlanMacTv.setText("是");
-            } else {
-                mWlanIpLabelTv.setText("无线IP地址");
-                mWlanIpTv.setText(AppUtils.getWlanIP());
-                mWlanMacLabelTv.setText("无线MAC地址");
-                mWlanMacTv.setText(session.getWlanMac());
-            }
+
+            mWlanIpLabelTv.setText("无线IP地址");
+            mWlanIpTv.setText(AppUtils.getWlanIP());
+            mWlanMacLabelTv.setText("无线MAC地址");
+            mWlanMacTv.setText(session.getWlanMac());
+
             mAdsPeriodTv.setText(session.getAdsPeriod());
             mBirthdayPeriodTv.setText(session.getBirthdayOndemandPeriod());
             mAdvPeriodTv.setText(session.getAdvPeriod());
