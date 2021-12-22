@@ -23,7 +23,6 @@ import com.savor.ads.utils.KeyCode;
 import com.savor.ads.utils.KeyCodeConstant;
 import com.savor.ads.utils.KeyCodeConstantGiec;
 import com.savor.ads.utils.KeyCodeConstantSVT;
-import com.savor.ads.utils.KeyCodeConstantY55C;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
 import com.savor.ads.utils.MiniProgramQrCodeWindowManager;

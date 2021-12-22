@@ -8,6 +8,7 @@ public class MediaPlaylistBean {
     private String media_id;
     private int order;
     private String type;
+    private int newResource;
 
     public String getMedia_id() {
         return media_id;
@@ -31,5 +32,13 @@ public class MediaPlaylistBean {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public int getNewResource() {
+        return newResource;
+    }
+
+    public void setNewResource(int newResource) {
+        this.newResource = newResource;
     }
 }

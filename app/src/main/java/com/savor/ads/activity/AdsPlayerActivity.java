@@ -900,7 +900,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             handled = true;
 
             // 切换到电视模式
-        } else if (keyCode == KeyCode.KEY_CODE_CHANGE_MODE||keyCode == KeyCode.KEY_CODE_CHAGE_LETV_MODE) {
+        } else if (keyCode == KeyCode.KEY_CODE_CHANGE_MODE) {
             switchToTvPlayer();
             handled = true;
             mHandler.postDelayed(new Runnable() {

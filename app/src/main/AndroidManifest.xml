@@ -3,6 +3,7 @@
           xmlns:tools="http://schemas.android.com/tools"
           tools:ignore="MissingLeanbackLauncher,ProtectedPermissions"
           package="com.savor.ads">
+    <!--android:sharedUserId="android.uid.system"-->
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />

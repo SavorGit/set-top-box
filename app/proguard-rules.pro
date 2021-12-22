@@ -22,16 +22,49 @@
 -keep public class com.savor.ads.R$*{
 public static final int *;
 }
+
+#不混淆资源类
+-keepclassmembers class **.R$* {
+    public static <fields>;
+}
+#保持枚举 enum 类不被混淆
 -keepclassmembers enum * {
     public static **[] values();
     public static ** valueOf(java.lang.String);
 }
 
 
+#保持自定义控件类不被混淆
+-keepclassmembers class * extends android.app.Activity {
+   public void *(android.view.View);
+}
+
+#保持 native 方法不被混淆
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+#表示不混淆Parcelable实现类中的CREATOR字段，毫无疑问，CREATOR字段是绝对不能改变的，包括大小写都不能变，不然整个Parcelable工作机制都会失败。
+-keep class * implements android.os.Parcelable {
+  public static final android.os.Parcelable$Creator *;
+}
+#保持 Serializable 不被混淆
+-keepnames class * implements java.io.Serializable
+#保持 Serializable 不被混淆并且enum 类也不被混淆
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    !static !transient <fields>;
+    !private <fields>;
+    !private <methods>;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
+}
 #keep entity for gson
--keep class com.savor.ads.bean.*.* { *; }
--keep class com.jar.savor.box.*.* { *; }
--keep class cn.savor.small.*.* { *; }
+-keep class com.savor.ads.bean.** { *; }
+-keep class com.jar.savor.box.** { *; }
+-keep class cn.savor.small.netty.** { *; }
 
 #Proguard for netty begin
 -keepattributes Signature,InnerClasses

@@ -386,6 +386,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                     bean.setMedia_id(media.getVid());
                     bean.setType(media.getType());
                     bean.setOrder(media.getOrder());
+                    bean.setNewResource(media.getNewResource());
                     playlist.add(bean);
                 }
             }

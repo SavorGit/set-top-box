@@ -36,10 +36,6 @@ public class KeyCode {
      */
     public static int KEY_CODE_CHANGE_MODE = 2016;
     /**
-     * 乐视电视:切换 广告/电视 模式
-     */
-    public static int KEY_CODE_CHAGE_LETV_MODE = 82;
-    /**
      * 显示二维码（节目表 按钮）
      */
     public static int KEY_CODE_SHOW_QRCODE = 2018;

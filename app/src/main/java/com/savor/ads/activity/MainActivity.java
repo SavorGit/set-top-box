@@ -76,6 +76,14 @@ public class MainActivity extends BaseActivity {
             mHandler.postDelayed(()->gotoAdsActivity(), 1000*5);
             mHandler.postDelayed(()->initMediaVideo(),1000*60);
 
+        }else{
+            //:TODO
+            mSession.setUseVirtualSp(true);
+            mSession.setServerInfo(new ServerInfo(BuildConfig.VIRTUAL_SP_HOST, 3));
+            mHandler.postDelayed(() -> {
+                initMediaVideo();
+                gotoAdsActivity();
+            }, 1000 * 10);
         }
     }
 

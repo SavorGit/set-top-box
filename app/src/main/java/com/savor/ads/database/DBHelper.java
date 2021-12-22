@@ -56,6 +56,7 @@ import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.MEDIA_PATH;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.MEDIA_SCREENSHOT_PATH;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.MOBILE_BRAND;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.MOBILE_MODEL;
+import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.NEW_RESOURCE;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.NICK_NAME;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.OPENID;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.PAGES;
@@ -144,6 +145,8 @@ public class DBHelper extends SQLiteOpenHelper {
             public static final String UPLOADED = "uploaded";
             //是否已经上传,0:一投，1：重投
             public static final String REPEAT = "repeat";
+            //是否是新一期的资源
+            public static final String NEW_RESOURCE = "new_resource";
         }
 
         public static class TableName {
@@ -173,7 +176,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "dbsavor.db";
 
 
-    private static final int DB_VERSION = 39;
+    private static final int DB_VERSION = 40;
 
     private Context mContext;
 
@@ -417,6 +420,17 @@ public class DBHelper extends SQLiteOpenHelper {
                 e.printStackTrace();
             }
         }
+        if (oldVersion<40){
+            //versionName 2.4.5
+            try{
+                String alterNewPlaylist = "ALTER TABLE " + TableName.NEWPLAYLIST + " ADD " + NEW_RESOURCE + " INTEGER DEFAULT 0;";
+                sqLiteDatabase.execSQL(alterNewPlaylist);
+                String alterPlaylist = "ALTER TABLE " + TableName.PLAYLIST + " ADD " + NEW_RESOURCE + " INTEGER DEFAULT 0;";
+                sqLiteDatabase.execSQL(alterPlaylist);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -441,7 +455,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 + MEDIA_PATH + " TEXT, "
                 + FieldName.LOCATION_ID + " TEXT, "
                 + FieldName.IS_SAPP_QRCODE + " INTEGER, "
-                + MD5 + " TEXT " + ");";
+                + MD5 + " TEXT, "
+                + NEW_RESOURCE + " INTEGER DEFAULT 0" + ");";
         db.execSQL(DATABASE_CREATE);
     }
 
@@ -462,7 +477,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 + MEDIA_PATH + " TEXT, "
                 + FieldName.LOCATION_ID + " TEXT, "
                 + FieldName.IS_SAPP_QRCODE + " INTEGER, "
-                + MD5 + " TEXT " + ");";
+                + MD5 + " TEXT, "
+                + NEW_RESOURCE + " INTEGER DEFAULT 0" + ");";
 
         db.execSQL(DATABASE_CREATE);
     }
@@ -872,6 +888,50 @@ public class DBHelper extends SQLiteOpenHelper {
         return playList;
     }
 
+    /**
+     * 更新下载资源到播放列表中
+     * @param playList
+     * @param id
+     * @return
+     */
+    public boolean updatePlayListLib(MediaLibBean playList, long id) {
+        if (playList == null) {
+            return false;
+        }
+        try {
+            ContentValues initialValues = new ContentValues();
+            initialValues.put(VID, playList.getVid());
+            initialValues.put(PERIOD, playList.getPeriod());
+            initialValues.put(ADS_ORDER, playList.getOrder());
+            initialValues.put(MEDIANAME, playList.getName());
+            initialValues.put(MEDIATYPE, playList.getType());
+            initialValues.put(RESOURCE_TYPE,playList.getMedia_type());
+            initialValues.put(CHINESE_NAME, playList.getChinese_name());
+            initialValues.put(CREATETIME, AppUtils.getCurTime("yyyyMMddHHmm"));
+            initialValues.put(SURFIX, playList.getSuffix());
+            initialValues.put(DURATION, playList.getDuration());
+            initialValues.put(MEDIA_PATH, playList.getMediaPath());
+            initialValues.put(LOCATION_ID, playList.getLocation_id());
+            initialValues.put(IS_SAPP_QRCODE,playList.getIs_sapp_qrcode());
+            initialValues.put(MD5, playList.getMd5());
+            initialValues.put(NEW_RESOURCE,playList.getNewResource());
+            String selection = ID + "=? ";
+            String[] selectionArgs = new String[]{String.valueOf(id)};
+            long in = db.update(TableName.PLAYLIST, initialValues, selection, selectionArgs);
+
+            if (in > 0) {
+//                LogUtils.d("到达率debug-----数据库替换("+playList.getChinese_name()+")成功");
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+
+        }
+        return false;
+    }
     //查询播放列表本期数据是否存在
     public List<MediaLibBean> findPlayListByWhere(String selection, String[] selectionArgs) throws SQLException {
 
@@ -902,6 +962,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     bean.setMd5(cursor.getString(cursor.getColumnIndex(MD5)));
                     bean.setIs_sapp_qrcode(cursor.getInt(cursor.getColumnIndex(IS_SAPP_QRCODE)));
                     bean.setMedia_type(cursor.getInt(cursor.getColumnIndex(RESOURCE_TYPE)));
+                    bean.setNewResource(cursor.getInt(cursor.getColumnIndex(NEW_RESOURCE)));
                     playList.add(bean);
                 }
             }
@@ -1149,6 +1210,7 @@ public class DBHelper extends SQLiteOpenHelper {
                         bean.setOrder(cursor.getInt(cursor.getColumnIndex(FieldName.ADS_ORDER)));
                         bean.setLocation_id(cursor.getString(cursor.getColumnIndex(FieldName.LOCATION_ID)));
                         bean.setIs_sapp_qrcode(cursor.getInt(cursor.getColumnIndex(FieldName.IS_SAPP_QRCODE)));
+                        bean.setNewResource(cursor.getInt(cursor.getColumnIndex(NEW_RESOURCE)));
                         playList.add(bean);
                     } while (cursor.moveToNext());
                 }

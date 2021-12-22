@@ -618,6 +618,7 @@ public class AppApi {
         params.put("roomId", Session.get(context).getRoomId());
         params.put("signal", AppUtils.getInputType(Session.get(context).getTvInputSource()));
         params.put("net_speed",Session.get(context).getNetSpeed());
+        params.put("tv_input_source",AppUtils.getInputType(Session.get(context).getTvInputSource()));
         new AppServiceOk(context, Action.CP_GET_HEARTBEAT_PLAIN, handler, params).get();
     }
 
@@ -627,7 +628,7 @@ public class AppApi {
      * @param handler
      */
     public static void getSpIp(Context context, ApiRequestListener handler) {
-        final HashMap<String, Object> params = new HashMap<String, Object>();
+        final HashMap<String, Object> params = new HashMap<>();
         new AppServiceOk(context, Action.CP_GET_SP_IP_JSON, handler, params).get();
     }
 

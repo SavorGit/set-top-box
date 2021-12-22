@@ -80,6 +80,8 @@ public class MediaLibBean implements Serializable {
     private String avatarUrl;
     /**type:类型 1热播内容(上大屏内容) 2发现内容*/
     private int selectContentType;
+    /**是否已经替换为新一期的节目单的资源,0:原节目单资源，1：新节目资源*/
+    private int newResource;
 
     public long getId() {
         return id;
@@ -375,6 +377,14 @@ public class MediaLibBean implements Serializable {
 
     public void setSelectContentType(int selectContentType) {
         this.selectContentType = selectContentType;
+    }
+
+    public int getNewResource() {
+        return newResource;
+    }
+
+    public void setNewResource(int newResource) {
+        this.newResource = newResource;
     }
 }
 

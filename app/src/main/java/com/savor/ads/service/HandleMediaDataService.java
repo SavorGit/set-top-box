@@ -1299,18 +1299,23 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         isProCompleted = false;
         String smallType=null;
         try {
+            LogFileUtil.write("HandleMediaDataService will start getProgramDataFromSmallPlatform 盒子类型=="+session.getType());
             if (session.getType()==2||session.getType()==0){
                 return;
             }
+            LogFileUtil.write("HandleMediaDataService will start getProgramDataFromSmallPlatform 盒子mac=="+session.getEthernetMac());
             JsonBean jsonBean = AppApi.getProgramDataFromSmallPlatform(this, this, session.getEthernetMac());
             // 保存拿到的数据到本地
             FileUtils.write(ConstantValues.PRO_DATA_PATH, jsonBean.getConfigJson());
-
+            LogFileUtil.write("HandleMediaDataService will start getProgramDataFromSmallPlatform 返回结果=="+jsonBean.getConfigJson());
             SetBoxTopResult setBoxTopResult = gson.fromJson(jsonBean.getConfigJson(), new TypeToken<SetBoxTopResult>() {
             }.getType());
             if (setBoxTopResult.getCode() == AppApi.HTTP_RESPONSE_STATE_SUCCESS) {
+                LogFileUtil.write("HandleMediaDataService will start getProgramDataFromSmallPlatform 盒子返回状态=="+setBoxTopResult.getCode());
+                LogFileUtil.write("HandleMediaDataService will start getProgramDataFromSmallPlatform 盒子result=="+setBoxTopResult.getResult());
                 if (setBoxTopResult.getResult() != null) {
                     setTopBoxBean = setBoxTopResult.getResult();
+                    LogFileUtil.write("HandleMediaDataService will start getProgramDataFromSmallPlatform 盒子billlist=="+setTopBoxBean.getPlaybill_list());
                     smallType = jsonBean.getSmallType();
                     handleSmallPlatformProgramData(smallType);
                 }
@@ -1343,6 +1348,8 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 continue;
             }
             String logUUID = String.valueOf(System.currentTimeMillis());
+            //正在播放的节目单跟新的一期节目单作比较，被删除的节目集合
+            List<String> delLibBeans = new ArrayList<>();
             if (ConstantValues.PRO.equals(item.getVersion().getType())) {
                 proPeriod = item.getVersion().getVersion();
 
@@ -1362,7 +1369,28 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.NEWPLAYLIST,selection, selectionArgs);
                 // 设置下载中期号
                 session.setProDownloadPeriod(proPeriod);
+                /**新的节目单进来，旧的节目单中需要剔除的节目整理出来*/
+                if (!TextUtils.isEmpty(session.getProPeriod())&&!session.getProPeriod().equals(proPeriod)) {
+                    //新的一期节目单种所有节目名称的集合
+                    List<String> fileNames = new ArrayList<>();
+                    List<MediaLibBean> newPeriodList = item.getMedia_lib();
+                    for (MediaLibBean bean:newPeriodList){
+                        if (!fileNames.contains(bean.getName())){
+                            fileNames.add(bean.getName());
+                        }
+                    }
+                    selection = DBHelper.MediaDBInfo.FieldName.MEDIATYPE + "=? ";
+                    selectionArgs = new String[]{ConstantValues.PRO};
+                    List<MediaLibBean> list = dbHelper.findPlayListByWhere(selection, selectionArgs);
+                    for (MediaLibBean libBean:list){
+                        String mediaName = libBean.getName();
+                        if (!fileNames.contains(mediaName)&&!delLibBeans.contains(mediaName)){
+                            delLibBeans.add(mediaName);
+//                            LogUtils.d("到达率debug-----需要删除的文件"+libBean.getChinese_name());
+                        }
 
+                    }
+                }
                 // 记录下载开始日志
                 int count = item.getMedia_lib() == null ? 0 : item.getMedia_lib().size();
                 LogReportUtil.get(this).sendAdsLog(logUUID, session.getBoiteId(), session.getRoomId(),
@@ -1446,9 +1474,19 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                                 // 插库成功，downloadedCount加1
                                 if (dbHelper.insertOrUpdateNewPlayListLib(mediaItem, -1)) {
                                     downloadedCount++;
-
-                                    if (isNewDownload) {
-                                        notifyToPlay();
+                                    //处理下载完的视频及时更新替换到节目单中|20211207
+                                    if (!TextUtils.isEmpty(session.getProPeriod())
+                                            &&!session.getProPeriod().equals(proPeriod)
+                                            &&ConstantValues.PRO.equals(versionInfo.getType())) {
+                                        if (updateNewResourceToProgram(mediaItem,delLibBeans)){
+                                            String chineseName = mediaItem.getChinese_name();
+                                            if(delLibBeans!=null&&delLibBeans.size()>0
+                                                    &&!chineseName.startsWith("饭局话题")
+                                                    &&!chineseName.startsWith("名人")){
+                                                delLibBeans.remove(0);
+                                            }
+                                            notifyToPlay();
+                                        }
                                     }
                                 }
                             } else {
@@ -1497,6 +1535,94 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 }
             }
         }
+    }
+
+    private boolean updateNewResourceToProgram(MediaLibBean mediaItem,List<String> delLibBeans){
+        String fileName = mediaItem.getName();
+        String selection = DBHelper.MediaDBInfo.FieldName.MEDIANAME + "=? ";
+        String[] selectionArgs = new String[]{fileName};
+        List<MediaLibBean> libBeanList = dbHelper.findPlayListByWhere(selection,selectionArgs);
+        if (libBeanList!=null&&libBeanList.size()>0){
+            return false;
+        }
+        String vid = mediaItem.getVid();
+        String chineseName = mediaItem.getChinese_name();
+        String md5 = mediaItem.getMd5();
+        int mediaType = mediaItem.getMedia_type();
+        String duration = mediaItem.getDuration();
+        String mediaPath = mediaItem.getMediaPath();
+        int isSappQrcode = mediaItem.getIs_sapp_qrcode();
+        if (chineseName.startsWith("饭局话题")||chineseName.startsWith("名人")){
+            selection = DBHelper.MediaDBInfo.FieldName.CHINESE_NAME + " like ? ";
+            if (chineseName.startsWith("饭局话题")){
+                selectionArgs = new String[]{chineseName.substring(0,4)+"%"};
+            }
+            if (chineseName.startsWith("名人")){
+                selectionArgs = new String[]{chineseName.substring(0,2)+"%"};
+            }
+            List<MediaLibBean> mediaLibBeanList = dbHelper.findPlayListByWhere(selection,selectionArgs);
+            if (mediaLibBeanList!=null&&mediaLibBeanList.size()>0){
+                for (MediaLibBean libBean:mediaLibBeanList){
+//                    LogUtils.d("到达率debug-----把("+libBean.getChinese_name()+")替换成("+chineseName+")");
+                    libBean.setVid(vid);
+                    libBean.setName(fileName);
+                    libBean.setChinese_name(chineseName);
+                    libBean.setMd5(md5);
+                    libBean.setMedia_type(mediaType);
+                    libBean.setDuration(duration);
+                    libBean.setMediaPath(mediaPath);
+                    libBean.setIs_sapp_qrcode(isSappQrcode);
+                    libBean.setNewResource(1);
+                    dbHelper.updatePlayListLib(libBean,libBean.getId());
+                }
+            }
+        }else{
+            if (delLibBeans!=null&&delLibBeans.size()>0){
+                String mediaName = delLibBeans.get(0);
+                selection = DBHelper.MediaDBInfo.FieldName.MEDIANAME + "=? ";
+                selectionArgs = new String[]{mediaName};
+                List<MediaLibBean> mediaLibBeanList = dbHelper.findPlayListByWhere(selection,selectionArgs);
+                if (mediaLibBeanList!=null&&mediaLibBeanList.size()>0){
+                    for (MediaLibBean libBean:mediaLibBeanList){
+//                        LogUtils.d("到达率debug-----把("+libBean.getChinese_name()+")替换成("+chineseName+")");
+                        libBean.setVid(vid);
+                        libBean.setName(fileName);
+                        libBean.setChinese_name(chineseName);
+                        libBean.setMd5(md5);
+                        libBean.setMedia_type(mediaType);
+                        libBean.setDuration(duration);
+                        libBean.setMediaPath(mediaPath);
+                        libBean.setIs_sapp_qrcode(isSappQrcode);
+                        libBean.setNewResource(1);
+                        dbHelper.updatePlayListLib(libBean,libBean.getId());
+                    }
+                }
+            }else {
+                selection = DBHelper.MediaDBInfo.FieldName.MEDIATYPE + "=? and " +
+                        DBHelper.MediaDBInfo.FieldName.NEW_RESOURCE + "=? ";
+                selectionArgs = new String[]{ConstantValues.PRO,"0"};
+                List<MediaLibBean> mediaLibBeanList = dbHelper.findPlayListByWhere(selection,selectionArgs);
+                if (mediaLibBeanList!=null&&mediaLibBeanList.size()>0){
+                    MediaLibBean mediaLibBean = mediaLibBeanList.get(0);
+                    String mediaName = mediaLibBean.getName();
+                    for (MediaLibBean libBean:mediaLibBeanList){
+                        if (libBean.getName().equals(mediaName)){
+                            libBean.setVid(vid);
+                            libBean.setName(fileName);
+                            libBean.setChinese_name(chineseName);
+                            libBean.setMd5(md5);
+                            libBean.setMedia_type(mediaType);
+                            libBean.setDuration(duration);
+                            libBean.setMediaPath(mediaPath);
+                            libBean.setIs_sapp_qrcode(isSappQrcode);
+                            libBean.setNewResource(1);
+                            dbHelper.updatePlayListLib(libBean,libBean.getId());
+                        }
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**

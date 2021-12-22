@@ -17,8 +17,8 @@ android {
         targetSdkVersion TARGET_SDK_VERSION as int
 
         //noinspection HighAppVersionCode
-        versionCode 2021120601
-        versionName "2.4.4"
+        versionCode 2021122105
+        versionName "2.4.5"
         multiDexEnabled true
     }
     compileOptions {
@@ -50,7 +50,7 @@ android {
             // 移除无用的resource文件
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.debug
+//            signingConfig signingConfigs.debug
 
             ndk {
                 abiFilters("armeabi")

@@ -373,10 +373,6 @@ public class ConstantValues {
     public static final String YISHOU_VDO = "VDO";
     /*********易售广告平台账号结束*************/
 
-    /**乐视信号源包名和类名*/
-    public static final String LETV_SIGNAL_SOURCE_PAKAGE = "com.stv.signalsourcemanager";
-    public static final String LETV_SIGNAL_SOURCE_CLASS = "com.stv.signalsourcemanager.MainActivity";
-
     /**视纬通信号源包名和类名*/
     public static final String SVT_SIGNAL_SOURCE_PAKAGE = "com.siviton.tvplayer";
     public static final String SVT_SIGNAL_SOURCE_CLASS = "com.siviton.tvplayer.ui.RootActivity";
