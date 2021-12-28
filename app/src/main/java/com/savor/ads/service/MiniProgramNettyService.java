@@ -19,6 +19,7 @@ import com.savor.ads.BuildConfig;
 import com.savor.ads.R;
 import com.savor.ads.SavorApplication;
 import com.savor.ads.activity.AdsPlayerActivity;
+import com.savor.ads.activity.BaseActivity;
 import com.savor.ads.activity.LotteryDrawingActivity;
 import com.savor.ads.bean.LotteryResult;
 import com.savor.ads.bean.MediaFileBean;
@@ -264,6 +265,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 999:下载固定资源测试下载速度
          * 31:加减音量，change_type 1:减音量 2:加音量
          * 32:切换节目, change_type 1:上一个节目 2:下一个节目
+         * 33:遥控器功能
          * 40:小程序点播商品广告
          * 42:小程序销售端视频投屏
          * 44:小程序销售端图片投屏(含单张)
@@ -423,6 +425,12 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             if (jsonObject.has("change_type")){
                                 int value = jsonObject.getInt("change_type");
                                 adjustVideo(value);
+                            }
+                            break;
+                        case 33:
+                            if (jsonObject.has("change_type")){
+                                int value = jsonObject.getInt("change_type");
+                                remoteControl(value);
                             }
                             break;
                         case 40:
@@ -2230,6 +2238,52 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         }
     }
 
+    /**
+     * 遥控器功能
+     * 1、上
+     * 2、下
+     * 3、左
+     * 4、右
+     * 5、确定
+     * 6、返回
+     * 7、心跳上报
+     * 8、信息预览
+     * 9、节目列表
+     */
+    private void remoteControl(int changeType){
+        Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+        switch (changeType){
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+                if (activity instanceof AdsPlayerActivity){
+                    handler.post(()->((AdsPlayerActivity<?>) activity).moveFocus(changeType));
+                }
+                break;
+            case 6:
+                if (activity instanceof AdsPlayerActivity){
+                    handler.post(()->((AdsPlayerActivity<?>) activity).hideInfo());
+                }
+                break;
+            case 7:
+                if (activity instanceof AdsPlayerActivity){
+                    handler.post(()->((AdsPlayerActivity<?>) activity).manualHeartbeat());
+                }
+                break;
+            case 8:
+                if (activity instanceof AdsPlayerActivity){
+                    handler.post(()->((AdsPlayerActivity<?>) activity).showBoxInfo());
+                }
+                break;
+            case 9:
+                if (activity instanceof AdsPlayerActivity){
+                    handler.post(()->((AdsPlayerActivity<?>) activity).showPlaylist());
+                }
+                break;
+        }
+    }
 
     private void onDemandGoodsAds(int goods_id,String qrcode_url){
         if (goods_id==0){

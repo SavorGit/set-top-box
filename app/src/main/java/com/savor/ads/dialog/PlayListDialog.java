@@ -1,16 +1,20 @@
 package com.savor.ads.dialog;
 
 import android.app.Dialog;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -52,7 +56,7 @@ public class PlayListDialog extends Dialog {
     private String mProDownloadPeriod;
     private String mAdvDownloadPeriod;
     private String mAdsDownloadPeriod;
-
+    private int currentPosition=0;
     public PlayListDialog(Context context, Callback callback) {
         super(context, R.style.box_info_dialog_theme);
         mCallback = callback;
@@ -72,7 +76,7 @@ public class PlayListDialog extends Dialog {
         mPlaylistGv = (GridView) findViewById(R.id.gv_play_list);
         mDownloadListGv = (GridView) findViewById(R.id.gv_download_list);
 
-        mPlaylistAdapter = new PlaylistAdapter(getContext(), null);
+        mPlaylistAdapter = new PlaylistAdapter(getContext(), null, position -> currentPosition = position);
         mPlaylistGv.setAdapter(mPlaylistAdapter);
         mPlaylistGv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -86,7 +90,6 @@ public class PlayListDialog extends Dialog {
 
         mDownloadListAdapter = new DownloadListAdapter(getContext(), null);
         mDownloadListGv.setAdapter(mDownloadListAdapter);
-
         mShowDownloadTv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -102,6 +105,70 @@ public class PlayListDialog extends Dialog {
         });
     }
 
+    public void moveFocus(int changeType){
+        switch (changeType){
+            case 1:
+                moveFocusUp();
+                break;
+            case 2:
+                moveFocusDown();
+                break;
+            case 3:
+                moveFocusLeft();
+                break;
+            case 4:
+                moveFocusRight();
+                break;
+            case 5:
+                onClickCenter();
+                break;
+        }
+    }
+
+    public void moveFocusDown(){
+        new Thread(()->{
+            Instrumentation instrumentation = new Instrumentation();
+            instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_DOWN);
+        }).start();
+    }
+    public void moveFocusUp(){
+        new Thread(()->{
+            Instrumentation instrumentation = new Instrumentation();
+            instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_UP);
+        }).start();
+    }
+    public void moveFocusLeft(){
+        new Thread(()->{
+            Instrumentation instrumentation = new Instrumentation();
+            instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_LEFT);
+        }).start();
+    }
+    public void moveFocusRight(){
+        new Thread(()->{
+            Instrumentation instrumentation = new Instrumentation();
+            instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_RIGHT);
+        }).start();
+    }
+
+    public void onClickCenter(){
+
+        View view = mShowDownloadTv.findFocus();
+        if (view!=null){
+            mShowDownloadTv.setVisibility(View.GONE);
+            mPlaylistGv.setVisibility(View.GONE);
+            mDownloadListGv.setVisibility(View.VISIBLE);
+            mDownloadListGv.requestFocus();
+
+            mTitleTv.setText("下载列表");
+            mDescTv.setText(String.format("广告版本：%s    节目版本：%s\r\n宣传片版本：%s",
+                    mAdsDownloadPeriod, mProDownloadPeriod, mAdvDownloadPeriod));
+        }else{
+            if (mCallback != null&&mPlaylistGv.getVisibility()==View.VISIBLE) {
+                mCallback.onMediaItemSelect(currentPosition);
+                PlayListDialog.this.dismiss();
+            }
+        }
+    }
 
     private void setDialogAttributes() {
         Window window = getWindow(); // 得到对话框

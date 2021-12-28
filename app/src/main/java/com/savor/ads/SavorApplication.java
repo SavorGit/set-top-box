@@ -493,7 +493,8 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
         super.onTrimMemory(level);
         if (level == TRIM_MEMORY_UI_HIDDEN) {
             Log.i("SavorApplication123", "APP遁入后台");
-            if (AppUtils.isSVT()){
+            //除了二代三代机顶盒，其他的都需要做到定时跳转会轮播内部
+            if (!AppUtils.isGiec()&&!AppUtils.isMstar()){
                 GlobalValues.mIsGoneToTv = true;
                 mHandler.postDelayed(new Runnable() {
                     @Override

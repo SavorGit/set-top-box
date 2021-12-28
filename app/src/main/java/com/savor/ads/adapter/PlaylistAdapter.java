@@ -21,10 +21,13 @@ import java.util.ArrayList;
 public class PlaylistAdapter <T extends MediaLibBean> extends BaseAdapter {
     private Context mContext;
     private ArrayList<T> mPlaylist;
+    private GetPosition getPosition;
 
-    public PlaylistAdapter(Context context, ArrayList<T> playlist) {
+
+    public PlaylistAdapter(Context context, ArrayList<T> playlist,GetPosition getCurrentPosition) {
         mContext = context;
         mPlaylist = playlist;
+        this.getPosition = getCurrentPosition;
     }
 
     @Override
@@ -39,6 +42,9 @@ public class PlaylistAdapter <T extends MediaLibBean> extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
+        if (getPosition!=null){
+            getPosition.getPosition(position);
+        }
         return position;
     }
 
@@ -76,6 +82,10 @@ public class PlaylistAdapter <T extends MediaLibBean> extends BaseAdapter {
     public void setPlaylist(ArrayList<T> playlist) {
         mPlaylist = playlist;
         notifyDataSetChanged();
+    }
+
+    public interface GetPosition{
+        void getPosition(int position);
     }
 
     class ViewHolder {

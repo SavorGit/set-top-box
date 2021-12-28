@@ -2341,6 +2341,10 @@ public class AppUtils {
         return  Build.MODEL.contains("t962e");
     }
 
+    public static boolean isPhilips(){
+        return Build.MODEL.contains("BDL");
+    }
+
     /**
      * 根据Pid获取当前进程的名字，一般就是当前app的包名
      *

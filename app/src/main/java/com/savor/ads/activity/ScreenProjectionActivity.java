@@ -408,7 +408,7 @@ public class ScreenProjectionActivity extends BaseActivity{
     private void initVolume() {
         if (!mHasInitializedVolume) {
             if (from_service==GlobalValues.FROM_SERVICE_MINIPROGRAM){
-                if (AppUtils.isSVT()) {
+                if (AppUtils.isSVT()||AppUtils.isPhilips()) {
                     if (currentAction==4||currentAction==10){
                         mCurrentVolume = mSession.getTvImgFroscreenVolume();
                     }else if (currentAction==2){
@@ -430,7 +430,7 @@ public class ScreenProjectionActivity extends BaseActivity{
                     }
                 }
             }else{
-                if (AppUtils.isSVT()) {
+                if (AppUtils.isSVT()||AppUtils.isPhilips()) {
                     if (currentAction==5||currentAction==22){
                         mCurrentVolume = mSession.getTvImgFroscreenVolume();
                     }else if (currentAction==2||currentAction==23){

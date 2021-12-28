@@ -389,7 +389,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                     LogUtils.d("Error while switching to signalsourcemanager.", e);
                 }
             }
-//            AppApi.reportSDCardState(mContext, null, 1);
             finish();
         } else {
             mPlayList = GlobalValues.getInstance().PLAY_LIST;
@@ -763,7 +762,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         Log.d("StackTrack", "AdsPlayerActivity::onResume");
         judegeCurrentLotteryState();
         mActivityResumeTime = System.currentTimeMillis();
-        if (AppUtils.isSVT()){
+        if (AppUtils.isSVT()||AppUtils.isPhilips()){
             setVolume(mSession.getTvCarouselVolume());
             if (mCurrentVolume==0){
                 mCurrentVolume = mSession.getTvCarouselVolume();
@@ -960,7 +959,15 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         }
     }
 
-    private void showPlaylist() {
+    public void moveFocus(int changeType){
+        if (mPlayListDialog!=null&&mPlayListDialog.isShowing()){
+            mPlayListDialog.moveFocus(changeType);
+        }else if (mBoxInfoDialog!=null&&mBoxInfoDialog.isShowing()){
+            mBoxInfoDialog.moveFocus(changeType);
+        }
+    }
+
+    public void showPlaylist() {
         if (mPlayListDialog == null) {
             mPlayListDialog = new PlayListDialog(this, this);
         }
@@ -971,6 +978,18 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 //        } else {
 //            ShowMessage.showToast(mContext, "播放列表为空");
 //        }
+    }
+
+    private Runnable mHidePlayListWindow = () -> {
+        if (mPlayListDialog!=null&&mPlayListDialog.isShowing()){
+            mPlayListDialog.dismiss();
+        }
+    };
+
+    public void hideInfo(){
+        mHandler.post(mHideInfoRunnable);
+        mHandler.post(mHidePlayListWindow);
+
     }
 
     int resolutionIndex = 0;

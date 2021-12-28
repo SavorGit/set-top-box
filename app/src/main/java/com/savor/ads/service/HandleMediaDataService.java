@@ -644,7 +644,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         }
 
         /**下载开机视频*/
-        if (AppUtils.isSVT()&&boiteBean.getBootvideo()!=null
+        if ((AppUtils.isSVT()||AppUtils.isPhilips())&&boiteBean.getBootvideo()!=null
                 &&!TextUtils.isEmpty(boiteBean.getBootvideo().getUrl())
                 &&!TextUtils.isEmpty(boiteBean.getBootvideo().getMd5())){
             String bvideoUrl = boiteBean.getBootvideo().getUrl();
@@ -2222,7 +2222,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         }
         if (AppUtils.isMstar()) {
             AppApi.getTVMatchDataFromSmallPlatform(this, this);
-        } else {
+        } else if (AppUtils.isGiec()){
             AppApi.getGiecTVMatchDataFromSmallPlatform(this, this);
         }
     }

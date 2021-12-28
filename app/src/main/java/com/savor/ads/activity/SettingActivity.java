@@ -75,7 +75,7 @@ public class SettingActivity extends BaseActivity {
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        if (AppUtils.isSVT()){
+        if (AppUtils.isSVT()||AppUtils.isPhilips()){
             searchRL.setVisibility(View.GONE);
             titleTV.setText("电视机设置");
         }else{

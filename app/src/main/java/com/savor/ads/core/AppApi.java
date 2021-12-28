@@ -6,6 +6,7 @@ import android.text.TextUtils;
 
 import com.google.gson.Gson;
 import com.savor.ads.BuildConfig;
+import com.savor.ads.R;
 import com.savor.ads.bean.AtvProgramInfo;
 import com.savor.ads.bean.JsonBean;
 import com.savor.ads.bean.DownloadDetailRequestBean;
@@ -595,25 +596,35 @@ public class AppApi {
      */
     public static void heartbeat(Context context, ApiRequestListener handler,int serial_no) {
         final HashMap<String, Object> params = new HashMap<String, Object>();
+        Session session = Session.get(context);
         params.put("clientid", 2);
-        params.put("mac", Session.get(context).getEthernetMac());
-        params.put("pro_period", Session.get(context).getProPeriod());
-        params.put("adv_period", Session.get(context).getAdvPeriod());
-        params.put("period", Session.get(context).getAdsPeriod());
-        params.put("pro_download_period", Session.get(context).getProDownloadPeriod());
-        params.put("adv_download_period", Session.get(context).getAdvDownloadPeriod());
-        params.put("ads_download_period", Session.get(context).getAdsDownloadPeriod());
-        params.put("demand", Session.get(context).getBirthdayOndemandPeriod());
-        params.put("vod_download_period", Session.get(context).getBirthdayOndemandDownloadPeriod());
-        params.put("rtb_ads_period", Session.get(context).getRtbadsPeriod());
-        params.put("apk", Session.get(context).getVersionName());
-        params.put("apk_time", Session.get(context).getVersionCode());
+        params.put("mac", session.getEthernetMac());
+        params.put("pro_period", session.getProPeriod());
+        params.put("adv_period", session.getAdvPeriod());
+        params.put("period", session.getAdsPeriod());
+        params.put("pro_download_period", session.getProDownloadPeriod());
+        params.put("adv_download_period", session.getAdvDownloadPeriod());
+        params.put("ads_download_period", session.getAdsDownloadPeriod());
+        params.put("demand", session.getBirthdayOndemandPeriod());
+        params.put("vod_download_period", session.getBirthdayOndemandDownloadPeriod());
+        params.put("rtb_ads_period", session.getRtbadsPeriod());
+        params.put("apk", session.getVersionName());
+        params.put("apk_time", session.getVersionCode());
         params.put("war", "");
         params.put("serial_no", serial_no);
-        params.put("is_normaluse_wechat", Session.get(context).getNormalUseWechat());
-        params.put("logo", Session.get(context).getSplashVersion());
-        params.put("p_load_version", Session.get(context).getLoadingVersion());
+        params.put("is_normaluse_wechat", session.getNormalUseWechat());
+        params.put("logo", session.getSplashVersion());
+        params.put("p_load_version", session.getLoadingVersion());
         params.put("ip", AppUtils.getLocalIPAddress());
+        if (session.getServerInfo() != null) {
+            if (session.isUseVirtualSp()){
+                params.put("small_platform_ip",BuildConfig.VIRTUAL_SP_HOST);
+            }else{
+                params.put("small_platform_ip",session.getServerInfo().getServerIp());
+            }
+        }else{
+            params.put("small_platform_ip","");
+        }
         params.put("hotelId", Session.get(context).getBoiteId());
         params.put("roomId", Session.get(context).getRoomId());
         params.put("signal", AppUtils.getInputType(Session.get(context).getTvInputSource()));

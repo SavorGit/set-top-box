@@ -75,7 +75,6 @@ public class MainActivity extends BaseActivity {
             verifyStoragePermissions(mContext);
             mHandler.postDelayed(()->gotoAdsActivity(), 1000*5);
             mHandler.postDelayed(()->initMediaVideo(),1000*60);
-
         }else{
             //:TODO
             mSession.setUseVirtualSp(true);

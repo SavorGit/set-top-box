@@ -52,7 +52,7 @@ public abstract class BaseActivity extends Activity implements InputBoiteIdDialo
     protected Session mSession;
     public AudioManager mAudioManager = null;
 
-    private BoxInfoDialog mBoxInfoDialog;
+    protected BoxInfoDialog mBoxInfoDialog;
     private UsbUpdateDialog mUsbUpdateDialog;
     private InputBoiteIdDialog mInputBoiteIdDialog;
     private FileCopyDialog mFileCopyDialog;
@@ -239,7 +239,7 @@ public abstract class BaseActivity extends Activity implements InputBoiteIdDialo
     }
 
 
-    private Runnable mHideInfoRunnable = new Runnable() {
+    protected Runnable mHideInfoRunnable = new Runnable() {
         @Override
         public void run() {
             if (mBoxInfoDialog != null && mBoxInfoDialog.isShowing()) {
@@ -251,7 +251,7 @@ public abstract class BaseActivity extends Activity implements InputBoiteIdDialo
     /**
      * 显示盒子信息
      */
-    protected void showBoxInfo() {
+    public void showBoxInfo() {
         if (mBoxInfoDialog == null) {
             mBoxInfoDialog = new BoxInfoDialog(this);
             mBoxInfoDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -461,7 +461,7 @@ public abstract class BaseActivity extends Activity implements InputBoiteIdDialo
         return hasEligibleUdisk;
     }
 
-    private void manualHeartbeat() {
+    public void manualHeartbeat() {
         ShowMessage.showToast(this, "开始上报心跳");
         LogFileUtil.write("开始手动上报心跳");
         AppApi.heartbeat(this, new ApiRequestListener() {

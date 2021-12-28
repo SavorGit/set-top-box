@@ -1,6 +1,7 @@
 package com.savor.ads.utils;
 
 import android.content.Context;
+import android.content.Intent;
 
 
 import com.amlogic.update.OtaUpgradeUtils;
@@ -106,6 +107,8 @@ public class UpdateUtil{
                     updateApk4Giec(file);
                 }else if (AppUtils.isSVT()){
                     updateApk4SVT(file);
+                }else if (AppUtils.isPhilips()){
+                    updateApk4Philips(file);
                 }
             }
         }
@@ -195,28 +198,6 @@ public class UpdateUtil{
                 dos.flush();
                 Thread.sleep(1000);
                 isflag = true;
-
-//                String catCommand = "cat " + file.getPath() + " > " + tempPath + "\n";
-//                dos.writeBytes(catCommand);
-//                dos.flush();
-//                Thread.sleep(2000);
-//
-////                file.delete();
-//
-//                File file1 = new File(tempPath);
-//                if (file1.length() > 0) {
-//
-//                    dos.writeBytes("mv " + tempPath + " " + targetPath + "\n");
-//                    dos.flush();
-//                    Thread.sleep(1000);
-//
-//                    dos.writeBytes("chmod 755 " + targetPath + "\n");
-//                    dos.flush();
-//                    Thread.sleep(1000);
-//                    isflag = true;
-//                } else {
-//                    file1.delete();
-//                }
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
@@ -288,7 +269,15 @@ public class UpdateUtil{
         return isflag;
     }
 
-
+    public void updateApk4Philips(File file){
+        Intent intent = new Intent();
+        intent.setAction("cms.intent.action.UPDATE_APK");
+        intent.putExtra("filePath", file.getAbsolutePath());
+        intent.putExtra("keep", true);
+        intent.putExtra("packageName", "com.savor.ads");
+        intent.putExtra("activityName", "com.savor.ads.activity.MainActivity");
+        mContext.sendBroadcast(intent);
+    }
 
 
     private void updateRom(final File file) {

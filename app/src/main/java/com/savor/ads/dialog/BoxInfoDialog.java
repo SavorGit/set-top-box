@@ -1,6 +1,7 @@
 package com.savor.ads.dialog;
 
 import android.app.Dialog;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -219,7 +220,7 @@ public class BoxInfoDialog extends Dialog {
                 mServerIpTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
             }
             mLastPowerOnTimeTv.setText(TextUtils.isEmpty(session.getLastStartTime()) ? "初次开机" : session.getLastStartTime());
-            if (AppUtils.isSVT()){
+            if (AppUtils.isSVT()||AppUtils.isPhilips()){
                 mVolumeTv.setText(String.valueOf(session.getTvCarouselVolume()));
                 contentDemandVolumeTV.setText(String.valueOf(session.getTvContentDemandVolume()));
                 proDemandVolumeTV.setText(String.valueOf(session.getTvProDemandVolume()));
@@ -273,5 +274,48 @@ public class BoxInfoDialog extends Dialog {
         }else{
             tvDownloadStateTv.setText("未下载");
         }
+    }
+
+
+    public void moveFocus(int changeType){
+        switch (changeType){
+            case 1:
+                moveFocusUp();
+                break;
+            case 2:
+                moveFocusDown();
+                break;
+            case 3:
+                moveFocusLeft();
+                break;
+            case 4:
+                moveFocusRight();
+                break;
+        }
+    }
+
+    public void moveFocusDown(){
+        new Thread(()->{
+            Instrumentation instrumentation = new Instrumentation();
+            instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_DOWN);
+        }).start();
+    }
+    public void moveFocusUp(){
+        new Thread(()->{
+            Instrumentation instrumentation = new Instrumentation();
+            instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_UP);
+        }).start();
+    }
+    public void moveFocusLeft(){
+        new Thread(()->{
+            Instrumentation instrumentation = new Instrumentation();
+            instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_LEFT);
+        }).start();
+    }
+    public void moveFocusRight(){
+        new Thread(()->{
+            Instrumentation instrumentation = new Instrumentation();
+            instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_RIGHT);
+        }).start();
     }
 }
