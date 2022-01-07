@@ -12,6 +12,7 @@ import com.savor.ads.bean.ActivityGoodsBean;
 import com.savor.ads.bean.BirthdayOndemandBean;
 import com.savor.ads.bean.MediaItemBean;
 import com.savor.ads.bean.MediaLibBean;
+import com.savor.ads.bean.MeetingResourceBean;
 import com.savor.ads.bean.ProjectionLogBean;
 import com.savor.ads.bean.ProjectionLogDetail;
 import com.savor.ads.bean.ProjectionLogHistory;
@@ -166,6 +167,7 @@ public class DBHelper extends SQLiteOpenHelper {
             public static final String SELECT_CONTENT = "select_content_table";
             public static final String MEDIA_ITEM = "media_item_table";
             public static final String WELCOME_RESOURCE = "welcome_resource_table";
+            public static final String MEETING_RESOURCE = "meeting_resource_table";
             public static final String LOCAL_LIFE_ADS = "local_life_ads_table";
         }
     }
@@ -176,7 +178,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "dbsavor.db";
 
 
-    private static final int DB_VERSION = 40;
+    private static final int DB_VERSION = 41;
 
     private Context mContext;
 
@@ -229,6 +231,8 @@ public class DBHelper extends SQLiteOpenHelper {
         createTable_mediaItem(db);
 
         createTable_welcomeResource(db);
+
+        createTable_meetingResource(db);
 
         createTable_shopgoodsAds(db);
 
@@ -382,11 +386,7 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         if (oldVersion<36){
             try{
-                try{
-                    createTable_localLifeAds(sqLiteDatabase);
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
+                createTable_localLifeAds(sqLiteDatabase);
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -427,6 +427,13 @@ public class DBHelper extends SQLiteOpenHelper {
                 sqLiteDatabase.execSQL(alterNewPlaylist);
                 String alterPlaylist = "ALTER TABLE " + TableName.PLAYLIST + " ADD " + NEW_RESOURCE + " INTEGER DEFAULT 0;";
                 sqLiteDatabase.execSQL(alterPlaylist);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        if (oldVersion<41){
+            try{
+                createTable_meetingResource(sqLiteDatabase);
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -711,6 +718,25 @@ public class DBHelper extends SQLiteOpenHelper {
                 + TYPE + " TEXT, "
                 + MEDIATYPE + " TEXT, "
                 + CREATETIME+ " TEXT "
+                + ");";
+        db.execSQL(DATABASE_CREATE);
+    }
+
+    /**
+     * 创建年会会议相关资源表
+     * @param db
+     */
+    private void createTable_meetingResource(SQLiteDatabase db){
+        String DATABASE_CREATE = "create table "
+                + TableName.MEETING_RESOURCE
+                + " (" + FieldName.ID + " INTEGER, "
+                + MEDIANAME + " TEXT, "
+                + MEDIA_PATH + " TEXT, "
+                + MD5 + " TEXT, "
+                + TYPE + " INTEGER, "
+                + MEDIATYPE + " INTEGER, "
+                + START_DATE + " TEXT, "
+                + END_DATE + " TEXT "
                 + ");";
         db.execSQL(DATABASE_CREATE);
     }
@@ -2117,6 +2143,68 @@ public class DBHelper extends SQLiteOpenHelper {
             }
         }
 
+        return list;
+    }
+
+    public boolean insertMeetingResource(MeetingResourceBean bean){
+        if (bean == null) {
+            return false;
+        }
+        boolean flag = false;
+        try {
+            ContentValues initialValues = new ContentValues();
+            initialValues.put(ID, bean.getId());
+            initialValues.put(MEDIANAME,bean.getName());
+            initialValues.put(MEDIA_PATH,bean.getMedia_path());
+            initialValues.put(MD5,bean.getMd5());
+            initialValues.put(TYPE,bean.getType());
+            initialValues.put(MEDIATYPE,bean.getMedia_type());
+            initialValues.put(START_DATE,bean.getStart_date());
+            initialValues.put(END_DATE,bean.getEnd_date());
+            long success = db.insert(TableName.MEETING_RESOURCE,null,initialValues);
+            if (success>0){
+                flag = true;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return flag;
+    }
+
+    public List<MeetingResourceBean> findMeetingResourceList(String selection, String[] selectionArgs){
+        Cursor cursor = null;
+        List<MeetingResourceBean> list = null;
+        synchronized (dbHelper) {
+            try {
+                cursor = db.query(TableName.MEETING_RESOURCE, null,
+                        selection, selectionArgs, null, null, null, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    list = new ArrayList<>();
+                    do {
+                        MeetingResourceBean bean = new MeetingResourceBean();
+                        bean.setId(cursor.getInt(cursor.getColumnIndex(ID)));
+                        bean.setName(cursor.getString(cursor.getColumnIndex(MEDIANAME)));
+                        bean.setMedia_path(cursor.getString(cursor.getColumnIndex(MEDIA_PATH)));
+                        bean.setMd5(cursor.getString(cursor.getColumnIndex(MD5)));
+                        bean.setType(cursor.getInt(cursor.getColumnIndex(TYPE)));
+                        bean.setMedia_type(cursor.getInt(cursor.getColumnIndex(MEDIATYPE)));
+                        bean.setStart_date(cursor.getString(cursor.getColumnIndex(START_DATE)));
+                        bean.setEnd_date(cursor.getString(cursor.getColumnIndex(END_DATE)));
+                        list.add(bean);
+                    } while (cursor.moveToNext());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (cursor != null && !cursor.isClosed()) {
+                        cursor.close();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         return list;
     }
 

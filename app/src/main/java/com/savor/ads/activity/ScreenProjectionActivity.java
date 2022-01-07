@@ -632,7 +632,7 @@ public class ScreenProjectionActivity extends BaseActivity{
             mHandler.removeCallbacks(mExitProjectionRunnable);
             mHandler.removeCallbacks(mShowMiniProgramQrCodeRunnable);
             mHandler.removeCallbacks(mCountDownRunnable);
-            ArrayList<MediaFileBean> list = new ArrayList<>();
+            ArrayList<Object> list = new ArrayList<>();
             MediaFileBean bean = new MediaFileBean();
             if (!TextUtils.isEmpty(mMediaUrl)){
                 bean.setUrl(mMediaUrl);
@@ -658,7 +658,7 @@ public class ScreenProjectionActivity extends BaseActivity{
             mHandler.removeCallbacks(mExitProjectionRunnable);
             mHandler.removeCallbacks(mShowMiniProgramQrCodeRunnable);
             mHandler.removeCallbacks(mCountDownRunnable);
-            ArrayList<MediaFileBean> list = new ArrayList<>();
+            ArrayList<Object> list = new ArrayList<>();
             MediaFileBean bean = new MediaFileBean();
             bean.setUrl(mMediaUrl);
             if (!TextUtils.isEmpty(mMediaPath)){
@@ -689,7 +689,7 @@ public class ScreenProjectionActivity extends BaseActivity{
             mHandler.removeCallbacks(mExitProjectionRunnable);
             mHandler.removeCallbacks(mShowMiniProgramQrCodeRunnable);
             mHandler.removeCallbacks(mCountDownRunnable);
-            ArrayList<MediaFileBean> list = new ArrayList<>();
+            ArrayList<Object> list = new ArrayList<>();
             MediaFileBean bean = new MediaFileBean();
             if (!TextUtils.isEmpty(mMediaUrl)){
                 bean.setUrl(mMediaUrl);
@@ -719,7 +719,7 @@ public class ScreenProjectionActivity extends BaseActivity{
             mHandler.removeCallbacks(mExitProjectionRunnable);
             mHandler.removeCallbacks(mShowMiniProgramQrCodeRunnable);
             mHandler.removeCallbacks(mCountDownRunnable);
-            ArrayList<MediaFileBean> list = new ArrayList<>();
+            ArrayList<Object> list = new ArrayList<>();
             MediaFileBean bean = new MediaFileBean();
             bean.setUrl(mMediaUrl);
             if (!TextUtils.isEmpty(mMediaPath)){

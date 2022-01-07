@@ -222,10 +222,11 @@
         </activity>
 
         <activity android:name=".activity.UsbImageViewerActivity"/>
-        <activity
-            android:name=".activity.AppBrowserActivity"
-            android:launchMode="singleTask"/>
-
+        <activity android:name=".activity.AppBrowserActivity" android:launchMode="singleTask"/>
+        <!--会议签到页面-->
+        <activity android:name=".activity.MeetingSignInActivity" android:launchMode="singleTask"/>
+        <!--会议资源循环播放-->
+        <activity android:name=".activity.LoopPlayActivity" android:launchMode="singleTask"/>
     </application>
 
 </manifest>

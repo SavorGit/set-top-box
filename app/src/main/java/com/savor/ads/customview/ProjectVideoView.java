@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
+import androidx.viewpager.widget.ViewPager;
 
 import android.os.Message;
 import android.text.Spannable;
@@ -40,9 +41,13 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.mstar.android.media.MstMediaMetadataRetriever;
 import com.savor.ads.R;
+import com.savor.ads.adapter.StringPagerAdapter;
 import com.savor.ads.bean.MediaFileBean;
 import com.savor.ads.bean.MediaPlayerError;
 import com.savor.ads.bean.MediaPlayerState;
+import com.savor.ads.bean.MeetingLoopPlayBean;
+import com.savor.ads.bean.MeetingWelcomeBean;
+import com.savor.ads.bean.ProjectionImg;
 import com.savor.ads.player.GGVideoPlayer;
 import com.savor.ads.player.IVideoPlayer;
 import com.savor.ads.player.PlayStateCallback;
@@ -59,6 +64,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import master.flame.danmaku.controller.IDanmakuView;
 import master.flame.danmaku.danmaku.model.BaseDanmaku;
@@ -86,13 +92,14 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
     private IVideoPlayer mVideoPlayer;
     OrientationUtils orientationUtils;
     private ImageView mImgView;
+    private ViewPager atlasViewPager;
     private ImageView mLoadingIv;
     private CircleProgressBar mProgressBar;
     private ImageView mPlayVideoIv;
 
     //    private MediaPlayer mMediaPlayer;
 //    private MediaPlayerState mPlayState;
-    private ArrayList<MediaFileBean> mMediaFiles;
+    private ArrayList<Object> mMediaFiles;
 
     /**
      * 当前应该播放的源序号
@@ -145,13 +152,28 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
     };
 
     private PlayStateCallback mPlayStateCallback;
-    /**
-     * 当前播放的是图片还是视频:视频true,图片false
-     **/
+    private int mCurrentIndex;
+    private StringPagerAdapter imageAdapter;
+    ArrayList<String> mDataSource = new ArrayList<>();
+    private Handler mHandler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            mCurrentIndex++;
+            atlasViewPager.setCurrentItem(mCurrentIndex, true);
+            if (mCurrentIndex + 1 == mDataSource.size()) {
+                mHandler.removeCallbacks(mPlayCompletionRunnable);
+                mHandler.postDelayed(mPlayCompletionRunnable, duration > 0 ? duration * 1000 : 10 * 1000);
+            } else {
+                mHandler.sendEmptyMessageDelayed(0, duration > 0 ? duration * 1000 : 10 * 1000);
+            }
+            return true;
+        }
+    });
+
+    private boolean currentVideo = true;
     private int duration = 0;
     private int mSurfaceViewWidth;
     private int mSurfaceViewHeight;
-    private Handler mHandler = new Handler();
     public ProjectVideoView(Context context) {
         this(context, null);
     }
@@ -168,6 +190,7 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
         ViewGroup vp = rootView.findViewById(R.id.player_container);
         mVideoPlayer = SavorPlayerFactory.getPlayer(PlayerType.GGPlayer, vp);
         mImgView = rootView.findViewById(R.id.img_view);
+        atlasViewPager = rootView.findViewById(R.id.atlas);
         mLoadingIv = findViewById(R.id.iv_loading);
         mProgressBar = rootView.findViewById(R.id.progress_bar);
         mPlayVideoIv = findViewById(R.id.iv_video_play);
@@ -235,29 +258,77 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
 
         LogUtils.w("开始播放：" + mMediaFiles.get(mCurrentFileIndex) + " " + ProjectVideoView.this.hashCode());
 
-        MediaFileBean bean = mMediaFiles.get(mCurrentFileIndex);
-        String url = bean.getUrl();
-        File cacheFile  = bean.getCacheFile();
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            mImgView.setVisibility(View.GONE);
-        } else {
-            post(()->mImgView.setVisibility(View.GONE));
-        }
-        if (!TextUtils.isEmpty(url)){
-            mVideoPlayer.setCoverImage(url);
-        }
-        if (!TextUtils.isEmpty(url)&&cacheFile!=null){
-            mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex),0,false,true,cacheFile);
-        }else if (cacheFile!=null){
-            mVideoPlayer.setSource(cacheFile.getPath(), String.valueOf(mCurrentFileIndex),0,false);
-        }else if (!TextUtils.isEmpty(url)){
-            mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex),0,false);
+        Object objBean = mMediaFiles.get(mCurrentFileIndex);
+        if (objBean instanceof MediaFileBean){
+            currentVideo = true;
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                mHandler.removeCallbacksAndMessages(null);
+                atlasViewPager.setVisibility(GONE);
+            } else {
+                mHandler.removeCallbacksAndMessages(null);
+                post(() -> atlasViewPager.setVisibility(View.GONE));
+            }
+            MediaFileBean bean = (MediaFileBean) objBean;
+            String url = bean.getUrl();
+            File cacheFile  = bean.getCacheFile();
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                mImgView.setVisibility(View.GONE);
+            } else {
+                post(()->mImgView.setVisibility(View.GONE));
+            }
+            if (!TextUtils.isEmpty(url)){
+                mVideoPlayer.setCoverImage(url);
+            }
+            if (!TextUtils.isEmpty(url)&&cacheFile!=null){
+                mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex),0,false,true,cacheFile);
+            }else if (cacheFile!=null){
+                mVideoPlayer.setSource(cacheFile.getPath(), String.valueOf(mCurrentFileIndex),0,false);
+            }else if (!TextUtils.isEmpty(url)){
+                mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex),0,false);
+            }
+            orientationUtils = new OrientationUtils((Activity) mContext,(GGVideoPlayer)mVideoPlayer);
+        }else if (objBean instanceof MeetingWelcomeBean){
+            MeetingWelcomeBean welcomeBean = (MeetingWelcomeBean) objBean;
+            currentVideo = false;
+            boolean isExpire = false;
+            if (mPlayStateCallback != null) {
+                isExpire = mPlayStateCallback.onMediaPrepared(mCurrentFileIndex);
+            }
+            if (!isExpire){
+                mCurrentIndex = 0;
+                mDataSource = new ArrayList<>();
+                if (welcomeBean!=null&&welcomeBean.getImg_list()!=null&&welcomeBean.getImg_list().size()>0){
+                    atlasViewPager.setVisibility(VISIBLE);
+                    List<ProjectionImg> imgList = welcomeBean.getImg_list();
+                    for (ProjectionImg img:imgList){
+                        mDataSource.add(img.getFilePath());
+                    }
+                }
+                imageAdapter = new StringPagerAdapter(mContext, mDataSource);
+                atlasViewPager.setAdapter(imageAdapter);
+                if (mDataSource != null && mDataSource.size() == 1) {
+                    mHandler.removeCallbacks(mPlayCompletionRunnable);
+                    mHandler.postDelayed(mPlayCompletionRunnable, duration > 0 ? duration * 1000 : 5 * 1000);
+                } else if (mDataSource != null && mDataSource.size() > 1) {
+                    mHandler.removeCallbacksAndMessages(null);
+                    mHandler.sendEmptyMessageDelayed(0, duration > 0 ? duration * 1000 : 5 * 1000);
+                }
+            }
+
         }
 
-        orientationUtils = new OrientationUtils((Activity) mContext,(GGVideoPlayer)mVideoPlayer);
 
         return true;
     }
+
+    private Runnable mPlayCompletionRunnable = new Runnable() {
+        @Override
+        public void run() {
+            atlasViewPager.setVisibility(GONE);
+            LogFileUtil.write(TAG + " setMediaPlayerSource-extractCompletion-mPlayState:" + ProjectVideoView.this.hashCode());
+            extractCompletion();
+        }
+    };
 
     /**
      * 准备播放
@@ -326,7 +397,9 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
     private void setAndPrepare() {
         Log.d("StackTrack", "ProjectVideoView::setAndPrepare");
         if (setMediaPlayerSource()) {
-            prepareMediaPlayer();
+            if (currentVideo) {
+                prepareMediaPlayer();
+            }
         } else {
             if (mForcePlayFromStart) {
                 // 强制从头播放
@@ -432,7 +505,7 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
      *
      * @param mediaFiles       文件路径集合
      */
-    public void setMediaFiles(ArrayList<MediaFileBean> mediaFiles) {
+    public void setMediaFiles(ArrayList<Object> mediaFiles) {
         LogUtils.w(TAG + "setMediaFiles " + ProjectVideoView.this.hashCode());
         LogFileUtil.write(TAG + " setMediaFiles " + ProjectVideoView.this.hashCode());
         mIsPauseByOut = false;

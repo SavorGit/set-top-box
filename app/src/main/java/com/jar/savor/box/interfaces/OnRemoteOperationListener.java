@@ -12,6 +12,7 @@ import com.jar.savor.box.vo.RotateResponseVo;
 import com.jar.savor.box.vo.SeekResponseVo;
 import com.jar.savor.box.vo.StopResponseVo;
 import com.jar.savor.box.vo.VolumeResponseVo;
+import com.savor.ads.bean.MeetingLoopPlayBean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -104,4 +105,6 @@ public interface OnRemoteOperationListener {
 
     ResponseT<CodeVerifyBean> verify(String code);
 
+
+    void showLoopPlayResource(MeetingLoopPlayBean loopPlayBean);
 }

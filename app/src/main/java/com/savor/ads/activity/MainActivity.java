@@ -67,23 +67,6 @@ public class MainActivity extends BaseActivity {
 
         // 清楚Glide图片缓存
         GlideImageLoader.clearCache(mContext, true, true);
-        if (AppUtils.isMstar()){
-            mHandler.postDelayed(()->gotoAdsActivity(), 1000*30);
-        }else if (AppUtils.isGiec()){
-            mHandler.postDelayed(()->gotoAdsActivity(), 1000*5);
-        }else if (AppUtils.isSVT()){
-            verifyStoragePermissions(mContext);
-            mHandler.postDelayed(()->gotoAdsActivity(), 1000*5);
-            mHandler.postDelayed(()->initMediaVideo(),1000*60);
-        }else{
-            //:TODO
-            mSession.setUseVirtualSp(true);
-            mSession.setServerInfo(new ServerInfo(BuildConfig.VIRTUAL_SP_HOST, 3));
-            mHandler.postDelayed(() -> {
-                initMediaVideo();
-                gotoAdsActivity();
-            }, 1000 * 10);
-        }
     }
 
 
@@ -187,6 +170,23 @@ public class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         LogUtils.d("MainActivity++进入已经播放完开机动画");
+        if (AppUtils.isMstar()){
+            mHandler.postDelayed(()->gotoAdsActivity(), 1000*30);
+        }else if (AppUtils.isGiec()){
+            mHandler.postDelayed(()->gotoAdsActivity(), 1000*2);
+        }else if (AppUtils.isSVT()){
+            verifyStoragePermissions(mContext);
+            mHandler.postDelayed(()->gotoAdsActivity(), 1000*2);
+            mHandler.postDelayed(()->initMediaVideo(),1000*60);
+        }else{
+            //:TODO
+            mSession.setUseVirtualSp(true);
+            mSession.setServerInfo(new ServerInfo(BuildConfig.VIRTUAL_SP_HOST, 3));
+            mHandler.postDelayed(() -> {
+                initMediaVideo();
+                gotoAdsActivity();
+            }, 1000 * 2);
+        }
     }
 
     /**

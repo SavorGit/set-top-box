@@ -1,9 +1,13 @@
 package com.savor.ads.activity;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -14,8 +18,10 @@ import com.savor.ads.R;
 import com.savor.ads.bean.LotteryResult;
 import com.savor.ads.bean.PartakeLottery;
 import com.savor.ads.bean.PartakeUser;
+import com.savor.ads.service.MiniProgramNettyService;
 import com.savor.ads.utils.Base64Utils;
 import com.savor.ads.utils.GlideImageLoader;
+import com.savor.ads.utils.LogUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +36,10 @@ public class LotteryDrawResultActivity extends BaseActivity{
     private List<PartakeLottery> winPrizeUsers;
     private Map<Integer,Object> winPrizeUserMap;
     private Handler handler = new Handler();
+
+    private MiniProgramNettyService miniProgramNettyService;
+    private MiniProgramNettyService.AdsBinder adsBinder;
+    private ServiceConnection mNettyConnection;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +48,7 @@ public class LotteryDrawResultActivity extends BaseActivity{
         initViews();
         getIntentData();
         initData();
+        bindMiniprogramNettyService();
     }
 
 
@@ -63,11 +74,15 @@ public class LotteryDrawResultActivity extends BaseActivity{
                 }
             }
             winPrizeUserMap = new HashMap<>();
+            List<PartakeLottery> prizeLevel = new ArrayList<>();
             List<PartakeLottery> prizeLevel1 = new ArrayList<>();
             List<PartakeLottery> prizeLevel2 = new ArrayList<>();
             List<PartakeLottery> prizeLevel3 = new ArrayList<>();
             for (PartakeLottery lottery:winPrizeUsers){
                 switch (lottery.getLevel()){
+                    case 0:
+                        prizeLevel.add(lottery);
+                        break;
                     case 1:
                         prizeLevel1.add(lottery);
                         break;
@@ -79,6 +94,7 @@ public class LotteryDrawResultActivity extends BaseActivity{
                         break;
                 }
             }
+            winPrizeUserMap.put(0,prizeLevel);
             winPrizeUserMap.put(1,prizeLevel1);
             winPrizeUserMap.put(2,prizeLevel2);
             winPrizeUserMap.put(3,prizeLevel3);
@@ -89,6 +105,10 @@ public class LotteryDrawResultActivity extends BaseActivity{
 
     private void displayPrizeInfo(){
         if (winPrizeUserMap!=null&&winPrizeUserMap.size()>0){
+            List<PartakeLottery> prizeLevel = (List<PartakeLottery>) winPrizeUserMap.get(0);
+            if (prizeLevel!=null&&prizeLevel.size()>0){
+                displayLuckyUser(prizeLevel);
+            }
             List<PartakeLottery> prizeLevel1 = (List<PartakeLottery>) winPrizeUserMap.get(1);
             if (prizeLevel1!=null&&prizeLevel1.size()>0){
                 displayLuckyUser(prizeLevel1);
@@ -120,6 +140,8 @@ public class LotteryDrawResultActivity extends BaseActivity{
             prizeLevelTV.setText("二等奖");
         }else if (level==3){
             prizeLevelTV.setText("三等奖");
+        }else{
+            prizeLevelTV.setVisibility(View.GONE);
         }
         prizeNameTV.setText(lottery.getDish_name());
         for (PartakeLottery user:prizeLevel){
@@ -131,9 +153,46 @@ public class LotteryDrawResultActivity extends BaseActivity{
             String avatarUrl = Base64Utils.getFromBase64(user.getAvatarUrl());
             GlideImageLoader.loadImage(mContext,avatarUrl,userAvatarImgIV,R.mipmap.avatar,R.mipmap.avatar);
             userNicknameTV.setText(user.getNickName());
-            roomNameTV.setText("("+user.getRoom_name()+")");
+            if (!TextUtils.isEmpty(user.getRoom_name())){
+                roomNameTV.setVisibility(View.VISIBLE);
+                roomNameTV.setText("("+user.getRoom_name()+")");
+            }else{
+                roomNameTV.setVisibility(View.GONE);
+            }
             luckyUserAllLayout.addView(luckyUserView);
         }
         allPrizeLayout.addView(prizeView);
+    }
+
+    /**
+     * 绑定netty服务
+     */
+    private void bindMiniprogramNettyService(){
+        mNettyConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder binder) {
+                adsBinder = (MiniProgramNettyService.AdsBinder) binder;
+                if (adsBinder!=null){
+                    miniProgramNettyService = adsBinder.getService();
+                    LogUtils.d(miniProgramNettyService+"123");
+                }
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+
+            }
+        };
+
+        Intent intent = new Intent(mContext, MiniProgramNettyService.class);
+        bindService(intent,mNettyConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (mNettyConnection!=null){
+            unbindService(mNettyConnection);
+        }
+        super.onDestroy();
     }
 }

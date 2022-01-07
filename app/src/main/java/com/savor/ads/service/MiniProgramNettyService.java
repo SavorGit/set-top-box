@@ -5,10 +5,13 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import androidx.annotation.Nullable;
+
+import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -20,9 +23,15 @@ import com.savor.ads.R;
 import com.savor.ads.SavorApplication;
 import com.savor.ads.activity.AdsPlayerActivity;
 import com.savor.ads.activity.BaseActivity;
+import com.savor.ads.activity.LoopPlayActivity;
+import com.savor.ads.activity.LotteryDrawResultActivity;
 import com.savor.ads.activity.LotteryDrawingActivity;
+import com.savor.ads.activity.MeetingSignInActivity;
 import com.savor.ads.bean.LotteryResult;
 import com.savor.ads.bean.MediaFileBean;
+import com.savor.ads.bean.MeetingLoopPlayBean;
+import com.savor.ads.bean.MeetingResourceBean;
+import com.savor.ads.bean.MeetingWelcomeBean;
 import com.savor.ads.dialog.BusinessCardDialog;
 import com.savor.ads.activity.MonkeyGameActivity;
 import com.savor.ads.activity.PartakeDishDrawActivity;
@@ -55,6 +64,7 @@ import com.savor.ads.database.DBHelper;
 import com.savor.ads.dialog.ProjectionImgListDialog;
 import com.savor.ads.dialog.ScanRedEnvelopeQrCodeDialog;
 import com.savor.ads.log.LogReportUtil;
+import com.savor.ads.okhttp.coreProgress.download.FileDownloader;
 import com.savor.ads.okhttp.coreProgress.download.ProjectionDownloader;
 import com.savor.ads.oss.OSSUtils;
 import com.savor.ads.utils.ActivitiesManager;
@@ -72,6 +82,7 @@ import com.umeng.analytics.MobclickAgent;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -109,6 +120,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     public static MiniProgramProjection mpProjection;
     private PartakeDishBean partakeDishBean;
     private LotteryResult lotteryResult;
+    private MeetingLoopPlayBean loopPlayBean;
     private String headPic;
     private String nickName;
     private String openid;
@@ -274,8 +286,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 122:接收到弹幕
          * 130:销售端欢迎词推送
          * 131|132:退出欢迎词播放
-         * 133:推广渠道投屏码
-         * 134:投屏帮助视频
+         * 133:推广渠道投屏码(---废弃---)
+         * 134:投屏帮助视频(---废弃---)
          * 135:霸王餐抽奖活动推送
          * 136:霸王餐开奖
          * 137:商务宴请-欢迎词(这个跟销售端欢迎词的区别是，销售端是单张图片，这个商务宴请的欢迎词是多张图片的)
@@ -290,6 +302,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 155:推送任务参加抽奖
          * 156:推送任务抽奖中奖信息
          * 160:商务宴请-個人名片推送
+         * 161:年会会议-签到页面
+         * 162:企业年会会议循环播放企业视频
          * 170:商务宴请-文件分享
          * 171:预下载投屏资源（含图片，视频，文件）
          * 998:根据类型删除目录下的视频文件,处理机顶盒满的情况
@@ -305,6 +319,12 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     if (flag){
                         return;
                     }
+                    Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+                    //处理签到抽奖逻辑，如果当前展示的页面为签到抽奖，则不处理其他业务
+                    if (handleMeetingAction(action,activity)){
+                        return;
+                    }
+
                     currentAction = action;
                     if (jsonObject.has("req_id")){
                         String req_id = jsonObject.getString("req_id");
@@ -324,6 +344,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     }else if (action==156){
                         LotteryResult lotteryResult = gson.fromJson(content, new TypeToken<LotteryResult>() {}.getType());
                         this.lotteryResult = lotteryResult;
+                    }else if (action==162){
+                        MeetingLoopPlayBean playBean = gson.fromJson(content,new TypeToken<MeetingLoopPlayBean>() {}.getType());
+                        this.loopPlayBean = playBean;
                     }else{
                         MiniProgramProjection mpProjection = gson.fromJson(content, new TypeToken<MiniProgramProjection>() {}.getType());
                         if (mpProjection!=null&&action!=3&&action!=133){
@@ -343,9 +366,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     }
                     /*******************************/
                     if (action != 101 && action != 102 && action != 103 && action != 105
-                            && ActivitiesManager.getInstance().getCurrentActivity() instanceof MonkeyGameActivity) {
-                        MonkeyGameActivity activity = (MonkeyGameActivity) ActivitiesManager.getInstance().getCurrentActivity();
-                        activity.exitGame();
+                            && activity instanceof MonkeyGameActivity) {
+                        ((MonkeyGameActivity) activity).exitGame();
                     }
                     if (currentAction!=998&&currentAction!=999){
                         //998和999相当于是后台动作，所以不需要中断当前前台正在执行的操作
@@ -355,11 +377,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         handler.post(mProjectExitDownloadRunnable);
                     }
                     if (action!=110){
-                        Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
                         if (activity instanceof WebviewGameActivity){
                             ((WebviewGameActivity) activity).exitWebview();
                         }
-
                     }
 
                     if (action!=2
@@ -462,16 +482,16 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             exitWebviewGame();
                             break;
                         case 121:
+                            Activity finalActivity = activity;
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
                                     String scanRedEnvelopeUrl = mpProjection.getCodeUrl();
                                     String content = mpProjection.getContent();
                                     int red_type = mpProjection.getRtype();
 
                                     if (red_type==2){
-                                        if (activity instanceof AdsPlayerActivity){
+                                        if (finalActivity instanceof AdsPlayerActivity){
                                             if (opRedEnvelopeQrCodeDialog !=null){
                                                 opRedEnvelopeQrCodeDialog.dismiss();
                                                 opRedEnvelopeQrCodeDialog = new OpRedEnvelopeQrCodeDialog(context);
@@ -480,8 +500,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                                             }
                                         }
                                     }else{
-                                        if (activity instanceof AdsPlayerActivity){
-                                            ((AdsPlayerActivity) activity).setScanRedEnvelopeQrCodeDialogListener(scanRedEnvelopeQrCodeDialog);
+                                        if (finalActivity instanceof AdsPlayerActivity){
+                                            ((AdsPlayerActivity) finalActivity).setScanRedEnvelopeQrCodeDialogListener(scanRedEnvelopeQrCodeDialog);
                                             if (scanRedEnvelopeQrCodeDialog !=null){
                                                 scanRedEnvelopeQrCodeDialog.dismiss();
                                                 scanRedEnvelopeQrCodeDialog = new ScanRedEnvelopeQrCodeDialog(context);
@@ -524,49 +544,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         case 132:
                             exitProjectionWelcome(mpProjection);
                             break;
-                        case 133:
-//                            handler.post(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
-//                                    if (activity instanceof AdsPlayerActivity&&scanRedEnvelopeQrCodeDialog!=null&&!scanRedEnvelopeQrCodeDialog.isShowing()){
-//                                        //如果是电视机的话，因为无法将tv模块放到activity的管理栈中，所有加下面的if判断
-//                                        if (AppUtils.isSVT()&&GlobalValues.mIsGoneToTv){
-//                                           return;
-//                                        }
-//                                        String qrcodeurl = AppApi.API_URLS.get(AppApi.Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON)+"?box_mac="+ session.getEthernetMac()+"&type="+ ConstantValues.MINI_PROGRAM_QRCODE_EXTENSION_TYPE;
-//                                        String forscreen_num = "";
-//                                        int countdown = 0;
-//                                        try {
-//                                            if (jsonObject.has("forscreen_number")){
-//                                                forscreen_num = jsonObject.getString("forscreen_number");
-//                                            }
-//                                            if (jsonObject.has("countdown")){
-//                                                countdown = jsonObject.getInt("countdown");
-//                                            }
-//                                        }catch (Exception e){
-//                                            e.printStackTrace();
-//                                        }
-//                                        if (extensionQrCodeDialog.isShowing()){
-//                                            extensionQrCodeDialog.dismiss();
-//                                        }
-//                                        extensionQrCodeDialog.show();
-//                                        extensionQrCodeDialog.showExtensionWindow(context,qrcodeurl,countdown,forscreen_num);
-//                                    }
-//                                }
-//                            });
-//                            break;
-                        case 134:
-//                            Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
-//                            if (activity instanceof AdsPlayerActivity){
-//                                if (AppUtils.isSVT()&&GlobalValues.mIsGoneToTv){
-//                                    return;
-//                                }
-//                                onDemandExtensionVideo(mpProjection);
-//                            }
-//                            break;
                         case 135:
-                            Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
                            if (activity instanceof AdsPlayerActivity||activity instanceof PartakeDishDrawActivity) {
                                if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
                                    return;
@@ -575,7 +553,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                                    activity.finish();
                                }
                                involvementPartakedish(mpProjection);
-
                            }
                            break;
                         case 136:
@@ -615,7 +592,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             finishEvaluate(mpProjection);
                             break;
                         case 150:
-                            activity = ActivitiesManager.getInstance().getCurrentActivity();
                             if (activity instanceof ScreenProjectionActivity){
                                 return;
                             }
@@ -638,13 +614,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             new Thread(this::showPrizeQrcodeDialog).start();
                             break;
                         case 156:
-                            activity = ActivitiesManager.getInstance().getCurrentActivity();
-                            if (activity instanceof AdsPlayerActivity) {
-                                if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
-                                    return;
-                                }
-                                lotteryDrawActivity(lotteryResult);
-                            }
+                            lotteryDrawActivity(lotteryResult);
                             break;
                         case 157:
                             activity = ActivitiesManager.getInstance().getCurrentActivity();
@@ -665,6 +635,12 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                                 return;
                             }
                             showBusinessCard();
+                            break;
+                        case 161:
+                            new Thread(()->showMeetingSignIn()).start();
+                            break;
+                        case 162:
+                            new Thread(()->showMeetingResourceLoopPlay()).start();
                             break;
                         case 170:
                             activity = ActivitiesManager.getInstance().getCurrentActivity();
@@ -739,6 +715,19 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         }
         return flag;
     }
+
+    private boolean handleMeetingAction(int action,Activity activity){
+        if (activity instanceof LoopPlayActivity&&action!=3&&action!=156){
+            return true;
+        }else if (activity instanceof LotteryDrawingActivity
+                ||activity instanceof LotteryDrawResultActivity){
+            return true;
+        }else  if (activity instanceof MeetingSignInActivity&&action!=161&&action!=3&&action!=156){
+            return true;
+        }
+        return false;
+    }
+
 
     @Override
     public void onMiniConnected() {
@@ -1606,6 +1595,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             listPlayList =  dbHelper.findAdsByWhere(selection, selectionArgs);
         }
         List<MediaLibBean> listActivityAds = dbHelper.findActivityAdsByWhere(selection, selectionArgs);
+        List<MeetingResourceBean> meetingBeanList = dbHelper.findMeetingResourceList(selection,selectionArgs);
         if (listPlayList != null && listPlayList.size() > 0) {
             String path = AppUtils.getFilePath(AppUtils.StorageFile.media) + fileName;
             File file = new File(path);
@@ -1620,7 +1610,14 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 params.put("is_exist",1);
                 ProjectOperationListener.getInstance(context).showVideo(path,"", true,currentAction,FROM_SERVICE_MINIPROGRAM);
             }
-        }else {
+        } else if (meetingBeanList!=null&&meetingBeanList.size()>0){
+            String path = AppUtils.getFilePath(AppUtils.StorageFile.meeting_resource) + fileName;
+            File file = new File(path);
+            if (file.exists()) {
+                params.put("is_exist",1);
+                ProjectOperationListener.getInstance(context).showVideo(path,"", true,currentAction,FROM_SERVICE_MINIPROGRAM);
+            }
+        } else {
             params.put("is_exist",0);
             ProjectOperationListener.getInstance(context).showVideo("",url, true,currentAction,FROM_SERVICE_MINIPROGRAM);
         }
@@ -1773,10 +1770,14 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private void lotteryDrawActivity(LotteryResult lotteryResult){
         GlobalValues.isPrize = false;
         Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
-        if (activity instanceof LotteryDrawingActivity){
-            activity.finish();
-        }
         handler.post(()->{
+            if (activity instanceof MeetingSignInActivity
+                    ||activity instanceof LotteryDrawingActivity
+                    ||activity instanceof LotteryDrawResultActivity){
+                activity.finish();
+            }else if (activity instanceof LoopPlayActivity){
+                ((LoopPlayActivity) activity).stop();
+            }
             if (activity instanceof AdsPlayerActivity){
                 ((AdsPlayerActivity<?>) activity).isClosePrizeHeadLayout(true);
             }
@@ -2726,6 +2727,98 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             LogUtils.d("发送通知更新播放列表广播");
             context.sendBroadcast(new Intent(ConstantValues.UPDATE_PLAYLIST_ACTION));
         }
+    }
+
+    private void showMeetingSignIn(){
+        String partake_img = mpProjection.getPartake_img();
+        String oss_url = BuildConfig.OSS_ENDPOINT+partake_img;
+        String file_name = mpProjection.getPartake_filename();
+        String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+        File file = new File(basePath+file_name);
+        if (!file.exists()){
+            ProjectionDownloader downloader = new ProjectionDownloader(context,oss_url, basePath,file_name,true,serial_number);
+            downloader.downloadByRange();
+        }
+        Intent intent = new Intent(context, MeetingSignInActivity.class);
+        if (!TextUtils.isEmpty(partake_img)&&file.exists()){
+            intent.putExtra("bgImgPath",file.getAbsolutePath());
+        }
+        intent.putExtra("countdown",mpProjection.getCountdown());
+        intent.putExtra("company_name",mpProjection.getActivity_name());
+        intent.putExtra("codeUrl",mpProjection.getCodeUrl());
+        if (mpProjection.getPartake_user()!=null&&mpProjection.getPartake_user().size()>0){
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("users", (Serializable) mpProjection.getPartake_user());
+            intent.putExtras(bundle);
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+        if (activity instanceof MeetingSignInActivity){
+            handler.post(()-> ((MeetingSignInActivity) activity).setSignInUsersData(mpProjection.getPartake_user()));
+        }else{
+            startActivity(intent);
+        }
+    }
+
+    private void showMeetingResourceLoopPlay(){
+        if (loopPlayBean==null){
+            return;
+        }
+        String selection;
+        String[] selectionArgs;
+        Integer[] resourceIds = loopPlayBean.getResource_ids();
+        if (resourceIds!=null&&resourceIds.length>0){
+            List<String> videoPaths = new ArrayList<>();
+            for (Integer id:resourceIds){
+                selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
+                selectionArgs = new String[]{String.valueOf(id)};
+                List<MeetingResourceBean> resourceBeans = dbHelper.findMeetingResourceList(selection,selectionArgs);
+                if (resourceBeans!=null&&resourceBeans.size()>0){
+                    videoPaths.add(resourceBeans.get(0).getMedia_path());
+                }
+            }
+            loopPlayBean.setVideoPaths(videoPaths);
+        }
+        MeetingWelcomeBean welcome = loopPlayBean.getWelcome();
+        if (welcome!=null){
+            if (welcome.getImg_list()!=null&&welcome.getImg_list().size()>0){
+                String basePath = AppUtils.getFilePath(AppUtils.StorageFile.meeting_resource);
+                for (ProjectionImg img:welcome.getImg_list()){
+                    String fileName = img.getFilename();
+                    File file = new File(basePath+fileName);
+                    if (file.exists()){
+                        img.setFilePath(file.getAbsolutePath());
+                    }else{
+                        String url = BuildConfig.OSS_ENDPOINT+img.getUrl();
+                        boolean isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
+                        if (isDownloaded){
+                            file = new File(basePath+fileName);
+                            img.setFilePath(file.getAbsolutePath());
+                        }
+                    }
+                }
+            }
+            selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
+            selectionArgs = new String[]{String.valueOf(welcome.getFont_id())};
+            List<WelcomeResourceBean> typefaceList = dbHelper.findWelcomeResourceList(selection,selectionArgs);
+            String basePath = AppUtils.getFilePath(AppUtils.StorageFile.welcome_resource);
+            if (typefaceList!=null&&typefaceList.size()>0){
+                WelcomeResourceBean bean = typefaceList.get(0);
+                File file = new File(basePath+bean.getName());
+                if (file.exists()){
+                    welcome.setFontPath(file.getAbsolutePath());
+                }
+            }
+            getMusicPathMethod(basePath,welcome.getMusic_id());
+            if (!TextUtils.isEmpty(musicPath)){
+                welcome.setMusicPath(musicPath);
+            }
+        }
+        Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+        if (activity instanceof LoopPlayActivity){
+            activity.finish();
+        }
+        ProjectOperationListener.getInstance(context).showLoopPlayResource(loopPlayBean);
     }
 
     public void startProjection(int action,String forscreen_id){

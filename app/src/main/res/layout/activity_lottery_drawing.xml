@@ -3,29 +3,32 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@mipmap/lottery_bg">
+
     <LinearLayout
         android:id="@+id/lucky_user_content_layout"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
-        android:orientation="vertical"
+        android:layout_marginLeft="30dp"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="20dp"
-        android:layout_marginLeft="30dp"
         android:background="@drawable/bg_round_white_translucent"
+        android:orientation="vertical"
         android:padding="10dp">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="幸运用户"
-            android:textSize="25dp"
             android:layout_gravity="center"
-            android:textStyle="bold"
-            android:textColor="@color/color_red"/>
+            android:text="幸运用户"
+            android:textColor="@color/color_red"
+            android:textSize="25dp"
+            android:textStyle="bold" />
+
         <LinearLayout
             android:id="@+id/lucky_user_layout"
-            android:orientation="vertical"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
         </LinearLayout>
     </LinearLayout>

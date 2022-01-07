@@ -27,6 +27,8 @@ import com.savor.ads.bean.JsonBean;
 import com.savor.ads.bean.LocalLifeAdsResult;
 import com.savor.ads.bean.MediaItemBean;
 import com.savor.ads.bean.MediaLibBean;
+import com.savor.ads.bean.MeetingResourceBean;
+import com.savor.ads.bean.MeetingResourceResult;
 import com.savor.ads.bean.ProgramBean;
 import com.savor.ads.bean.ProgramBeanResult;
 import com.savor.ads.bean.SelectContentBean;
@@ -76,6 +78,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.savor.ads.database.DBHelper.MediaDBInfo.TableName.BIRTHDAY_ONDEMAND;
@@ -275,8 +278,11 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                             getHotContentFromCloudPlatform();
                             //同步获取欢迎词资源数据(含封面和mp3音乐)
                             getWelcomeResourceFromCloudPlatform();
+                            //同步获取年会会议资源数据
+                            getMeetingResourceFromCloudPlatform();
                             //同步获取本地生活广告数据
                             getLifeAdsDataFromCloudPlatform();
+                            isFirstRun = false;
                             // 同步获取聚屏物料媒体数据
                             LogFileUtil.write("HandleMediaDataService will start getPolyAdsFromSmallPlatform");
                             getPolyAdsFromSmallPlatform();
@@ -1208,6 +1214,86 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
     }
 
     /**
+     * 获取年会会议资源数据
+     */
+    private void getMeetingResourceFromCloudPlatform(){
+        try{
+            JsonBean jsonBean = AppApi.getMeetingResourceFromCloudfrom(context,this,session.getEthernetMac());
+            JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
+            if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
+                return;
+            }
+            MeetingResourceResult result = gson.fromJson(jsonObject.get("result").toString(), new TypeToken<MeetingResourceResult>() {
+            }.getType());
+            if (!isFirstRun&&result.getPeriod().equals(session.getMeetingResourcePeriod())){
+                return;
+            }
+            if (result.getDatalist()==null||result.getDatalist().size()==0){
+                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.MEETING_RESOURCE, null, null);
+                AppUtils.deleteMeetingResource(context);
+            }
+            handleMeetingResourceData(result);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void handleMeetingResourceData(MeetingResourceResult result){
+        List<MeetingResourceBean> list = result.getDatalist();
+        if (list!=null&&list.size()>0){
+            List<String> fileNames = new ArrayList<>();
+            String selection = null;
+            String[] selectionArgs = null;
+            dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.MEETING_RESOURCE,selection,selectionArgs);
+            for (MeetingResourceBean bean:list){
+                boolean isDownloaded;
+                String basePath = AppUtils.getFilePath(AppUtils.StorageFile.meeting_resource);
+                String fileName = bean.getName();
+                String path = basePath + fileName;
+                int media_type = bean.getMedia_type();
+                if (media_type==1){
+                    isDownloaded = AppUtils.isDownloadEasyCompleted(path, bean.getMd5());
+                }else{
+                    isDownloaded = AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase());
+                }
+                if (!isDownloaded){
+                    String url = BuildConfig.OSS_ENDPOINT+bean.getOss_path();
+                    isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
+                    if (isDownloaded
+                            && (AppUtils.isDownloadEasyCompleted(path, bean.getMd5())
+                            ||AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase()))) {
+                        isDownloaded = true;
+                    }else{
+                        isDownloaded = false;
+                    }
+                }
+                if (isDownloaded){
+                    //下载成功以后将本地路径set到bean里，入库时使用
+                    bean.setMedia_path(path);
+                    if (dbHelper.insertMeetingResource(bean)){
+                        fileNames.add(bean.getName());
+                        postMeetingParamsReport(bean);
+                    }
+
+                }
+            }
+            if (fileNames.size()==list.size()){
+                //精选内容下载完成
+                session.setMeetingResourcePeriod(result.getPeriod());
+                 AppUtils.deleteMeetingResource(context);
+            }
+        }
+    }
+
+    private void postMeetingParamsReport(MeetingResourceBean bean){
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("box_mac",session.getEthernetMac());
+        params.put("mv_id",bean.getId());
+        params.put("status",3);
+        AppApi.postMeetingParamReport(context,this,params);
+    }
+
+    /**
      * 获取本地生活广告数据
      */
     private void getLifeAdsDataFromCloudPlatform(){
@@ -1807,7 +1893,6 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
 
         if (isAdvCompleted && isProCompleted && !TextUtils.isEmpty(advProgramBean.getMenu_num()) &&
                 advProgramBean.getMenu_num().equals(mProCompletedPeriod)) {
-            isFirstRun = false;
             // 记录日志
             LogReportUtil.get(context).sendAdsLog(String.valueOf(System.currentTimeMillis()),
                     Session.get(context).getBoiteId(), Session.get(context).getRoomId(),

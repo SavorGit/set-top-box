@@ -63,5 +63,6 @@
         android:layout_height="2dp"
         android:layout_marginLeft="160dp"
         android:layout_marginRight="160dp"
+        android:visibility="gone"
         android:background="#FFCCFF"/>
 </LinearLayout>

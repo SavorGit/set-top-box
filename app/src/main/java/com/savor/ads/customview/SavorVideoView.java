@@ -448,8 +448,6 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
     private Runnable mPlayCompletionRunnable = new Runnable() {
         @Override
         public void run() {
-//            projectTipAnimateOut();
-//            mImgView.setVisibility(View.GONE);
             atlasViewPager.setVisibility(GONE);
             LogFileUtil.write(TAG + " setMediaPlayerSource-extractCompletion-mPlayState:" + SavorVideoView.this.hashCode());
             extractCompletion();

@@ -153,6 +153,9 @@ public class Session {
     private String hotContentPeriod;
     /**欢迎词内容期号*/
     private String welcomeResourcePeriod;
+    /**会议内容期号*/
+    private String meetingResourcePeriod;
+
     /**本地生活广告期号*/
     private String localLifeAdsPeriod;
 
@@ -348,6 +351,7 @@ public class Session {
         selectContentPeriod = mPreference.loadStringKey(P_APP_SELECT_CONTENT_PERIOD,"");
         hotContentPeriod = mPreference.loadStringKey(P_APP_HOT_CONTENT_PERIOD,"");
         welcomeResourcePeriod = mPreference.loadStringKey(P_APP_WELCOME_RESOURCE_PERIOD,"");
+        meetingResourcePeriod = mPreference.loadStringKey(P_APP_MEETING_RESOURCE_PERIOD,"");
         localLifeAdsPeriod = mPreference.loadStringKey(P_APP_LOCAL_LIFE_ADS_PERIOD,"");
         startTime = mPreference.loadStringKey(P_APP_STARTTIME, null);
         lastStartTime = mPreference.loadStringKey(P_APP_LASTSTARTTIME, null);
@@ -472,6 +476,7 @@ public class Session {
                 || P_APP_SELECT_CONTENT_PERIOD.equals(key)
                 || P_APP_HOT_CONTENT_PERIOD.equals(key)
                 || P_APP_WELCOME_RESOURCE_PERIOD.equals(key)
+                || P_APP_MEETING_RESOURCE_PERIOD.equals(key)
                 || P_APP_SHOP_GOODS_ADS_PERIOD.equals(key)
                 || P_APP_LOCAL_LIFE_ADS_PERIOD.equals(key)) {
 
@@ -1264,6 +1269,15 @@ public class Session {
         writePreference(new Pair<>(P_APP_WELCOME_RESOURCE_PERIOD,welcomeResourcePeriod));
     }
 
+    public String getMeetingResourcePeriod() {
+        return meetingResourcePeriod;
+    }
+
+    public void setMeetingResourcePeriod(String meetingResourcePeriod) {
+        this.meetingResourcePeriod = meetingResourcePeriod;
+        writePreference(new Pair<>(P_APP_MEETING_RESOURCE_PERIOD,meetingResourcePeriod));
+    }
+
     public String getLocalLifeAdsPeriod() {
         return localLifeAdsPeriod;
     }
@@ -1535,6 +1549,8 @@ public class Session {
     public static final String P_APP_HOT_CONTENT_PERIOD = "com.savor.ads.hot_content_period";
     /**欢迎词内容期号KEY*/
     public static final String P_APP_WELCOME_RESOURCE_PERIOD = "com.savor.ads.welcome_resource_period";
+    /**年会会议内容期号KEY*/
+    public static final String P_APP_MEETING_RESOURCE_PERIOD = "com.savor.ads.meeting_resource_period";
     /**本地生活广告期号KEY*/
     public static final String P_APP_LOCAL_LIFE_ADS_PERIOD = "com.savor.ads.local_life_ads_period";
     //开机时间

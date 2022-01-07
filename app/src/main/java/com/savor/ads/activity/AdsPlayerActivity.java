@@ -1518,6 +1518,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         LogFileUtil.write("AdsPlayerActivity onDestroy");
         super.onDestroy();
         unregisterReceiver(mDownloadCompleteReceiver);
+        unbindService(mConnection);
         AdmasterSdk.terminateSDK();
     }
 

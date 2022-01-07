@@ -119,6 +119,8 @@ public class MiniProgramProjection implements Serializable{
     private int small_app_id;
     //插播图片广告地址
     private String ads_img_url;
+    /**抽奖人员集合，含有头像地址和昵称*/
+    private List<PartakeUser> partake_user;
 
     public int getAction() {
         return action;
@@ -607,5 +609,13 @@ public class MiniProgramProjection implements Serializable{
 
     public void setAds_img_url(String ads_img_url) {
         this.ads_img_url = ads_img_url;
+    }
+
+    public List<PartakeUser> getPartake_user() {
+        return partake_user;
+    }
+
+    public void setPartake_user(List<PartakeUser> partake_user) {
+        this.partake_user = partake_user;
     }
 }

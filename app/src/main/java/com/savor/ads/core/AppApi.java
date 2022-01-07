@@ -109,6 +109,8 @@ public class AppApi {
         CP_GET_SHOP_GOODS_LIST_FROM_JSON,
         CP_GET_HOT_CONTENT_FROM_JSON,
         CP_GET_WELCOMERESOURCE_FROM_JSON,
+        CP_GET_MEETINGRESOURCE_FROM_JSON,
+        CP_POST_MEETING_REPORT_FROM_JSON,
         SP_GET_PROGRAM_DATA_FROM_JSON,
         SP_GET_ADV_DATA_FROM_JSON,
         SP_GET_ADS_DATA_FROM_JSON,
@@ -192,6 +194,8 @@ public class AppApi {
             put(Action.CP_GET_SHOP_GOODS_LIST_FROM_JSON,BuildConfig.BASE_URL+"box/program/getShopgoodsProgramList");
             put(Action.CP_GET_HOT_CONTENT_FROM_JSON,BuildConfig.BASE_URL+"box/program/getHotPlayProgramList");
             put(Action.CP_GET_WELCOMERESOURCE_FROM_JSON,BuildConfig.BASE_URL+"box/program/getWelcomeResource");
+            put(Action.CP_GET_MEETINGRESOURCE_FROM_JSON,BuildConfig.BASE_URL+"box/program/getAnnualmeetingResource");
+            put(Action.CP_POST_MEETING_REPORT_FROM_JSON,BuildConfig.BASE_URL+"box/boxLog/annualmeetingResource");
             put(Action.SP_GET_PROGRAM_DATA_FROM_JSON,SP_BASE_URL+"small/api/download/vod/config/v2");
             put(Action.SP_GET_ADV_DATA_FROM_JSON,SP_BASE_URL+"small/api/download/adv/config");
             put(Action.SP_GET_ADS_DATA_FROM_JSON,SP_BASE_URL+"small/api/download/ads/config");
@@ -347,6 +351,30 @@ public class AppApi {
         final HashMap<String, Object> params = new HashMap<>();
         params.put("box_mac",boxMac);
         return new AppServiceOk(context,Action.CP_GET_WELCOMERESOURCE_FROM_JSON,handler,params).syncGet();
+    }
+
+    /**
+     * 获取年会会议需要播放的资源
+     * @param context
+     * @param handler
+     * @param boxMac
+     * @return
+     * @throws IOException
+     */
+    public static JsonBean getMeetingResourceFromCloudfrom(Context context,ApiRequestListener handler,String boxMac) throws IOException{
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("box_mac",boxMac);
+        return new AppServiceOk(context,Action.CP_GET_MEETINGRESOURCE_FROM_JSON,handler,params).syncGet();
+    }
+
+    /**
+     * 上报年会会议资源下载情况上报
+     * @param context
+     * @param handler
+     * @param params
+     */
+    public static void postMeetingParamReport(Context context,ApiRequestListener handler,HashMap<String, Object> params){
+       new AppServiceOk(context,Action.CP_POST_MEETING_REPORT_FROM_JSON,handler,params).get();
     }
 
     /**

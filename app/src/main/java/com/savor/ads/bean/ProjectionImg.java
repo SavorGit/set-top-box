@@ -1,11 +1,14 @@
 package com.savor.ads.bean;
 
-public class ProjectionImg {
+import java.io.Serializable;
+
+public class ProjectionImg implements Serializable {
 
     /**投屏图片url**/
     private String url;
     /**投屏图片名称**/
     private String filename;
+    private String filePath;
     /**投屏图片序列**/
     private int order;
     /**投图片ID*/
@@ -29,6 +32,14 @@ public class ProjectionImg {
 
     public void setFilename(String filename) {
         this.filename = filename;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
 
     public int getOrder() {

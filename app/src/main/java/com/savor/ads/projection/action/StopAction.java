@@ -2,6 +2,8 @@ package com.savor.ads.projection.action;
 
 import android.app.Activity;
 
+import com.savor.ads.activity.LoopPlayActivity;
+import com.savor.ads.activity.MeetingSignInActivity;
 import com.savor.ads.activity.ScreenProjectionActivity;
 import com.savor.ads.projection.ProjectPriority;
 import com.savor.ads.utils.ActivitiesManager;
@@ -29,6 +31,10 @@ public class StopAction extends ProjectionActionBase {
         Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
         if (activity instanceof ScreenProjectionActivity) {
             ((ScreenProjectionActivity) activity).stop(true, this);
+        }else if (activity instanceof LoopPlayActivity){
+            ((LoopPlayActivity) activity).stop();
+        }else if (activity instanceof MeetingSignInActivity){
+            ((MeetingSignInActivity) activity).stop();
         }
 
     }

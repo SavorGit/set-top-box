@@ -1,9 +1,13 @@
 package com.savor.ads.activity;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.view.View;
@@ -24,9 +28,11 @@ import com.savor.ads.bean.PartakeDishBean;
 import com.savor.ads.bean.PartakeLottery;
 import com.savor.ads.bean.PartakeUser;
 import com.savor.ads.customview.StrokeTextView;
+import com.savor.ads.service.MiniProgramNettyService;
 import com.savor.ads.utils.Base64Utils;
 import com.savor.ads.utils.GlideImageLoader;
 import com.savor.ads.utils.GlobalValues;
+import com.savor.ads.utils.LogUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -55,6 +61,9 @@ public class LotteryDrawingActivity extends BaseActivity{
     private Handler handler = new Handler();
     /**开奖时候，设定头像转头时间*/
     private boolean stopRotation=false;
+    private MiniProgramNettyService miniProgramNettyService;
+    private MiniProgramNettyService.AdsBinder adsBinder;
+    private ServiceConnection mNettyConnection;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,8 +75,32 @@ public class LotteryDrawingActivity extends BaseActivity{
         if (action!=157){
             initRecyclerView(recyclerView, new CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL, true));
         }
+        bindMiniprogramNettyService();
     }
 
+    /**
+     * 绑定netty服务
+     */
+    private void bindMiniprogramNettyService(){
+        mNettyConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder binder) {
+                adsBinder = (MiniProgramNettyService.AdsBinder) binder;
+                if (adsBinder!=null){
+                    miniProgramNettyService = adsBinder.getService();
+                    LogUtils.d(miniProgramNettyService+"123");
+                }
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+
+            }
+        };
+
+        Intent intent = new Intent(mContext, MiniProgramNettyService.class);
+        bindService(intent,mNettyConnection, Context.BIND_AUTO_CREATE);
+    }
 
     private void initViews(){
         luckyUserContentLayout = findViewById(R.id.lucky_user_content_layout);
@@ -178,7 +211,11 @@ public class LotteryDrawingActivity extends BaseActivity{
             crownIV.setVisibility(View.VISIBLE);
             String openid =user.getOpenid();
             int level = winPrizeUsersMap.get(openid);
-            lotteryDescTV.setText("恭喜"+"\""+user.getNickName()+"\""+"获得"+level+"等奖~");
+            if (level>0){
+                lotteryDescTV.setText("恭喜"+"\""+user.getNickName()+"\""+"获得"+level+"等奖~");
+            }else{
+                lotteryDescTV.setText("恭喜"+"\""+user.getNickName()+"\""+"获奖~");
+            }
             lotteryDescTV.setVisibility(View.VISIBLE);
             displayLuckyUserAvatar(avatarUrl);
             lotteryUsers.get(currentItem).setIs_lottery(-1);
@@ -215,5 +252,13 @@ public class LotteryDrawingActivity extends BaseActivity{
         ImageView userAvatarIV = itemView.findViewById(R.id.user_avatar);
         GlideImageLoader.loadImage(mContext,avatarUrl,userAvatarIV,R.mipmap.avatar,R.mipmap.avatar);
         luckyUserLayout.addView(itemView);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (mNettyConnection!=null){
+            unbindService(mNettyConnection);
+        }
+        super.onDestroy();
     }
 }

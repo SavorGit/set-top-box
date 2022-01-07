@@ -3,7 +3,6 @@ package com.savor.ads.utils;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningTaskInfo;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -27,10 +26,10 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
-import android.provider.MediaStore;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -43,13 +42,10 @@ import com.savor.ads.bean.BaiduAdLocalBean;
 import com.savor.ads.bean.JDmomediaLocalBean;
 import com.savor.ads.bean.MediaItemBean;
 import com.savor.ads.bean.MediaLibBean;
+import com.savor.ads.bean.MeetingResourceBean;
 import com.savor.ads.bean.MeiAdLocalBean;
 import com.savor.ads.bean.OOHLinkAdLocalBean;
 import com.savor.ads.bean.ProjectionLogBean;
-import com.savor.ads.bean.ProjectionLogDetail;
-import com.savor.ads.bean.PushRTBItem;
-import com.savor.ads.bean.SelectContentBean;
-import com.savor.ads.bean.ShopGoodsBean;
 import com.savor.ads.bean.VersionInfo;
 import com.savor.ads.bean.WelcomeResourceBean;
 import com.savor.ads.bean.YishouAdLocalBean;
@@ -138,7 +134,8 @@ public class AppUtils {
     public static final String BoxProjectionDir = "projection";
     public static final String BoxSelectContentDir = "select_content";//已删除
     public static final String cacheDir = "cache";
-    public static final String welcomdeResourceDir = "welcome_resource";
+    public static final String welcomeResourceDir = "welcome_resource";
+    public static final String meetingResourceDir = "meeting_resource";
     public static final String HotContentDir = "hot_content";
     public static final String localLifeDir = "LocalLife";
     // UTF-8 encoding
@@ -218,6 +215,7 @@ public class AppUtils {
          * 欢迎词资源
          */
         welcome_resource,
+        meeting_resource,
         /**互动首页-热播内容*/
         hot_content,
         /**本地生活*/
@@ -397,9 +395,13 @@ public class AppUtils {
         if (!projectionFile.exists()){
             projectionFile.mkdir();
         }
-        File welcomeResourceFile = new File(path+File.separator,welcomdeResourceDir);
+        File welcomeResourceFile = new File(path+File.separator,welcomeResourceDir);
         if (!welcomeResourceFile.exists()){
             welcomeResourceFile.mkdir();
+        }
+        File meetingResourceFile = new File(path+File.separator,meetingResourceDir);
+        if (!meetingResourceFile.exists()){
+            meetingResourceFile.mkdir();
         }
         File hotContentFile = new File(path+File.separator,HotContentDir);
         if (!hotContentFile.exists()){
@@ -439,7 +441,9 @@ public class AppUtils {
             path = projectionFile.getAbsolutePath()+File.separator;
         } else if (mode == StorageFile.welcome_resource){
             path = welcomeResourceFile.getAbsolutePath()+File.separator;
-        } else if (mode == StorageFile.hot_content){
+        }  else if (mode == StorageFile.meeting_resource){
+            path = meetingResourceFile.getAbsolutePath()+File.separator;
+        }else if (mode == StorageFile.hot_content){
             path = hotContentFile.getAbsolutePath()+File.separator;
         } else if (mode==StorageFile.local_life){
             path = localLifeFile.getAbsolutePath()+File.separator;
@@ -1108,6 +1112,81 @@ public class AppUtils {
                     }
 
 
+                }catch (Exception e){
+                    LogUtils.e("删除视频失败",e);
+                }
+
+            }
+        }).start();
+    }
+
+    public static void deleteMeetingResource(final Context context) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    LogUtils.d("删除年会会议资源");
+                    List<MeetingResourceBean> meetingResourceBeanList = DBHelper.get(context).findMeetingResourceList(null,null);
+                    String meeting = AppUtils.getFilePath(StorageFile.meeting_resource);
+                    File[] meetingFiles = new File(meeting).listFiles();
+                    if (meetingResourceBeanList==null){
+                        for (File file : meetingFiles) {
+                            if (file.isFile()) {
+                                file.delete();
+                                LogUtils.d("删除文件===================" + file.getName());
+                            } else {
+                                com.savor.ads.utils.FileUtils.deleteFile(file);
+                            }
+                        }
+                    }else{
+                        for (File file:meetingFiles){
+                            String fileName = file.getName();
+                            String selection = DBHelper.MediaDBInfo.FieldName.MEDIANAME + "=? ";
+                            String[] selectionArgs = new String[]{fileName};
+                            List<MeetingResourceBean> listBean = DBHelper.get(context).findMeetingResourceList(selection,selectionArgs);
+                            if (listBean==null){
+                                file.delete();
+                            }
+                        }
+
+                    }
+
+
+                }catch (Exception e){
+                    LogUtils.e("删除视频失败",e);
+                }
+
+            }
+        }).start();
+    }
+
+    public static void deleteMeetingResourceByDate(final Context context){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    LogUtils.d("删除年会会议资源");
+                    List<MeetingResourceBean> meetingResourceBeanList = DBHelper.get(context).findMeetingResourceList(null,null);
+                    if (meetingResourceBeanList!=null){
+                        for (MeetingResourceBean bean : meetingResourceBeanList) {
+                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            if (!TextUtils.isEmpty(bean.getEnd_date())){
+                                Date end_date = format.parse(bean.getEnd_date());
+                                Date now = new Date();
+                                if (end_date != null && end_date.before(now)) {
+                                   String mediaPath = bean.getMedia_path();
+                                   File file = new File(mediaPath);
+                                   if (file.exists()){
+                                       LogUtils.d("删除会议资源，fileName="+file.getName());
+                                       file.delete();
+                                   }
+                                    String selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
+                                    String[] selectionArgs = new String[]{String.valueOf(bean.getId())};
+                                    DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.MEETING_RESOURCE,selection,selectionArgs);
+                                }
+                            }
+                        }
+                    }
                 }catch (Exception e){
                     LogUtils.e("删除视频失败",e);
                 }
