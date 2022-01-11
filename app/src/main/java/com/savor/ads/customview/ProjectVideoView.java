@@ -301,23 +301,26 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
                     atlasViewPager.setVisibility(VISIBLE);
                     List<ProjectionImg> imgList = welcomeBean.getImg_list();
                     for (ProjectionImg img:imgList){
-                        mDataSource.add(img.getFilePath());
+                        if (!TextUtils.isEmpty(img.getFilePath())){
+                            mDataSource.add(img.getFilePath());
+                        }
                     }
                 }
-                imageAdapter = new StringPagerAdapter(mContext, mDataSource);
-                atlasViewPager.setAdapter(imageAdapter);
-                if (mDataSource != null && mDataSource.size() == 1) {
-                    mHandler.removeCallbacks(mPlayCompletionRunnable);
-                    mHandler.postDelayed(mPlayCompletionRunnable, duration > 0 ? duration * 1000 : 5 * 1000);
-                } else if (mDataSource != null && mDataSource.size() > 1) {
-                    mHandler.removeCallbacksAndMessages(null);
-                    mHandler.sendEmptyMessageDelayed(0, duration > 0 ? duration * 1000 : 5 * 1000);
+                if (mDataSource.size()>0){
+                    imageAdapter = new StringPagerAdapter(mContext, mDataSource);
+                    atlasViewPager.setAdapter(imageAdapter);
+                    if (mDataSource != null && mDataSource.size() == 1) {
+                        mHandler.removeCallbacks(mPlayCompletionRunnable);
+                        mHandler.postDelayed(mPlayCompletionRunnable, duration > 0 ? duration * 1000 : 5 * 1000);
+                    } else if (mDataSource != null && mDataSource.size() > 1) {
+                        mHandler.removeCallbacksAndMessages(null);
+                        mHandler.sendEmptyMessageDelayed(0, duration > 0 ? duration * 1000 : 5 * 1000);
+                    }
+                }else{
+                    mHandler.post(mPlayCompletionRunnable);
                 }
             }
-
         }
-
-
         return true;
     }
 

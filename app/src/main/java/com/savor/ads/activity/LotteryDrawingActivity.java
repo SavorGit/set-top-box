@@ -192,11 +192,10 @@ public class LotteryDrawingActivity extends BaseActivity{
     private Runnable autoRollRunnable = ()->autoRoll();
 
     private void autoRoll(){
-
+        if (currentItem==itemCount){
+            currentItem =0;
+        }
         handler.postDelayed(()->{
-                if (currentItem==itemCount){
-                    currentItem =0;
-                }
                 recyclerView.scrollToPosition(currentItem%itemCount);
 //                recyclerView.scrollBy(20,0);
         },1000);

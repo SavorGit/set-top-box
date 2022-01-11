@@ -252,20 +252,27 @@ public class LoopPlayActivity extends BaseActivity{
         }
         if (resourcelist.size()==1&&meetingWelcomeBean!=null){
             for (ProjectionImg img: meetingWelcomeBean.getImg_list()){
-                mDataImg.add(img.getFilePath());
+                if (!TextUtils.isEmpty(img.getFilePath())){
+                    mDataImg.add(img.getFilePath());
+                }
             }
-            if (mDataImg.size()==1){
-                aloneImageIV.setVisibility(View.VISIBLE);
-                imageViewPager.setVisibility(View.GONE);
-                GlideImageLoader.loadImageWithoutCache(mContext, mDataImg.get(0), aloneImageIV, 0, 0);
-                mHandler.post(()->imgShowCountDown());
+            if (mDataImg.size()>0){
+                if (mDataImg.size()==1){
+                    aloneImageIV.setVisibility(View.VISIBLE);
+                    imageViewPager.setVisibility(View.GONE);
+                    GlideImageLoader.loadImageWithoutCache(mContext, mDataImg.get(0), aloneImageIV, 0, 0);
+                    mHandler.post(()->imgShowCountDown());
+                }else{
+                    aloneImageIV.setVisibility(View.GONE);
+                    imageViewPager.setVisibility(View.VISIBLE);
+                    imageAdapter.setDataSource(mDataImg);
+                    mHandler.sendEmptyMessageDelayed(0,10*1000);
+                }
+                handleMeetingWelcome();
             }else{
-                aloneImageIV.setVisibility(View.GONE);
-                imageViewPager.setVisibility(View.VISIBLE);
-                imageAdapter.setDataSource(mDataImg);
-                mHandler.sendEmptyMessageDelayed(0,10*1000);
+                //没有播放视频资源，只有欢迎词并且欢迎词没下载成功，只能退出
+                stop();
             }
-            handleMeetingWelcome();
         }else{
             mSavorVideoView.setMediaFiles(resourcelist);
             showQrCodeWhenProjection();

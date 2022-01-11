@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import com.savor.ads.R;
 import com.savor.ads.utils.GlideImageLoader;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +51,9 @@ public class StringPagerAdapter extends PagerAdapter {
 //                    ImageViewerDialog.this.dismiss();
 //                }
 //            });
-        GlideImageLoader.loadImageWithoutCache(mContext, mImages.get(position), imageView, 0, 0);
+        String mImagePath = mImages.get(position);
+        File file = new File(mImagePath);
+        GlideImageLoader.loadLocalImage(mContext,file,imageView);
         mViewList.put(position, view);
         container.addView(view);
         return view;

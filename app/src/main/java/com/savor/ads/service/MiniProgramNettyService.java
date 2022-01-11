@@ -717,12 +717,12 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     }
 
     private boolean handleMeetingAction(int action,Activity activity){
-        if (activity instanceof LoopPlayActivity&&action!=3&&action!=156){
+        if (activity instanceof LoopPlayActivity&&action!=3&&action!=156&&action!=162){
             return true;
         }else if (activity instanceof LotteryDrawingActivity
                 ||activity instanceof LotteryDrawResultActivity){
             return true;
-        }else  if (activity instanceof MeetingSignInActivity&&action!=161&&action!=3&&action!=156){
+        }else  if (activity instanceof MeetingSignInActivity&&action!=161&&action!=162&&action!=3&&action!=156){
             return true;
         }
         return false;
@@ -2816,8 +2816,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         }
         Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
         if (activity instanceof LoopPlayActivity){
-            activity.finish();
+            ((LoopPlayActivity) activity).stop();
         }
+        ProjectOperationListener.getInstance(context).stop(GlobalValues.CURRENT_PROJECT_ID);
         ProjectOperationListener.getInstance(context).showLoopPlayResource(loopPlayBean);
     }
 
