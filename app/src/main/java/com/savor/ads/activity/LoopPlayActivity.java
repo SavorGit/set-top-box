@@ -247,10 +247,15 @@ public class LoopPlayActivity extends BaseActivity{
                 resourcelist.add(bean);
             }
         }
-        if (meetingWelcomeBean!=null&&meetingWelcomeBean.getImg_list()!=null){
+        if (meetingWelcomeBean!=null
+                &&meetingWelcomeBean.getImg_list()!=null
+                &&meetingWelcomeBean.getImg_list().size()>0){
             resourcelist.add(meetingWelcomeBean);
         }
-        if (resourcelist.size()==1&&meetingWelcomeBean!=null){
+        if (resourcelist.size()==1
+                &&meetingWelcomeBean!=null
+                &&meetingWelcomeBean.getImg_list()!=null
+                &&meetingWelcomeBean.getImg_list().size()>0){
             for (ProjectionImg img: meetingWelcomeBean.getImg_list()){
                 if (!TextUtils.isEmpty(img.getFilePath())){
                     mDataImg.add(img.getFilePath());

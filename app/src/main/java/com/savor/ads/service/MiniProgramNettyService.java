@@ -83,7 +83,9 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -2764,62 +2766,80 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         if (loopPlayBean==null){
             return;
         }
-        String selection;
-        String[] selectionArgs;
-        Integer[] resourceIds = loopPlayBean.getResource_ids();
-        if (resourceIds!=null&&resourceIds.length>0){
-            List<String> videoPaths = new ArrayList<>();
-            for (Integer id:resourceIds){
-                selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
-                selectionArgs = new String[]{String.valueOf(id)};
-                List<MeetingResourceBean> resourceBeans = dbHelper.findMeetingResourceList(selection,selectionArgs);
-                if (resourceBeans!=null&&resourceBeans.size()>0){
-                    videoPaths.add(resourceBeans.get(0).getMedia_path());
-                }
-            }
-            loopPlayBean.setVideoPaths(videoPaths);
-        }
-        MeetingWelcomeBean welcome = loopPlayBean.getWelcome();
-        if (welcome!=null){
-            if (welcome.getImg_list()!=null&&welcome.getImg_list().size()>0){
-                String basePath = AppUtils.getFilePath(AppUtils.StorageFile.meeting_resource);
-                for (ProjectionImg img:welcome.getImg_list()){
-                    String fileName = img.getFilename();
-                    File file = new File(basePath+fileName);
-                    if (file.exists()){
-                        img.setFilePath(file.getAbsolutePath());
-                    }else{
-                        String url = BuildConfig.OSS_ENDPOINT+img.getUrl();
-                        boolean isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
-                        if (isDownloaded){
-                            file = new File(basePath+fileName);
-                            img.setFilePath(file.getAbsolutePath());
+        try{
+            String selection;
+            String[] selectionArgs;
+            Integer[] resourceIds = loopPlayBean.getResource_ids();
+            if (resourceIds!=null&&resourceIds.length>0){
+                List<String> videoPaths = new ArrayList<>();
+                for (Integer id:resourceIds){
+                    selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
+                    selectionArgs = new String[]{String.valueOf(id)};
+                    List<MeetingResourceBean> resourceBeans = dbHelper.findMeetingResourceList(selection,selectionArgs);
+                    if (resourceBeans!=null&&resourceBeans.size()>0){
+                        MeetingResourceBean resourceBean = resourceBeans.get(0);
+                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        if (!TextUtils.isEmpty(resourceBean.getEnd_date())){
+                            Date end_date = format.parse(resourceBean.getEnd_date());
+                            Date now = new Date();
+                            if (end_date != null && end_date.after(now)) {
+                                videoPaths.add(resourceBean.getMedia_path());
+                            }
                         }
                     }
                 }
+                loopPlayBean.setVideoPaths(videoPaths);
             }
-            selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
-            selectionArgs = new String[]{String.valueOf(welcome.getFont_id())};
-            List<WelcomeResourceBean> typefaceList = dbHelper.findWelcomeResourceList(selection,selectionArgs);
-            String basePath = AppUtils.getFilePath(AppUtils.StorageFile.welcome_resource);
-            if (typefaceList!=null&&typefaceList.size()>0){
-                WelcomeResourceBean bean = typefaceList.get(0);
-                File file = new File(basePath+bean.getName());
-                if (file.exists()){
-                    welcome.setFontPath(file.getAbsolutePath());
+            MeetingWelcomeBean welcome = loopPlayBean.getWelcome();
+            if (welcome!=null){
+                if (welcome.getImg_list()!=null&&welcome.getImg_list().size()>0){
+                    String basePath = AppUtils.getFilePath(AppUtils.StorageFile.meeting_resource);
+                    for (ProjectionImg img:welcome.getImg_list()){
+                        String fileName = img.getFilename();
+                        File file = new File(basePath+fileName);
+                        if (file.exists()){
+                            img.setFilePath(file.getAbsolutePath());
+                        }else{
+                            String url = BuildConfig.OSS_ENDPOINT+img.getUrl();
+                            boolean isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
+                            if (isDownloaded){
+                                file = new File(basePath+fileName);
+                                img.setFilePath(file.getAbsolutePath());
+                            }
+                        }
+                    }
+                }
+                selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
+                selectionArgs = new String[]{String.valueOf(welcome.getFont_id())};
+                List<WelcomeResourceBean> typefaceList = dbHelper.findWelcomeResourceList(selection,selectionArgs);
+                String basePath = AppUtils.getFilePath(AppUtils.StorageFile.welcome_resource);
+                if (typefaceList!=null&&typefaceList.size()>0){
+                    WelcomeResourceBean bean = typefaceList.get(0);
+                    File file = new File(basePath+bean.getName());
+                    if (file.exists()){
+                        welcome.setFontPath(file.getAbsolutePath());
+                    }
+                }
+                getMusicPathMethod(basePath,welcome.getMusic_id());
+                if (!TextUtils.isEmpty(musicPath)){
+                    welcome.setMusicPath(musicPath);
                 }
             }
-            getMusicPathMethod(basePath,welcome.getMusic_id());
-            if (!TextUtils.isEmpty(musicPath)){
-                welcome.setMusicPath(musicPath);
+
+            List<String> videoPaths = loopPlayBean.getVideoPaths();
+            MeetingWelcomeBean welcomeBean = loopPlayBean.getWelcome();
+            if ((videoPaths!=null&&videoPaths.size()>0)
+                    ||(welcomeBean!=null&&welcomeBean.getImg_list()!=null&&welcomeBean.getImg_list().size()>0)){
+                Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+                if (activity instanceof LoopPlayActivity){
+                    ((LoopPlayActivity) activity).stop();
+                }
+                ProjectOperationListener.getInstance(context).stop(GlobalValues.CURRENT_PROJECT_ID);
+                ProjectOperationListener.getInstance(context).showLoopPlayResource(loopPlayBean);
             }
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
-        if (activity instanceof LoopPlayActivity){
-            ((LoopPlayActivity) activity).stop();
-        }
-        ProjectOperationListener.getInstance(context).stop(GlobalValues.CURRENT_PROJECT_ID);
-        ProjectOperationListener.getInstance(context).showLoopPlayResource(loopPlayBean);
     }
 
     public void startProjection(int action,String forscreen_id){

@@ -1,5 +1,6 @@
 package com.savor.ads.service;
 
+import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +29,10 @@ import com.jar.savor.box.vo.SeekResponseVo;
 import com.jar.savor.box.vo.StopResponseVo;
 import com.jar.savor.box.vo.VolumeResponseVo;
 import com.savor.ads.BuildConfig;
+import com.savor.ads.activity.LoopPlayActivity;
+import com.savor.ads.activity.LotteryDrawResultActivity;
+import com.savor.ads.activity.LotteryDrawingActivity;
+import com.savor.ads.activity.MeetingSignInActivity;
 import com.savor.ads.bean.AdsMeiSSPResult;
 import com.savor.ads.bean.BigImgBean;
 import com.savor.ads.bean.BirthdayOndemandBean;
@@ -60,6 +65,7 @@ import com.savor.ads.log.LogParamValues;
 import com.savor.ads.log.LogReportUtil;
 import com.savor.ads.okhttp.coreProgress.download.ProjectionDownloader;
 import com.savor.ads.projection.ProjectionManager;
+import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.GlideImageLoader;
@@ -280,8 +286,9 @@ public class RemoteService extends Service {
                 response.getWriter().println(resJson);
                 return;
             }else {
-
-                resJson = distributeRequest(request, path);
+                if (!currentMeetingAction()){
+                    resJson = distributeRequest(request, path);
+                }
             }
 
             if (TextUtils.isEmpty(resJson)) {
@@ -445,6 +452,18 @@ public class RemoteService extends Service {
             nickName = request.getParameter("nickName");
         }
 
+        private boolean currentMeetingAction(){
+            Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+            if (activity instanceof LoopPlayActivity){
+                return true;
+            }else if (activity instanceof LotteryDrawingActivity
+                    ||activity instanceof LotteryDrawResultActivity){
+                return true;
+            }else  if (activity instanceof MeetingSignInActivity){
+                return true;
+            }
+            return false;
+        }
 
         private String handleVideoH5Request(HttpServletRequest request){
 
