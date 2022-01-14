@@ -719,7 +719,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     }
 
     private boolean handleMeetingAction(int action,Activity activity){
-        if (activity instanceof LoopPlayActivity&&action!=3&&action!=156&&action!=162){
+        if (activity instanceof LoopPlayActivity&&action!=3&&action!=156&&action!=162&&action!=31){
             return true;
         }else if (activity instanceof LotteryDrawingActivity
                 ||activity instanceof LotteryDrawResultActivity){

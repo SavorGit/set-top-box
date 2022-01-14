@@ -751,6 +751,7 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
 
     @Override
     public void showLoopPlayResource(MeetingLoopPlayBean loopPlayBean) {
+        GlobalValues.CURRENT_PROJECT_ID = UUID.randomUUID().toString();
         Intent intent = new Intent(mContext, LoopPlayActivity.class);
         Bundle bundle = new Bundle();
         bundle.putSerializable("loopBean",loopPlayBean);
