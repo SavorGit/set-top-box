@@ -1,5 +1,7 @@
 package com.savor.ads.activity;
 
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorSet;
 import android.app.Activity;
 import android.app.Service;
 import android.content.ActivityNotFoundException;
@@ -30,6 +32,9 @@ import com.admaster.sdk.api.AdmasterSdk;
 import com.google.protobuf.ByteString;
 import com.jar.savor.box.ServiceUtil;
 import com.jar.savor.box.vo.VolumeResponseVo;
+import com.savor.ads.BuildConfig;
+import com.savor.ads.bean.SeckillGoodsBean;
+import com.savor.ads.oss.OSSUtils;
 import com.savor.ads.service.RemoteService;
 import com.savor.ads.R;
 import com.savor.ads.SavorApplication;
@@ -97,6 +102,7 @@ import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -134,6 +140,24 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     private RelativeLayout mVolumeRl;
     private TextView mVolumeTv;
     private ProgressBar mVolumePb;
+    //跑马灯效果展示
+    private RelativeLayout captionLayout;
+    private TextView captionTipTV;
+    //秒杀布局
+    private RelativeLayout seckillFrontLayout;
+    private TextView seckillCountdownFrontTV;
+    private ImageView seckillGoodsFrontIV;
+    private TextView goodsJDPriceFrontTV;
+    private TextView goodsSeckillPriceFrontTV;
+    private RelativeLayout seckillBackLayout;
+    private TextView seckillCountdownBackTV;
+    private ImageView seckillGoodsBackIV;
+    private TextView goodsJDPriceBackTV;
+    private TextView goodsSeckillPriceBackTV;
+
+    private int seckillTime=5400;
+    //-1:秒杀倒计时结束,0:当前版位无秒杀，1：秒杀倒计时进行中
+    private int seckillState = 0;
 
     private int mCurrentVolume = 0;
     private int delayTime;
@@ -171,6 +195,11 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     private List<String> polyAdsList = new ArrayList<>();
     /**抽奖活动开奖时间*/
     private String lotteryTime;
+
+    private AnimatorSet mRightOutSet; // 右出动画
+    private AnimatorSet mLeftInSet; // 左入动画
+    private boolean mIsShowBack;
+
     private Handler mHandler = new Handler(msg -> {
         switch (msg.what){
             case 1:
@@ -216,6 +245,20 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         mVolumeRl = findViewById(R.id.rl_volume_view);
         mVolumeTv = findViewById(R.id.tv_volume);
         mVolumePb =  findViewById(R.id.pb_volume);
+
+        captionLayout = findViewById(R.id.caption_layout);
+        captionTipTV = findViewById(R.id.caption_tip);
+        seckillFrontLayout = findViewById(R.id.seckill_front_layout);
+        seckillCountdownFrontTV = findViewById(R.id.seckill_countdown_front);
+        seckillGoodsFrontIV = findViewById(R.id.seckill_goods_front);
+        goodsJDPriceFrontTV = findViewById(R.id.goods_jd_price_front);
+        goodsSeckillPriceFrontTV = findViewById(R.id.goods_seckill_price_front);
+        seckillBackLayout = findViewById(R.id.seckill_back_layout);
+        seckillCountdownBackTV = findViewById(R.id.seckill_countdown_back);
+        seckillGoodsBackIV = findViewById(R.id.seckill_goods_back);
+        goodsJDPriceBackTV = findViewById(R.id.goods_jd_price_back);
+        goodsSeckillPriceBackTV = findViewById(R.id.goods_seckill_price_back);
+
         registerDownloadReceiver();
         // 启动投屏类操作处理的Service
 
@@ -783,6 +826,47 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 
     }
 
+    private void judegeCurrentLotteryState(){
+        if (!TextUtils.isEmpty(lotteryTime)){
+            long currentHour = AppUtils.getHour(new Date());
+            long currentMinute = AppUtils.getMinute(new Date());
+            String[] prizeTime = lotteryTime.split(":");
+            int prizeHour =Integer.valueOf(prizeTime[0]);
+            int prizeMinute = Integer.valueOf(prizeTime[1]);
+            if (currentHour>prizeHour){
+                GlobalValues.isPrize= false;
+                this.lotteryTime = null;
+                isClosePrizeHeadLayout(true);
+            }else if (currentHour==prizeHour){
+                if (currentMinute>=prizeMinute){
+                    GlobalValues.isPrize = false;
+                    this.lotteryTime = null;
+                    isClosePrizeHeadLayout(true);
+                }
+            }
+        }
+    }
+
+    //秒杀倒计时处理显示
+    private void secKillCountdown(){
+        String timeformat = TimeUtils.formatSecondsToHour(seckillTime);
+        seckillCountdownFrontTV.setText(timeformat);
+        seckillCountdownBackTV.setText(timeformat);
+        seckillTime = seckillTime-60;
+        if (seckillTime<=0){
+            seckillState =-1;
+            mHandler.removeCallbacks(seckillCountdownRunnable);
+            mHandler.removeCallbacks(flipCardRunnable);
+            seckillFrontLayout.setVisibility(View.GONE);
+            seckillBackLayout.setVisibility(View.GONE);
+        }else{
+            mHandler.postDelayed(seckillCountdownRunnable,1000*60);
+        }
+
+    }
+
+    private Runnable seckillCountdownRunnable = ()->secKillCountdown();
+
     Runnable currentVideoRunnable = new Runnable() {
         @Override
         public void run() {
@@ -792,7 +876,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             }
         }
     };
-
 
     public void toCheckMediaIsShowMiniProgramIcon(){
         try{
@@ -804,50 +887,43 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             e.printStackTrace();
         }
     }
-    /**
-     *是否展示二维码，展示什么类型的二维码
-     */
-    private void isShowMiniProgramIcon(MediaLibBean libBean){
-        if (mSession.isShowAnimQRcode()){
-            MiniProgramQrCodeWindowManager.get(this).setCurrentPlayMediaId(libBean.getVid());
-        }else{
-            QrCodeWindowManager.get(this).setCurrentPlayMediaId(libBean.getVid());
-        }
-        if (libBean.getIs_sapp_qrcode() == 1
-                &&!GlobalValues.isOpenRedEnvelopeWin
-                && !libBean.getType().equals(ConstantValues.POLY_ADS)
-                && !libBean.getType().equals(ConstantValues.POLY_ADS_ONLINE)
-                && !libBean.getType().equals(ConstantValues.ACTGOODS_OPTI)
-                && !libBean.getType().equals(ConstantValues.ACTGOODS_ACTIVITY)
-                && !libBean.getType().equals(ConstantValues.ACTGOODS_COUNTDOWN)
-                && !libBean.getType().equals(ConstantValues.SHOP_GOODS_ADS)) {
-            if (mSession.isShowMiniProgramIcon()&& mSession.isShowSimpleMiniProgramIcon()){
-                if (mSession.isWifiHotel()){
-                    ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_NETWORK_TYPE);
-                }else {
-                    if (mSession.isHeartbeatMiniNetty()) {
-                        ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE);
-                    }else{
-                        ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE);
-                    }
-                }
-            }else if (!mSession.isShowMiniProgramIcon()&& mSession.isShowSimpleMiniProgramIcon()){
-                if (mSession.isWifiHotel()){
-                    ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_NETWORK_TYPE);
-                }else{
-                    ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE);
-                }
-            }else if (mSession.isShowMiniProgramIcon()&& !mSession.isShowSimpleMiniProgramIcon()){
-                if (mSession.isHeartbeatMiniNetty()) {
-                    ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE);
-                }else {
-                    ((SavorApplication) getApplication()).hideMiniProgramQrCodeWindow();
-                }
-            }
-        }else{
-            ((SavorApplication) getApplication()).hideMiniProgramQrCodeWindow();
-        }
+
+    // 设置翻转卡片动画
+    @SuppressWarnings("ResourceType")
+    private void setAnimators() {
+        mRightOutSet = (AnimatorSet) AnimatorInflater.loadAnimator(mContext, R.anim.anim_out);
+        mLeftInSet = (AnimatorSet) AnimatorInflater.loadAnimator(mContext, R.anim.anim_in);
     }
+
+    // 改变视角距离, 贴近屏幕
+    private void setCameraDistance() {
+        int distance = 16000;
+        float scale = mContext.getResources().getDisplayMetrics().density * distance;
+        seckillFrontLayout.setCameraDistance(scale);
+        seckillBackLayout.setCameraDistance(scale);
+    }
+
+    // 翻转卡片
+    public void flipCard() {
+        // 正面朝上
+        if (!mIsShowBack) {
+            mRightOutSet.setTarget(seckillFrontLayout);
+            mLeftInSet.setTarget(seckillBackLayout);
+            mRightOutSet.start();
+            mLeftInSet.start();
+            mIsShowBack = true;
+        } else {
+            // 背面朝上
+            mRightOutSet.setTarget(seckillBackLayout);
+            mLeftInSet.setTarget(seckillBackLayout);
+            mRightOutSet.start();
+            mLeftInSet.start();
+            mIsShowBack = false;
+        }
+        mHandler.postDelayed(flipCardRunnable,1000*30);
+    }
+
+    private Runnable flipCardRunnable = ()->flipCard();
 
     @Override
     protected void onStart() {
@@ -1132,7 +1208,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 }
             }
             isShowMiniProgramIcon(libBean);
-
+            getSeckillGoodsInfo();
             if (!TextUtils.isEmpty(libBean.getEnd_date())) {
                 // 检测截止时间是否已到，到达的话跳到下一个
                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -1303,25 +1379,60 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         toCheckIfPolyAds(index);
         return false;
     }
-
-    private void judegeCurrentLotteryState(){
-        if (!TextUtils.isEmpty(lotteryTime)){
-            long currentHour = AppUtils.getHour(new Date());
-            long currentMinute = AppUtils.getMinute(new Date());
-            String[] prizeTime = lotteryTime.split(":");
-            int prizeHour =Integer.valueOf(prizeTime[0]);
-            int prizeMinute = Integer.valueOf(prizeTime[1]);
-            if (currentHour>prizeHour){
-                GlobalValues.isPrize= false;
-                this.lotteryTime = null;
-                isClosePrizeHeadLayout(true);
-            }else if (currentHour==prizeHour){
-                if (currentMinute>=prizeMinute){
-                    GlobalValues.isPrize = false;
-                    this.lotteryTime = null;
-                    isClosePrizeHeadLayout(true);
+    /**
+     *是否展示二维码，展示什么类型的二维码
+     */
+    private void isShowMiniProgramIcon(MediaLibBean libBean){
+        if (mSession.isShowAnimQRcode()){
+            MiniProgramQrCodeWindowManager.get(this).setCurrentPlayMediaId(libBean.getVid());
+        }else{
+            QrCodeWindowManager.get(this).setCurrentPlayMediaId(libBean.getVid());
+        }
+        if (libBean.getIs_sapp_qrcode() == 1
+                &&!GlobalValues.isOpenRedEnvelopeWin
+                && !libBean.getType().equals(ConstantValues.POLY_ADS)
+                && !libBean.getType().equals(ConstantValues.POLY_ADS_ONLINE)
+                && !libBean.getType().equals(ConstantValues.ACTGOODS_OPTI)
+                && !libBean.getType().equals(ConstantValues.ACTGOODS_ACTIVITY)
+                && !libBean.getType().equals(ConstantValues.ACTGOODS_COUNTDOWN)
+                && !libBean.getType().equals(ConstantValues.SHOP_GOODS_ADS)) {
+            if (mSession.isShowMiniProgramIcon()&& mSession.isShowSimpleMiniProgramIcon()){
+                if (mSession.isWifiHotel()){
+                    ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_NETWORK_TYPE);
+                }else {
+                    if (mSession.isHeartbeatMiniNetty()) {
+                        ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE);
+                    }else{
+                        ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE);
+                    }
+                }
+            }else if (!mSession.isShowMiniProgramIcon()&& mSession.isShowSimpleMiniProgramIcon()){
+                if (mSession.isWifiHotel()){
+                    ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_NETWORK_TYPE);
+                }else{
+                    ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE);
+                }
+            }else if (mSession.isShowMiniProgramIcon()&& !mSession.isShowSimpleMiniProgramIcon()){
+                if (mSession.isHeartbeatMiniNetty()) {
+                    ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE);
+                }else {
+                    ((SavorApplication) getApplication()).hideMiniProgramQrCodeWindow();
                 }
             }
+        }else{
+            ((SavorApplication) getApplication()).hideMiniProgramQrCodeWindow();
+        }
+    }
+
+    /**
+     * 获取秒杀相关商品信息
+     */
+    private void getSeckillGoodsInfo(){
+        try{
+            String boxMac = mSession.getEthernetMac();
+            AppApi.getSeckillGoodsFromCloudfrom(mContext,this,boxMac);
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 
@@ -1338,8 +1449,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         }
         return countdownTime;
     }
-
-
     //倒计时线程
     private Runnable mCountDownRunnable = ()->goodsShowCountDown();
 
@@ -1597,6 +1706,12 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 if (obj instanceof AdPayloadBean){
                     AdPayloadBean payload= (AdPayloadBean)obj;
                     handleYishouAdsData(payload);
+                }
+                break;
+            case CP_GET_SECKILL_GOODS_FROM_JSON:
+                if (obj instanceof SeckillGoodsBean){
+                    SeckillGoodsBean goodsBean = (SeckillGoodsBean)obj;
+                    handleSeckillGoodsInfo(goodsBean);
                 }
                 break;
         }
@@ -2060,6 +2175,78 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             e.printStackTrace();
         }
     }
+
+    private void handleSeckillGoodsInfo(SeckillGoodsBean goodsBean){
+        try {
+            if (goodsBean==null||goodsBean.getRemain_time()==0||seckillState!=0){
+                return;
+            }
+            seckillState =1;
+            seckillTime = goodsBean.getRemain_time();
+            mHandler.removeCallbacks(seckillCountdownRunnable);
+            mHandler.post(seckillCountdownRunnable);
+            String goodsImgUrl = BuildConfig.OSS_ENDPOINT+goodsBean.getImage();
+            String jdPrice = goodsBean.getLine_price();
+            String price = goodsBean.getPrice();
+            List<String> rollContent = Arrays.asList(goodsBean.getRoll_content());
+            GlideImageLoader.loadImage(mContext,goodsImgUrl,seckillGoodsFrontIV);
+            GlideImageLoader.loadImage(mContext,goodsImgUrl,seckillGoodsBackIV);
+            goodsJDPriceFrontTV.setText("京东价"+jdPrice+"/瓶");
+            goodsJDPriceBackTV.setText("京东价"+jdPrice+"/瓶");
+            goodsSeckillPriceFrontTV.setText(price+"/瓶");
+            goodsSeckillPriceBackTV.setText(price+"/瓶");
+            setAnimators(); // 设置动画
+            setCameraDistance(); // 设置镜头距离
+            //翻转秒杀背景动画
+            mHandler.removeCallbacks(flipCardRunnable);
+            mHandler.postDelayed(flipCardRunnable,1000*30);
+            seckillFrontLayout.setVisibility(View.VISIBLE);
+            seckillBackLayout.setVisibility(View.VISIBLE);
+            if (rollContent!=null&&rollContent.size()>0){
+                captionLayout.setVisibility(View.VISIBLE);
+                String captionText = "";
+                for (String content:rollContent){
+                    captionText = captionText+" "+content;
+                }
+                captionTipTV.setText(captionText);
+                setTextMarquee(captionTipTV);
+            }
+            mHandler.postDelayed(()->goodsCloseCountdown(),1000*60*15);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public static void setTextMarquee(TextView textView) {
+        if (textView != null) {
+            textView.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+            textView.setSingleLine(true);
+            textView.setSelected(true);
+            textView.setFocusable(true);
+            textView.setFocusableInTouchMode(true);
+            textView.setHorizontallyScrolling(true);
+            textView.setMarqueeRepeatLimit(-1);
+        }
+    }
+
+    //秒杀商品显示15分钟，关闭15分钟
+    private void goodsCloseCountdown(){
+        if (seckillState==1){
+            if (seckillFrontLayout.getVisibility()==View.VISIBLE){
+                seckillFrontLayout.setVisibility(View.GONE);
+                seckillBackLayout.setVisibility(View.GONE);
+                mHandler.removeCallbacks(seckillCountdownRunnable);
+                mHandler.removeCallbacks(flipCardRunnable);
+                mHandler.postDelayed(()->goodsShowCountdown(),1000*60*15);
+            }
+        }
+    }
+    //秒杀商品显示15分钟，关闭15分钟
+    private void goodsShowCountdown(){
+        seckillState=0;
+    }
+
+
     @Override
     public void onError(AppApi.Action method, Object obj) {
         switch (method) {

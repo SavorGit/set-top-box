@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.PixelFormat;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -56,10 +58,12 @@ public class ScanRedEnvelopeQrCodeDialog extends Dialog{
 
     private Handler mHandler = new Handler();
     private Context mContext;
+    private LinearLayout redEnvelopeLayout;
     private ImageView scanAvatarIconIv;
     private TextView scanNickNameTv;
     private ImageView scanQrCodeIv;
     private TextView scanWxCountDownTv;
+    private TextView redEnvelopeRemindTV;
     private TextView redEnvelopeTipTv;
     WindowManager mWindowManager;
     private LinearLayout mFloatLayout;
@@ -103,10 +107,12 @@ public class ScanRedEnvelopeQrCodeDialog extends Dialog{
         window.setAttributes(wl);
     }
     private void initViews(){
+        redEnvelopeLayout = findViewById(R.id.red_envelope_layout);
         scanAvatarIconIv = findViewById(R.id.iv_scan_wx_avatar_icon);
         scanNickNameTv = findViewById(R.id.tv_scan_wx_nickname);
         scanWxCountDownTv = findViewById(R.id.tv_scan_wx_countdown);
         scanQrCodeIv = findViewById(R.id.iv_scan_qrcode);
+        redEnvelopeRemindTV = findViewById(R.id.red_envelope_remind);
         redEnvelopeTipTv = findViewById(R.id.red_envelope_tip);
     }
 
@@ -121,7 +127,7 @@ public class ScanRedEnvelopeQrCodeDialog extends Dialog{
 
     }
 
-    public void setRedEnvelopeInfo(String wxAvatarUrl,String wxNickname,String redEnvelopeUrl,String content){
+    public void setRedEnvelopeInfo(String wxAvatarUrl,String wxNickname,String redEnvelopeUrl,String content,String bgPath){
         if (!TextUtils.isEmpty(wxAvatarUrl)){
             GlideImageLoader.loadRoundImage(mContext,wxAvatarUrl,scanAvatarIconIv,R.mipmap.wxavatar);
         }
@@ -133,6 +139,16 @@ public class ScanRedEnvelopeQrCodeDialog extends Dialog{
             redEnvelopeTipTv.setVisibility(View.VISIBLE);
         }else{
             redEnvelopeTipTv.setVisibility(View.GONE);
+        }
+        if (!TextUtils.isEmpty(bgPath)){
+            redEnvelopeLayout.setBackground(Drawable.createFromPath(bgPath));
+            ViewGroup.LayoutParams params = scanQrCodeIv.getLayoutParams();
+            params.height = 300;
+            params.width = 300;
+            scanQrCodeIv.setLayoutParams(params);
+            redEnvelopeRemindTV.setVisibility(View.INVISIBLE);
+        }else{
+            redEnvelopeLayout.setBackgroundResource(R.drawable.background_shape_red);
         }
         if (!TextUtils.isEmpty(redEnvelopeUrl)){
             GlideImageLoader.loadImageWithoutCache(mContext, redEnvelopeUrl, scanQrCodeIv, new RequestListener() {
@@ -192,15 +208,16 @@ public class ScanRedEnvelopeQrCodeDialog extends Dialog{
 //                    ((SavorApplication) mContext.getApplicationContext()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_QRCODE_OFFICIAL_TYPE);
 //                }
 //            }
-            ProjectionGuideImg guideImg = Session.get(mContext).getGuideImg();
-            if (guideImg!=null){
-                String fileName = guideImg.getBonus_forscreen_filename();
-                String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+fileName;
-                if (new File(filePath).exists()){
-                    String forscreenId= String.valueOf(System.currentTimeMillis());
-                    ProjectOperationListener.getInstance(mContext).showImage(1,filePath,true,forscreenId,String.valueOf(45),null,null,-1, FROM_SERVICE_MINIPROGRAM);
-                }
-            }
+            //20220218屏蔽下面的代码，因为红包要在做酒水运营推广
+//            ProjectionGuideImg guideImg = Session.get(mContext).getGuideImg();
+//            if (guideImg!=null){
+//                String fileName = guideImg.getBonus_forscreen_filename();
+//                String filePath = AppUtils.getFilePath(AppUtils.StorageFile.cache)+fileName;
+//                if (new File(filePath).exists()){
+//                    String forscreenId= String.valueOf(System.currentTimeMillis());
+//                    ProjectOperationListener.getInstance(mContext).showImage(1,filePath,true,forscreenId,String.valueOf(45),null,null,-1, FROM_SERVICE_MINIPROGRAM);
+//                }
+//            }
         }
     };
 

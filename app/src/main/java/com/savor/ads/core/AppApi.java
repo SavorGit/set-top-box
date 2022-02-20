@@ -106,6 +106,7 @@ public class AppApi {
         CP_GET_BIRTHDAY_ONDEMADN_FROM_JSON,
         CP_POST_FORSCREEN_ADSLIST_FROM_JSON,
         CP_GET_GOODS_PROGRAMLIST_FROM_JSON,
+        CP_GET_SECKILL_GOODS_FROM_JSON,
         CP_GET_SHOP_GOODS_LIST_FROM_JSON,
         CP_GET_HOT_CONTENT_FROM_JSON,
         CP_GET_WELCOMERESOURCE_FROM_JSON,
@@ -177,7 +178,6 @@ public class AppApi {
         WLAN_GET_HOT_PLAY_JSON,
         CP_GET_WLAN_SERVER_BOX_JSON,
         CP_REPORT_DOWNLOAD_STATE_JSON
-
     }
 
 
@@ -191,6 +191,7 @@ public class AppApi {
             put(Action.CP_GET_BIRTHDAY_ONDEMADN_FROM_JSON,BuildConfig.BASE_URL+"Smallappsimple/birthdaydemand/demandList");
             put(Action.CP_POST_FORSCREEN_ADSLIST_FROM_JSON,BuildConfig.BASE_URL+"Box/ForscreenAds/getAdsList");
             put(Action.CP_GET_GOODS_PROGRAMLIST_FROM_JSON,BuildConfig.BASE_URL+"box/program/getGoodsProgramList");
+            put(Action.CP_GET_SECKILL_GOODS_FROM_JSON,BuildConfig.BASE_URL+"box/goods/getSeckillGoods");
             put(Action.CP_GET_SHOP_GOODS_LIST_FROM_JSON,BuildConfig.BASE_URL+"box/program/getShopgoodsProgramList");
             put(Action.CP_GET_HOT_CONTENT_FROM_JSON,BuildConfig.BASE_URL+"box/program/getHotPlayProgramList");
             put(Action.CP_GET_WELCOMERESOURCE_FROM_JSON,BuildConfig.BASE_URL+"box/program/getWelcomeResource");
@@ -308,6 +309,18 @@ public class AppApi {
         final HashMap<String, Object> params = new HashMap<>();
         params.put("box_mac",boxMac);
         return new AppServiceOk(context, Action.CP_GET_GOODS_PROGRAMLIST_FROM_JSON, handler, params).syncGet();
+    }
+
+    /**
+     * 获取秒杀商品相关信息
+     * @param context
+     * @param handler
+     * @param boxMac
+     */
+    public static void getSeckillGoodsFromCloudfrom(Context context,ApiRequestListener handler,String boxMac){
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("box_mac",boxMac);
+        new AppServiceOk(context,Action.CP_GET_SECKILL_GOODS_FROM_JSON,handler,params).get();
     }
 
     /**

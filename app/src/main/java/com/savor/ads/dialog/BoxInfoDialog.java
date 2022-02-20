@@ -1,5 +1,6 @@
 package com.savor.ads.dialog;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.Instrumentation;
 import android.content.Context;
@@ -20,7 +21,9 @@ import android.widget.TextView;
 import com.savor.ads.BuildConfig;
 import com.savor.ads.R;
 import com.savor.ads.SavorApplication;
+import com.savor.ads.activity.AdsPlayerActivity;
 import com.savor.ads.core.Session;
+import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.DensityUtil;
@@ -317,5 +320,17 @@ public class BoxInfoDialog extends Dialog {
             Instrumentation instrumentation = new Instrumentation();
             instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_RIGHT);
         }).start();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+            if (activity instanceof AdsPlayerActivity){
+                AdsPlayerActivity adsPlayerActivity = (AdsPlayerActivity) activity;
+                adsPlayerActivity.toCheckMediaIsShowMiniProgramIcon();
+            }
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

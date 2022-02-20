@@ -23,12 +23,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.savor.ads.bean.AdInfo;
-import com.savor.ads.bean.AdMasterResult;
 import com.savor.ads.bean.AdPayloadBean;
 import com.savor.ads.bean.AdsMeiSSPResult;
 import com.savor.ads.bean.JDmomediaResult;
 import com.savor.ads.bean.NettyBalancingResult;
 import com.savor.ads.bean.PrizeInfo;
+import com.savor.ads.bean.SeckillGoodsBean;
 import com.savor.ads.bean.ServerInfo;
 import com.savor.ads.bean.TvProgramGiecResponse;
 import com.savor.ads.bean.TvProgramResponse;
@@ -41,11 +41,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -372,6 +368,9 @@ public class ApiResponseFactory {
                 break;
             case CP_POST_UPDATE_SIMPLE_FORSCREEN_LOG_JSON:
                 result = other_param;
+                break;
+            case CP_GET_SECKILL_GOODS_FROM_JSON:
+                result = gson.fromJson(info, new TypeToken<SeckillGoodsBean>() {}.getType());
                 break;
             default:
                 break;

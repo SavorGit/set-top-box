@@ -7,11 +7,12 @@
     android:layout_height="match_parent"
     android:background="@android:color/black"
     tools:context="com.savor.ads.activity.AdsPlayerActivity">
+
     <com.savor.ads.customview.SavorVideoView
         android:id="@+id/video_view"
-        android:background="@android:color/black"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:background="@android:color/black" />
     <!--餐厅霸王菜活动头部布局-->
     <FrameLayout
         android:id="@+id/partake_dish_layout"
@@ -229,5 +230,161 @@
                 android:max="100"
                 android:progress="50"/>
         </LinearLayout>
+    </RelativeLayout>
+    <!--底部字幕跑马灯展示-->
+    <RelativeLayout
+        android:id="@+id/caption_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:visibility="gone"
+        android:layout_marginLeft="205sp"
+        android:layout_marginRight="25sp"
+        android:layout_marginBottom="25dp"
+        android:background="@mipmap/bottom_caption_bg">
+        <TextView
+            android:id="@+id/caption_tip"
+            android:layout_width="800sp"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="#e64a23"
+            android:textSize="25sp"
+            android:paddingTop="20sp"
+            android:paddingLeft="100sp"
+            android:layout_centerVertical="true"
+            android:textStyle="bold"
+            android:singleLine="true"
+            android:scrollHorizontally="true"
+            android:ellipsize="marquee"
+            android:focusableInTouchMode="true"
+            android:marqueeRepeatLimit="marquee_forever">
+            <requestFocus/>
+        </TextView>
+    </RelativeLayout>
+    <!--大屏左侧秒杀活动展示-->
+    <RelativeLayout
+        android:id="@+id/seckill_front_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="80sp"
+        android:background="@mipmap/large_screen_seckill_bg">
+        <TextView
+            android:id="@+id/seckill_countdown_front"
+            android:text=""
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20sp"
+            android:textSize="10sp"
+            android:textColor="@color/color_red"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <pl.droidsonroids.gif.GifImageView
+            android:layout_below="@+id/seckill_countdown_front"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="8dp"
+            android:src="@mipmap/seckill_head"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <ImageView
+            android:id="@+id/seckill_goods_front"
+            android:layout_width="130sp"
+            android:layout_height="150sp"
+            android:scaleType="fitXY"
+            android:layout_below="@+id/seckill_countdown_front"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="40dp"
+            android:src="@mipmap/ic_egg_fail_face" />
+        <TextView
+            android:id="@+id/goods_jd_price_front"
+            android:layout_below="@+id/seckill_goods_front"
+            android:text=""
+            android:textColor="#999999"
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <pl.droidsonroids.gif.GifImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/goods_jd_price_front"
+            android:layout_marginTop="17dp"
+            android:layout_marginLeft="18sp"
+            android:src="@mipmap/seckill_price" />
+        <TextView
+            android:id="@+id/goods_seckill_price_front"
+            android:layout_below="@+id/goods_jd_price_front"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="27dp"
+            android:text=""
+            android:textStyle="bold"
+            android:textSize="30sp"
+            android:textColor="@color/color_white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/seckill_back_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="80sp"
+        android:background="@mipmap/large_screen_seckill_bg">
+        <TextView
+            android:id="@+id/seckill_countdown_back"
+            android:text=""
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20sp"
+            android:textSize="10sp"
+            android:textColor="@color/color_red"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <pl.droidsonroids.gif.GifImageView
+            android:layout_below="@+id/seckill_countdown_back"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="8dp"
+            android:src="@mipmap/seckill_head"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <ImageView
+            android:id="@+id/seckill_goods_back"
+            android:layout_width="130sp"
+            android:layout_height="150sp"
+            android:scaleType="fitXY"
+            android:layout_below="@+id/seckill_countdown_back"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="40dp"
+            android:src="@mipmap/ic_egg_fail_face" />
+        <TextView
+            android:id="@+id/goods_jd_price_back"
+            android:layout_below="@+id/seckill_goods_back"
+            android:text=""
+            android:textColor="#999999"
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <pl.droidsonroids.gif.GifImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/goods_jd_price_back"
+            android:layout_marginTop="17dp"
+            android:layout_marginLeft="18sp"
+            android:src="@mipmap/seckill_price" />
+        <TextView
+            android:id="@+id/goods_seckill_price_back"
+            android:layout_below="@+id/goods_jd_price_back"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="27dp"
+            android:text=""
+            android:textStyle="bold"
+            android:textSize="30sp"
+            android:textColor="@color/color_white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
     </RelativeLayout>
 </RelativeLayout>

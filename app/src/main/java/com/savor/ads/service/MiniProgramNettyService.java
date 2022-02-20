@@ -508,8 +508,30 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                                                 scanRedEnvelopeQrCodeDialog.dismiss();
                                                 scanRedEnvelopeQrCodeDialog = new ScanRedEnvelopeQrCodeDialog(context);
                                                 scanRedEnvelopeQrCodeDialog.show();
-                                                scanRedEnvelopeQrCodeDialog.setRedEnvelopeInfo(headPic,nickName,scanRedEnvelopeUrl,content);
-
+                                                String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
+                                                if (!TextUtils.isEmpty(mpProjection.getImg_path())){
+                                                    String path = mpProjection.getImg_path();
+                                                    String url = BuildConfig.OSS_ENDPOINT + path;
+                                                    String[] filenames = path.split("/");
+                                                    String fileName = filenames[filenames.length-1];
+                                                    File file = new File(basePath+fileName);
+                                                    new Thread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            boolean downloader;
+                                                            if (file.exists()){
+                                                                downloader = true;
+                                                            }else{
+                                                                downloader = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
+                                                            }
+                                                            if (downloader){
+                                                                handler.post(()->scanRedEnvelopeQrCodeDialog.setRedEnvelopeInfo(headPic,nickName,scanRedEnvelopeUrl,content,file.getAbsolutePath()));
+                                                            }
+                                                        }
+                                                    }).start();
+                                                }else{
+                                                    scanRedEnvelopeQrCodeDialog.setRedEnvelopeInfo(headPic,nickName,scanRedEnvelopeUrl,content,null);
+                                                }
                                             }
                                         }
                                     }
@@ -594,7 +616,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             finishEvaluate(mpProjection);
                             break;
                         case 150:
-                            if (activity instanceof ScreenProjectionActivity){
+                            if (activity instanceof ScreenProjectionActivity
+                                    ||(scanRedEnvelopeQrCodeDialog!=null&&scanRedEnvelopeQrCodeDialog.isShowing())){
                                 return;
                             }
                             guideImage();

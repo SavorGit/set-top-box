@@ -33,4 +33,19 @@ public class TimeUtils {
         standardTime=String.format(Locale.getDefault(), "%02d:%02d", seconds / 60, seconds % 60);
         return standardTime;
     }
+
+    public static String formatSecondsToHour(long seconds){
+        if (seconds==0){
+            return "";
+        }
+        int hour = 0;
+        int min = 0;
+        if (seconds>3600){
+            hour = (int) (seconds/3600);
+            min = (int) (seconds%3600/60);
+        }else{
+            min = (int) (seconds/60);
+        }
+        return "剩余"+hour+"小时"+min+"分钟";
+    }
 }

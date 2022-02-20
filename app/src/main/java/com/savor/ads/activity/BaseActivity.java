@@ -244,6 +244,11 @@ public abstract class BaseActivity extends Activity implements InputBoiteIdDialo
         public void run() {
             if (mBoxInfoDialog != null && mBoxInfoDialog.isShowing()) {
                 mBoxInfoDialog.dismiss();
+                Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+                if (activity instanceof AdsPlayerActivity){
+                    AdsPlayerActivity adsPlayerActivity = (AdsPlayerActivity) activity;
+                    adsPlayerActivity.toCheckMediaIsShowMiniProgramIcon();
+                }
             }
         }
     };
