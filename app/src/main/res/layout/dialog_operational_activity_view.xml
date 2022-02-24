@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:background="@color/translucent">
+
+    <LinearLayout
+        android:id="@+id/activity_layout"
+        android:layout_centerInParent="true"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:background="@drawable/operational_activity_bg">
+
+            <ImageView
+                android:id="@+id/activity_qrcode"
+                android:background="@color/color_white"
+                android:padding="2dp"
+                android:layout_marginTop="23dp"
+                android:layout_width="170dp"
+                android:layout_height="170dp"/>
+
+    </LinearLayout>
+    <TextView
+        android:id="@+id/activity_countdown"
+        android:text=""
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="30dp"
+        android:layout_marginRight="40dp"
+        android:gravity="center"
+        android:textSize="80dp"
+        android:textColor="@color/color_white"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+</RelativeLayout>

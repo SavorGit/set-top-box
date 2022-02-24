@@ -42,6 +42,7 @@ import com.savor.ads.bean.JsonBean;
 import com.savor.ads.bean.PartakeDishBean;
 import com.savor.ads.bean.ProjectionGuideImg;
 import com.savor.ads.dialog.BusinessFileDialog;
+import com.savor.ads.dialog.OperationalActivityDialog;
 import com.savor.ads.dialog.PrizeQrcodeDialog;
 import com.savor.ads.dialog.TastingWineQrcodeDialog;
 import com.savor.ads.dialog.TastingWineReceivedDialog;
@@ -153,6 +154,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private int currentAction;
     /**霸王菜抽奖活动**/
     private PartakeDishDialog partakeDishDialog = null;
+    /**酒水运营抽奖活动*/
+    private OperationalActivityDialog activityDialog = null;
     /**发红包**/
     private ScanRedEnvelopeQrCodeDialog scanRedEnvelopeQrCodeDialog =null;
     /**系统发红包**/
@@ -188,6 +191,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         dbHelper = DBHelper.get(context);
         pImgListDialog = new ProjectionImgListDialog(context);
         partakeDishDialog = new PartakeDishDialog(context);
+        activityDialog = new OperationalActivityDialog(context);
         scanRedEnvelopeQrCodeDialog = new ScanRedEnvelopeQrCodeDialog(context);
         opRedEnvelopeQrCodeDialog = new OpRedEnvelopeQrCodeDialog(context);
         luckyDrawDialog = new LuckyDrawDialog(context);
@@ -303,6 +307,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 154:销售人员发起弹窗展示可以领取品鉴酒的二维码
          * 155:推送任务参加抽奖
          * 156:推送任务抽奖中奖信息
+         * 158:酒水运营抽奖活动
          * 160:商务宴请-個人名片推送
          * 161:年会会议-签到页面
          * 162:企业年会会议循环播放企业视频
@@ -617,7 +622,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             break;
                         case 150:
                             if (activity instanceof ScreenProjectionActivity
-                                    ||(scanRedEnvelopeQrCodeDialog!=null&&scanRedEnvelopeQrCodeDialog.isShowing())){
+                                    ||(scanRedEnvelopeQrCodeDialog!=null&&scanRedEnvelopeQrCodeDialog.isShowing())
+                                    ||(activityDialog!=null&&activityDialog.isShowing())){
                                 return;
                             }
                             guideImage();
@@ -642,12 +648,19 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             lotteryDrawActivity(lotteryResult);
                             break;
                         case 157:
-                            activity = ActivitiesManager.getInstance().getCurrentActivity();
                             if (activity instanceof AdsPlayerActivity) {
                                 if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
                                     return;
                                 }
                                 lotteryNumberShortage();
+                            }
+                            break;
+                        case 158:
+                            if (activity instanceof AdsPlayerActivity) {
+                                if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
+                                    return;
+                                }
+                                involvementOpActivity(mpProjection);
                             }
                             break;
                         case 160:
@@ -714,8 +727,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         if (fileDialog!=null&&fileDialog.isShowing()){
             fileDialog.dismiss();
         }
-        if (partakeDishDialog!=null&&partakeDishDialog.isShowing()){
-            partakeDishDialog.dismiss();
+        if (activityDialog!=null&&activityDialog.isShowing()){
+            activityDialog.dismiss();
         }
         if (juhuasuanShowDialog!=null&&juhuasuanShowDialog.isShowing()){
             juhuasuanShowDialog.dismiss();
@@ -748,6 +761,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 ||activity instanceof LotteryDrawResultActivity){
             return true;
         }else  if (activity instanceof MeetingSignInActivity&&action!=161&&action!=162&&action!=3&&action!=156){
+            return true;
+        }else if (activityDialog!=null&&activityDialog.isShowing()&&action!=158&&action!=136){
             return true;
         }
         return false;
@@ -1741,6 +1756,30 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
 
+    }
+
+    /**酒水运营活动抽奖窗口展示**/
+    private void involvementOpActivity(MiniProgramProjection mpp){
+        if (mpp==null){
+            return;
+        }
+        int lottery_countdown = mpp.getLottery_countdown();
+        String codeUrl = mpp.getCodeUrl();
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (activityDialog.isShowing()){
+                    activityDialog.dismiss();
+                }
+                activityDialog = new OperationalActivityDialog(context);
+                if (!TextUtils.isEmpty(codeUrl)){
+                    activityDialog.show();
+                    activityDialog.showActivityWindow(context,codeUrl,lottery_countdown);
+                    ((SavorApplication) getApplication()).hideMiniProgramQrCodeWindow();
+                }
+            }
+        });
     }
 
     private void showPrizeQrcodeDialog(){

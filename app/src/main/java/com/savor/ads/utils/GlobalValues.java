@@ -164,7 +164,7 @@ public class GlobalValues <T extends MediaLibBean> {
     public static boolean NETTY_FIRST_REGISTER;
     /**当前轮播视频的VID*/
     public static String currentVid;
-    /**当前是否在展示红包弹出窗口*/
+    /**当前是否在展示弹出窗口-展示重要弹出窗口的时候，需要隐藏大屏上的二维码*/
     public static boolean isOpenRedEnvelopeWin;
     public static String testWechatUrl;
     /**
