@@ -28,13 +28,13 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.admaster.sdk.api.AdmasterSdk;
 import com.google.protobuf.ByteString;
 import com.jar.savor.box.ServiceUtil;
 import com.jar.savor.box.vo.VolumeResponseVo;
 import com.savor.ads.BuildConfig;
 import com.savor.ads.bean.SeckillGoodsBean;
-import com.savor.ads.oss.OSSUtils;
+
+import com.savor.ads.bean.SeckillGoodsResult;
 import com.savor.ads.service.RemoteService;
 import com.savor.ads.R;
 import com.savor.ads.SavorApplication;
@@ -158,6 +158,12 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     private int seckillTime=5400;
     //-1:秒杀倒计时结束,0:当前版位无秒杀，1：秒杀倒计时进行中
     private int seckillState = 0;
+    //秒杀活动是一个集合，当前序号
+    private int currentSeckillIndex=0;
+    //秒杀活动集合
+    private List<SeckillGoodsBean> seckillGoodsBeanList;
+    //当前秒杀活动
+    private SeckillGoodsBean seckillGoodsBean;
 
     private int mCurrentVolume = 0;
     private int delayTime;
@@ -264,11 +270,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 
         startScreenProjectionService();
 
-        // SDK初始化
-        AdmasterSdk.init(this, AppApi.CONFIG_URL);
-        AdmasterSdk.setLogState(true);
-
-//        AppApi.getAdMasterConfig(this,this);
         AtlasDialog atlasDialog = new AtlasDialog(getApplicationContext());
         atlasDialog.show();
     }
@@ -404,7 +405,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         @Override
         public void onReceive(Context context, Intent intent) {
             if (ConstantValues.UPDATE_PLAYLIST_ACTION.equals(intent.getAction())) {
-                LogUtils.d("收到更新播放列表广播");
                 mNeedUpdatePlaylist = true;
             }
         }
@@ -802,7 +802,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             new Handler().postDelayed(()->ShellUtils.setAmvecmPcMode(), 3000);
         }
         LogFileUtil.write("AdsPlayerActivity onResume " + this.hashCode());
-        Log.d("StackTrack", "AdsPlayerActivity::onResume");
+        Log.d(TAG, "::onResume");
         judegeCurrentLotteryState();
         mActivityResumeTime = System.currentTimeMillis();
         if (AppUtils.isSVT()||AppUtils.isPhilips()){
@@ -854,11 +854,15 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         seckillCountdownBackTV.setText(timeformat);
         seckillTime = seckillTime-60;
         if (seckillTime<=0){
-            seckillState =-1;
             mHandler.removeCallbacks(seckillCountdownRunnable);
             mHandler.removeCallbacks(flipCardRunnable);
             seckillFrontLayout.setVisibility(View.GONE);
             seckillBackLayout.setVisibility(View.GONE);
+            if (seckillGoodsBeanList!=null&&seckillGoodsBeanList.size()>0){
+                seckillGoodsBeanList.remove(seckillGoodsBean);
+                mHandler.removeCallbacks(switchSeckillRunnable);
+                mHandler.post(switchSeckillRunnable);
+            }
         }else{
             mHandler.postDelayed(seckillCountdownRunnable,1000*60);
         }
@@ -928,12 +932,14 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     @Override
     protected void onStart() {
         LogFileUtil.write("AdsPlayerActivity onStart " + this.hashCode());
+        LogUtils.d(TAG + "::onStart");
         super.onStart();
     }
 
     @Override
     protected void onRestart() {
         LogFileUtil.write("AdsPlayerActivity onRestart " + this.hashCode());
+        LogUtils.d(TAG + "::onRestart");
         super.onRestart();
 
     }
@@ -941,6 +947,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     @Override
     protected void onStop() {
         LogFileUtil.write("AdsPlayerActivity onStop " + this.hashCode());
+        LogUtils.d(TAG + "::onStop");
         mSavorVideoView.onStop();
         super.onStop();
     }
@@ -948,7 +955,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     @Override
     protected void onPause() {
         LogFileUtil.write("AdsPlayerActivity onPause " + this.hashCode());
-        Log.d("StackTrack", "AdsPlayerActivity::onPause");
+        Log.d(TAG, "::onPause");
         mSavorVideoView.onPause();
         mSavorVideoView.removeCallbacks(currentVideoRunnable);
         GlobalValues.mIsGoneToTv = true;
@@ -1173,7 +1180,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 
         if (mNeedUpdatePlaylist) {
             // 重新获取播放列表开始播放
-            LogUtils.v("更新播放列表后继续播放");
             mNeedUpdatePlaylist = false;
             if (GlobalValues.getInstance().PLAY_LIST != null && !GlobalValues.getInstance().PLAY_LIST.equals(mPlayList)) {
                 int currentOrder = mPlayList.get(index).getOrder();
@@ -1528,7 +1534,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     @Override
     public boolean onMediaError(int index, boolean isLast) {
         if (mNeedUpdatePlaylist) {
-            LogUtils.v("更新播放列表后继续播放");
+            LogUtils.v(TAG+" 视频播放异常更新播放列表后继续播放");
             // 重新获取播放列表开始播放
             mNeedUpdatePlaylist = false;
             if (GlobalValues.getInstance().PLAY_LIST != null && !GlobalValues.getInstance().PLAY_LIST.equals(mPlayList)) {
@@ -1623,15 +1629,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     }
 
     @Override
-    protected void onDestroy() {
-        LogFileUtil.write("AdsPlayerActivity onDestroy");
-        super.onDestroy();
-        unregisterReceiver(mDownloadCompleteReceiver);
-        unbindService(mConnection);
-        AdmasterSdk.terminateSDK();
-    }
-
-    @Override
     public void onSuccess(AppApi.Action method, Object obj) {
         switch (method) {
             case AD_BAIDU_ADS:
@@ -1709,9 +1706,9 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 }
                 break;
             case CP_GET_SECKILL_GOODS_FROM_JSON:
-                if (obj instanceof SeckillGoodsBean){
-                    SeckillGoodsBean goodsBean = (SeckillGoodsBean)obj;
-                    handleSeckillGoodsInfo(goodsBean);
+                if (obj instanceof SeckillGoodsResult){
+                    SeckillGoodsResult goodsResult = (SeckillGoodsResult)obj;
+                    handleSeckillGoodsInfo(goodsResult);
                 }
                 break;
         }
@@ -2176,44 +2173,67 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         }
     }
 
-    private void handleSeckillGoodsInfo(SeckillGoodsBean goodsBean){
+    private void handleSeckillGoodsInfo(SeckillGoodsResult goodsResult){
         try {
-            if (goodsBean==null||goodsBean.getRemain_time()==0||seckillState!=0){
+            if (goodsResult==null
+                    ||goodsResult.getDatalist()==null
+                    ||seckillState!=0){
                 return;
             }
-            seckillState =1;
-            seckillTime = goodsBean.getRemain_time();
-            mHandler.removeCallbacks(seckillCountdownRunnable);
-            mHandler.post(seckillCountdownRunnable);
-            String goodsImgUrl = BuildConfig.OSS_ENDPOINT+goodsBean.getImage();
-            String jdPrice = goodsBean.getLine_price();
-            String price = goodsBean.getPrice();
-            List<String> rollContent = Arrays.asList(goodsBean.getRoll_content());
-            GlideImageLoader.loadImage(mContext,goodsImgUrl,seckillGoodsFrontIV);
-            GlideImageLoader.loadImage(mContext,goodsImgUrl,seckillGoodsBackIV);
-            goodsJDPriceFrontTV.setText("京东价"+jdPrice+"/瓶");
-            goodsJDPriceBackTV.setText("京东价"+jdPrice+"/瓶");
-            goodsSeckillPriceFrontTV.setText(price+"/瓶");
-            goodsSeckillPriceBackTV.setText(price+"/瓶");
-            setAnimators(); // 设置动画
-            setCameraDistance(); // 设置镜头距离
-            //翻转秒杀背景动画
-            mHandler.removeCallbacks(flipCardRunnable);
-            mHandler.postDelayed(flipCardRunnable,1000*30);
-            seckillFrontLayout.setVisibility(View.VISIBLE);
-            seckillBackLayout.setVisibility(View.VISIBLE);
-            if (rollContent!=null&&rollContent.size()>0){
-                captionLayout.setVisibility(View.VISIBLE);
-                String captionText = "";
-                for (String content:rollContent){
-                    captionText = captionText+" "+content;
-                }
-                captionTipTV.setText(captionText);
-                setTextMarquee(captionTipTV);
-            }
+            seckillGoodsBeanList = goodsResult.getDatalist();
+            //展示秒杀商品
+            showCurrentSeckillGoods();
+            //处理跑马灯相关逻辑
+            List<String> rollContent = Arrays.asList(goodsResult.getRoll_content());
+            handleCaptionTip(rollContent);
+            //展示15分钟后，在关闭15分钟，然后重新开启
             mHandler.postDelayed(()->goodsCloseCountdown(),1000*60*15);
+            //每隔5分钟切换一次秒杀商品
+            mHandler.postDelayed(switchSeckillRunnable,1000*60*5);
         }catch (Exception e){
             e.printStackTrace();
+        }
+    }
+
+    private void showCurrentSeckillGoods(){
+        if (seckillGoodsBeanList==null||seckillGoodsBeanList.size()==0){
+            currentSeckillIndex = 0;
+            seckillState = -1;
+            return;
+        }
+        currentSeckillIndex = currentSeckillIndex%seckillGoodsBeanList.size();
+        seckillGoodsBean = seckillGoodsBeanList.get(currentSeckillIndex);
+        seckillState =1;
+        seckillTime = seckillGoodsBean.getRemain_time();
+        String goodsImgUrl = BuildConfig.OSS_ENDPOINT+seckillGoodsBean.getImage();
+        String jdPrice = seckillGoodsBean.getLine_price();
+        String price = seckillGoodsBean.getPrice();
+        GlideImageLoader.loadImage(mContext,goodsImgUrl,seckillGoodsFrontIV);
+        GlideImageLoader.loadImage(mContext,goodsImgUrl,seckillGoodsBackIV);
+        goodsJDPriceFrontTV.setText("京东价"+jdPrice+"/瓶");
+        goodsJDPriceBackTV.setText("京东价"+jdPrice+"/瓶");
+        goodsSeckillPriceFrontTV.setText(price+"/瓶");
+        goodsSeckillPriceBackTV.setText(price+"/瓶");
+        setAnimators(); // 设置动画
+        setCameraDistance(); // 设置镜头距离
+        //翻转秒杀背景动画
+        mHandler.removeCallbacks(flipCardRunnable);
+        mHandler.postDelayed(flipCardRunnable,1000*30);
+        seckillFrontLayout.setVisibility(View.VISIBLE);
+        seckillBackLayout.setVisibility(View.VISIBLE);
+        mHandler.removeCallbacks(seckillCountdownRunnable);
+        mHandler.post(seckillCountdownRunnable);
+    }
+
+    private void handleCaptionTip(List<String> rollContent){
+        if (rollContent!=null&&rollContent.size()>0){
+            captionLayout.setVisibility(View.VISIBLE);
+            String captionText = "";
+            for (String content:rollContent){
+                captionText = captionText+" "+content;
+            }
+            captionTipTV.setText(captionText);
+            setTextMarquee(captionTipTV);
         }
     }
 
@@ -2237,6 +2257,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 seckillBackLayout.setVisibility(View.GONE);
                 mHandler.removeCallbacks(seckillCountdownRunnable);
                 mHandler.removeCallbacks(flipCardRunnable);
+                mHandler.removeCallbacks(switchSeckillRunnable);
                 mHandler.postDelayed(()->goodsShowCountdown(),1000*60*15);
             }
         }
@@ -2246,6 +2267,20 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         seckillState=0;
     }
 
+    private void switchSeckillGoods(){
+        currentSeckillIndex ++;
+        showCurrentSeckillGoods();
+        mHandler.postDelayed(switchSeckillRunnable,1000*60*5);
+    }
+
+    private Runnable switchSeckillRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (seckillGoodsBeanList!=null&seckillGoodsBeanList.size()>0){
+                switchSeckillGoods();
+            }
+        }
+    };
 
     @Override
     public void onError(AppApi.Action method, Object obj) {
@@ -2295,5 +2330,17 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 mSavorVideoView.setMediaFiles(urls, index, 0);
             }
         }
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        LogUtils.d(TAG+"::onDestroy");
+        LogFileUtil.write("AdsPlayerActivity onDestroy");
+        super.onDestroy();
+        GlobalValues.mIsGoneToTv = false;
+        unregisterReceiver(mDownloadCompleteReceiver);
+        unbindService(mConnection);
+
     }
 }

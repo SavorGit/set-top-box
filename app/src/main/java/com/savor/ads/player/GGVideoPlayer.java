@@ -25,6 +25,7 @@ import com.savor.ads.utils.GlideImageLoader;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
+import com.shuyu.gsyvideoplayer.render.GSYRenderView;
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
 import com.shuyu.gsyvideoplayer.video.base.GSYVideoView;
 
@@ -259,11 +260,16 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
         String videoUrl = url+ConstantValues.PROJECTION_VIDEO_THUMBNAIL_AOTO;
         GlideImageLoader.loadImage(mContext,videoUrl,imageView);
     }
+
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void addTextureView() {
         Log.d("StackTrack", "GGVideoPlayer::addTextureView");
-        mTextureView = new MediaCodecRenderView();
+        if (AppUtils.isPhilips()){
+            mTextureView = new GSYRenderView();
+        }else{
+            mTextureView = new MediaCodecRenderView();
+        }
         mTextureView.addView(getContext(), mTextureViewContainer, mRotate, this, this, mEffectFilter, mMatrixGL, mRenderer, mMode);
     }
 

@@ -7,7 +7,7 @@ public class SeckillGoodsBean {
     private String image;
     private String price;
     private String line_price;
-    private String[] roll_content;
+
 
     public int getGoods_id() {
         return goods_id;
@@ -49,11 +49,4 @@ public class SeckillGoodsBean {
         this.line_price = line_price;
     }
 
-    public String[] getRoll_content() {
-        return roll_content;
-    }
-
-    public void setRoll_content(String[] roll_content) {
-        this.roll_content = roll_content;
-    }
 }

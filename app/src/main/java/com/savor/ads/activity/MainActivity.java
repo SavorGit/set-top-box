@@ -32,6 +32,7 @@ import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.FileUtils;
 import com.savor.ads.utils.GlideImageLoader;
+import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.KeyCode;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
@@ -108,7 +109,7 @@ public class MainActivity extends BaseActivity {
             String[] args = new String[]{ConstantValues.PRO, mSession.getProPeriod(), mSession.getProDownloadPeriod()};
             DBHelper.get(this).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.NEWPLAYLIST, selection, args);
         }
-
+        GlobalValues.mIsGoneToTv = false;
         fillPlayList();
         LogFileUtil.write("MainActivity:删除旧的视频逻辑");
         AppUtils.deleteOldMedia(mContext,false);

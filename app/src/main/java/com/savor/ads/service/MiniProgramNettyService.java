@@ -601,9 +601,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                                 @Override
                                 public void run() {
                                     Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
-                                    String luckQrcodeUrl = mpProjection.getCodeUrl();
-                                    int countDown = mpProjection.getCountdown();
                                     if (activity instanceof AdsPlayerActivity){
+                                        String luckQrcodeUrl = mpProjection.getCodeUrl();
+                                        int countDown = mpProjection.getCountdown();
                                         if (AppUtils.isSVT() && GlobalValues.mIsGoneToTv) {
                                             return;
                                         }

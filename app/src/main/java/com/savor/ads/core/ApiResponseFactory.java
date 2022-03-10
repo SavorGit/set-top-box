@@ -29,6 +29,7 @@ import com.savor.ads.bean.JDmomediaResult;
 import com.savor.ads.bean.NettyBalancingResult;
 import com.savor.ads.bean.PrizeInfo;
 import com.savor.ads.bean.SeckillGoodsBean;
+import com.savor.ads.bean.SeckillGoodsResult;
 import com.savor.ads.bean.ServerInfo;
 import com.savor.ads.bean.TvProgramGiecResponse;
 import com.savor.ads.bean.TvProgramResponse;
@@ -370,7 +371,7 @@ public class ApiResponseFactory {
                 result = other_param;
                 break;
             case CP_GET_SECKILL_GOODS_FROM_JSON:
-                result = gson.fromJson(info, new TypeToken<SeckillGoodsBean>() {}.getType());
+                result = gson.fromJson(info, new TypeToken<SeckillGoodsResult>() {}.getType());
                 break;
             default:
                 break;

@@ -78,12 +78,16 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
         // 启动投屏类操作处理的Service
 //        startScreenProjectionService();
         registerActivityLifecycle();
-        PlayerFactory.setPlayManager(Exo2PlayerManager.class);
-//        PlayerFactory.setPlayManager(IjkPlayerManager.class);
+
         GSYVideoType.enableMediaCodec();
         GSYVideoType.enableMediaCodecTexture();
+        if (AppUtils.isPhilips()){
+            GSYVideoType.setRenderType(GSYVideoType.SUFRACE);
+        }
+        PlayerFactory.setPlayManager(Exo2PlayerManager.class);
+//        PlayerFactory.setPlayManager(IjkPlayerManager.class);
         //        //ijk关闭log
-        IjkPlayerManager.setLogLevel(IjkMediaPlayer.IJK_LOG_SILENT);
+//        IjkPlayerManager.setLogLevel(IjkMediaPlayer.IJK_LOG_SILENT);
         // 检测播放时间
         AppUtils.checkPlayTime(SavorApplication.this);
         initPush();
