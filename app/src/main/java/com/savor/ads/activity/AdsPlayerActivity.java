@@ -2175,21 +2175,25 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 
     private void handleSeckillGoodsInfo(SeckillGoodsResult goodsResult){
         try {
-            if (goodsResult==null
-                    ||goodsResult.getDatalist()==null
-                    ||seckillState!=0){
-                return;
+            if (goodsResult!=null){
+                //秒杀商品业务
+                if (goodsResult.getDatalist()!=null&&goodsResult.getDatalist().size()>0&&seckillState==0){
+                    seckillGoodsBeanList = goodsResult.getDatalist();
+                    //展示秒杀商品
+                    showCurrentSeckillGoods();
+                    //展示15分钟后，在关闭15分钟，然后重新开启
+                    mHandler.postDelayed(()->goodsCloseCountdown(),1000*60*15);
+                    //每隔5分钟切换一次秒杀商品
+                    mHandler.postDelayed(switchSeckillRunnable,1000*60*5);
+                }
+                //处理跑马灯相关逻辑
+                if (goodsResult.getRoll_content()!=null&&goodsResult.getRoll_content().length>0){
+                    List<String> rollContent = Arrays.asList(goodsResult.getRoll_content());
+                    handleCaptionTip(rollContent);
+                }else{
+                    captionLayout.setVisibility(View.GONE);
+                }
             }
-            seckillGoodsBeanList = goodsResult.getDatalist();
-            //展示秒杀商品
-            showCurrentSeckillGoods();
-            //处理跑马灯相关逻辑
-            List<String> rollContent = Arrays.asList(goodsResult.getRoll_content());
-            handleCaptionTip(rollContent);
-            //展示15分钟后，在关闭15分钟，然后重新开启
-            mHandler.postDelayed(()->goodsCloseCountdown(),1000*60*15);
-            //每隔5分钟切换一次秒杀商品
-            mHandler.postDelayed(switchSeckillRunnable,1000*60*5);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -2226,15 +2230,14 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     }
 
     private void handleCaptionTip(List<String> rollContent){
-        if (rollContent!=null&&rollContent.size()>0){
-            captionLayout.setVisibility(View.VISIBLE);
-            String captionText = "";
-            for (String content:rollContent){
-                captionText = captionText+" "+content;
-            }
-            captionTipTV.setText(captionText);
-            setTextMarquee(captionTipTV);
+        captionLayout.setVisibility(View.VISIBLE);
+        String captionText = "";
+        for (String content:rollContent){
+            captionText = captionText+" "+content;
         }
+        captionTipTV.setText(captionText);
+        setTextMarquee(captionTipTV);
+
     }
 
     public static void setTextMarquee(TextView textView) {
@@ -2270,17 +2273,12 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     private void switchSeckillGoods(){
         currentSeckillIndex ++;
         showCurrentSeckillGoods();
-        mHandler.postDelayed(switchSeckillRunnable,1000*60*5);
+        if (seckillGoodsBeanList!=null&&seckillGoodsBeanList.size()>0){
+            mHandler.postDelayed(switchSeckillRunnable,1000*60*5);
+        }
     }
 
-    private Runnable switchSeckillRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (seckillGoodsBeanList!=null&seckillGoodsBeanList.size()>0){
-                switchSeckillGoods();
-            }
-        }
-    };
+    private Runnable switchSeckillRunnable = ()->switchSeckillGoods();
 
     @Override
     public void onError(AppApi.Action method, Object obj) {

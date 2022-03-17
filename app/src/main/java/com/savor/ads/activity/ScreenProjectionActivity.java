@@ -14,6 +14,7 @@ import android.graphics.LinearGradient;
 import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -799,7 +800,8 @@ public class ScreenProjectionActivity extends BaseActivity{
                     imageGifView.setVisibility(View.GONE);
                     mImageView.setVisibility(View.VISIBLE);
                     //最后一个参数传Drawable是为了解决图片切换闪烁问题
-                    if (mImageView.getDrawable()!=null){
+                    //这里增加飞利浦电视机的判断，飞利浦电视机会回收drawable，所以不适用drawable
+                    if (mImageView.getDrawable()!=null&&!AppUtils.isPhilips()){
                         GlideImageLoader.loadImageWithDrawable(mContext,mImagePath,mImageView,mImageView.getDrawable());
                     }else{
                         if (mImagePath.contains("http:")){
