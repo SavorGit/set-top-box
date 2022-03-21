@@ -108,6 +108,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import pl.droidsonroids.gif.GifImageView;
 import tianshu.ui.api.TsUiApiV20171122;
 import tianshu.ui.api.ZmtAPI;
 import tianshu.ui.api.ZmtAdRequestUtil;
@@ -146,11 +147,15 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     //秒杀布局
     private RelativeLayout seckillFrontLayout;
     private TextView seckillCountdownFrontTV;
+    private TextView hotelNameFrontTV;
+    private ImageView seckillGifFrontIV;
     private ImageView seckillGoodsFrontIV;
     private TextView goodsJDPriceFrontTV;
     private TextView goodsSeckillPriceFrontTV;
     private RelativeLayout seckillBackLayout;
     private TextView seckillCountdownBackTV;
+    private TextView hotelNameBackTV;
+    private ImageView seckillGifBackIV;
     private ImageView seckillGoodsBackIV;
     private TextView goodsJDPriceBackTV;
     private TextView goodsSeckillPriceBackTV;
@@ -256,11 +261,15 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         captionTipTV = findViewById(R.id.caption_tip);
         seckillFrontLayout = findViewById(R.id.seckill_front_layout);
         seckillCountdownFrontTV = findViewById(R.id.seckill_countdown_front);
+        hotelNameFrontTV = findViewById(R.id.hotel_name_front);
+        seckillGifFrontIV = findViewById(R.id.seckill_gif_front);
         seckillGoodsFrontIV = findViewById(R.id.seckill_goods_front);
         goodsJDPriceFrontTV = findViewById(R.id.goods_jd_price_front);
         goodsSeckillPriceFrontTV = findViewById(R.id.goods_seckill_price_front);
         seckillBackLayout = findViewById(R.id.seckill_back_layout);
+        seckillGifBackIV = findViewById(R.id.seckill_gif_back);
         seckillCountdownBackTV = findViewById(R.id.seckill_countdown_back);
+        hotelNameBackTV = findViewById(R.id.hotel_name_back);
         seckillGoodsBackIV = findViewById(R.id.seckill_goods_back);
         goodsJDPriceBackTV = findViewById(R.id.goods_jd_price_back);
         goodsSeckillPriceBackTV = findViewById(R.id.goods_seckill_price_back);
@@ -919,7 +928,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         } else {
             // 背面朝上
             mRightOutSet.setTarget(seckillBackLayout);
-            mLeftInSet.setTarget(seckillBackLayout);
+            mLeftInSet.setTarget(seckillFrontLayout);
             mRightOutSet.start();
             mLeftInSet.start();
             mIsShowBack = false;
@@ -2212,6 +2221,23 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         String goodsImgUrl = BuildConfig.OSS_ENDPOINT+seckillGoodsBean.getImage();
         String jdPrice = seckillGoodsBean.getLine_price();
         String price = seckillGoodsBean.getPrice();
+        String hotelName = "阿萨德大龙燚火锅店";//seckillGoodsBean.getHotel_name();
+        if (TextUtils.isEmpty(hotelName)){
+            hotelNameFrontTV.setVisibility(View.GONE);
+            hotelNameBackTV.setVisibility(View.GONE);
+            LinearLayout.LayoutParams paramf = (LinearLayout.LayoutParams) seckillGifFrontIV.getLayoutParams();
+            paramf.setMargins(0,20,0,0);
+            seckillGifFrontIV.setLayoutParams(paramf);
+            LinearLayout.LayoutParams paramb = (LinearLayout.LayoutParams) seckillGifBackIV.getLayoutParams();
+            paramb.setMargins(0,20,0,0);
+            seckillGifBackIV.setLayoutParams(paramb);
+
+        }else{
+            hotelNameFrontTV.setText(hotelName);
+            hotelNameBackTV.setText(hotelName);
+            hotelNameFrontTV.setVisibility(View.VISIBLE);
+            hotelNameBackTV.setVisibility(View.VISIBLE);
+        }
         GlideImageLoader.loadImage(mContext,goodsImgUrl,seckillGoodsFrontIV);
         GlideImageLoader.loadImage(mContext,goodsImgUrl,seckillGoodsBackIV);
         goodsJDPriceFrontTV.setText("京东价"+jdPrice+"/瓶");

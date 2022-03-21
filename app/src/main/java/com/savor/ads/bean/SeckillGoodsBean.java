@@ -3,6 +3,7 @@ package com.savor.ads.bean;
 public class SeckillGoodsBean {
 
     private int goods_id;
+    private String hotel_name;
     private int remain_time;
     private String image;
     private String price;
@@ -15,6 +16,14 @@ public class SeckillGoodsBean {
 
     public void setGoods_id(int goods_id) {
         this.goods_id = goods_id;
+    }
+
+    public String getHotel_name() {
+        return hotel_name;
+    }
+
+    public void setHotel_name(String hotel_name) {
+        this.hotel_name = hotel_name;
     }
 
     public int getRemain_time() {

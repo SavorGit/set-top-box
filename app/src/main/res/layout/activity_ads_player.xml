@@ -270,51 +270,84 @@
         android:layout_marginLeft="15dp"
         android:layout_marginTop="80sp"
         android:background="@mipmap/large_screen_seckill_bg">
-        <TextView
-            android:id="@+id/seckill_countdown_front"
-            android:text=""
-            android:layout_centerHorizontal="true"
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_marginTop="20sp"
-            android:textSize="10sp"
-            android:textColor="@color/color_red"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <pl.droidsonroids.gif.GifImageView
-            android:layout_below="@+id/seckill_countdown_front"
+            android:gravity="center"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="8dp"
-            android:src="@mipmap/seckill_head"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/seckill_countdown_front"
+                android:text=""
+                android:layout_centerHorizontal="true"
+                android:textSize="10sp"
+                android:textColor="@color/color_red"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/hotel_name_front"
+                android:text=""
+                android:maxLength="8"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="2sp"
+                android:textSize="15sp"
+                android:textColor="@color/color_black"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <pl.droidsonroids.gif.GifImageView
+                android:id="@+id/seckill_gif_front"
+                android:layout_below="@+id/seckill_countdown_front"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:src="@mipmap/promotion_head"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <View
+            android:id="@+id/seckill_bg_header_line_front"
+            android:layout_marginTop="85sp"
+            android:layout_centerHorizontal="true"
+            android:layout_width="80sp"
+            android:layout_height="1sp"/>
         <ImageView
             android:id="@+id/seckill_goods_front"
             android:layout_width="130sp"
             android:layout_height="150sp"
             android:scaleType="fitXY"
-            android:layout_below="@+id/seckill_countdown_front"
+            android:layout_below="@+id/seckill_bg_header_line_front"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="5dp"
             android:src="@mipmap/ic_egg_fail_face" />
-        <TextView
-            android:id="@+id/goods_jd_price_front"
+        <RelativeLayout
+            android:id="@+id/jd_price_front_layout"
             android:layout_below="@+id/seckill_goods_front"
-            android:text=""
-            android:textColor="#999999"
             android:layout_centerHorizontal="true"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
+            android:layout_height="wrap_content">
+            <View
+                android:background="#999999"
+                android:layout_centerInParent="true"
+                android:layout_width="120sp"
+                android:layout_height="1sp"/>
+            <TextView
+                android:id="@+id/goods_jd_price_front"
+                android:text=""
+                android:textColor="#999999"
+                android:layout_centerInParent="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
         <pl.droidsonroids.gif.GifImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/goods_jd_price_front"
+            android:layout_below="@+id/jd_price_front_layout"
             android:layout_marginTop="17dp"
             android:layout_marginLeft="18sp"
-            android:src="@mipmap/seckill_price" />
+            android:src="@mipmap/promotion_price" />
         <TextView
             android:id="@+id/goods_seckill_price_front"
-            android:layout_below="@+id/goods_jd_price_front"
+            android:layout_below="@+id/jd_price_front_layout"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="27dp"
             android:text=""
@@ -333,51 +366,86 @@
         android:layout_marginLeft="15dp"
         android:layout_marginTop="80sp"
         android:background="@mipmap/large_screen_seckill_bg">
-        <TextView
-            android:id="@+id/seckill_countdown_back"
-            android:text=""
-            android:layout_centerHorizontal="true"
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_marginTop="20sp"
-            android:textSize="10sp"
-            android:textColor="@color/color_red"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <pl.droidsonroids.gif.GifImageView
-            android:layout_below="@+id/seckill_countdown_back"
+            android:gravity="center"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="8dp"
-            android:src="@mipmap/seckill_head"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/seckill_countdown_back"
+                android:text=""
+                android:layout_centerHorizontal="true"
+                android:textSize="10sp"
+                android:textColor="@color/color_red"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/hotel_name_back"
+                android:text=""
+                android:maxLength="8"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="2sp"
+                android:textSize="15sp"
+                android:textColor="@color/color_black"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <pl.droidsonroids.gif.GifImageView
+                android:id="@+id/seckill_gif_back"
+                android:layout_below="@+id/seckill_countdown_back"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:src="@mipmap/promotion_head"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <View
+            android:id="@+id/seckill_bg_header_line_back"
+            android:layout_marginTop="85sp"
+            android:layout_centerHorizontal="true"
+            android:layout_width="80sp"
+            android:layout_height="1sp"/>
         <ImageView
             android:id="@+id/seckill_goods_back"
             android:layout_width="130sp"
             android:layout_height="150sp"
             android:scaleType="fitXY"
-            android:layout_below="@+id/seckill_countdown_back"
+            android:layout_below="@+id/seckill_bg_header_line_back"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="5dp"
             android:src="@mipmap/ic_egg_fail_face" />
-        <TextView
-            android:id="@+id/goods_jd_price_back"
+        <RelativeLayout
+            android:id="@+id/jd_price_back_layout"
             android:layout_below="@+id/seckill_goods_back"
-            android:text=""
-            android:textColor="#999999"
             android:layout_centerHorizontal="true"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content">
+            <View
+                android:background="#999999"
+                android:layout_centerInParent="true"
+                android:layout_width="120sp"
+                android:layout_height="1sp"/>
+            <TextView
+                android:id="@+id/goods_jd_price_back"
+                android:layout_below="@+id/seckill_goods_back"
+                android:text="京东价"
+                android:layout_centerInParent="true"
+                android:textColor="#999999"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
 
         <pl.droidsonroids.gif.GifImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/goods_jd_price_back"
+            android:layout_below="@+id/jd_price_back_layout"
             android:layout_marginTop="17dp"
             android:layout_marginLeft="18sp"
-            android:src="@mipmap/seckill_price" />
+            android:src="@mipmap/promotion_price" />
         <TextView
             android:id="@+id/goods_seckill_price_back"
-            android:layout_below="@+id/goods_jd_price_back"
+            android:layout_below="@+id/jd_price_back_layout"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="27dp"
             android:text=""
