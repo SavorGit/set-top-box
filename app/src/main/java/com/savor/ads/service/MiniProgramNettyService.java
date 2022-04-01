@@ -762,7 +762,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             return true;
         }else  if (activity instanceof MeetingSignInActivity&&action!=161&&action!=162&&action!=3&&action!=156){
             return true;
-        }else if (activityDialog!=null&&activityDialog.isShowing()&&action!=158&&action!=136){
+        }else if (activityDialog!=null&&activityDialog.isShowing()&&action!=156&&action!=158&&action!=136){
             return true;
         }
         return false;

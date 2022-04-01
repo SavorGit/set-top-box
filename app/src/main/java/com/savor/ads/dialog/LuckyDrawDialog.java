@@ -113,6 +113,11 @@ public class LuckyDrawDialog extends Dialog{
         mHandler.removeCallbacks(mExitRunnable);
         mHandler.removeCallbacks(mCountDownRunnable);
         GlobalValues.isOpenRedEnvelopeWin = false;
+        Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+        if (activity instanceof AdsPlayerActivity){
+            AdsPlayerActivity adsPlayerActivity = (AdsPlayerActivity) activity;
+            adsPlayerActivity.toCheckMediaIsShowMiniProgramIcon();
+        }
         super.dismiss();
     }
 

@@ -1404,7 +1404,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             QrCodeWindowManager.get(this).setCurrentPlayMediaId(libBean.getVid());
         }
         if (libBean.getIs_sapp_qrcode() == 1
-                &&!GlobalValues.isOpenRedEnvelopeWin
+                && !GlobalValues.isOpenRedEnvelopeWin
                 && !libBean.getType().equals(ConstantValues.POLY_ADS)
                 && !libBean.getType().equals(ConstantValues.POLY_ADS_ONLINE)
                 && !libBean.getType().equals(ConstantValues.ACTGOODS_OPTI)
@@ -2221,7 +2221,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         String goodsImgUrl = BuildConfig.OSS_ENDPOINT+seckillGoodsBean.getImage();
         String jdPrice = seckillGoodsBean.getLine_price();
         String price = seckillGoodsBean.getPrice();
-        String hotelName = "阿萨德大龙燚火锅店";//seckillGoodsBean.getHotel_name();
+        String hotelName = seckillGoodsBean.getHotel_name();
         if (TextUtils.isEmpty(hotelName)){
             hotelNameFrontTV.setVisibility(View.GONE);
             hotelNameBackTV.setVisibility(View.GONE);
