@@ -115,6 +115,7 @@ public class AppApi {
         SP_GET_PROGRAM_DATA_FROM_JSON,
         SP_GET_ADV_DATA_FROM_JSON,
         SP_GET_ADS_DATA_FROM_JSON,
+        SP_GET_STORESALE_ADS_DATA_FROM_JSON,
         CP_GET_LIFE_ADS_DATA_FROM_JSON,
         SP_GET_TV_MATCH_DATA_FROM_JSON,
         SP_GET_TV_MATCH_DATA_FROM_GIEC_JSON,
@@ -200,6 +201,7 @@ public class AppApi {
             put(Action.SP_GET_PROGRAM_DATA_FROM_JSON,SP_BASE_URL+"small/api/download/vod/config/v2");
             put(Action.SP_GET_ADV_DATA_FROM_JSON,SP_BASE_URL+"small/api/download/adv/config");
             put(Action.SP_GET_ADS_DATA_FROM_JSON,SP_BASE_URL+"small/api/download/ads/config");
+            put(Action.SP_GET_STORESALE_ADS_DATA_FROM_JSON,BuildConfig.BASE_URL + "box/storesaleAds/getAdsList");
             put(Action.CP_GET_LIFE_ADS_DATA_FROM_JSON,BuildConfig.BASE_URL+"box/lifeAds/getAdsList");
             put(Action.SP_GET_TV_MATCH_DATA_FROM_JSON,SP_BASE_URL+"small/tvList/api/stb/tv_getCommands");
             put(Action.SP_GET_TV_MATCH_DATA_FROM_GIEC_JSON,SP_BASE_URL+"small/tvListNew/api/stb/tv_getCommands");
@@ -432,6 +434,20 @@ public class AppApi {
         final HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("boxMac",boxMac);
         return new AppServiceOk(context, Action.SP_GET_ADS_DATA_FROM_JSON, handler, params).syncGet();
+    }
+
+    /**
+     * 获取酒水平台广告数据
+     * @param context
+     * @param handler
+     * @param boxMac
+     * @return
+     * @throws IOException
+     */
+    public static JsonBean getStoreSaleAdsDataFromSmallPlatform(Context context, ApiRequestListener handler,String boxMac)throws IOException{
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("box_mac",boxMac);
+        return new AppServiceOk(context, Action.SP_GET_STORESALE_ADS_DATA_FROM_JSON, handler, params).syncGet();
     }
 
     /**

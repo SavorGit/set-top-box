@@ -12,6 +12,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.reflect.TypeToken;
 import com.savor.ads.BuildConfig;
 import com.savor.ads.activity.BaseActivity;
@@ -43,6 +44,7 @@ import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -555,6 +557,22 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                         int simple_upload_size = jsonObject.getInt("simple_upload_size");
                         //投文件每隔几次插播一条图片广告
                         int scenceadv_show_num = jsonObject.getInt("scenceadv_show_num");
+                        //是否是配置好的售卖酒水的酒楼0：
+                        if (jsonObject.has("is_sale_hotel")){
+                            int isSaleHotel = jsonObject.getInt("is_sale_hotel");
+                            if (isSaleHotel==1){
+                                session.setSaleHotel(true);
+                            }
+                        }
+                        if (jsonObject.has("qrcode_tip")){
+                            JSONArray qrcodeTipList = jsonObject.getJSONArray("qrcode_tip");
+                            List<String> list = new ArrayList<>();
+                            for (int i=0;i<qrcodeTipList.length();i++){
+                                Object tip = qrcodeTipList.get(i);
+                                list.add(tip.toString());
+                            }
+                            session.setQrcodeTipList(list);
+                        }
                         if (is_open_netty==1 && is_sapp_forscreen==1){
                             LogFileUtil.write("开始立刻调用小程序码接口返回成功，启动小程序NETTY服务");
                             Log.d("HeartbeatService","showMiniProgramIcon(true)");

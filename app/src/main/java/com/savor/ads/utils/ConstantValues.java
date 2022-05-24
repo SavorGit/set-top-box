@@ -180,6 +180,8 @@ public class ConstantValues {
     public static final String ADV = "adv";
     /**节目单-广告*/
     public static final String ADS = "ads";
+
+    public static final String DINNER_TOPIC = "饭局话题";
     /**节目单-商城商品广告*/
     public static final String SHOP_GOODS_ADS = "shopgoods";
     /**节目单-poly预下载广告*/
@@ -196,6 +198,8 @@ public class ConstantValues {
 
     /**节目单-本地生活*/
     public static final String LOCAL_LIFE= "life";
+    /**节目单-酒水平台广告*/
+    public static final String STORE_SALE= "storesale";
 
     /**百度广告类型**/
     public static final String DSP_MEDIA_TYPE_BAIDU = "1";
@@ -405,4 +409,9 @@ public class ConstantValues {
     public static final String SELECT_CONTENT_DISCOVER = "2";
 
     public static final String WLANServiceClaName = ".service.WLANDownloadDataService";
+
+    public static final String BUGLY_APP_ID = "ba4db0fff6";
+    public static final String BUGLY_APP_KEY = "7ab4b565-0987-414f-97fe-b8aa3d4bc08d";
+
+    public static final String VIDEO_SUFFIX = ".mp4";
 }

@@ -48,6 +48,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TimeZone;
 
 /**
@@ -158,6 +159,8 @@ public class Session {
 
     /**本地生活广告期号*/
     private String localLifeAdsPeriod;
+    /**酒水平台广告期号*/
+    private String storeSaleAdsPeriod;
 
     //开机时间
     private String startTime;
@@ -260,6 +263,10 @@ public class Session {
 
     //是展示动画二维码还是展示普通二维码
 	private boolean isShowAnimQRcode;
+    /**是否是售卖酒水的酒楼，0:不是,1:是 */
+    private boolean isSaleHotel;
+    /**酒水售卖酒楼二维码tip轮转显示*/
+    private List<String> qrcodeTipList=new ArrayList<>();
 
     public boolean isFirstWelcomeImg() {
         return isFirstWelcomeImg;
@@ -353,6 +360,7 @@ public class Session {
         welcomeResourcePeriod = mPreference.loadStringKey(P_APP_WELCOME_RESOURCE_PERIOD,"");
         meetingResourcePeriod = mPreference.loadStringKey(P_APP_MEETING_RESOURCE_PERIOD,"");
         localLifeAdsPeriod = mPreference.loadStringKey(P_APP_LOCAL_LIFE_ADS_PERIOD,"");
+        storeSaleAdsPeriod = mPreference.loadStringKey(P_APP_STORE_SALE_ADS_PERIOD,"");
         startTime = mPreference.loadStringKey(P_APP_STARTTIME, null);
         lastStartTime = mPreference.loadStringKey(P_APP_LASTSTARTTIME, null);
         switchTime = mPreference.loadIntKey(P_APP_SWITCHTIME, ConstantValues.DEFAULT_SWITCH_TIME);
@@ -478,7 +486,8 @@ public class Session {
                 || P_APP_WELCOME_RESOURCE_PERIOD.equals(key)
                 || P_APP_MEETING_RESOURCE_PERIOD.equals(key)
                 || P_APP_SHOP_GOODS_ADS_PERIOD.equals(key)
-                || P_APP_LOCAL_LIFE_ADS_PERIOD.equals(key)) {
+                || P_APP_LOCAL_LIFE_ADS_PERIOD.equals(key)
+                || P_APP_STORE_SALE_ADS_PERIOD.equals(key)) {
 
             mPreference.saveStringKey(key, (String) updateItem.second);
         } else if (P_APP_BOX_CAROUSEL_VOLUME.equals(key) ||
@@ -1287,6 +1296,15 @@ public class Session {
         writePreference(new Pair<>(P_APP_LOCAL_LIFE_ADS_PERIOD,localLifeAdsPeriod));
     }
 
+    public String getStoreSaleAdsPeriod() {
+        return storeSaleAdsPeriod;
+    }
+
+    public void setStoreSaleAdsPeriod(String storeSaleAdsPeriod) {
+        this.storeSaleAdsPeriod = storeSaleAdsPeriod;
+        writePreference(new Pair<>(P_APP_STORE_SALE_ADS_PERIOD,storeSaleAdsPeriod));
+    }
+
     public String getNetSpeed() {
         return netSpeed;
     }
@@ -1473,6 +1491,22 @@ public class Session {
         writePreference(new Pair<>(P_APP_WIFI_HOTEL,wifiHotel));
     }
 
+    public boolean isSaleHotel() {
+        return isSaleHotel;
+    }
+
+    public void setSaleHotel(boolean saleHotel) {
+        isSaleHotel = saleHotel;
+    }
+
+    public List<String> getQrcodeTipList() {
+        return qrcodeTipList;
+    }
+
+    public void setQrcodeTipList(List<String> qrcodeTipList) {
+        this.qrcodeTipList = qrcodeTipList;
+    }
+
     public int getNormalUseWechat() {
         return normalUseWechat;
     }
@@ -1553,6 +1587,8 @@ public class Session {
     public static final String P_APP_MEETING_RESOURCE_PERIOD = "com.savor.ads.meeting_resource_period";
     /**本地生活广告期号KEY*/
     public static final String P_APP_LOCAL_LIFE_ADS_PERIOD = "com.savor.ads.local_life_ads_period";
+    /**酒水平台广告期号KEY*/
+    public static final String P_APP_STORE_SALE_ADS_PERIOD = "com.savor.ads.store_sale_ads_period";
     //开机时间
     public static final String P_APP_STARTTIME = "com.savor.ads.startTime";
     public static final String P_APP_LASTSTARTTIME = "com.savor.ads.laststartTime";

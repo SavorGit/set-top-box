@@ -138,6 +138,7 @@ public class AppUtils {
     public static final String meetingResourceDir = "meeting_resource";
     public static final String HotContentDir = "hot_content";
     public static final String localLifeDir = "LocalLife";
+    public static final String StoreSaleDir = "StoreSale";
     // UTF-8 encoding
     private static final String ENCODING_UTF8 = "UTF-8";
 
@@ -219,7 +220,9 @@ public class AppUtils {
         /**互动首页-热播内容*/
         hot_content,
         /**本地生活*/
-        local_life
+        local_life,
+        /**酒水平台*/
+        StoreSale
 
     }
 
@@ -411,6 +414,10 @@ public class AppUtils {
         if (!localLifeFile.exists()){
             localLifeFile.mkdir();
         }
+        File storeSaleFile = new File(path+File.separator,StoreSaleDir);
+        if (!storeSaleFile.exists()){
+            storeSaleFile.mkdir();
+        }
         if (mode == StorageFile.log) {
             path = targetLogFile.getAbsolutePath() + File.separator;
         } else if (mode == StorageFile.loged) {
@@ -447,6 +454,8 @@ public class AppUtils {
             path = hotContentFile.getAbsolutePath()+File.separator;
         } else if (mode==StorageFile.local_life){
             path = localLifeFile.getAbsolutePath()+File.separator;
+        } else if (mode==StorageFile.StoreSale){
+            path = storeSaleFile.getAbsolutePath()+File.separator;
         }
         return path;
     }
@@ -1268,6 +1277,48 @@ public class AppUtils {
                             selection = DBHelper.MediaDBInfo.FieldName.MEDIANAME + "=?";
                             selectionArgs = new String[]{name};
                             List<MediaLibBean> beans = DBHelper.get(context).findLocalLifeAdsByWhere(selection,selectionArgs);
+                            if (beans==null){
+                                file.delete();
+                            }
+                        }
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    public static void deleteStoreSaleData(final Context context){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    LogUtils.d("删除酒水平台广告视频");
+                    String selection = null;
+                    String[] selectionArgs = null;
+                    List<MediaLibBean> storeSaleAdsList = DBHelper.get(context).findStoreSaleAdsByWhere(selection,selectionArgs);
+                    String storeSale = AppUtils.getFilePath(StorageFile.StoreSale);
+                    File[] storeSaleFiles = new File(storeSale).listFiles();
+                    if (storeSaleAdsList==null){
+                        for (File file:storeSaleFiles){
+                            if (file.isFile()){
+                                file.delete();
+                            }
+                        }
+                    }else{
+                        for(File file:storeSaleFiles){
+                            String name = file.getName();
+                            if (name.endsWith(ConstantValues.VIDEO_SUFFIX)){
+                                selection = DBHelper.MediaDBInfo.FieldName.MEDIANAME + "=?";
+                                selectionArgs = new String[]{name};
+                            }else{
+                                String basePath = AppUtils.getFilePath(AppUtils.StorageFile.StoreSale);
+                                String imagePath = basePath+name;
+                                selection = DBHelper.MediaDBInfo.FieldName.IMAGE_PATH + "=?";
+                                selectionArgs = new String[]{imagePath};
+                            }
+                            List<MediaLibBean> beans = DBHelper.get(context).findStoreSaleAdsByWhere(selection,selectionArgs);
                             if (beans==null){
                                 file.delete();
                             }
@@ -2512,10 +2563,12 @@ public class AppUtils {
 
         /**本地生活广告数据**/
         List<MediaLibBean> localLifeAdsList = dbHelper.findLocalLifeAdsByWhere(new String(),new String[]{});
+        List<MediaLibBean> storeSaleAdsList = dbHelper.findStoreSaleAdsByWhere(new String(),new String[]{});
         if (playList != null && !playList.isEmpty()) {
             int activityIndex = 0;
             int selectContentIndex = 0;
             int localLifeIndex = 0;
+            int storeSaleIndex = 0;
             for (int i = 0; i < playList.size(); i++) {
                 MediaLibBean bean = playList.get(i);
                 /**通过location_id作对应将广告插入插口定义开始**/
@@ -2731,6 +2784,47 @@ public class AppUtils {
                                 localLifeAdsList.remove(localLifeBean);
                             }
                             localLifeIndex++;
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                if (ConstantValues.STORE_SALE.equals(bean.getType())){
+                    if (storeSaleAdsList!=null&&storeSaleAdsList.size()>0){
+                        storeSaleIndex = storeSaleIndex%storeSaleAdsList.size();
+                        MediaLibBean storeSaleBean = storeSaleAdsList.get(storeSaleIndex);
+                        try {
+                            long nowTime = System.currentTimeMillis();
+                            Date dateStart = AppUtils.parseDate(storeSaleBean.getStart_date());
+                            Date dateEnd = AppUtils.parseDate(storeSaleBean.getEnd_date());
+                            long startTime = dateStart.getTime();
+                            long endTime = dateEnd.getTime();
+                            if (nowTime>startTime&&nowTime<endTime){
+                                bean.setVid(storeSaleBean.getVid());
+                                bean.setAds_id(storeSaleBean.getAds_id());
+                                bean.setMd5(storeSaleBean.getMd5());
+                                bean.setChinese_name(storeSaleBean.getChinese_name());
+                                bean.setMediaPath(storeSaleBean.getMediaPath());
+                                bean.setDuration(storeSaleBean.getDuration());
+                                bean.setStart_date(storeSaleBean.getStart_date());
+                                bean.setEnd_date(storeSaleBean.getEnd_date());
+                                bean.setWine_type(storeSaleBean.getWine_type());
+                                bean.setMedia_type(storeSaleBean.getMedia_type());
+                                bean.setType(storeSaleBean.getType());
+                                bean.setName(storeSaleBean.getName());
+                                bean.setImage_path(storeSaleBean.getImage_path());
+                                bean.setImage_url(storeSaleBean.getImage_url());
+                                bean.setIs_price(storeSaleBean.getIs_price());
+                                bean.setPrice(storeSaleBean.getPrice());
+                                bean.setIs_sapp_qrcode(storeSaleBean.getIs_sapp_qrcode());
+                                bean.setCreateTime(storeSaleBean.getCreateTime());
+                            }else if (nowTime>endTime){
+                                selection = DBHelper.MediaDBInfo.FieldName.VID + "=? ";
+                                selectionArgs = new String[]{storeSaleBean.getVid()};
+                                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.STORE_SALE_ADS,selection,selectionArgs);
+                                storeSaleAdsList.remove(storeSaleBean);
+                            }
+                            storeSaleIndex++;
                         }catch (Exception e){
                             e.printStackTrace();
                         }

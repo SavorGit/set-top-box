@@ -192,3 +192,7 @@ public static final int *;
 }
 
 #播放器混淆结束
+#bugly混淆开始
+-dontwarn com.tencent.bugly.**
+-keep public class com.tencent.bugly.**{*;}
+#bugly混淆结束

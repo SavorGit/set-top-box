@@ -82,6 +82,14 @@ public class MediaLibBean implements Serializable {
     private int selectContentType;
     /**是否已经替换为新一期的节目单的资源,0:原节目单资源，1：新节目资源*/
     private int newResource;
+    /**酒水平台广告酒水图片本地地址*/
+    private String image_path;
+    /**酒水平台广告酒水图片网络地址*/
+    private String image_url;
+    /**是否展示价格，1是 0否*/
+    private int is_price;
+    /**广告优先级：1预定酒水，2主推酒水，3随机酒水*/
+    private int wine_type;
 
     public long getId() {
         return id;
@@ -385,6 +393,38 @@ public class MediaLibBean implements Serializable {
 
     public void setNewResource(int newResource) {
         this.newResource = newResource;
+    }
+
+    public String getImage_path() {
+        return image_path;
+    }
+
+    public void setImage_path(String image_path) {
+        this.image_path = image_path;
+    }
+
+    public String getImage_url() {
+        return image_url;
+    }
+
+    public void setImage_url(String image_url) {
+        this.image_url = image_url;
+    }
+
+    public int getIs_price() {
+        return is_price;
+    }
+
+    public void setIs_price(int is_price) {
+        this.is_price = is_price;
+    }
+
+    public int getWine_type() {
+        return wine_type;
+    }
+
+    public void setWine_type(int wine_type) {
+        this.wine_type = wine_type;
     }
 }
 

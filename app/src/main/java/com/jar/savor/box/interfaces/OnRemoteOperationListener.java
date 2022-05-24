@@ -72,6 +72,9 @@ public interface OnRemoteOperationListener {
 
     PrepareResponseVoNew showRestVideo(String videoPath,boolean isNewDevice,String avatarUrl,String nickname,int projectionTime);
     PrepareResponseVoNew showRestVideo(String videoPath,String videoUrl,boolean isNewDevice,String avatarUrl,String nickname,int projectionTime);
+    /**销售端点播酒水售卖广告**/
+    PrepareResponseVoNew showRestVideo(String videoPath, boolean isNewDevice,String price,String imgPath);
+
     void rstrStop();
 
     RotateResponseVo rotate(int rotateDegree, String projectId);

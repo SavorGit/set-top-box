@@ -160,6 +160,11 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     private TextView goodsJDPriceBackTV;
     private TextView goodsSeckillPriceBackTV;
 
+    //酒水售卖广告浮层
+    private RelativeLayout haveWineBgLayout;
+    private ImageView wineImgIV;
+    private TextView winePriceTV;
+
     private int seckillTime=5400;
     //-1:秒杀倒计时结束,0:当前版位无秒杀，1：秒杀倒计时进行中
     private int seckillState = 0;
@@ -273,6 +278,10 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         seckillGoodsBackIV = findViewById(R.id.seckill_goods_back);
         goodsJDPriceBackTV = findViewById(R.id.goods_jd_price_back);
         goodsSeckillPriceBackTV = findViewById(R.id.goods_seckill_price_back);
+
+        haveWineBgLayout = findViewById(R.id.have_wine_bg_layout);
+        wineImgIV = findViewById(R.id.wine_img);
+        winePriceTV = findViewById(R.id.wine_price);
 
         registerDownloadReceiver();
         // 启动投屏类操作处理的Service
@@ -1223,7 +1232,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 }
             }
             isShowMiniProgramIcon(libBean);
-            getSeckillGoodsInfo();
             if (!TextUtils.isEmpty(libBean.getEnd_date())) {
                 // 检测截止时间是否已到，到达的话跳到下一个
                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -1269,6 +1277,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 }
                 action = "resume";
             }
+            getSeckillGoodsInfo();
             LogReportUtil.get(this).sendAdsLog(mUUID, mSession.getBoiteId(), mSession.getRoomId(),
                     String.valueOf(System.currentTimeMillis()), action, libBean.getType(), libBean.getVid(),
                     "", mSession.getVersionName(), mListPeriod, mSession.getBirthdayOndemandPeriod(), "");
@@ -1366,13 +1375,28 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 String qrcode_url=libBean.getQrcode_url();
                 String qrcode_path=libBean.getQrcode_path();
                 if (libBean.getType().equals(ConstantValues.LOCAL_LIFE)){
-                    ((SavorApplication) getApplication()).showGoodsQrCodeWindow(qrcode_url,qrcode_path,ConstantValues.LOCAL_LIFE);
+                        ((SavorApplication) getApplication()).showGoodsQrCodeWindow(qrcode_url,qrcode_path,ConstantValues.LOCAL_LIFE);
                 }else {
                     ((SavorApplication) getApplication()).showGoodsQrCodeWindow(qrcode_url,qrcode_path,ConstantValues.SHOP_GOODS_ADS);
                 }
 
             }else{
                 ((SavorApplication) getApplication()).hideGoodsQrCodeWindow();
+            }
+
+            if (ConstantValues.STORE_SALE.equals(libBean.getType())){
+                haveWineBgLayout.setVisibility(View.VISIBLE);
+                String imagePath = libBean.getImage_path();
+                String imageUrl = libBean.getImage_url();
+                String price = libBean.getPrice();
+                if (!TextUtils.isEmpty(imagePath)){
+                    GlideImageLoader.loadLocalImage(mContext,new File(imagePath),wineImgIV);
+                }else if (!TextUtils.isEmpty(imageUrl)){
+                    GlideImageLoader.loadImage(mContext,imageUrl,wineImgIV);
+                }
+                winePriceTV.setText(price);
+            }else{
+                haveWineBgLayout.setVisibility(View.GONE);
             }
 
             if (ConstantValues.POLY_ADS.equals(libBean.getType())
@@ -2185,18 +2209,32 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     private void handleSeckillGoodsInfo(SeckillGoodsResult goodsResult){
         try {
             if (goodsResult!=null){
-                //秒杀商品业务
-                if (goodsResult.getDatalist()!=null&&goodsResult.getDatalist().size()>0&&seckillState==0){
-                    seckillGoodsBeanList = goodsResult.getDatalist();
-                    //展示秒杀商品
-                    showCurrentSeckillGoods();
-                    //展示15分钟后，在关闭15分钟，然后重新开启
-                    mHandler.postDelayed(()->goodsCloseCountdown(),1000*60*15);
-                    //每隔5分钟切换一次秒杀商品
-                    mHandler.postDelayed(switchSeckillRunnable,1000*60*5);
+                MediaLibBean libBean = mPlayList.get(mCurrentPlayingIndex);
+                String mediaType = libBean.getType();
+                String chineseName = libBean.getChinese_name();
+                int leftPopWind = goodsResult.getLeft_pop_wind();
+                if (leftPopWind==1&&mediaType.equals(ConstantValues.ADV)){
+                    //秒杀商品业务
+                    if (goodsResult.getDatalist()!=null&&goodsResult.getDatalist().size()>0&&seckillState==0){
+                        seckillGoodsBeanList = goodsResult.getDatalist();
+                        //展示秒杀商品
+                        showCurrentSeckillGoods();
+                        //展示15分钟后，在关闭15分钟，然后重新开启(该逻辑废除20220523)
+//                        mHandler.postDelayed(()->goodsCloseCountdown(),1000*60*15);
+                        //每隔5分钟切换一次秒杀商品
+                        mHandler.postDelayed(switchSeckillRunnable,1000*60*5);
+                    }
+                }else{
+                    lanternCloseWin();
                 }
+
                 //处理跑马灯相关逻辑
-                if (goodsResult.getRoll_content()!=null&&goodsResult.getRoll_content().length>0){
+                int marquee = goodsResult.getMarquee();
+                if (marquee==1
+                        &&(mediaType.equals(ConstantValues.PRO)||mediaType.equals(ConstantValues.ADV))
+                        &&!chineseName.startsWith(ConstantValues.DINNER_TOPIC)
+                        &&goodsResult.getRoll_content()!=null
+                        &&goodsResult.getRoll_content().length>0){
                     List<String> rollContent = Arrays.asList(goodsResult.getRoll_content());
                     handleCaptionTip(rollContent);
                 }else{
@@ -2278,23 +2316,21 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         }
     }
 
-    //秒杀商品显示15分钟，关闭15分钟
-    private void goodsCloseCountdown(){
-        if (seckillState==1){
-            if (seckillFrontLayout.getVisibility()==View.VISIBLE){
-                seckillFrontLayout.setVisibility(View.GONE);
-                seckillBackLayout.setVisibility(View.GONE);
-                mHandler.removeCallbacks(seckillCountdownRunnable);
-                mHandler.removeCallbacks(flipCardRunnable);
-                mHandler.removeCallbacks(switchSeckillRunnable);
-                mHandler.postDelayed(()->goodsShowCountdown(),1000*60*15);
-            }
+    //关闭灯笼窗口
+    private void lanternCloseWin(){
+        seckillState = 0;
+        if (seckillFrontLayout.getVisibility()==View.VISIBLE){
+            seckillFrontLayout.setVisibility(View.GONE);
+            seckillBackLayout.setVisibility(View.GONE);
+            mHandler.removeCallbacks(seckillCountdownRunnable);
+            mHandler.removeCallbacks(flipCardRunnable);
+            mHandler.removeCallbacks(switchSeckillRunnable);
         }
     }
     //秒杀商品显示15分钟，关闭15分钟
-    private void goodsShowCountdown(){
-        seckillState=0;
-    }
+//    private void goodsShowCountdown(){
+//        seckillState=0;
+//    }
 
     private void switchSeckillGoods(){
         currentSeckillIndex ++;

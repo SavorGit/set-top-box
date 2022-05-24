@@ -32,6 +32,7 @@ import com.savor.ads.utils.ShowMessage;
 import com.shuyu.gsyvideoplayer.player.IjkPlayerManager;
 import com.shuyu.gsyvideoplayer.player.PlayerFactory;
 import com.shuyu.gsyvideoplayer.utils.GSYVideoType;
+import com.tencent.bugly.crashreport.CrashReport;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
 
@@ -91,6 +92,11 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
         // 检测播放时间
         AppUtils.checkPlayTime(SavorApplication.this);
         initPush();
+        CrashReport.UserStrategy userStrategy = new CrashReport.UserStrategy(this);
+        CrashReport.initCrashReport(this,ConstantValues.BUGLY_APP_ID,true,userStrategy);
+        CrashReport.setDeviceId(this,session.getEthernetMac());
+        CrashReport.setDeviceModel(this,session.getEthernetMac());
+        CrashReport.setUserId(this,session.getEthernetMac());
     }
 
     private void initPush() {

@@ -26,6 +26,8 @@ public class VideoRestAction extends ProjectionActionBase implements Serializabl
     private String avatarUrl;
     private String nickname;
     private int projectionTime;
+    private String price;
+    private String imgPath;
 
     public VideoRestAction(Context context, String videoPath, boolean isNewDevice, String avatarUrl, String nickname,int projectionTime) {
         super();
@@ -52,6 +54,17 @@ public class VideoRestAction extends ProjectionActionBase implements Serializabl
         this.projectionTime = projectionTime;
     }
 
+    public VideoRestAction(Context context, String videoPath,boolean isNewDevice, String price, String imgPath) {
+        super();
+
+        mPriority = ProjectPriority.HIGH;
+        mContext = context;
+        this.videoPath = videoPath;
+        this.isNewDevice = isNewDevice;
+        this.price = price;
+        this.imgPath = imgPath;
+    }
+
     @Override
     public void execute() {
         onActionBegin();
@@ -65,6 +78,8 @@ public class VideoRestAction extends ProjectionActionBase implements Serializabl
         data.putInt(ScreenProjectionActivity.EXTRA_PROJECTION_TIME, projectionTime);
         data.putString(ScreenProjectionActivity.EXTRA_AVATAR_URL,avatarUrl);
         data.putString(ScreenProjectionActivity.EXTRA_NICKNAME,nickname);
+        data.putString(ScreenProjectionActivity.EXTRA_IMAGE_PATH,imgPath);
+        data.putString(ScreenProjectionActivity.EXTRA_PRICE_ID,price);
         data.putSerializable(ScreenProjectionActivity.EXTRA_PROJECT_ACTION, this);
         Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
         if (activity instanceof ScreenProjectionActivity && !((ScreenProjectionActivity) activity).isBeenStopped()) {

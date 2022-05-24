@@ -1636,6 +1636,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         }
         List<MediaLibBean> listActivityAds = dbHelper.findActivityAdsByWhere(selection, selectionArgs);
         List<MeetingResourceBean> meetingBeanList = dbHelper.findMeetingResourceList(selection,selectionArgs);
+        List<MediaLibBean> listStoreSale = dbHelper.findStoreSaleAdsByWhere(selection,selectionArgs);
         if (listPlayList != null && listPlayList.size() > 0) {
             String path = AppUtils.getFilePath(AppUtils.StorageFile.media) + fileName;
             File file = new File(path);
@@ -1643,7 +1644,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 params.put("is_exist",1);
                 ProjectOperationListener.getInstance(context).showVod(fileName, "", 0, false, true,currentAction,FROM_SERVICE_MINIPROGRAM);
             }
-        }  else if (listActivityAds != null &&listActivityAds.size()>0){
+        } else if (listActivityAds != null &&listActivityAds.size()>0){
             String path = AppUtils.getFilePath(AppUtils.StorageFile.activity_ads) + fileName;
             File file = new File(path);
             if (file.exists()) {
@@ -1657,7 +1658,17 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 params.put("is_exist",1);
                 ProjectOperationListener.getInstance(context).showVideo(path,"", true,currentAction,FROM_SERVICE_MINIPROGRAM);
             }
-        } else {
+        } else if (listStoreSale != null && listStoreSale.size()>0){
+            MediaLibBean libBean = listStoreSale.get(0);
+            String price = libBean.getPrice();
+            String imgPath = libBean.getImage_path();
+            String path = AppUtils.getFilePath(AppUtils.StorageFile.StoreSale) + fileName;
+            File file = new File(path);
+            if (file.exists()) {
+                params.put("is_exist",1);
+                ProjectOperationListener.getInstance(context).showRestVideo(path,true,price,imgPath);
+            }
+        }else {
             params.put("is_exist",0);
             ProjectOperationListener.getInstance(context).showVideo("",url, true,currentAction,FROM_SERVICE_MINIPROGRAM);
         }

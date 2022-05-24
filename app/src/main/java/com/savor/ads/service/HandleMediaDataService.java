@@ -38,6 +38,7 @@ import com.savor.ads.bean.SetBoxTopResult;
 import com.savor.ads.bean.SetTopBoxBean;
 import com.savor.ads.bean.ShopGoodsBean;
 import com.savor.ads.bean.ShopGoodsResult;
+import com.savor.ads.bean.StoreSaleAdsResult;
 import com.savor.ads.bean.SysVolume;
 import com.savor.ads.bean.Television;
 import com.savor.ads.bean.TvProgramGiecResponse;
@@ -92,7 +93,7 @@ import static com.savor.ads.database.DBHelper.MediaDBInfo.TableName.BIRTHDAY_OND
  * Created by bichao on 2016/12/10.
  */
 
-public class HandleMediaDataService extends Service implements ApiRequestListener {
+public class HandleMediaDataService extends Service{
 
     private Context context;
     private Session session;
@@ -240,7 +241,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                             // 提前播放的pro在上面这一步可能已经被删除，这里重新填充节目单并通知播放
                             notifyToPlay();
                             // 上报服务器 卡满异常
-                            AppApi.reportSDCardState(context, HandleMediaDataService.this, 2);
+                            AppApi.reportSDCardState(context, apiRequestListener, 2);
 
                         } else {
                             /***************空间充足，开始更新资源******************/
@@ -282,6 +283,8 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                             getMeetingResourceFromCloudPlatform();
                             //同步获取本地生活广告数据
                             getLifeAdsDataFromCloudPlatform();
+                            //同步获取酒水平台广告媒体数据
+                            getStoreSaleAdsDataFromSmallPlatform();
                             isFirstRun = false;
                             // 同步获取聚屏物料媒体数据
                             LogFileUtil.write("HandleMediaDataService will start getPolyAdsFromSmallPlatform");
@@ -332,7 +335,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
      * 获取当前版位支持的poly广告平台
      */
     private void getBoxSupportPolyAdsTpmedias(){
-        AppApi.getBoxSupportPolyAdsTpmedias(context,this);
+        AppApi.getBoxSupportPolyAdsTpmedias(context,apiRequestListener);
     }
 
     private void getWLANServerBox(){
@@ -343,7 +346,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 return;
             }
             session.setType(0);
-            JsonBean jsonBean = AppApi.getWLANServerBox(context,this,session.getEthernetMac());
+            JsonBean jsonBean = AppApi.getWLANServerBox(context,apiRequestListener,session.getEthernetMac());
             JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
             if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
                 LogUtils.d("WLAN服务端----初始化异常信息==="+jsonObject.get("msg"));
@@ -395,7 +398,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
 
     private void getBoxInfo() {
         try {
-            JsonBean jsonBean = AppApi.getBoxInitInfo(this, this, session.getEthernetMac());
+            JsonBean jsonBean = AppApi.getBoxInitInfo(context, apiRequestListener, session.getEthernetMac());
             JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
             if (jsonObject.getInt("code") != AppApi.HTTP_RESPONSE_STATE_SUCCESS) {
                 LogUtils.d("接口返回的状态不对,code=" + jsonObject.getInt("code"));
@@ -685,7 +688,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
      */
     private void getBirthdayOndemandFromCloudPlatform(){
         try {
-            JsonBean jsonBean = AppApi.getBirthdayOndemandFromCloudPlatform(context,this,session.getEthernetMac());
+            JsonBean jsonBean = AppApi.getBirthdayOndemandFromCloudPlatform(context,apiRequestListener,session.getEthernetMac());
             JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
             if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
                 return;
@@ -760,7 +763,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
 
     private void getInteractionAdsFromCloudPlatform(){
         try {
-            JsonBean jsonBean = AppApi.postInteractionAdsFromCloudform(context,this,session.getEthernetMac());
+            JsonBean jsonBean = AppApi.postInteractionAdsFromCloudform(context,apiRequestListener,session.getEthernetMac());
             JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
             if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
                 return;
@@ -845,7 +848,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
      */
     private void getGoodsProgramListFromCloudPlatform(){
         try{
-            JsonBean jsonBean = AppApi.getGoodsProgramListFromCloudfrom(context,this,session.getEthernetMac());
+            JsonBean jsonBean = AppApi.getGoodsProgramListFromCloudfrom(context,apiRequestListener,session.getEthernetMac());
             JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
             if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
                 return;
@@ -945,7 +948,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             if (session.getType()==2||session.getType()==0){
                 return;
             }
-            JsonBean jsonBean = AppApi.getShopGoodsListFromCloudfrom(context,this,session.getEthernetMac());
+            JsonBean jsonBean = AppApi.getShopGoodsListFromCloudfrom(context,apiRequestListener,session.getEthernetMac());
             JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
             if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
                 return;
@@ -1045,7 +1048,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             if (session.getType()==2||session.getType()==0){
                 return;
             }
-            JsonBean jsonBean = AppApi.getHotContentFromCloudfrom(context,this,session.getEthernetMac());
+            JsonBean jsonBean = AppApi.getHotContentFromCloudfrom(context,apiRequestListener,session.getEthernetMac());
             JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
             if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
                 return;
@@ -1144,7 +1147,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
      */
     private void getWelcomeResourceFromCloudPlatform(){
         try{
-            JsonBean jsonBean = AppApi.getWelcomeResourceFromCloudfrom(context,this,session.getEthernetMac());
+            JsonBean jsonBean = AppApi.getWelcomeResourceFromCloudfrom(context,apiRequestListener,session.getEthernetMac());
             JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
             if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
                 return;
@@ -1218,7 +1221,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
      */
     private void getMeetingResourceFromCloudPlatform(){
         try{
-            JsonBean jsonBean = AppApi.getMeetingResourceFromCloudfrom(context,this,session.getEthernetMac());
+            JsonBean jsonBean = AppApi.getMeetingResourceFromCloudfrom(context,apiRequestListener,session.getEthernetMac());
             JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
             if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
                 return;
@@ -1290,7 +1293,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         params.put("box_mac",session.getEthernetMac());
         params.put("mv_id",bean.getId());
         params.put("status",3);
-        AppApi.postMeetingParamReport(context,this,params);
+        AppApi.postMeetingParamReport(context,apiRequestListener,params);
     }
 
     /**
@@ -1298,7 +1301,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
      */
     private void getLifeAdsDataFromCloudPlatform(){
         try{
-            JsonBean jsonBean = AppApi.getLifeAdsListFromCloudfrom(context,this,session.getEthernetMac());
+            JsonBean jsonBean = AppApi.getLifeAdsListFromCloudfrom(context,apiRequestListener,session.getEthernetMac());
             JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
             if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
                 return;
@@ -1322,10 +1325,6 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
 
     private void handleLocalLifeAdsData(LocalLifeAdsResult result) {
         List<MediaLibBean> libBeans = result.getMedia_list();
-        String lifeAdsPeriod = result.getPeriod();
-        if (!isAdsFirstRun && session.getAdsPeriod().equals(lifeAdsPeriod)) {
-            return;
-        }
         // 清空life_ads下载表
         dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.LOCAL_LIFE_ADS, null, null);
         List<String> fileNames = new ArrayList<>();
@@ -1377,6 +1376,92 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             notifyToPlay();
         }
     }
+
+    /**
+     * 拉取酒水平台上广告媒体文件
+     */
+    private void getStoreSaleAdsDataFromSmallPlatform() {
+        try{
+            JsonBean jsonBean = AppApi.getStoreSaleAdsDataFromSmallPlatform(context,apiRequestListener,session.getEthernetMac());
+            JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
+            if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
+                return;
+            }
+            StoreSaleAdsResult result = gson.fromJson(jsonObject.get("result").toString(), new TypeToken<StoreSaleAdsResult>() {
+            }.getType());
+            if (!isFirstRun&&result.getPeriod().equals(session.getStoreSaleAdsPeriod())){
+                return;
+            }
+            if (result.getMedia_list()==null||result.getMedia_list().size()==0){
+                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.STORE_SALE_ADS,null,null);
+                AppUtils.deleteStoreSaleData(context);
+                notifyToPlay();
+                return;
+            }
+            handleStoreSaleAdsData(result);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void handleStoreSaleAdsData(StoreSaleAdsResult result) {
+        List<MediaLibBean> libBeans = result.getMedia_list();
+        // 清空store_sale_ads_table下载表
+        dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.STORE_SALE_ADS, null, null);
+        List<String> fileNames = new ArrayList<>();
+        for (MediaLibBean bean:libBeans){
+            boolean isDownloaded = false;
+            String basePath = AppUtils.getFilePath(AppUtils.StorageFile.StoreSale);
+            String fileName = bean.getName();
+            String path = basePath + fileName;
+            int media_type = bean.getMedia_type();
+            if (media_type==1){
+                isDownloaded = AppUtils.isDownloadEasyCompleted(path, bean.getMd5());
+            }else if (media_type==2){
+                isDownloaded = AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase());
+            }
+            if (!isDownloaded&&!AppUtils.isInProjection()){
+                String url = BuildConfig.OSS_ENDPOINT+bean.getOss_path();
+                isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
+                if (isDownloaded
+                        && (AppUtils.isDownloadEasyCompleted(path, bean.getMd5())
+                        ||AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase()))) {
+                    isDownloaded = true;
+                }else{
+                    isDownloaded = false;
+                }
+            }
+            if (isDownloaded){
+                //下载成功以后将本地路径set到bean里，入库时使用
+                String baseImageUrl = bean.getImage_url();
+                if (!TextUtils.isEmpty(baseImageUrl)){
+                    String imageUrl = BuildConfig.OSS_ENDPOINT + baseImageUrl;
+                    String[] imageNameArray = baseImageUrl.split("/");
+                    String imageName = imageNameArray[imageNameArray.length-1];
+                    String imagePath = basePath + imageName;
+                    if (!new File(imagePath).exists()){
+                        new FileDownloader(context,imageUrl,basePath,imageName,true).downloadByRange();
+                    }
+                    bean.setImage_path(imagePath);
+                    bean.setImage_url(imageUrl);
+                }
+                bean.setMediaPath(path);
+                bean.setPeriod(result.getPeriod());
+                bean.setCreateTime(System.currentTimeMillis()+"");
+                if (dbHelper.insertStoreSaleAds(bean)){
+                    fileNames.add(bean.getName());
+                }
+
+            }
+        }
+        if (fileNames.size()==libBeans.size()){
+            //酒水平台广告下载完成
+            session.setStoreSaleAdsPeriod(result.getPeriod());
+            AppUtils.deleteStoreSaleData(context);
+            notifyToPlay();
+        }
+    }
+
     /**
      * 获取小平台节目单媒体文件
      * OSSsource true是从OSS下载，false是从实体小平台下载
@@ -1390,7 +1475,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                 return;
             }
             LogFileUtil.write("HandleMediaDataService will start getProgramDataFromSmallPlatform 盒子mac=="+session.getEthernetMac());
-            JsonBean jsonBean = AppApi.getProgramDataFromSmallPlatform(this, this, session.getEthernetMac());
+            JsonBean jsonBean = AppApi.getProgramDataFromSmallPlatform(context, apiRequestListener, session.getEthernetMac());
             // 保存拿到的数据到本地
             FileUtils.write(ConstantValues.PRO_DATA_PATH, jsonBean.getConfigJson());
             LogFileUtil.write("HandleMediaDataService will start getProgramDataFromSmallPlatform 返回结果=="+jsonBean.getConfigJson());
@@ -1567,7 +1652,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
                                         if (updateNewResourceToProgram(mediaItem,delLibBeans)){
                                             String chineseName = mediaItem.getChinese_name();
                                             if(delLibBeans!=null&&delLibBeans.size()>0
-                                                    &&!chineseName.startsWith("饭局话题")
+                                                    &&!chineseName.startsWith(ConstantValues.DINNER_TOPIC)
                                                     &&!chineseName.startsWith("名人")){
                                                 delLibBeans.remove(0);
                                             }
@@ -1638,9 +1723,9 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         String duration = mediaItem.getDuration();
         String mediaPath = mediaItem.getMediaPath();
         int isSappQrcode = mediaItem.getIs_sapp_qrcode();
-        if (chineseName.startsWith("饭局话题")||chineseName.startsWith("名人")){
+        if (chineseName.startsWith(ConstantValues.DINNER_TOPIC)||chineseName.startsWith("名人")){
             selection = DBHelper.MediaDBInfo.FieldName.CHINESE_NAME + " like ? ";
-            if (chineseName.startsWith("饭局话题")){
+            if (chineseName.startsWith(ConstantValues.DINNER_TOPIC)){
                 selectionArgs = new String[]{chineseName.substring(0,4)+"%"};
             }
             if (chineseName.startsWith("名人")){
@@ -1721,7 +1806,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             if (session.getType()==2||session.getType()==0){
                 return;
             }
-            JsonBean jsonBean = AppApi.getAdvDataFromSmallPlatform(this, this, session.getEthernetMac());
+            JsonBean jsonBean = AppApi.getAdvDataFromSmallPlatform(context, apiRequestListener, session.getEthernetMac());
             // 保存拿到的数据到本地
             FileUtils.write(ConstantValues.ADV_DATA_PATH, jsonBean.getConfigJson());
 
@@ -1965,7 +2050,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             if (session.getType()==2||session.getType()==0){
                 return;
             }
-            JsonBean jsonBean = AppApi.getAdsDataFromSmallPlatform(this, this, session.getEthernetMac());
+            JsonBean jsonBean = AppApi.getAdsDataFromSmallPlatform(context, apiRequestListener, session.getEthernetMac());
             // 保存拿到的数据到本地
             FileUtils.write(ConstantValues.ADS_DATA_PATH, jsonBean.getConfigJson());
             Object result = gson.fromJson(jsonBean.getConfigJson(), new TypeToken<ProgramBeanResult>() {
@@ -2127,13 +2212,13 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         if (session.getType()==1){
             if (GlobalValues.completionRate==5){
                 LogUtils.d("WLAN服务端----下载成功,开始上传==="+GlobalValues.completionRate);
-                AppApi.reportBoxDownloadState(context,this,session.getEthernetMac(),1);
+                AppApi.reportBoxDownloadState(context,apiRequestListener,session.getEthernetMac(),1);
             }else if (GlobalValues.completionRate==-1){
                 LogUtils.d("WLAN服务端----下载超时,开始上传==="+GlobalValues.completionRate);
-                AppApi.reportBoxDownloadState(context,this,session.getEthernetMac(),2);
+                AppApi.reportBoxDownloadState(context,apiRequestListener,session.getEthernetMac(),2);
             }else if (GlobalValues.completionRate>=0&&GlobalValues.completionRate<5){
                 LogUtils.d("WLAN服务端----下载失败,开始上传==="+GlobalValues.completionRate);
-                AppApi.reportBoxDownloadState(context,this,session.getEthernetMac(),3);
+                AppApi.reportBoxDownloadState(context,apiRequestListener,session.getEthernetMac(),3);
             }
             handler.removeCallbacks(completionRunnable);
             GlobalValues.completionRate = 0;
@@ -2149,7 +2234,7 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
      */
     private void getPolyAdsFromSmallPlatform(){
         try {
-            JsonBean jsonBean = AppApi.getPolyAdsFromSmallPlatform(this,this,session.getEthernetMac());
+            JsonBean jsonBean = AppApi.getPolyAdsFromSmallPlatform(context,apiRequestListener,session.getEthernetMac());
             Object result = gson.fromJson(jsonBean.getConfigJson(), new TypeToken<ProgramBeanResult>() {
             }.getType());
             ProgramBeanResult programBeanResult = (ProgramBeanResult) result;
@@ -2306,9 +2391,9 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
             return;
         }
         if (AppUtils.isMstar()) {
-            AppApi.getTVMatchDataFromSmallPlatform(this, this);
+            AppApi.getTVMatchDataFromSmallPlatform(context, apiRequestListener);
         } else if (AppUtils.isGiec()){
-            AppApi.getGiecTVMatchDataFromSmallPlatform(this, this);
+            AppApi.getGiecTVMatchDataFromSmallPlatform(context, apiRequestListener);
         }
     }
 
@@ -2382,50 +2467,52 @@ public class HandleMediaDataService extends Service implements ApiRequestListene
         return null;
     }
 
-    @Override
-    public void onSuccess(AppApi.Action method, Object obj) {
-        switch (method) {
-            case SP_GET_TV_MATCH_DATA_FROM_JSON:
-                if (obj instanceof TvProgramResponse) {
-                    TvProgramResponse response = (TvProgramResponse) obj;
-                    TvOperate mtv = new TvOperate();
-                    mtv.updateProgram(context, response);
-                }
-                break;
-            case SP_GET_TV_MATCH_DATA_FROM_GIEC_JSON:
-                if (obj instanceof TvProgramGiecResponse) {
-                    TvProgramGiecResponse response = (TvProgramGiecResponse) obj;
-                    ITVOperator tvOperate = TVOperatorFactory.getTVOperator(getApplicationContext(), TVOperatorFactory.TVType.GIEC);
-                    for (AtvChannel atvChannel :
-                            response.getTvChannelList()) {
-                        atvChannel.setDisplayName(atvChannel.getChannelName());
-//                        atvChannel.setDisplayNumber(atvChannel.getChannelNum() + "");
+    ApiRequestListener apiRequestListener = new ApiRequestListener() {
+        @Override
+        public void onSuccess(AppApi.Action method, Object obj) {
+            switch (method) {
+                case SP_GET_TV_MATCH_DATA_FROM_JSON:
+                    if (obj instanceof TvProgramResponse) {
+                        TvProgramResponse response = (TvProgramResponse) obj;
+                        TvOperate mtv = new TvOperate();
+                        mtv.updateProgram(context, response);
                     }
-                    tvOperate.setAtvChannels(response.getTvChannelList());
-                    session.setTvDefaultChannelNumber(response.getLockingChannelNum());
-                }
-                break;
-            case CP_POST_SDCARD_STATE_JSON:
-                LogUtils.d("上报SD卡状态成功");
-                break;
+                    break;
+                case SP_GET_TV_MATCH_DATA_FROM_GIEC_JSON:
+                    if (obj instanceof TvProgramGiecResponse) {
+                        TvProgramGiecResponse response = (TvProgramGiecResponse) obj;
+                        ITVOperator tvOperate = TVOperatorFactory.getTVOperator(getApplicationContext(), TVOperatorFactory.TVType.GIEC);
+                        for (AtvChannel atvChannel :
+                                response.getTvChannelList()) {
+                            atvChannel.setDisplayName(atvChannel.getChannelName());
+//                        atvChannel.setDisplayNumber(atvChannel.getChannelNum() + "");
+                        }
+                        tvOperate.setAtvChannels(response.getTvChannelList());
+                        session.setTvDefaultChannelNumber(response.getLockingChannelNum());
+                    }
+                    break;
+                case CP_POST_SDCARD_STATE_JSON:
+                    LogUtils.d("上报SD卡状态成功");
+                    break;
+            }
         }
-    }
 
-    @Override
-    public void onError(AppApi.Action method, Object obj) {
-        switch (method) {
-            case CP_POST_SDCARD_STATE_JSON:
-                LogUtils.d("上报SD卡状态失败");
-                break;
+        @Override
+        public void onError(AppApi.Action method, Object obj) {
+            switch (method) {
+                case CP_POST_SDCARD_STATE_JSON:
+                    LogUtils.d("上报SD卡状态失败");
+                    break;
+            }
         }
-    }
 
-    @Override
-    public void onNetworkFailed(AppApi.Action method) {
-        switch (method) {
-            case CP_POST_SDCARD_STATE_JSON:
-                LogUtils.d("上报SD卡状态失败，网络异常");
-                break;
+        @Override
+        public void onNetworkFailed(AppApi.Action method) {
+            switch (method) {
+                case CP_POST_SDCARD_STATE_JSON:
+                    LogUtils.d("上报SD卡状态失败，网络异常");
+                    break;
+            }
         }
-    }
+    };
 }

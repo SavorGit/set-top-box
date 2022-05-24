@@ -29,6 +29,7 @@ import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.DensityUtil;
 import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.StringUtils;
+import com.tencent.bugly.crashreport.CrashReport;
 
 /**
  * Created by zhanghq on 2016/12/12.
@@ -240,6 +241,7 @@ public class BoxInfoDialog extends Dialog {
 
         }catch (Exception e){
             e.printStackTrace();
+            CrashReport.postCatchedException(e);
         }
     }
 

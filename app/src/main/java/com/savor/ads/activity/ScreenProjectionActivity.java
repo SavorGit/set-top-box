@@ -244,6 +244,12 @@ public class ScreenProjectionActivity extends BaseActivity{
 
     private LinearLayout proQrcodeLayout;
     private ImageView proQrcodeIV;
+
+    //酒水售卖广告浮层
+    private RelativeLayout haveWineBgLayout;
+    private ImageView wineImgIV;
+    private TextView winePriceTV;
+
     /**
      * 图片旋转角度
      */
@@ -376,6 +382,10 @@ public class ScreenProjectionActivity extends BaseActivity{
         userShareLayout = findViewById(R.id.user_share_layout);
         proQrcodeLayout = findViewById(R.id.projection_qrcode_layout);
         proQrcodeIV = findViewById(R.id.projection_qrcode);
+
+        haveWineBgLayout = findViewById(R.id.have_wine_bg_layout);
+        wineImgIV = findViewById(R.id.wine_img);
+        winePriceTV = findViewById(R.id.wine_price);
     }
 
     private void setView() {
@@ -599,6 +609,7 @@ public class ScreenProjectionActivity extends BaseActivity{
         waiterLayout.setVisibility(View.GONE);
         waiterWelcomeLayout.setVisibility(View.GONE);
         userShareLayout.setVisibility(View.GONE);
+        haveWineBgLayout.setVisibility(View.GONE);
         //有新的投屏进来，如果有正在轮播的欢迎词，就打断播放,并且停止背景音乐 20191212
         GlobalValues.mpprojection = null;
         if ((!ConstantValues.PROJECT_TYPE_BUSINESS_WELCOME.equals(mProjectType)
@@ -733,6 +744,13 @@ public class ScreenProjectionActivity extends BaseActivity{
                 rescheduleToExit(false);
             }else{
                 rescheduleToExit(true);
+            }
+            if (!TextUtils.isEmpty(goodsPrice)&&!TextUtils.isEmpty(mImagePath)){
+                haveWineBgLayout.setVisibility(View.VISIBLE);
+                if (!TextUtils.isEmpty(mImagePath)){
+                    GlideImageLoader.loadLocalImage(mContext,new File(mImagePath),wineImgIV);
+                }
+                winePriceTV.setText(goodsPrice);
             }
             //如果餐厅端通过小程序投视频超过2分钟，那么就展示小程序码,add at time:20190325
             mHandler.postDelayed(mShowMiniProgramQrCodeRunnable,1000*60*2);

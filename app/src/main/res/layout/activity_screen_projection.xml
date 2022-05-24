@@ -355,4 +355,6 @@
                 android:layout_gravity="center"/>
         </RelativeLayout>
     </LinearLayout>
+    <!--大屏右侧展示是否本店有售和显示价格浮层-->
+    <include layout="@layout/layout_wine_sell"/>
 </RelativeLayout>

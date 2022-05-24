@@ -25,6 +25,7 @@ import com.savor.ads.core.AppApi;
 import com.savor.ads.core.Session;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Created by zhanghq on 2018/7/9.
@@ -51,6 +52,8 @@ public class QrCodeWindowManager {
     private int QRCodeType=0;
     private String mediaId;
     private String preMediaId;
+    //切换二维码上的提示文字
+    private int qrCodeTipIndex=0;
 
     public QrCodeWindowManager(Context mContext){
         this.context = mContext;
@@ -144,7 +147,10 @@ public class QrCodeWindowManager {
     }
 
     private void addToWindow(final Context context,String url,final String path,final ImageView qrCodeIv) {
-
+        /**动态添加二维码tip开始**/
+        mHandler.removeCallbacks(mSwitchQrTipRunnable);
+        switchQrcodeTip();
+        /**动态添加二维码tip结束**/
         boolean isCompletePicture = FileUtils.isCompletePicture(path);
         File localFile = null;
         long hour = 0;
@@ -230,9 +236,29 @@ public class QrCodeWindowManager {
     public void hideQrCode() {
         mHandler.removeCallbacks(mHideRunnable);
         mHandler.post(mHideRunnable);
+        mHandler.removeCallbacks(mSwitchQrTipRunnable);
+    }
 
+    private Runnable mSwitchQrTipRunnable = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                qrCodeTipIndex ++;
+                switchQrcodeTip();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+    };
 
-
+    private void switchQrcodeTip(){
+        if (session.isSaleHotel()&&session.getQrcodeTipList()!=null&&session.getQrcodeTipList().size()>0){
+            List<String> qrcodeTipList= session.getQrcodeTipList();
+            qrCodeTipIndex = qrCodeTipIndex%qrcodeTipList.size();
+            String tip = qrcodeTipList.get(qrCodeTipIndex);
+            qrCodeFrontTipTV.setText(tip);
+            mHandler.postDelayed(mSwitchQrTipRunnable,8*1000);
+        }
     }
 
     private void handleWindowLayout(){

@@ -231,6 +231,8 @@
                 android:progress="50"/>
         </LinearLayout>
     </RelativeLayout>
+    <!--大屏右侧展示是否本店有售和显示价格浮层-->
+    <include layout="@layout/layout_wine_sell"/>
     <!--底部字幕跑马灯展示-->
     <RelativeLayout
         android:id="@+id/caption_layout"
@@ -261,7 +263,7 @@
             <requestFocus/>
         </TextView>
     </RelativeLayout>
-    <!--大屏左侧秒杀活动展示-->
+    <!--大屏左侧秒杀活动展示正面-->
     <RelativeLayout
         android:id="@+id/seckill_front_layout"
         android:layout_width="wrap_content"
@@ -357,7 +359,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
     </RelativeLayout>
-
+    <!--大屏左侧秒杀活动展示反面-->
     <RelativeLayout
         android:id="@+id/seckill_back_layout"
         android:layout_width="wrap_content"
@@ -455,4 +457,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
     </RelativeLayout>
+
+
 </RelativeLayout>
