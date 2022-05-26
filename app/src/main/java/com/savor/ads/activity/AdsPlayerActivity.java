@@ -21,6 +21,9 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -165,6 +168,8 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     private ImageView wineImgIV;
     private TextView winePriceTV;
 
+    WindowManager.LayoutParams wmParams = new WindowManager.LayoutParams();
+    private int layerWidth;
     private int seckillTime=5400;
     //-1:秒杀倒计时结束,0:当前版位无秒杀，1：秒杀倒计时进行中
     private int seckillState = 0;
@@ -215,7 +220,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     private AnimatorSet mRightOutSet; // 右出动画
     private AnimatorSet mLeftInSet; // 左入动画
     private boolean mIsShowBack;
-
+    Handler handler=new Handler(Looper.getMainLooper());
     private Handler mHandler = new Handler(msg -> {
         switch (msg.what){
             case 1:
@@ -410,7 +415,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-
         checkAndPlay(-1);
     }
 
@@ -1147,6 +1151,10 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         if (TextUtils.isEmpty(mUUID)) {
             mUUID = String.valueOf(System.currentTimeMillis());
         }
+        handler.removeCallbacks(layerToLeftRunnable);
+        handler.removeCallbacks(layerToRightRunnable);
+        haveWineBgLayout.clearAnimation();
+        haveWineBgLayout.setVisibility(View.GONE);
         if (mPlayList != null) {
             MediaLibBean item = mPlayList.get(index);
             if (!TextUtils.isEmpty(item.getVid())) {
@@ -1218,6 +1226,10 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 
     @Override
     public boolean onMediaPrepared(int index) {
+        if (haveWineBgLayout.VISIBLE==View.VISIBLE){
+            haveWineBgLayout.clearAnimation();
+            haveWineBgLayout.setVisibility(View.GONE);
+        }
         if (mPlayList != null && (!TextUtils.isEmpty(mPlayList.get(index).getVid()))) {
             MediaLibBean libBean = mPlayList.get(index);
             GlobalValues.currentVid = libBean.getVid();
@@ -1385,7 +1397,9 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             }
 
             if (ConstantValues.STORE_SALE.equals(libBean.getType())){
-                haveWineBgLayout.setVisibility(View.VISIBLE);
+                handler.removeCallbacks(layerToLeftRunnable);
+                handler.removeCallbacks(layerToRightRunnable);
+                layerWidth = haveWineBgLayout.getWidth();
                 String imagePath = libBean.getImage_path();
                 String imageUrl = libBean.getImage_url();
                 String price = libBean.getPrice();
@@ -1395,6 +1409,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                     GlideImageLoader.loadImage(mContext,imageUrl,wineImgIV);
                 }
                 winePriceTV.setText(price);
+                handler.postDelayed(layerToLeftRunnable,15*1000);
             }else{
                 haveWineBgLayout.setVisibility(View.GONE);
             }
@@ -1473,6 +1488,65 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    private Runnable layerToLeftRunnable = ()->setLayerRightToLeftAminator();
+    /**设置展开动画*/
+    private void setLayerRightToLeftAminator(){
+        haveWineBgLayout.setVisibility(View.VISIBLE);
+        Animation translateAnimation = new TranslateAnimation(wmParams.width+layerWidth, wmParams.width, 0, 0);//设置平移的起点和终点
+        translateAnimation.setDuration(3000);//动画持续的时间为10s
+        translateAnimation.setFillEnabled(true);//使其可以填充效果从而不回到原地
+        translateAnimation.setFillAfter(true);//不回到起始位置
+        //如果不添加setFillEnabled和setFillAfter则动画执行结束后会自动回到远点
+        translateAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                handler.postDelayed(layerToRightRunnable,32*1000);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        haveWineBgLayout.setAnimation(translateAnimation);//给imageView添加的动画效果
+        translateAnimation.startNow();//动画开始执行 放在最后即可
+    }
+
+    private Runnable layerToRightRunnable = ()->setLayerLeftToRightAminator();
+    /**设置收起动画*/
+    private void setLayerLeftToRightAminator(){
+        haveWineBgLayout.clearAnimation();
+        Animation translateAnimation = new TranslateAnimation(wmParams.width, wmParams.width+layerWidth, 0, 0);//设置平移的起点和终点
+        translateAnimation.setDuration(3000);//动画持续的时间为10s
+        translateAnimation.setFillEnabled(true);//使其可以填充效果从而不回到原地
+        translateAnimation.setFillAfter(true);//不回到起始位置
+        //如果不添加setFillEnabled和setFillAfter则动画执行结束后会自动回到远点
+        translateAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                haveWineBgLayout.clearAnimation();
+                haveWineBgLayout.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        haveWineBgLayout.setAnimation(translateAnimation);//给imageView添加的动画效果
+        translateAnimation.startNow();//动画开始执行 放在最后即可
+
     }
 
     private long getGoodsCountdown(int goods_id){

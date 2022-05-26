@@ -1,43 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/have_wine_bg_layout"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:background="@mipmap/have_price"
+    android:visibility="gone"
     android:layout_alignParentRight="true">
-    <RelativeLayout
-        android:id="@+id/no_wine_bg_layout"
-        android:visibility="gone"
-        android:layout_gravity="right"
+    <ImageView
+        android:id="@+id/wine_img"
+        android:layout_width="200sp"
+        android:layout_height="250sp"
+        android:layout_marginLeft="200dp"
+        android:layout_marginTop="160dp"
+        android:src="@mipmap/drink" />
+
+    <TextView
+        android:id="@+id/wine_price"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@mipmap/no_price">
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/have_wine_bg_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_marginRight="20dp"
-        android:background="@mipmap/have_price"
-        android:visibility="visible">
-
-        <ImageView
-            android:id="@+id/wine_img"
-            android:layout_width="200sp"
-            android:layout_height="250sp"
-            android:layout_marginLeft="200dp"
-            android:layout_marginTop="130dp"
-            android:src="@mipmap/drink" />
-
-        <TextView
-            android:id="@+id/wine_price"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="410sp"
-            android:layout_marginTop="350dp"
-            android:text="488元/瓶"
-            android:textColor="@color/color_yellow2"
-            android:textSize="30sp" />
-    </RelativeLayout>
+        android:layout_marginLeft="410sp"
+        android:layout_marginTop="350dp"
+        android:text="488元/瓶"
+        android:textColor="@color/color_yellow2"
+        android:textSize="30sp" />
 </RelativeLayout>
