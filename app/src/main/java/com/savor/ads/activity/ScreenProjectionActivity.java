@@ -24,6 +24,9 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -250,6 +253,8 @@ public class ScreenProjectionActivity extends BaseActivity{
     private ImageView wineImgIV;
     private TextView winePriceTV;
 
+    WindowManager.LayoutParams wmParams = new WindowManager.LayoutParams();
+    private int layerWidth;
     /**
      * 图片旋转角度
      */
@@ -299,6 +304,7 @@ public class ScreenProjectionActivity extends BaseActivity{
         bindMiniprogramNettyService();
         bindMiniprogramJettyService();
     }
+
 
     /**
      * 绑定netty服务
@@ -394,7 +400,6 @@ public class ScreenProjectionActivity extends BaseActivity{
         mSavorVideoView.setLooping(false);
         mSavorVideoView.setIfHandlePrepareTimeout(true);
         mSavorVideoView.setPlayStateCallback(mPlayStateCallback);
-
     }
 
     private void initSounds(){
@@ -609,7 +614,12 @@ public class ScreenProjectionActivity extends BaseActivity{
         waiterLayout.setVisibility(View.GONE);
         waiterWelcomeLayout.setVisibility(View.GONE);
         userShareLayout.setVisibility(View.GONE);
-        haveWineBgLayout.setVisibility(View.GONE);
+        if (haveWineBgLayout.VISIBLE == View.VISIBLE){
+            haveWineBgLayout.clearAnimation();
+            haveWineBgLayout.setVisibility(View.INVISIBLE);
+        }
+        mHandler.removeCallbacks(layerToLeftRunnable);
+        mHandler.removeCallbacks(layerToRightRunnable);
         //有新的投屏进来，如果有正在轮播的欢迎词，就打断播放,并且停止背景音乐 20191212
         GlobalValues.mpprojection = null;
         if ((!ConstantValues.PROJECT_TYPE_BUSINESS_WELCOME.equals(mProjectType)
@@ -746,11 +756,12 @@ public class ScreenProjectionActivity extends BaseActivity{
                 rescheduleToExit(true);
             }
             if (!TextUtils.isEmpty(goodsPrice)&&!TextUtils.isEmpty(mImagePath)){
-                haveWineBgLayout.setVisibility(View.VISIBLE);
                 if (!TextUtils.isEmpty(mImagePath)){
                     GlideImageLoader.loadLocalImage(mContext,new File(mImagePath),wineImgIV);
                 }
                 winePriceTV.setText(goodsPrice);
+                haveWineBgLayout.post(() -> layerWidth = haveWineBgLayout.getWidth());
+                mHandler.postDelayed(layerToLeftRunnable,15*1000);
             }
             //如果餐厅端通过小程序投视频超过2分钟，那么就展示小程序码,add at time:20190325
             mHandler.postDelayed(mShowMiniProgramQrCodeRunnable,1000*60*2);
@@ -1121,6 +1132,65 @@ public class ScreenProjectionActivity extends BaseActivity{
                 ((SavorApplication) getApplication()).showMiniProgramQrCodeWindow(ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE);
             }
         }
+    }
+
+    private Runnable layerToLeftRunnable = ()->setLayerRightToLeftAminator();
+    /**设置展开动画*/
+    private void setLayerRightToLeftAminator(){
+        haveWineBgLayout.setVisibility(View.VISIBLE);
+        Animation translateAnimation = new TranslateAnimation(wmParams.width+layerWidth, wmParams.width, 0, 0);//设置平移的起点和终点
+        translateAnimation.setDuration(3000);//动画持续的时间为10s
+        translateAnimation.setFillEnabled(true);//使其可以填充效果从而不回到原地
+        translateAnimation.setFillAfter(true);//不回到起始位置
+        //如果不添加setFillEnabled和setFillAfter则动画执行结束后会自动回到远点
+        translateAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                mHandler.postDelayed(layerToRightRunnable,32*1000);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        haveWineBgLayout.setAnimation(translateAnimation);//给imageView添加的动画效果
+        translateAnimation.startNow();//动画开始执行 放在最后即可
+    }
+
+    private Runnable layerToRightRunnable = ()->setLayerLeftToRightAminator();
+    /**设置收起动画*/
+    private void setLayerLeftToRightAminator(){
+        haveWineBgLayout.clearAnimation();
+        Animation translateAnimation = new TranslateAnimation(wmParams.width, wmParams.width+layerWidth, 0, 0);//设置平移的起点和终点
+        translateAnimation.setDuration(3000);//动画持续的时间为10s
+        translateAnimation.setFillEnabled(true);//使其可以填充效果从而不回到原地
+        translateAnimation.setFillAfter(true);//不回到起始位置
+        //如果不添加setFillEnabled和setFillAfter则动画执行结束后会自动回到远点
+        translateAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                haveWineBgLayout.clearAnimation();
+                    haveWineBgLayout.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        haveWineBgLayout.setAnimation(translateAnimation);//给imageView添加的动画效果
+        translateAnimation.startNow();//动画开始执行 放在最后即可
+
     }
 
     @Override

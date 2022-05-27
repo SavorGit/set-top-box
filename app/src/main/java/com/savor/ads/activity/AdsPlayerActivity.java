@@ -1154,7 +1154,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         handler.removeCallbacks(layerToLeftRunnable);
         handler.removeCallbacks(layerToRightRunnable);
         haveWineBgLayout.clearAnimation();
-        haveWineBgLayout.setVisibility(View.GONE);
+        haveWineBgLayout.setVisibility(View.INVISIBLE);
         if (mPlayList != null) {
             MediaLibBean item = mPlayList.get(index);
             if (!TextUtils.isEmpty(item.getVid())) {
@@ -1228,7 +1228,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     public boolean onMediaPrepared(int index) {
         if (haveWineBgLayout.VISIBLE==View.VISIBLE){
             haveWineBgLayout.clearAnimation();
-            haveWineBgLayout.setVisibility(View.GONE);
+            haveWineBgLayout.setVisibility(View.INVISIBLE);
         }
         if (mPlayList != null && (!TextUtils.isEmpty(mPlayList.get(index).getVid()))) {
             MediaLibBean libBean = mPlayList.get(index);
@@ -1411,7 +1411,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 winePriceTV.setText(price);
                 handler.postDelayed(layerToLeftRunnable,15*1000);
             }else{
-                haveWineBgLayout.setVisibility(View.GONE);
+                haveWineBgLayout.setVisibility(View.INVISIBLE);
             }
 
             if (ConstantValues.POLY_ADS.equals(libBean.getType())
@@ -1536,7 +1536,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             @Override
             public void onAnimationEnd(Animation animation) {
                 haveWineBgLayout.clearAnimation();
-                haveWineBgLayout.setVisibility(View.GONE);
+                haveWineBgLayout.setVisibility(View.INVISIBLE);
             }
 
             @Override
