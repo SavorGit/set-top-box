@@ -1660,7 +1660,11 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             }
         } else if (listStoreSale != null && listStoreSale.size()>0){
             MediaLibBean libBean = listStoreSale.get(0);
-            String price = libBean.getPrice();
+            String price="";
+            int is_price = libBean.getIs_price();
+            if (is_price==1){
+                price = libBean.getPrice();
+            }
             String imgPath = libBean.getImage_path();
             String path = AppUtils.getFilePath(AppUtils.StorageFile.StoreSale) + fileName;
             File file = new File(path);

@@ -1402,14 +1402,17 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 layerWidth = haveWineBgLayout.getWidth();
                 String imagePath = libBean.getImage_path();
                 String imageUrl = libBean.getImage_url();
-                String price = libBean.getPrice();
                 if (!TextUtils.isEmpty(imagePath)){
                     GlideImageLoader.loadLocalImage(mContext,new File(imagePath),wineImgIV);
                 }else if (!TextUtils.isEmpty(imageUrl)){
                     GlideImageLoader.loadImage(mContext,imageUrl,wineImgIV);
                 }
-                winePriceTV.setText(price);
-                handler.postDelayed(layerToLeftRunnable,15*1000);
+                String price = libBean.getPrice();
+                int is_price = libBean.getIs_price();
+                if (is_price==1&&!TextUtils.isEmpty(price)){
+                    winePriceTV.setText(price);
+                    handler.postDelayed(layerToLeftRunnable,15*1000);
+                }
             }else{
                 haveWineBgLayout.setVisibility(View.INVISIBLE);
             }
