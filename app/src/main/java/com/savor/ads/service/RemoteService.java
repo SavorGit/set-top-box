@@ -102,6 +102,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
+import static com.savor.ads.utils.GlobalValues.FROM_SERVICE_MINIPROGRAM;
 import static com.savor.ads.utils.GlobalValues.FROM_SERVICE_REMOTE;
 
 
@@ -621,7 +622,7 @@ public class RemoteService extends Service {
                         if (!TextUtils.isEmpty(play_time)&&!play_time.equals("0")){
                             time = Integer.valueOf(play_time);
                         }
-                        RemoteService.listener.showRestVideo(resultFile.getAbsolutePath(),true, avatarUrl, nickName,time);
+                        RemoteService.listener.showRestVideo(resultFile.getAbsolutePath(),true, avatarUrl, nickName,time,currentAction,FROM_SERVICE_MINIPROGRAM);
                         postSimpleMiniProgramProjectionLog(action,duration,"",forscreen_id,filename,resource_size,resource_type,media_path,serial_number,repeat);
                     }
                     object = new BaseResponse();

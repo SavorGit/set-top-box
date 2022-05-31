@@ -70,10 +70,10 @@ public interface OnRemoteOperationListener {
     /**欢迎词专用-携带服务人员信息*/
     PrepareResponseVoNew showRestImage(int imageType, String imageUrl,int rotation,String musicPath,String words,String wordsSize,String wordsColor,String fontPath,String waiterName,String waiterIconUrl,int projectionTime,int fromService);
 
-    PrepareResponseVoNew showRestVideo(String videoPath,boolean isNewDevice,String avatarUrl,String nickname,int projectionTime);
-    PrepareResponseVoNew showRestVideo(String videoPath,String videoUrl,boolean isNewDevice,String avatarUrl,String nickname,int projectionTime);
+    PrepareResponseVoNew showRestVideo(String videoPath,boolean isNewDevice,String avatarUrl,String nickname,int projectionTime,int action,int fromService);
+    PrepareResponseVoNew showRestVideo(String videoPath,String videoUrl,boolean isNewDevice,String avatarUrl,String nickname,int projectionTime,int action,int fromService);
     /**销售端点播酒水售卖广告**/
-    PrepareResponseVoNew showRestVideo(String videoPath, boolean isNewDevice,String price,String imgPath);
+    PrepareResponseVoNew showRestVideo(String videoPath, boolean isNewDevice,String price,String imgPath,int action,int fromService);
 
     void rstrStop();
 

@@ -1210,11 +1210,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         MobclickAgent.onEvent(context, "screenProjctionDownloadSuccess" + file.getName());
         resetConstant();
         if (currentAction==42){
-            if (isDownloaded){
-                ProjectOperationListener.getInstance(context).showRestVideo(basePath,oss_url,true, headPic, nickName,minipp.getPlay_times());
-            }else{
-                ProjectOperationListener.getInstance(context).showRestVideo(basePath,oss_url,true, headPic, nickName,minipp.getPlay_times());
-            }
+            ProjectOperationListener.getInstance(context).showRestVideo(basePath,oss_url,true, headPic, nickName,minipp.getPlay_times(),currentAction,FROM_SERVICE_MINIPROGRAM);
         }else {
             //記錄投屏次數
             if (GlobalValues.VIDEO_NUM.containsKey(openid)){
@@ -1670,10 +1666,13 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             File file = new File(path);
             if (file.exists()) {
                 params.put("is_exist",1);
-                ProjectOperationListener.getInstance(context).showRestVideo(path,true,price,imgPath);
+                ProjectOperationListener.getInstance(context).showRestVideo(path,true,price,imgPath,currentAction,FROM_SERVICE_MINIPROGRAM);
             }
         }else {
             params.put("is_exist",0);
+            if (!url.startsWith("http")){
+                url = BuildConfig.OSS_ENDPOINT+url;
+            }
             ProjectOperationListener.getInstance(context).showVideo("",url, true,currentAction,FROM_SERVICE_MINIPROGRAM);
         }
         postProjectionResourceLog(params);
@@ -3028,7 +3027,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     if (mpProjection!=null){
                         time =mpProjection.getPlay_times();
                     }
-                    ProjectOperationListener.getInstance(context).showRestVideo(GlobalValues.PROJECTION_VIDEO_PATH,true, headPic, nickName,time);
+                    ProjectOperationListener.getInstance(context).showRestVideo(GlobalValues.PROJECTION_VIDEO_PATH,true, headPic, nickName,time,currentAction,FROM_SERVICE_MINIPROGRAM);
                 }else {
                     ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH,true,forscreenId, headPic, nickName,currentAction, FROM_SERVICE_MINIPROGRAM);
                 }
@@ -3059,7 +3058,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         if (mpProjection!=null){
                             time =mpProjection.getPlay_times();
                         }
-                        ProjectOperationListener.getInstance(context).showRestVideo(GlobalValues.PROJECTION_VIDEO_PATH,true, headPic, nickName,time);
+                        ProjectOperationListener.getInstance(context).showRestVideo(GlobalValues.PROJECTION_VIDEO_PATH,true, headPic, nickName,time,currentAction,FROM_SERVICE_MINIPROGRAM);
                     }else {
                         ProjectOperationListener.getInstance(context).showVideo(GlobalValues.PROJECTION_VIDEO_PATH,true,forscreenId, headPic, nickName, currentAction,FROM_SERVICE_MINIPROGRAM);
                     }

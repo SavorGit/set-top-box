@@ -399,7 +399,7 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
     }
 
     @Override
-    public PrepareResponseVoNew showRestVideo(String videoPath, boolean isNewDevice,String avatarUrl,String nickname,int projectionTime) {
+    public PrepareResponseVoNew showRestVideo(String videoPath, boolean isNewDevice,String avatarUrl,String nickname,int projectionTime,int action,int fromService) {
         PrepareResponseVoNew localResult = new PrepareResponseVoNew();
         if (!TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_ID)) {
             GlobalValues.LAST_PROJECT_ID = GlobalValues.CURRENT_PROJECT_ID;
@@ -409,14 +409,14 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
         localResult.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
         localResult.setMsg("加载成功！");
 
-        VideoRestAction videoAction = new VideoRestAction(mContext, videoPath, isNewDevice,avatarUrl,nickname,projectionTime);
+        VideoRestAction videoAction = new VideoRestAction(mContext, videoPath, isNewDevice,avatarUrl,nickname,projectionTime,action,fromService);
         ProjectionManager.getInstance().enqueueAction(videoAction);
 
         return localResult;
     }
 
     @Override
-    public PrepareResponseVoNew showRestVideo(String videoPath,String videoUrl, boolean isNewDevice,String avatarUrl,String nickname,int projectionTime) {
+    public PrepareResponseVoNew showRestVideo(String videoPath,String videoUrl, boolean isNewDevice,String avatarUrl,String nickname,int projectionTime,int action,int fromService) {
         PrepareResponseVoNew localResult = new PrepareResponseVoNew();
         if (!TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_ID)) {
             GlobalValues.LAST_PROJECT_ID = GlobalValues.CURRENT_PROJECT_ID;
@@ -426,14 +426,14 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
         localResult.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
         localResult.setMsg("加载成功！");
 
-        VideoRestAction videoAction = new VideoRestAction(mContext, videoPath,videoUrl, isNewDevice,avatarUrl,nickname,projectionTime);
+        VideoRestAction videoAction = new VideoRestAction(mContext, videoPath,videoUrl, isNewDevice,avatarUrl,nickname,projectionTime,action,fromService);
         ProjectionManager.getInstance().enqueueAction(videoAction);
 
         return localResult;
     }
 
     @Override
-    public PrepareResponseVoNew showRestVideo(String videoPath,boolean isNewDevice,String price,String imgPath) {
+    public PrepareResponseVoNew showRestVideo(String videoPath,boolean isNewDevice,String price,String imgPath,int action,int fromService) {
         PrepareResponseVoNew localResult = new PrepareResponseVoNew();
         if (!TextUtils.isEmpty(GlobalValues.CURRENT_PROJECT_ID)) {
             GlobalValues.LAST_PROJECT_ID = GlobalValues.CURRENT_PROJECT_ID;
@@ -443,7 +443,7 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
         localResult.setCode(AppApi.HTTP_RESPONSE_STATE_SUCCESS);
         localResult.setMsg("加载成功！");
 
-        VideoRestAction videoAction = new VideoRestAction(mContext, videoPath,isNewDevice,price,imgPath);
+        VideoRestAction videoAction = new VideoRestAction(mContext, videoPath,isNewDevice,price,imgPath,action,fromService);
         ProjectionManager.getInstance().enqueueAction(videoAction);
 
         return localResult;

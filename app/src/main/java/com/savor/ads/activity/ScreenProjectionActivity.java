@@ -422,12 +422,23 @@ public class ScreenProjectionActivity extends BaseActivity{
     }
 
     private void initVolume() {
+        /**临时使用代码，播放酒水平台引导视频时音量设置为80*/
+        if (!TextUtils.isEmpty(mMediaPath)&&mMediaPath.contains("tBtFDitm8N.mp4")){
+            mCurrentVolume =80;
+            setVolume(mCurrentVolume);
+            return;
+        }
+        if (!TextUtils.isEmpty(mMediaUrl)&&mMediaUrl.contains("tBtFDitm8N.mp4")){
+            mCurrentVolume =80;
+            setVolume(mCurrentVolume);
+            return;
+        }
         if (!mHasInitializedVolume) {
             if (from_service==GlobalValues.FROM_SERVICE_MINIPROGRAM){
                 if (AppUtils.isSVT()||AppUtils.isPhilips()) {
                     if (currentAction==4||currentAction==10){
                         mCurrentVolume = mSession.getTvImgFroscreenVolume();
-                    }else if (currentAction==2){
+                    }else if (currentAction==2||currentAction==42){
                         mCurrentVolume = mSession.getTvVideoFroscreenVolume();
                     }else if (currentAction==12){
                         mCurrentVolume = mSession.getTvContentDemandVolume();
@@ -437,7 +448,7 @@ public class ScreenProjectionActivity extends BaseActivity{
                 } else {
                     if (currentAction==4||currentAction==10){
                         mCurrentVolume = mSession.getBoxImgFroscreenVolume();
-                    }else if (currentAction==2||currentAction==23){
+                    }else if (currentAction==2||currentAction==23||currentAction==42){
                         mCurrentVolume = mSession.getBoxVideoFroscreenVolume();
                     }else if (currentAction==12){
                         mCurrentVolume = mSession.getBoxContentDemandVolume();

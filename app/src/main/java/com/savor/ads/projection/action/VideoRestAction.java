@@ -28,8 +28,10 @@ public class VideoRestAction extends ProjectionActionBase implements Serializabl
     private int projectionTime;
     private String price;
     private String imgPath;
+    private int action;
 
-    public VideoRestAction(Context context, String videoPath, boolean isNewDevice, String avatarUrl, String nickname,int projectionTime) {
+
+    public VideoRestAction(Context context, String videoPath, boolean isNewDevice, String avatarUrl, String nickname,int projectionTime,int currentAction,int fromService) {
         super();
 
         mPriority = ProjectPriority.HIGH;
@@ -39,9 +41,11 @@ public class VideoRestAction extends ProjectionActionBase implements Serializabl
         this.avatarUrl = avatarUrl;
         this.nickname = nickname;
         this.projectionTime = projectionTime;
+        this.action = currentAction;
+        this.fromService = fromService;
     }
 
-    public VideoRestAction(Context context, String videoPath,String videoUrl, boolean isNewDevice, String avatarUrl, String nickname,int projectionTime) {
+    public VideoRestAction(Context context, String videoPath,String videoUrl, boolean isNewDevice, String avatarUrl, String nickname,int projectionTime,int currentAction,int fromService) {
         super();
 
         mPriority = ProjectPriority.HIGH;
@@ -52,9 +56,11 @@ public class VideoRestAction extends ProjectionActionBase implements Serializabl
         this.avatarUrl = avatarUrl;
         this.nickname = nickname;
         this.projectionTime = projectionTime;
+        this.action = currentAction;
+        this.fromService = fromService;
     }
 
-    public VideoRestAction(Context context, String videoPath,boolean isNewDevice, String price, String imgPath) {
+    public VideoRestAction(Context context, String videoPath,boolean isNewDevice, String price, String imgPath,int currentAction,int fromService) {
         super();
 
         mPriority = ProjectPriority.HIGH;
@@ -63,6 +69,8 @@ public class VideoRestAction extends ProjectionActionBase implements Serializabl
         this.isNewDevice = isNewDevice;
         this.price = price;
         this.imgPath = imgPath;
+        this.action = currentAction;
+        this.fromService = fromService;
     }
 
     @Override
@@ -81,6 +89,8 @@ public class VideoRestAction extends ProjectionActionBase implements Serializabl
         data.putString(ScreenProjectionActivity.EXTRA_IMAGE_PATH,imgPath);
         data.putString(ScreenProjectionActivity.EXTRA_PRICE_ID,price);
         data.putSerializable(ScreenProjectionActivity.EXTRA_PROJECT_ACTION, this);
+        data.putInt(ScreenProjectionActivity.EXTRA_ACTION_ID, action);
+        data.putInt(ScreenProjectionActivity.EXTRA_FROM_SERVICE_ID, fromService);
         Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
         if (activity instanceof ScreenProjectionActivity && !((ScreenProjectionActivity) activity).isBeenStopped()) {
             LogUtils.d("Listener will setNewProjection");
