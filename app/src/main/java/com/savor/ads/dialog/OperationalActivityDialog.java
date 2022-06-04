@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
@@ -26,6 +27,7 @@ import com.bumptech.glide.request.target.Target;
 import com.savor.ads.R;
 import com.savor.ads.SavorApplication;
 import com.savor.ads.activity.AdsPlayerActivity;
+import com.savor.ads.customview.StrokeTextView;
 import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.DensityUtil;
 import com.savor.ads.utils.GlideImageLoader;
@@ -46,6 +48,9 @@ public class OperationalActivityDialog extends Dialog{
     private LinearLayout activityLayout;
     private ImageView activityQrcodeIV;
     private TextView activityCountDownTv;
+    private LinearLayout prizeInfoLayout;
+    private ImageView prizeImgIV;
+    private StrokeTextView prizeNameTV;
 
     private boolean mIsAdded;
     private boolean mIsHandling;
@@ -89,6 +94,9 @@ public class OperationalActivityDialog extends Dialog{
         layoutParams.height = this.height/4*3;
         activityLayout.setLayoutParams(layoutParams);
         activityQrcodeIV = findViewById(R.id.activity_qrcode);
+        prizeInfoLayout = findViewById(R.id.prize_info_layout);
+        prizeImgIV = findViewById(R.id.prize_img);
+        prizeNameTV = findViewById(R.id.prize_name);
         activityCountDownTv = findViewById(R.id.activity_countdown);
     }
 
@@ -113,7 +121,7 @@ public class OperationalActivityDialog extends Dialog{
     //退出线程
     private Runnable mExitRunnable = ()->hideQrCode();
 
-    public void showActivityWindow(final Context context, final String url,int delayTime) {
+    public void showActivityWindow(final Context context, String prizeImg,String prizeName,final String url,int delayTime) {
         LogUtils.d("OperationalActivityDialog");
         if (TextUtils.isEmpty(url)) {
             LogUtils.e("URL is empty, will not show code window!!");
@@ -122,6 +130,16 @@ public class OperationalActivityDialog extends Dialog{
         if (delayTime!=0){
             this.delayTime = delayTime;
         }
+        if (!TextUtils.isEmpty(prizeName)){
+            prizeNameTV.setText("奖品:"+prizeName);
+        }
+        if (!TextUtils.isEmpty(prizeImg)){
+            GlideImageLoader.loadImage(mContext,prizeImg,prizeImgIV);
+            prizeInfoLayout.setVisibility(View.VISIBLE);
+        }else{
+            prizeInfoLayout.setVisibility(View.GONE);
+        }
+
         mIsHandling = true;
 
         LogUtils.v("OperationalActivityDialog 开始addView");

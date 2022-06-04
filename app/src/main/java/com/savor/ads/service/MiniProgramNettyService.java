@@ -1779,7 +1779,12 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         }
         int lottery_countdown = mpp.getLottery_countdown();
         String codeUrl = mpp.getCodeUrl();
-
+        String prizeImgUrl = null;
+        if (!TextUtils.isEmpty(mpp.getPartake_img())){
+            prizeImgUrl = BuildConfig.OSS_ENDPOINT+mpp.getPartake_img();
+        }
+        String prizeName = mpp.getPartake_name();
+        String finalPrizeImgUrl = prizeImgUrl;
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -1789,7 +1794,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 activityDialog = new OperationalActivityDialog(context);
                 if (!TextUtils.isEmpty(codeUrl)){
                     activityDialog.show();
-                    activityDialog.showActivityWindow(context,codeUrl,lottery_countdown);
+                    activityDialog.showActivityWindow(context, finalPrizeImgUrl,prizeName,codeUrl,lottery_countdown);
                     ((SavorApplication) getApplication()).hideMiniProgramQrCodeWindow();
                 }
             }
