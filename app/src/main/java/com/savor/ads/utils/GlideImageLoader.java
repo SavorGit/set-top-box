@@ -48,14 +48,6 @@ public class GlideImageLoader {
                 .into(imageView);
     }
 
-    public static void loadImage(Context context, String imgPath, ImageView imageView) {
-        if (context == null) {
-            return;
-        }
-        Context appContext = context.getApplicationContext();
-        loadImage(appContext, imgPath, imageView, globalPlaceholderResId, globalFailedResId);
-    }
-
     public static void loadImageWithoutCache(Context context, String imgPath, ImageView imageView, int placeholderResId, int failedResId) {
         if (context == null) {
             return;
@@ -88,6 +80,21 @@ public class GlideImageLoader {
                 .into(imageView);
     }
 
+    public static void loadImageWithDrawable(Context context, String imgPath, ImageView imageView, Drawable placeholderResId) {
+        if (context==null){
+            return;
+        }
+        RequestOptions requestOptions = new RequestOptions()
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)//不使用硬盘缓存
+                .placeholder(placeholderResId)
+                .dontAnimate();
+        Glide.with(context)
+                .load(imgPath)
+                .apply(requestOptions)
+                .into(imageView);
+    }
+
     public static void loadLocalImage(Context context, File file, ImageView imageView) {
         if (context == null) {
             return;
@@ -114,6 +121,14 @@ public class GlideImageLoader {
                 .into(imageView);
     }
 
+    public static void loadImage(Context context, String imgPath, ImageView imageView) {
+        if (context == null) {
+            return;
+        }
+        Context appContext = context.getApplicationContext();
+        loadImage(appContext, imgPath, imageView, globalPlaceholderResId, globalFailedResId);
+    }
+
     public static void loadImage(Context context, String imgPath, ImageView imageView, int placeholderResId, int failedResId) {
         if (context == null) {
             return;
@@ -130,20 +145,7 @@ public class GlideImageLoader {
                 .apply(requestOptions)
                 .into(imageView);
     }
-    public static void loadImageWithDrawable(Context context, String imgPath, ImageView imageView, Drawable placeholderResId) {
-        if (context==null){
-            return;
-        }
-        RequestOptions requestOptions = new RequestOptions()
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)//不使用硬盘缓存
-                .placeholder(placeholderResId)
-                .dontAnimate();
-        Glide.with(context)
-                .load(imgPath)
-                .apply(requestOptions)
-                .into(imageView);
-    }
+
     public static void loadImage(Context context, String imgPath, ImageView imageView, Drawable placeholderResId) {
         if (context==null){
             return;

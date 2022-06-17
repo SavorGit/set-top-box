@@ -10,6 +10,8 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.alibaba.sdk.android.oss.ClientException;
+import com.alibaba.sdk.android.oss.ServiceException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -815,20 +817,25 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                         + session.getEthernetMac()
                         + File.separator
                         + fileName + ".zip";
+                try{
+                    new OSSUtils(context,
+                            BuildConfig.OSS_BUCKET_NAME,
+                            ossFilePath,
+                            zipPath,
+                            new LogUploadService.UploadCallback() {
+                                @Override
+                                public void isSuccessOSSUpload(boolean flag) {
 
-                new OSSUtils(context,
-                        BuildConfig.OSS_BUCKET_NAME,
-                        ossFilePath,
-                        zipPath,
-                        new LogUploadService.UploadCallback() {
-                            @Override
-                            public void isSuccessOSSUpload(boolean flag) {
-
-                                if (zipFile.exists()) {
-                                    zipFile.delete();
+                                    if (zipFile.exists()) {
+                                        zipFile.delete();
+                                    }
                                 }
-                            }
-                        }).asyncUploadFile();
+                            }).asyncUploadFile();
+                }catch (ServiceException e){
+                    e.printStackTrace();
+                }catch (ClientException e){
+                    e.printStackTrace();
+                }
             }
         }).start();
     }

@@ -17,7 +17,7 @@ android {
         targetSdkVersion TARGET_SDK_VERSION as int
 
         //noinspection HighAppVersionCode
-        versionCode 2022060603
+        versionCode 2022061703
         versionName "2.5.3"
         multiDexEnabled true
     }
@@ -96,7 +96,7 @@ android {
             buildConfigField("String", "JDMOMEDIA_AD_BASE_URL", "\"https://api.jdmomedia.com/\"")
             buildConfigField("String", "YISHOU_AD_BASE_URL", "\"http://api6.pingxiaobao.com/rtb/subscribe.shtml\"")
             buildConfigField("String", "OSS_BUCKET_NAME", "\"redian-produce\"")
-            buildConfigField("String", "OSS_ENDPOINT", "\"http://oss.littlehotspot.com/\"")
+            buildConfigField("String", "OSS_ENDPOINT", "\"https://oss.littlehotspot.com/\"")
             buildConfigField("String", "OSS_NATIVE_ENDPOINT", "\"http://oss-cn-beijing.aliyuncs.com/\"")
         }
     }

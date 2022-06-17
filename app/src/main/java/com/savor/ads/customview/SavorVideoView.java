@@ -454,37 +454,6 @@ public class SavorVideoView extends RelativeLayout implements PlayStateCallback 
         }
     };
 
-//    public void projectTipAnimateIn() {
-//
-//        if (Looper.myLooper() == Looper.getMainLooper()) {
-//            doAnimationIn();
-//        } else {
-//            mImgView.post(new Runnable() {
-//                @Override
-//                public void run() {
-//                    doAnimationIn();
-//                }
-//            });
-//        }
-//    }
-
-//    private void doAnimationIn() {
-//        TranslateAnimation animation = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, -1, Animation.RELATIVE_TO_SELF, 0,
-//                Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0);
-//        animation.setDuration(1000);
-//        animation.setFillAfter(true);
-//        mImgView.setVisibility(View.VISIBLE);
-//        mImgView.startAnimation(animation);
-//    }
-
-//    private void projectTipAnimateOut() {
-//        TranslateAnimation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_PARENT, 1,
-//                Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0);
-//        animation.setDuration(1000);
-//        animation.setFillAfter(true);
-//        mImgView.startAnimation(animation);
-//    }
-
     /**
      * 准备播放
      */

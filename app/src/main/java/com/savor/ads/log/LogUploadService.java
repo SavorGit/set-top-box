@@ -4,8 +4,10 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
+import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
+import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
@@ -81,7 +83,6 @@ public class LogUploadService {
                     }
                 }
                 if (AppUtils.isNetworkAvailable(context)){
-//                    uploadLotteryRecordFile();
                     while (true) {
                         uploadFile();
                         uploadQRCodeLogFile();
@@ -142,22 +143,27 @@ public class LogUploadService {
                                         AppUtils.getCurTime("yyyyMMdd") + File.separator + name + ".zip";
                             }
 
-
-                            new OSSUtils(context,
-                                    BuildConfig.OSS_BUCKET_NAME,
-                                    ossFilePath,
-                                    localFilePath,
-                                    new UploadCallback() {
-                                        @Override
-                                        public void isSuccessOSSUpload(boolean flag) {
-                                            if (flag) {
-                                                afterOSSUpload(name, time);
+                            try{
+                                new OSSUtils(context,
+                                        BuildConfig.OSS_BUCKET_NAME,
+                                        ossFilePath,
+                                        localFilePath,
+                                        new UploadCallback() {
+                                            @Override
+                                            public void isSuccessOSSUpload(boolean flag) {
+                                                if (flag) {
+                                                    afterOSSUpload(name, time);
+                                                }
+                                                if (zipFile.exists()) {
+                                                    zipFile.delete();
+                                                }
                                             }
-                                            if (zipFile.exists()) {
-                                                zipFile.delete();
-                                            }
-                                        }
-                                    }).asyncUploadFile();
+                                        }).asyncUploadFile();
+                            }catch (ServiceException e){
+                                e.printStackTrace();
+                            }catch (ClientException e){
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }
@@ -196,21 +202,27 @@ public class LogUploadService {
                         if (zipFile.exists()) {
                             String localFilePath = archivePath.substring(1, archivePath.length());
                             String ossFilePath = OSSValues.uploadQRCodePath + session.getOssAreaId() + File.separator + AppUtils.getCurTime("yyyyMMdd") + File.separator + name + ".zip";
-                            new OSSUtils(context,
-                                    BuildConfig.OSS_BUCKET_NAME,
-                                    ossFilePath,
-                                    localFilePath,
-                                    new UploadCallback() {
-                                        @Override
-                                        public void isSuccessOSSUpload(boolean flag) {
-                                            if (flag) {
+                            try{
+                                new OSSUtils(context,
+                                        BuildConfig.OSS_BUCKET_NAME,
+                                        ossFilePath,
+                                        localFilePath,
+                                        new UploadCallback() {
+                                            @Override
+                                            public void isSuccessOSSUpload(boolean flag) {
+                                                if (flag) {
 //                                                afterOSSUpload(name, time);
+                                                }
+                                                if (zipFile.exists()) {
+                                                    zipFile.delete();
+                                                }
                                             }
-                                            if (zipFile.exists()) {
-                                                zipFile.delete();
-                                            }
-                                        }
-                                    }).asyncUploadFile();
+                                        }).asyncUploadFile();
+                            }catch (ServiceException e){
+                                e.printStackTrace();
+                            }catch (ClientException e){
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }

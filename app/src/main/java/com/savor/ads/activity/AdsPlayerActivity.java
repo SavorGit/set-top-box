@@ -31,6 +31,10 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.protobuf.ByteString;
 import com.jar.savor.box.ServiceUtil;
 import com.jar.savor.box.vo.VolumeResponseVo;
@@ -96,6 +100,7 @@ import com.savor.ads.utils.TimeUtils;
 import com.savor.ads.utils.ZmengAdsResponseCode;
 import com.savor.tvlibrary.OutputResolution;
 import com.savor.tvlibrary.TVOperatorFactory;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.json.JSONObject;
@@ -117,6 +122,8 @@ import tianshu.ui.api.ZmtAPI;
 import tianshu.ui.api.ZmtAdRequestUtil;
 
 import static com.savor.ads.utils.ConstantValues.DSP_DOWNLOADING_FILES;
+
+import androidx.annotation.Nullable;
 
 /**
  * 广告播放页面
@@ -2322,13 +2329,16 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             e.printStackTrace();
         }
     }
-
+    int retryFrontCount = 0;
+    int retryBackCount = 0;
     private void showCurrentSeckillGoods(){
         if (seckillGoodsBeanList==null||seckillGoodsBeanList.size()==0){
             currentSeckillIndex = 0;
             seckillState = -1;
             return;
         }
+        retryFrontCount = 0;
+        retryBackCount = 0;
         currentSeckillIndex = currentSeckillIndex%seckillGoodsBeanList.size();
         seckillGoodsBean = seckillGoodsBeanList.get(currentSeckillIndex);
         seckillState =1;
@@ -2353,8 +2363,9 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             hotelNameFrontTV.setVisibility(View.VISIBLE);
             hotelNameBackTV.setVisibility(View.VISIBLE);
         }
-        GlideImageLoader.loadImage(mContext,goodsImgUrl,seckillGoodsFrontIV);
-        GlideImageLoader.loadImage(mContext,goodsImgUrl,seckillGoodsBackIV);
+        //加入重试机制，如果图片加载失败，则重试加载三次，如果还是失败，则关闭灯笼窗口20220608
+        retryFrontLoadImg(goodsImgUrl,seckillGoodsFrontIV);
+        retryBackLoadImg(goodsImgUrl,seckillGoodsBackIV);
         goodsJDPriceFrontTV.setText("京东价"+jdPrice+"/瓶");
         goodsJDPriceBackTV.setText("京东价"+jdPrice+"/瓶");
         goodsSeckillPriceFrontTV.setText(price+"/瓶");
@@ -2368,6 +2379,59 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         seckillBackLayout.setVisibility(View.VISIBLE);
         mHandler.removeCallbacks(seckillCountdownRunnable);
         mHandler.post(seckillCountdownRunnable);
+    }
+
+    private void retryFrontLoadImg(String imageUrl,ImageView imageView){
+        final Runnable runnable = ()->retryFrontLoadImg(imageUrl,imageView);
+        GlideImageLoader.loadImageWithoutCache(mContext, imageUrl, imageView, new RequestListener() {
+            @Override
+            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+                CrashReport.postCatchedException(e);
+                if (retryFrontCount<3){
+                    mHandler.postDelayed(runnable,100);
+                    retryFrontCount++;
+                }else{
+                    mHandler.removeCallbacks(seckillCountdownRunnable);
+                    mHandler.removeCallbacks(flipCardRunnable);
+                    mHandler.removeCallbacks(switchSeckillRunnable);
+                    seckillFrontLayout.setVisibility(View.GONE);
+                    seckillBackLayout.setVisibility(View.GONE);
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+                return false;
+            }
+        });
+
+    }
+    private void retryBackLoadImg(String imageUrl,ImageView imageView){
+        final Runnable runnable = ()->retryBackLoadImg(imageUrl,imageView);
+        GlideImageLoader.loadImageWithoutCache(mContext, imageUrl, imageView, new RequestListener() {
+            @Override
+            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+                CrashReport.postCatchedException(e);
+                if (retryBackCount<3){
+                    mHandler.postDelayed(runnable,100);
+                    retryBackCount++;
+                }else{
+                    mHandler.removeCallbacks(seckillCountdownRunnable);
+                    mHandler.removeCallbacks(flipCardRunnable);
+                    mHandler.removeCallbacks(switchSeckillRunnable);
+                    seckillFrontLayout.setVisibility(View.GONE);
+                    seckillBackLayout.setVisibility(View.GONE);
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+                return false;
+            }
+        });
+
     }
 
     private void handleCaptionTip(List<String> rollContent){

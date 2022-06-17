@@ -170,7 +170,7 @@ public class OSSUtils {
     /**
      * 阿里云OSS异步上传文件
      */
-    public void asyncUploadFile(){
+    public void asyncUploadFile() throws ServiceException, ClientException {
         File uploadFile = new File(uploadFilePath);
         Date lastModifiedDate = new Date(uploadFile.lastModified());
         ObjectMetadata metadata = new ObjectMetadata();
