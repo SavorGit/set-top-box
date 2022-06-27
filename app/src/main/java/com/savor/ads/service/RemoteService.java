@@ -1822,7 +1822,7 @@ public class RemoteService extends Service {
                 if (GlobalValues.PROJECT_STREAM_IMAGE.size()>0){
                     currentIndex=0;
                     String url = GlobalValues.PROJECT_STREAM_IMAGE.get(currentIndex);
-                    RemoteService.listener.showImage(1,url,false,forscreen_id,forscreen_char,avatarUrl,nickName,"","",currentAction,GlobalValues.FROM_SERVICE_REMOTE);
+                    RemoteService.listener.showImage(11,url,false,forscreen_id,forscreen_char,avatarUrl,nickName,"","",currentAction,GlobalValues.FROM_SERVICE_REMOTE);
                 }
                 respJson = new Gson().toJson(object);
             }catch (Exception e){

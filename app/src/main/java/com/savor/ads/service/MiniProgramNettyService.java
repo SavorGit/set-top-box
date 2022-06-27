@@ -808,7 +808,11 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                         if (currentIndex==0&&mpProjection.getImg_slide()==0){
                             ProjectOperationListener.getInstance(context).showImage(1,uri,true,forscreen_id,words,avatarUrl,nickName,"",musicPath,currentAction, FROM_SERVICE_MINIPROGRAM);
                         }else {
-                            ProjectOperationListener.getInstance(context).showImage(1,uri,false,forscreen_id,words,avatarUrl,nickName,"","",currentAction, FROM_SERVICE_MINIPROGRAM);
+                            if(mpProjection.getImg_slide()==1){
+                                ProjectOperationListener.getInstance(context).showImage(11,uri,false,forscreen_id,words,avatarUrl,nickName,"","",currentAction, FROM_SERVICE_MINIPROGRAM);
+                            }else{
+                                ProjectOperationListener.getInstance(context).showImage(1,uri,false,forscreen_id,words,avatarUrl,nickName,"","",currentAction, FROM_SERVICE_MINIPROGRAM);
+                            }
                         }
 
                         DOWNLOAD_TIME = 0;

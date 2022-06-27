@@ -109,6 +109,8 @@ public class ScreenProjectionActivity extends BaseActivity{
      */
     //标准版投屏轮播时间
     private static final int PROJECT_DURATION = 1000 * 10+2000;
+    //投屏图片单张滑动时间
+    private static final int PROJECT_SLIDE_DURATION = 1000 * 30;
     //餐厅版投屏轮播时间
     private static final int REST_PROJECT_DURATION = 1000 * 60;
     private static final int WELCOME_PROJECT_DURATION = 1000 * 20;
@@ -141,6 +143,7 @@ public class ScreenProjectionActivity extends BaseActivity{
     /**
      * 图片类型
      * 1：用户端普通图片；
+     * 11：用户端普通图片滑动；
      * 2：用户端文件图片；
      * 3：用户端幻灯片图片；
      * 4: 销售端投图片
@@ -1508,6 +1511,8 @@ public class ScreenProjectionActivity extends BaseActivity{
                 if (!TextUtils.isEmpty(delayTime)){
                     duration = Integer.valueOf(delayTime)*1000;
                 }
+            }else if (11 == mImageType){
+                duration = PROJECT_SLIDE_DURATION;
             }else if (2 == mImageType) {
                 if (projectionTime!=0){
                     duration = projectionTime*1000;
