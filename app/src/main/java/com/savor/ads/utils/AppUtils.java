@@ -2514,7 +2514,7 @@ public class AppUtils {
                 if (num==0){
                     return null;
                 }
-                if (GlobalValues.INTERVAL_INTERACTION_ADS_NUM>=num){
+                if (GlobalValues.INTERVAL_INTERACTION_ADS_NUM>num){
                     GlobalValues.INTERVAL_INTERACTION_ADS_NUM=1;
                     List<MediaLibBean> list = DBHelper.get(context).findInteractionAdsByWhere(null,null);
                     if (list!=null&&list.size()>0){

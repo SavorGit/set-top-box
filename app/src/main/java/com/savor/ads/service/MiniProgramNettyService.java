@@ -1419,6 +1419,24 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 });
             }
         }
+
+        if (GlobalValues.INTERACTION_ADS_PLAY==0&&currentAction==10){
+            preOrNextAdsBean = AppUtils.getInteractionAds(context);
+            if (preOrNextAdsBean!=null){
+                if (preOrNextAdsBean.getPlay_position()==1){
+                    GlobalValues.INTERACTION_ADS_PLAY = 1;
+                    String adspath = preOrNextAdsBean.getMediaPath();
+                    String duration = preOrNextAdsBean.getDuration();
+                    if (preOrNextAdsBean.getMedia_type()==1){
+                        ProjectOperationListener.getInstance(context).showVideo(adspath,  true,forscreen_id, true,duration,currentAction, FROM_SERVICE_MINIPROGRAM);
+                    }else{
+                        ProjectOperationListener.getInstance(context).showImage(5, adspath, true,forscreen_id, words, headPic, nickName,duration,"",currentAction, FROM_SERVICE_MINIPROGRAM);
+                    }
+                    postForscreenAdsLog(preOrNextAdsBean.getVid());
+                    preOrNextAdsBean = null;
+                }
+            }
+        }
         downloadIndex =0;
         new Thread(()->downloadFile(downloadIndex)).start();
     }
@@ -2969,7 +2987,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
 //                    }
                 }
             }
-            if (action!=2&&action!=4&&action!=6&&action!=7&&action==currentAction){
+            if (action!=2&&action!=4&&action!=6&&action!=7&&action!=10&&action!=12&&action==currentAction){
                 return;
             }
             if (mpProjection==null){
@@ -2978,6 +2996,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             switch (currentAction){
                 case 2:
                 case 4:
+                case 10:
+                case 12:
                     handleImgAndVideoProjection(forscreen_id);
                     break;
                 case 3:

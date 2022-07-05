@@ -832,6 +832,7 @@ public class RemoteService extends Service {
                 String totalChunks = request.getParameter("totalChunks");
                 String serial_number = request.getParameter("serial_number");
                 String forscreen_char = request.getParameter("forscreen_char");
+                LogUtils.d("forscreen_char>>>>"+forscreen_char);
                 String img_size = request.getParameter("img_size");
                 String resource_id = request.getParameter("img_size");
                 //0:原图，1:缩略图
@@ -1614,6 +1615,7 @@ public class RemoteService extends Service {
                 return;
             }
             boolean isGo = false;
+
             if (currentAction==5||currentAction==28){
                 if (GlobalValues.PROJECT_STREAM_IMAGE.size()>currentIndex){
                     isGo = true;
@@ -2469,7 +2471,9 @@ public class RemoteService extends Service {
             }
             switch (currentAction){
                 case 2:
+                case 22:
                 case 5:
+                case 23:
                     if (GlobalValues.INTERACTION_ADS_PLAY==1){
                         if (GlobalValues.PROJECT_STREAM_IMAGE.size()>0){
                             if (!isPPTRunnable){
