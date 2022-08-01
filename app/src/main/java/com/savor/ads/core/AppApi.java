@@ -126,6 +126,7 @@ public class AppApi {
         SP_POST_UPLOAD_PROGRAM_GIEC_JSON,
         CP_GET_SP_IP_JSON,
         SP_GET_BOX_INIT_JSON,
+        CP_GET_SYS_VOLUME_JSON,
         CP_GET_PRIZE_JSON,
         CP_REPORT_LOTTERY_JSON,
         PH_NOTIFY_STOP_JSON,
@@ -211,6 +212,7 @@ public class AppApi {
             put(Action.SP_POST_UPLOAD_PROGRAM_GIEC_JSON, SP_BASE_URL + "small/tvListNew/api/stb/tv_commands");
             put(Action.CP_GET_SP_IP_JSON, BuildConfig.BASE_URL + "basedata/ipinfo/getIp");
             put(Action.SP_GET_BOX_INIT_JSON, SP_BASE_URL + "small/api/download/init");
+            put(Action.CP_GET_SYS_VOLUME_JSON, BuildConfig.BASE_URL + "box/configs/getboxvolume");
             put(Action.CP_GET_PRIZE_JSON, BuildConfig.BASE_URL + "Award/Award/getAwardInfo");
             put(Action.CP_REPORT_LOTTERY_JSON, BuildConfig.BASE_URL + "Award/Award/recordAwardLog");
             put(Action.PH_NOTIFY_STOP_JSON, PHONE_BASE_URL + "stopProjection");
@@ -267,9 +269,23 @@ public class AppApi {
      * @param boxMac
      */
     public static JsonBean getBoxInitInfo(Context context, ApiRequestListener handler, String boxMac) throws IOException {
-        final HashMap<String, Object> params = new HashMap<String, Object>();
+        final HashMap<String, Object> params = new HashMap<>();
         params.put("boxMac",boxMac);
         return new AppServiceOk(context, Action.SP_GET_BOX_INIT_JSON, handler, params).syncGet();
+    }
+
+    /**
+     * 获取系统音量数据
+     * @param context
+     * @param handler
+     * @param boxMac
+     * @return
+     * @throws IOException
+     */
+    public static JsonBean getSysVolume(Context context, ApiRequestListener handler, String boxMac) throws IOException {
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("box_mac",boxMac);
+        return new AppServiceOk(context, Action.CP_GET_SYS_VOLUME_JSON, handler, params).syncGet();
     }
 
     /**

@@ -5,9 +5,16 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.GlideBuilder;
+import com.bumptech.glide.annotation.GlideModule;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.bitmap_recycle.LruBitmapPool;
+import com.bumptech.glide.load.engine.cache.LruResourceCache;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.module.AppGlideModule;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 
@@ -21,22 +28,26 @@ import java.io.File;
  * 详细说明文档参见：https://github.com/bumptech/glide
  * Created by zhanghq on 2016/6/25.
  */
-public class GlideImageLoader {
+@GlideModule
+public class GlideImageLoader extends AppGlideModule {
 
     private static int globalPlaceholderResId;
     private static int globalFailedResId;
+
+    @Override
+    public void applyOptions(@NonNull Context context, @NonNull GlideBuilder builder) {
+        int bitmapPoolSizeBytes = 1024*1024*300;// 300MB
+        int memoryCacheSizeBytes = 1024*1024*300;// 300MB
+        builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
+        builder.setBitmapPool(new LruBitmapPool(bitmapPoolSizeBytes));
+    }
 
     public static void clearCache(final Context context, boolean memory, boolean disk) {
         if (memory) {
             Glide.get(context).clearMemory();
         }
         if (disk) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Glide.get(context).clearDiskCache();
-                }
-            }).start();
+            new Thread(() -> Glide.get(context).clearDiskCache()).start();
         }
     }
 

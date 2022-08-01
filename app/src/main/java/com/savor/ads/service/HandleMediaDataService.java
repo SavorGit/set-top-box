@@ -12,6 +12,7 @@ import android.text.TextUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.reflect.TypeToken;
 import com.savor.ads.BuildConfig;
 import com.savor.ads.activity.TvPlayerActivity;
@@ -40,6 +41,8 @@ import com.savor.ads.bean.ShopGoodsBean;
 import com.savor.ads.bean.ShopGoodsResult;
 import com.savor.ads.bean.StoreSaleAdsResult;
 import com.savor.ads.bean.SysVolume;
+import com.savor.ads.bean.SysVolumeList;
+import com.savor.ads.bean.SysVolumeResult;
 import com.savor.ads.bean.Television;
 import com.savor.ads.bean.TvProgramGiecResponse;
 import com.savor.ads.bean.TvProgramResponse;
@@ -251,7 +254,8 @@ public class HandleMediaDataService extends Service{
                             LogFileUtil.write("HandleMediaDataService will start getBoxInfo");
                             // 同步获取机顶盒基本信息，包括logo、loading图
                             getBoxInfo();
-
+                            //同步获取声音量值
+                            getSysVolume();
                             // 检测预约发布的播放时间是否已到达，启动时不检测因为已经在Application中检测过了
                             if (!isFirstRun && AppUtils.checkPlayTime(context)) {
                                 notifyToPlay();
@@ -502,56 +506,6 @@ public class HandleMediaDataService extends Service{
 //                session.setTvVolume(boiteBean.getTv_volume());
 //            }
 //        }
-        String sys_volume = boxInitBean.getSys_volume();
-        if (!TextUtils.isEmpty(sys_volume)){
-            try {
-                JSONArray jsonArray = new JSONArray(sys_volume);
-                List<SysVolume> volumeList = gson.fromJson(jsonArray.toString(), new TypeToken<List<SysVolume>>() {
-                }.getType());
-                if (volumeList!=null&&volumeList.size()>0){
-                    for (SysVolume volume:volumeList){
-                        int value = volume.getConfigValue();
-                       switch (volume.getConfigKey()){
-                           case ConstantValues.BOX_CAROUSEL_VOLUME_KEY:
-                               session.setBoxCarouselVolume(value);
-                               break;
-                           case ConstantValues.BOX_CONTENT_DEMAND_VOLUME_KEY:
-                               session.setBoxContentDemandVolume(value);
-                               break;
-                           case ConstantValues.BOX_PRO_DEMAND_VOLUME_KEY:
-                               session.setBoxProDemandVolume(value);
-                               break;
-                           case ConstantValues.BOX_IMG_FORSCREEN_VOLUME_KEY:
-                               session.setBoxImgFroscreenVolume(value);
-                               break;
-                           case ConstantValues.BOX_VIDEO_FORSCREEN_VOLUME_KEY:
-                               session.setBoxVideoFroscreenVolume(value);
-                               break;
-                           case ConstantValues.BOX_TV_VOLUME_KEY:
-                               session.setBoxTvVolume(value);
-                               break;
-                           case ConstantValues.TV_CAROUSEL_VOLUME_KEY:
-                               session.setTvCarouselVolume(value);
-                               break;
-                           case ConstantValues.TV_CONTENT_DEMAND_VOLUME_KEY:
-                               session.setTvContentDemandVolume(value);
-                               break;
-                           case ConstantValues.TV_PRO_DEMAND_VOLUME_KEY:
-                               session.setTvProDemandVolume(value);
-                               break;
-                           case ConstantValues.TV_IMG_FORSCREEN_VOLUME_KEY:
-                               session.setTvImgFroscreenVolume(value);
-                               break;
-                           case ConstantValues.TV_VIDEO_FORSCREEN_VOLUME_KEY:
-                               session.setTvVideoFroscreenVolume(value);
-                               break;
-                       }
-                    }
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
         if (!isProduceLog || boiteBean.getSwitch_time() != session.getSwitchTime()) {
             //生产电视切换时间日志
             LogReportUtil.get(context).sendAdsLog(String.valueOf(System.currentTimeMillis()),
@@ -681,6 +635,81 @@ public class HandleMediaDataService extends Service{
         }
 
 
+    }
+
+    /**
+     * 获取系统设置声音
+     */
+    private void getSysVolume(){
+        try {
+            JsonBean jsonBean = AppApi.getSysVolume(context, apiRequestListener, session.getEthernetMac());
+            JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
+            if (jsonObject.getInt("code") != AppApi.HTTP_RESPONSE_STATE_SUCCESS) {
+                LogUtils.d("接口返回的状态不对,code=" + jsonObject.getInt("code"));
+                return;
+            }
+            jsonObject = jsonObject.getJSONObject("result");
+            JSONArray jsonArray = jsonObject.getJSONArray("sys_volume");
+            Object result = gson.fromJson(jsonArray.toString(), new TypeToken<List<SysVolume>>() {
+            }.getType());
+            if (result instanceof List<?>) {
+                List<SysVolume> sysVolumeList = (List<SysVolume>) result;
+                initSysVolume(sysVolumeList);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+
+        }
+    }
+
+    private void initSysVolume(List<SysVolume> volumeList){
+        if (volumeList==null||volumeList.isEmpty()){
+            return;
+        }
+        try {
+            for (SysVolume volume:volumeList){
+                int value = volume.getConfigValue();
+                switch (volume.getConfigKey()){
+                    case ConstantValues.BOX_CAROUSEL_VOLUME_KEY:
+                        session.setBoxCarouselVolume(value);
+                        break;
+                    case ConstantValues.BOX_CONTENT_DEMAND_VOLUME_KEY:
+                        session.setBoxContentDemandVolume(value);
+                        break;
+                    case ConstantValues.BOX_PRO_DEMAND_VOLUME_KEY:
+                        session.setBoxProDemandVolume(value);
+                        break;
+                    case ConstantValues.BOX_IMG_FORSCREEN_VOLUME_KEY:
+                        session.setBoxImgFroscreenVolume(value);
+                        break;
+                    case ConstantValues.BOX_VIDEO_FORSCREEN_VOLUME_KEY:
+                        session.setBoxVideoFroscreenVolume(value);
+                        break;
+                    case ConstantValues.BOX_TV_VOLUME_KEY:
+                        session.setBoxTvVolume(value);
+                        break;
+                    case ConstantValues.TV_CAROUSEL_VOLUME_KEY:
+                        session.setTvCarouselVolume(value);
+                        break;
+                    case ConstantValues.TV_CONTENT_DEMAND_VOLUME_KEY:
+                        session.setTvContentDemandVolume(value);
+                        break;
+                    case ConstantValues.TV_PRO_DEMAND_VOLUME_KEY:
+                        session.setTvProDemandVolume(value);
+                        break;
+                    case ConstantValues.TV_IMG_FORSCREEN_VOLUME_KEY:
+                        session.setTvImgFroscreenVolume(value);
+                        break;
+                    case ConstantValues.TV_VIDEO_FORSCREEN_VOLUME_KEY:
+                        session.setTvVideoFroscreenVolume(value);
+                        break;
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
