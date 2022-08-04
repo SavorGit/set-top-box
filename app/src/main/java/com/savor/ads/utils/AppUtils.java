@@ -80,6 +80,7 @@ import java.math.BigDecimal;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -1936,6 +1937,11 @@ public class AppUtils {
      * @return
      */
     public static String getEthernetMacAddr() {
+        if (AppUtils.isSMART_TV()){
+            AppUtils.initSMART_TV();
+            String macAddr = getMacAddress();
+            return macAddr;
+        }
         String cmd = "busybox ifconfig eth0";
         Process process = null;
         InputStream is = null;
@@ -1981,11 +1987,72 @@ public class AppUtils {
     }
 
     /**
+     * 根据IP地址获取MAC地址
+     *
+     * @return
+     */
+    public static String getMacAddress() {
+        String strMacAddr = null;
+        try {
+            // 获得IpD地址
+            InetAddress ip = getLocalInetAddress();
+            byte[] b = NetworkInterface.getByInetAddress(ip)
+                    .getHardwareAddress();
+            StringBuffer buffer = new StringBuffer();
+            for (int i = 0; i < b.length; i++) {
+                if (i != 0) {
+                    buffer.append(':');
+                }
+                String str = Integer.toHexString(b[i] & 0xFF);
+                buffer.append(str.length() == 1 ? 0 + str : str);
+            }
+            strMacAddr = buffer.toString().toUpperCase();
+        } catch (Exception e) {
+        }
+        return strMacAddr;
+    }
+
+    /**
+     * 获取移动设备本地IP
+     *
+     * @return
+     */
+    private static InetAddress getLocalInetAddress() {
+        InetAddress ip = null;
+        try {
+            // 列举
+            Enumeration<NetworkInterface> en_netInterface = NetworkInterface.getNetworkInterfaces();
+            while (en_netInterface.hasMoreElements()) {// 是否还有元素
+                NetworkInterface ni = en_netInterface.nextElement();// 得到下一个元素
+                Enumeration<InetAddress> en_ip = ni.getInetAddresses();// 得到一个ip地址的列举
+                while (en_ip.hasMoreElements()) {
+                    ip = en_ip.nextElement();
+                    if (!ip.isLoopbackAddress() && ip.getHostAddress().indexOf(":") == -1)
+                        break;
+                    else
+                        ip = null;
+                }
+
+                if (ip != null) {
+                    break;
+                }
+            }
+        } catch (SocketException e) {
+
+            e.printStackTrace();
+        }
+        return ip;
+    }
+
+    /**
      * 获取以太网 IP
      *
      * @return
      */
     public static String getEthernetIP() {
+        if (AppUtils.isSMART_TV()){
+            AppUtils.initSMART_TV();
+        }
         String cmd = "busybox ifconfig eth0";
         Process process = null;
         InputStream is = null;
@@ -2072,6 +2139,9 @@ public class AppUtils {
      * @return
      */
     public static String getWlanIP() {
+        if (AppUtils.isSMART_TV()){
+            AppUtils.initSMART_TV();
+        }
         String cmd = "busybox ifconfig wlan0";
         Process process = null;
         InputStream is = null;
@@ -2471,8 +2541,35 @@ public class AppUtils {
         return  Build.MODEL.contains("t962e");
     }
 
+    public static boolean isSMART_TV(){
+        return Build.MODEL.contains("SMART_TV");
+    }
+
     public static boolean isPhilips(){
         return Build.MODEL.contains("BDL");
+    }
+
+    public static void initSMART_TV(){
+        Process proc = null;
+        try {
+            proc = Runtime.getRuntime().exec("xu 7411");
+
+            DataOutputStream dos = new DataOutputStream(proc.getOutputStream());
+            dos.writeBytes("mount -o remount,rw /system");
+            dos.flush();
+
+            dos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (proc != null) {
+                try {
+                    proc.destroy();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     /**
