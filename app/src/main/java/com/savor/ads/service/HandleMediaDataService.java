@@ -15,6 +15,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.reflect.TypeToken;
 import com.savor.ads.BuildConfig;
+import com.savor.ads.activity.AdsPlayerActivity;
+import com.savor.ads.activity.BaseActivity;
 import com.savor.ads.activity.TvPlayerActivity;
 import com.savor.ads.activity.TvPlayerGiecActivity;
 import com.savor.ads.bean.ActivityGoodsBean;
@@ -706,7 +708,15 @@ public class HandleMediaDataService extends Service{
                         break;
                 }
             }
-
+            Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+            if (activity instanceof BaseActivity){
+                BaseActivity baseActivity = (BaseActivity) activity;
+                if (AppUtils.isSVT()||AppUtils.isPhilips()){
+                    baseActivity.setVolume(session.getTvCarouselVolume());
+                }else if(AppUtils.isGiec()){
+                    baseActivity.setVolume(session.getBoxCarouselVolume());
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
