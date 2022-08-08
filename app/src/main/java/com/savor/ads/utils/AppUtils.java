@@ -2050,55 +2050,59 @@ public class AppUtils {
      * @return
      */
     public static String getEthernetIP() {
-        if (AppUtils.isSMART_TV()){
-            AppUtils.initSMART_TV();
-        }
-        String cmd = "busybox ifconfig eth0";
-        Process process = null;
-        InputStream is = null;
-        BufferedReader reader = null;
-        String result = "";
-        try {
-            process = Runtime.getRuntime().exec(cmd);
-            is = process.getInputStream();
-            reader = new BufferedReader(
-                    new InputStreamReader(is));
-            String line = reader.readLine();
-            while (line != null) {
-                if (!TextUtils.isEmpty(line) && line.trim().startsWith("inet ")) {
-                    result = line.substring(line.indexOf("addr:") + 5);
-                    result = result.substring(0, result.indexOf(" ")).trim();
-                    break;
-                }
-                line = reader.readLine();
-            }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            try {
-                if (process != null) {
-                    process.destroy();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        String result = MacAddressUtils.getEthernetMac();
+
         return result;
+//        if (AppUtils.isSMART_TV()){
+//            AppUtils.initSMART_TV();
+//        }
+//        String cmd = "busybox ifconfig eth0";
+//        Process process = null;
+//        InputStream is = null;
+//        BufferedReader reader = null;
+//        String result = "";
+//        try {
+//            process = Runtime.getRuntime().exec(cmd);
+//            is = process.getInputStream();
+//            reader = new BufferedReader(
+//                    new InputStreamReader(is));
+//            String line = reader.readLine();
+//            while (line != null) {
+//                if (!TextUtils.isEmpty(line) && line.trim().startsWith("inet ")) {
+//                    result = line.substring(line.indexOf("addr:") + 5);
+//                    result = result.substring(0, result.indexOf(" ")).trim();
+//                    break;
+//                }
+//                line = reader.readLine();
+//            }
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        } finally {
+//            if (reader != null) {
+//                try {
+//                    reader.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            if (is != null) {
+//                try {
+//                    is.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            try {
+//                if (process != null) {
+//                    process.destroy();
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        return result;
     }
 
     /**
