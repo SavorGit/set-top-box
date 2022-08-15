@@ -2,12 +2,18 @@ package com.savor.ads.utils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 
 
 import com.amlogic.update.OtaUpgradeUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.savor.ads.activity.AdsPlayerActivity;
+import com.savor.ads.activity.MainActivity;
+import com.savor.ads.activity.PartakeDishDrawActivity;
 import com.savor.ads.bean.JsonBean;
 import com.savor.ads.bean.UpgradeInfo;
 import com.savor.ads.core.ApiRequestListener;
@@ -16,17 +22,20 @@ import com.savor.ads.core.Session;
 import com.savor.ads.okhttp.coreProgress.download.FileDownloader;
 
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 
 public class UpdateUtil{
 
-    private Context mContext;
+    private static Context mContext;
     private Session session;
+    private static Handler handler = new Handler(Looper.getMainLooper());
     GsonBuilder builder = new GsonBuilder();
     Gson gson = builder.create();
     public UpdateUtil(Context context) {
@@ -105,6 +114,8 @@ public class UpdateUtil{
                     updateApk(file);
                 } else if(AppUtils.isGiec()){
                     updateApk4Giec(file);
+                }else if (AppUtils.isSMART_CLOUD_TV()||AppUtils.isWang()){
+                    updateApk4SMART_CLOUD(file);
                 }else if (AppUtils.isSVT()){
                     updateApk4SVT(file);
                 }else if (AppUtils.isPhilips()){
@@ -215,6 +226,74 @@ public class UpdateUtil{
 
         if (isflag) {
             ShellUtils.reboot();
+        }
+        return isflag;
+    }
+
+    public static boolean updateApk4SMART_CLOUD(File file) {
+        if (GlobalValues.isUpdateApk){
+            return false;
+        }
+        if (file.length() <= 0) {
+            file.delete();
+            LogFileUtil.writeException(new Throwable("apk update fatal, updateapksamples.apk length is 0"));
+            return false;
+        }
+        boolean isflag = false;
+        String[] args = {"pm",
+                        "install",
+                        "-r",
+                        file.getAbsolutePath(),
+                        "am",
+                        "start",
+                        "-n",
+                        "com.savor.ads/.activity.MainActivity"};
+        String result = "";
+        // 创建一个操作系统进程并执行命令行操作
+        ProcessBuilder processBuilder = new ProcessBuilder(args);
+        Process process = null;
+        InputStream errIs = null;
+        InputStream inIs = null;
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            int read = -1;
+            process = processBuilder.start();
+            errIs = process.getErrorStream();
+            while ((read = errIs.read()) != -1) {
+                baos.write(read);
+            }
+            baos.write('\n');
+            inIs = process.getInputStream();
+            while ((read = inIs.read()) != -1) {
+                baos.write(read);
+            }
+            byte[] data = baos.toByteArray();
+            result = new String(data);
+            isflag = true;
+            Log.d("update", "result" + result);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (errIs != null) {
+                    errIs.close();
+                }
+                if (inIs != null) {
+                    inIs.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (process != null) {
+                process.destroy();
+            }
+        }
+        if (isflag) {
+            GlobalValues.isUpdateApk = true;
+            handler.post(()->ShowMessage.showToast(mContext,"新版本更新完成"));
+//            mContext.sendBroadcast(new Intent(ConstantValues.UPDATE_APK_ACTION));
         }
         return isflag;
     }

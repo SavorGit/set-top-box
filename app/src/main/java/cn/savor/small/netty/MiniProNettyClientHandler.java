@@ -21,6 +21,7 @@ import com.savor.ads.log.LogReportUtil;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.GlobalValues;
+import com.savor.ads.utils.IPAddressUtils;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
 
@@ -75,7 +76,7 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
             }
             String number = channelId + System.currentTimeMillis();
             message.setSerialnumber(number);
-            message.setIp(AppUtils.getLocalIPAddress());
+            message.setIp(IPAddressUtils.getLocalIPAddress());
             message.setMac(session.getEthernetMac());
             InnerBean bean = new InnerBean();
             bean.setHotelId(session.getBoiteId());
@@ -129,7 +130,7 @@ public class MiniProNettyClientHandler extends SimpleChannelInboundHandler<Messa
                 MessageBean response = new MessageBean();
                 response.setCmd(MessageBean.Action.CLIENT_ORDER_RESP);
                 response.setSerialnumber(msg.getSerialnumber());
-                response.setIp(AppUtils.getLocalIPAddress());
+                response.setIp(IPAddressUtils.getLocalIPAddress());
                 response.setMac(session.getEthernetMac());
                 response.setContent(new ArrayList<>());
 

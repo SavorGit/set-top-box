@@ -3,6 +3,9 @@ package com.savor.ads.activity;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
@@ -89,6 +92,7 @@ import com.savor.ads.utils.DensityUtil;
 import com.savor.ads.utils.DeviceUtils;
 import com.savor.ads.utils.GlideImageLoader;
 import com.savor.ads.utils.GlobalValues;
+import com.savor.ads.utils.IPAddressUtils;
 import com.savor.ads.utils.KeyCode;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
@@ -428,6 +432,8 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     private void registerDownloadReceiver() {
         IntentFilter intentFilter = new IntentFilter(ConstantValues.UPDATE_PLAYLIST_ACTION);
         registerReceiver(mDownloadCompleteReceiver, intentFilter);
+        IntentFilter intentApkFilter = new IntentFilter(ConstantValues.UPDATE_APK_ACTION);
+        registerReceiver(mDownloadApkReceiver, intentApkFilter);
     }
 
     private BroadcastReceiver mDownloadCompleteReceiver = new BroadcastReceiver() {
@@ -435,6 +441,32 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         public void onReceive(Context context, Intent intent) {
             if (ConstantValues.UPDATE_PLAYLIST_ACTION.equals(intent.getAction())) {
                 mNeedUpdatePlaylist = true;
+            }
+        }
+    };
+
+    private BroadcastReceiver mDownloadApkReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (ConstantValues.UPDATE_APK_ACTION.equals(intent.getAction())) {
+                onStop();
+                ActivityManager manager = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
+
+                manager.killBackgroundProcesses("com.savor.ads");
+                // 获取默认启动activity
+                final Intent intentLauncher = getPackageManager().getLaunchIntentForPackage(getPackageName());
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intentLauncher);
+                //杀掉以前进程
+                android.os.Process.killProcess(android.os.Process.myPid());
+
+//                finish();
+//                Intent mStartActivity = new Intent(context, MainActivity.class);
+//                int mPendingIntentId = 123456;
+//                PendingIntent mPendingIntent = PendingIntent.getActivity(context, mPendingIntentId,    mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+//                AlarmManager mgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+//                mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 200, mPendingIntent);
+//                System.exit(0);
             }
         }
     };
@@ -588,7 +620,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             mac = ByteString.copyFrom(mSession.getEthernetMacWithColon(), "utf-8");
             model = ByteString.copyFrom(mSession.getModel(), "utf-8");
             brand = ByteString.copyFrom(mSession.getBrand(), "utf-8");
-            ip = ByteString.copyFrom(AppUtils.getLocalIPAddress(), "utf-8");
+            ip = ByteString.copyFrom(IPAddressUtils.getLocalIPAddress(), "utf-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -2541,6 +2573,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         super.onDestroy();
         GlobalValues.mIsGoneToTv = false;
         unregisterReceiver(mDownloadCompleteReceiver);
+        unregisterReceiver(mDownloadApkReceiver);
         unbindService(mConnection);
 
     }

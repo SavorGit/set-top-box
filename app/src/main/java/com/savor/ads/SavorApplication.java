@@ -70,6 +70,7 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
         session.setHeartbeatMiniNetty(false);
         session.setFirstWelcomeImg(true);
         GlobalValues.NETTY_FIRST_REGISTER=true;
+        GlobalValues.isUpdateApk = false;
         miniProgramQrCodeWindowManager = MiniProgramQrCodeWindowManager.get(this);
         qrCodeWindowManager = QrCodeWindowManager.get(this);
         goodsQrCodeWindowManager = GoodsQrCodeWindowManager.get(this);
@@ -82,7 +83,7 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
 
         GSYVideoType.enableMediaCodec();
         GSYVideoType.enableMediaCodecTexture();
-        if (AppUtils.isPhilips()){
+        if (AppUtils.isPhilips()||AppUtils.isSMART_CLOUD_TV()){
             GSYVideoType.setRenderType(GSYVideoType.SUFRACE);
         }
         PlayerFactory.setPlayManager(Exo2PlayerManager.class);

@@ -179,4 +179,6 @@ public class GlobalValues <T extends MediaLibBean> {
     public static int completionRate;
     /**是否正在展示插播广告*/
     public static boolean isShowInsertAds;
+    /**是否已经更新过---只适用于新电视*/
+    public static boolean isUpdateApk;
 }

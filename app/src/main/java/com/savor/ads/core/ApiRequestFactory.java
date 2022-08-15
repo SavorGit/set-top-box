@@ -24,11 +24,11 @@ import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.LogUtils;
 import com.savor.ads.utils.StringUtils;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
+//import org.apache.http.NameValuePair;
+//import org.apache.http.client.entity.UrlEncodedFormEntity;
+//import org.apache.http.entity.StringEntity;
+//import org.apache.http.message.BasicNameValuePair;
+//import org.apache.http.protocol.HTTP;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -1,7 +1,12 @@
 package com.savor.ads.utils;
 
+import android.text.TextUtils;
 import android.util.Log;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -140,6 +145,57 @@ public class MacAddressUtils {
     private static String parseByte(byte b) {
         String s = "00" + Integer.toHexString(b) + "_";
         return s.substring(s.length() - 3);
+    }
+
+    /**
+     * 获取以太网MAC地址
+     *
+     * @return
+     */
+    @Deprecated
+    public static String getEthernetMacAddr() {
+        String cmd = "busybox ifconfig eth0";
+        Process process = null;
+        InputStream is = null;
+        BufferedReader reader = null;
+        String result = "";
+        try {
+            process = Runtime.getRuntime().exec(cmd);
+            is = process.getInputStream();
+            reader = new BufferedReader(
+                    new InputStreamReader(is));
+            String line = reader.readLine();
+            if (!TextUtils.isEmpty(line)) {
+                result = line.substring(line.indexOf("HWaddr") + 6).trim();
+            }
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                if (process != null) {
+                    process.destroy();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
     }
 
 }

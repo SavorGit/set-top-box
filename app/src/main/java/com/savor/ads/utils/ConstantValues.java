@@ -119,6 +119,7 @@ public class ConstantValues {
 
     /** 更新播放列表Action*/
     public static final String UPDATE_PLAYLIST_ACTION = "com.savor.ads.action_update_playlist";
+    public static final String UPDATE_APK_ACTION = "com.savor.ads.action_update_apk";
 
 
     public static final int KEY_DOWN_LAG = 2000;

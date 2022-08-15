@@ -163,9 +163,7 @@ public class BoxInfoDialog extends Dialog {
             mEthernetIpTv.setText(AppUtils.getEthernetIP());
             mEthernetMacTv.setText(session.getEthernetMac());
 
-            mWlanIpLabelTv.setText("无线IP地址");
             mWlanIpTv.setText(AppUtils.getWlanIP());
-            mWlanMacLabelTv.setText("无线MAC地址");
             mWlanMacTv.setText(session.getWlanMac());
 
             mAdsPeriodTv.setText(session.getAdsPeriod());

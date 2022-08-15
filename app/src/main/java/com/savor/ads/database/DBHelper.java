@@ -75,6 +75,7 @@ import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.RESOURCE_SIZ
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.RESOURCE_TYPE;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.SERIAL_NUMBER;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.SMALL_APP_ID;
+import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.SORT_NUM;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.START_DATE;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.SURFIX;
 import static com.savor.ads.database.DBHelper.MediaDBInfo.FieldName.TYPE;
@@ -131,6 +132,8 @@ public class DBHelper extends SQLiteOpenHelper {
             public static final String END_DATE = "end_date";
             //广告优先级：1预定酒水，2主推酒水，3随机酒水
             public static final String WINE_TYPE = "wine_type";
+            //排序
+            public static final String SORT_NUM = "sort_num";
             public static final String ADMASTER_SIN = "admaster_sin";
             /**聚屏类型：1.百度*/
             public static final String TPMEDIA_ID = "tpmedia_id";
@@ -189,7 +192,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "dbsavor.db";
 
 
-    private static final int DB_VERSION = 42;
+    private static final int DB_VERSION = 43;
 
     private Context mContext;
 
@@ -248,6 +251,7 @@ public class DBHelper extends SQLiteOpenHelper {
         createTable_shopgoodsAds(db);
 
         createTable_localLifeAds(db);
+
         createTableStoreSaleAds(db);
     }
 
@@ -454,6 +458,15 @@ public class DBHelper extends SQLiteOpenHelper {
             //versionName 2.5.2
             try{
                 createTableStoreSaleAds(sqLiteDatabase);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        if (oldVersion<43){
+            //versionName 2.5.6
+            try{
+                String alterStoreSale = "ALTER TABLE " + TableName.STORE_SALE_ADS + " ADD " + SORT_NUM + " INTEGER DEFAULT 0;";
+                sqLiteDatabase.execSQL(alterStoreSale);
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -829,6 +842,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 + START_DATE + " TEXT, "
                 + END_DATE + " TEXT, "
                 + WINE_TYPE + " INTEGER, "
+                + SORT_NUM + " INTEGER, "
                 + RESOURCE_TYPE + " INTEGER, "
                 + TYPE + " TEXT, "
                 + MEDIANAME + " TEXT, "
@@ -2479,6 +2493,7 @@ public class DBHelper extends SQLiteOpenHelper {
             initialValues.put(START_DATE,bean.getStart_date());
             initialValues.put(END_DATE,bean.getEnd_date());
             initialValues.put(WINE_TYPE,bean.getWine_type());
+            initialValues.put(SORT_NUM,bean.getSort_num());
             initialValues.put(RESOURCE_TYPE,bean.getMedia_type());
             initialValues.put(TYPE,bean.getType());
             initialValues.put(MEDIANAME,bean.getName());
@@ -2506,9 +2521,10 @@ public class DBHelper extends SQLiteOpenHelper {
         synchronized (dbHelper) {
             Cursor cursor = null;
             try {
-                String orderBy = WINE_TYPE +" ASC ";
+                String orderBy = SORT_NUM +" ASC ";
+                String limit =  "2";
                 cursor = db.query(TableName.STORE_SALE_ADS, null,
-                        selection, selectionArgs, null, null, orderBy, null);
+                        selection, selectionArgs, null, null, orderBy, limit);
                 if (cursor != null) {
                     if (cursor.moveToFirst()) {
                         list = new ArrayList<>();
@@ -2524,6 +2540,7 @@ public class DBHelper extends SQLiteOpenHelper {
                             bean.setStart_date(cursor.getString(cursor.getColumnIndex(START_DATE)));
                             bean.setEnd_date(cursor.getString(cursor.getColumnIndex(END_DATE)));
                             bean.setWine_type(cursor.getInt(cursor.getColumnIndex(WINE_TYPE)));
+                            bean.setSort_num(cursor.getInt(cursor.getColumnIndex(SORT_NUM)));
                             bean.setMedia_type(cursor.getInt(cursor.getColumnIndex(RESOURCE_TYPE)));
                             bean.setType(cursor.getString(cursor.getColumnIndex(TYPE)));
                             bean.setName(cursor.getString(cursor.getColumnIndex(MEDIANAME)));

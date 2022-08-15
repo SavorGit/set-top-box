@@ -218,7 +218,8 @@ public class LotteryDrawingActivity extends BaseActivity{
             lotteryDescTV.setVisibility(View.VISIBLE);
             displayLuckyUserAvatar(avatarUrl);
             lotteryUsers.get(currentItem).setIs_lottery(-1);
-            if (luckyUserLayout.getChildCount()<winPrizeUsers.size()){
+            if (luckyUserLayout.getChildCount()<winPrizeUsers.size()
+                    &&luckyUserLayout.getChildCount()<lotteryUsers.size()){
                 handler.postDelayed(()->{
                     recyclerView.setVisibility(View.VISIBLE);
                     lotteryPersonLayout.setVisibility(View.GONE);

@@ -6,6 +6,7 @@
     <!--android:sharedUserId="android.uid.system"-->
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
     <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
@@ -108,7 +109,15 @@
                 <action android:name="com.giec.action.need_close_pq"/>
             </intent-filter>
         </receiver>
+<!--        <receiver android:name=".receiver.BootBroadcastReceiver">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.PACKAGE_ADDED" />-->
+<!--                <action android:name="android.intent.action.PACKAGE_REPLACED" />-->
+<!--                <action android:name="android.intent.action.PACKAGE_REMOVED" />-->
 
+<!--                <data android:scheme="package" />-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
         <activity
             android:name=".activity.MainActivity"
             android:theme="@style/SplashTheme">

@@ -1672,35 +1672,6 @@ public class AppUtils {
 
 
     /**
-     * (获得本机的IP地址
-     *
-     * @return
-     */
-    public static String getLocalIPAddress() {
-        try {
-            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
-                NetworkInterface intf = en.nextElement();
-                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
-                    InetAddress inetAddress = enumIpAddr.nextElement();
-                    if (android.os.Build.VERSION.SDK_INT > 10) {
-                        /**android 4.0以上版本*/
-                        if (!inetAddress.isLoopbackAddress() && (inetAddress instanceof Inet4Address)) {
-                            return inetAddress.getHostAddress().toString();
-                        }
-                    } else {
-                        if (!inetAddress.isLoopbackAddress()) {
-                            return inetAddress.getHostAddress().toString();
-                        }
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return "";
-    }
-
-    /**
      * 计算md5值
      */
     public static byte[] getMd5(String str) {
@@ -1937,111 +1908,13 @@ public class AppUtils {
      * @return
      */
     public static String getEthernetMacAddr() {
-        if (AppUtils.isSMART_TV()){
-            AppUtils.initSMART_TV();
-            String macAddr = getMacAddress();
-            return macAddr;
+        String macAddr = "";
+        if (AppUtils.isGiec()||AppUtils.isWang()){
+            macAddr = MacAddressUtils.getEthernetMacAddr();
+        }else {
+            macAddr = MacAddressUtils.getEthernetMac();
         }
-        String cmd = "busybox ifconfig eth0";
-        Process process = null;
-        InputStream is = null;
-        BufferedReader reader = null;
-        String result = "";
-        try {
-            process = Runtime.getRuntime().exec(cmd);
-            is = process.getInputStream();
-            reader = new BufferedReader(
-                    new InputStreamReader(is));
-            String line = reader.readLine();
-            if (!TextUtils.isEmpty(line)) {
-                result = line.substring(line.indexOf("HWaddr") + 6).trim();
-            }
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            try {
-                if (process != null) {
-                    process.destroy();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return result;
-    }
-
-    /**
-     * 根据IP地址获取MAC地址
-     *
-     * @return
-     */
-    public static String getMacAddress() {
-        String strMacAddr = null;
-        try {
-            // 获得IpD地址
-            InetAddress ip = getLocalInetAddress();
-            byte[] b = NetworkInterface.getByInetAddress(ip)
-                    .getHardwareAddress();
-            StringBuffer buffer = new StringBuffer();
-            for (int i = 0; i < b.length; i++) {
-                if (i != 0) {
-                    buffer.append(':');
-                }
-                String str = Integer.toHexString(b[i] & 0xFF);
-                buffer.append(str.length() == 1 ? 0 + str : str);
-            }
-            strMacAddr = buffer.toString().toUpperCase();
-        } catch (Exception e) {
-        }
-        return strMacAddr;
-    }
-
-    /**
-     * 获取移动设备本地IP
-     *
-     * @return
-     */
-    private static InetAddress getLocalInetAddress() {
-        InetAddress ip = null;
-        try {
-            // 列举
-            Enumeration<NetworkInterface> en_netInterface = NetworkInterface.getNetworkInterfaces();
-            while (en_netInterface.hasMoreElements()) {// 是否还有元素
-                NetworkInterface ni = en_netInterface.nextElement();// 得到下一个元素
-                Enumeration<InetAddress> en_ip = ni.getInetAddresses();// 得到一个ip地址的列举
-                while (en_ip.hasMoreElements()) {
-                    ip = en_ip.nextElement();
-                    if (!ip.isLoopbackAddress() && ip.getHostAddress().indexOf(":") == -1)
-                        break;
-                    else
-                        ip = null;
-                }
-
-                if (ip != null) {
-                    break;
-                }
-            }
-        } catch (SocketException e) {
-
-            e.printStackTrace();
-        }
-        return ip;
+        return macAddr;
     }
 
     /**
@@ -2051,91 +1924,9 @@ public class AppUtils {
      */
     public static String getEthernetIP() {
 
-        String result = MacAddressUtils.getEthernetMac();
-
+        String result = IPAddressUtils.getLocalIPAddress();
         return result;
-//        if (AppUtils.isSMART_TV()){
-//            AppUtils.initSMART_TV();
-//        }
-//        String cmd = "busybox ifconfig eth0";
-//        Process process = null;
-//        InputStream is = null;
-//        BufferedReader reader = null;
-//        String result = "";
-//        try {
-//            process = Runtime.getRuntime().exec(cmd);
-//            is = process.getInputStream();
-//            reader = new BufferedReader(
-//                    new InputStreamReader(is));
-//            String line = reader.readLine();
-//            while (line != null) {
-//                if (!TextUtils.isEmpty(line) && line.trim().startsWith("inet ")) {
-//                    result = line.substring(line.indexOf("addr:") + 5);
-//                    result = result.substring(0, result.indexOf(" ")).trim();
-//                    break;
-//                }
-//                line = reader.readLine();
-//            }
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        } finally {
-//            if (reader != null) {
-//                try {
-//                    reader.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//            if (is != null) {
-//                try {
-//                    is.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//            try {
-//                if (process != null) {
-//                    process.destroy();
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        return result;
     }
-
-    /**
-     * 获取Wlan MAC地址
-     *
-     * @return
-     */
-    public static String getWlanMacAddr() {
-        try {
-            List<NetworkInterface> all = Collections.list(NetworkInterface.getNetworkInterfaces());
-            for (NetworkInterface nif : all) {
-                if (!nif.getName().equalsIgnoreCase("wlan0")) continue;
-                byte[] macBytes = nif.getHardwareAddress();
-                if (macBytes == null) {
-                    return "";
-                }
-                StringBuilder res1 = new StringBuilder();
-                for (byte b : macBytes) {
-                    res1.append(String.format("%02X:", b));
-                }
-                if (res1.length() > 0) {
-                    res1.deleteCharAt(res1.length() - 1);
-                }
-                return res1.toString();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "";
-        }
-        return "";
-    }
-
-
 
     /**
      * 获取Wlan IP
@@ -2143,54 +1934,8 @@ public class AppUtils {
      * @return
      */
     public static String getWlanIP() {
-        if (AppUtils.isSMART_TV()){
-            AppUtils.initSMART_TV();
-        }
-        String cmd = "busybox ifconfig wlan0";
-        Process process = null;
-        InputStream is = null;
-        BufferedReader reader = null;
-        String result = "";
-        try {
-            process = Runtime.getRuntime().exec(cmd);
-            is = process.getInputStream();
-            reader = new BufferedReader(
-                    new InputStreamReader(is));
-            String line = reader.readLine();
-            while (line != null) {
-                if (!TextUtils.isEmpty(line) && line.trim().startsWith("inet ")) {
-                    result = line.substring(line.indexOf("addr:") + 5);
-                    result = result.substring(0, result.indexOf(" ")).trim();
-                    break;
-                }
-                line = reader.readLine();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            try {
-                if (process != null) {
-                    process.destroy();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return result;
+
+        return "";
     }
 
     //检查redian文件夹下是否有图有真相
@@ -2339,132 +2084,6 @@ public class AppUtils {
         return Integer.parseInt(bd.toString());
     }
 
-    //获取热点状态
-    public static int getWifiAPState(Context context) {
-        int state = -1;
-        try {
-            WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-            Method method2 = wifiManager.getClass().getMethod("getWifiApState");
-            state = (Integer) method2.invoke(wifiManager);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return state;
-    }
-
-    public static boolean setWifiApEnabled(Context context, boolean enabled) {
-        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        if (enabled) { // disable WiFi in any case
-            //wifi和热点不能同时打开，所以打开热点的时候需要关闭wifi
-            wifiManager.setWifiEnabled(false);
-        }
-        try {
-            //热点的配置类
-            WifiConfiguration wifiConfig = new WifiConfiguration();
-            wifiConfig.allowedAuthAlgorithms.clear();
-            wifiConfig.allowedGroupCiphers.clear();
-            wifiConfig.allowedKeyManagement.clear();
-            wifiConfig.allowedPairwiseCiphers.clear();
-            wifiConfig.allowedProtocols.clear();
-            //配置热点的名称
-            String ssid = "";
-            if (!TextUtils.isEmpty(Session.get(context).getBoxName())) {
-                ssid = Session.get(context).getBoxName();
-            } else {
-                String mac = getEthernetMacAddr();
-                if (!TextUtils.isEmpty(mac) && mac.length() > 3) {
-                    mac = mac.replaceAll(":", "");
-                    ssid = "RD" + mac.substring(mac.length() - 3);
-                } else {
-                    String timestamp = String.valueOf(System.currentTimeMillis());
-                    ssid = "RD" + timestamp.substring(timestamp.length() - 5);
-                }
-            }
-            wifiConfig.SSID = ssid;
-            wifiConfig.preSharedKey = "11111111";
-            wifiConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
-            wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
-            wifiConfig.allowedKeyManagement.set(4 /*WifiConfiguration.KeyMgmt.NONE*/);
-            wifiConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
-            wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN/*WPA*/);
-            wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
-            wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
-            wifiConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
-            wifiConfig.status = WifiConfiguration.Status.ENABLED;
-            //通过反射调用设置热点
-            Method method = wifiManager.getClass().getMethod(
-                    "setWifiApEnabled", WifiConfiguration.class, Boolean.TYPE);
-            //返回热点打开状态
-            return (Boolean) method.invoke(wifiManager, wifiConfig, enabled);
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public static boolean isWifiEnabled(Context context) {
-        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        return wifiManager.isWifiEnabled();
-    }
-
-    public static String getWifiApIp() {
-        String cmd = "ip route show";
-        Process process = null;
-        InputStream is = null;
-        BufferedReader reader = null;
-        String result = "";
-        try {
-            process = Runtime.getRuntime().exec(cmd);
-            is = process.getInputStream();
-            reader = new BufferedReader(
-                    new InputStreamReader(is));
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                line = line.trim();
-                if (line.contains("wlan0") && line.contains("proto kernel")) {
-                    result = line.substring(line.lastIndexOf(" ") + 1).trim();
-                    break;
-                }
-            }
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            try {
-                if (process != null) {
-                    process.destroy();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return result;
-    }
-
-    public static String getWifiApName(Context context) {
-        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        try {
-            Method method = wifiManager.getClass().getMethod("getWifiApConfiguration");
-            WifiConfiguration wifiConfig = (WifiConfiguration) method.invoke(wifiManager);
-            return wifiConfig.SSID;
-        } catch (Exception e) {
-            return null;
-        }
-    }
 
     /**
      * 检测是否可播放下一期
@@ -2545,36 +2164,18 @@ public class AppUtils {
         return  Build.MODEL.contains("t962e");
     }
 
-    public static boolean isSMART_TV(){
-        return Build.MODEL.contains("SMART_TV");
+    public static boolean isWang(){
+        return  Build.MODEL.contains("T962");
+    }
+
+    public static boolean isSMART_CLOUD_TV(){
+        return Build.MODEL.contains("AOSP");
     }
 
     public static boolean isPhilips(){
         return Build.MODEL.contains("BDL");
     }
 
-    public static void initSMART_TV(){
-        Process proc = null;
-        try {
-            proc = Runtime.getRuntime().exec("xu 7411");
-
-            DataOutputStream dos = new DataOutputStream(proc.getOutputStream());
-            dos.writeBytes("mount -o remount,rw /system");
-            dos.flush();
-
-            dos.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (proc != null) {
-                try {
-                    proc.destroy();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
 
     /**
      * 根据Pid获取当前进程的名字，一般就是当前app的包名

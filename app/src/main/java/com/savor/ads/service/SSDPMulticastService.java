@@ -9,6 +9,7 @@ import com.savor.ads.bean.ServerInfo;
 import com.savor.ads.core.Session;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
+import com.savor.ads.utils.IPAddressUtils;
 import com.savor.ads.utils.LogUtils;
 
 import java.io.IOException;
@@ -71,7 +72,7 @@ public class SSDPMulticastService extends IntentService {
 
                 // 拼接message
                 String msg = TYPE_LABEL_PREFIX + ConstantValues.SSDP_CONTENT_TYPE + CRLF +
-                        BOX_IP_LABEL_PREFIX + AppUtils.getLocalIPAddress() + CRLF +
+                        BOX_IP_LABEL_PREFIX + IPAddressUtils.getLocalIPAddress() + CRLF +
                         ROOM_ID_PREFIX + Session.get(this).getRoomId() + CRLF +
                         BOX_MAC_PREFIX + Session.get(this).getEthernetMac() + CRLF +
                         HOTEL_ID_PREFIX + Session.get(this).getBoiteId() + CRLF;

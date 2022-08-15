@@ -90,6 +90,8 @@ public class MediaLibBean implements Serializable {
     private int is_price;
     /**广告优先级：1预定酒水，2主推酒水，3随机酒水*/
     private int wine_type;
+    /**展示优先级排序字段*/
+    private int sort_num;
 
     public long getId() {
         return id;
@@ -425,6 +427,14 @@ public class MediaLibBean implements Serializable {
 
     public void setWine_type(int wine_type) {
         this.wine_type = wine_type;
+    }
+
+    public int getSort_num() {
+        return sort_num;
+    }
+
+    public void setSort_num(int sort_num) {
+        this.sort_num = sort_num;
     }
 }
 

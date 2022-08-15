@@ -47,6 +47,7 @@ import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.GlobalValues;
+import com.savor.ads.utils.IPAddressUtils;
 import com.savor.ads.utils.MiniProgramQrCodeWindowManager;
 import com.savor.ads.utils.QrCodeWindowManager;
 
@@ -753,7 +754,7 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
             responseT.setCode(10000);
             CodeVerifyBean bean = new CodeVerifyBean();
             bean.setBox_id(session.getBoxId());
-            bean.setBox_ip(AppUtils.getLocalIPAddress());
+            bean.setBox_ip(IPAddressUtils.getLocalIPAddress());
             bean.setBox_mac(session.getEthernetMac());
             bean.setHotel_id(session.getBoiteId());
             bean.setRoom_id(session.getRoomId());

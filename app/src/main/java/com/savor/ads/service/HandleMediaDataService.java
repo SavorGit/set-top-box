@@ -709,13 +709,16 @@ public class HandleMediaDataService extends Service{
                 }
             }
             Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
-            if (activity instanceof BaseActivity){
-                BaseActivity baseActivity = (BaseActivity) activity;
+            if (activity instanceof AdsPlayerActivity){
+                AdsPlayerActivity adsPlayerActivity = (AdsPlayerActivity) activity;
                 if (AppUtils.isSVT()||AppUtils.isPhilips()){
-                    baseActivity.setVolume(session.getTvCarouselVolume());
+                    adsPlayerActivity.setVolume(session.getTvCarouselVolume());
                 }else if(AppUtils.isGiec()){
-                    baseActivity.setVolume(session.getBoxCarouselVolume());
+                    adsPlayerActivity.setVolume(session.getBoxCarouselVolume());
                 }
+            }else if (activity instanceof TvPlayerGiecActivity){
+                TvPlayerGiecActivity giecActivity = (TvPlayerGiecActivity) activity;
+                giecActivity.setVolume(session.getBoxTvVolume());
             }
         } catch (Exception e) {
             e.printStackTrace();

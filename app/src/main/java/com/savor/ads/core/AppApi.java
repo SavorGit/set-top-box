@@ -15,6 +15,7 @@ import com.savor.ads.bean.RtbRequest;
 import com.savor.ads.bean.ServerInfo;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
+import com.savor.ads.utils.IPAddressUtils;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
 import com.savor.tvlibrary.AtvChannel;
@@ -688,7 +689,7 @@ public class AppApi {
         params.put("is_normaluse_wechat", session.getNormalUseWechat());
         params.put("logo", session.getSplashVersion());
         params.put("p_load_version", session.getLoadingVersion());
-        params.put("ip", AppUtils.getLocalIPAddress());
+        params.put("ip", IPAddressUtils.getLocalIPAddress());
         if (session.getServerInfo() != null) {
             if (session.isUseVirtualSp()){
                 params.put("small_platform_ip",BuildConfig.VIRTUAL_SP_HOST);

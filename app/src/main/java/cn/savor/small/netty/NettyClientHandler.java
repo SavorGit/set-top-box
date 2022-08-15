@@ -35,6 +35,7 @@ import com.savor.ads.database.DBHelper;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.GlobalValues;
+import com.savor.ads.utils.IPAddressUtils;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
 
@@ -128,7 +129,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<MessageBean>
 //                        String xContent = "我收到了.数据包..回应下";
 //                        contList.add(xContent);
 //                        response.setContent(contList);
-                        response.setIp(AppUtils.getLocalIPAddress());
+                        response.setIp(IPAddressUtils.getLocalIPAddress());
                         response.setMac(session.getEthernetMac());
                     } else if (ConstantValues.NETTY_STOP_PROJECTION_COMMAND.equals(order)) {
                         // 停止投屏
@@ -196,7 +197,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<MessageBean>
                 message.setCmd(MessageBean.Action.HEART_CLENT_TO_SERVER);
                 String number = channelId + System.currentTimeMillis();
                 message.setSerialnumber(number);
-                message.setIp(AppUtils.getLocalIPAddress());
+                message.setIp(IPAddressUtils.getLocalIPAddress());
                 message.setMac(session.getEthernetMac());
                 InnerBean bean = new InnerBean();
                 bean.setHotelId(session.getBoiteId());

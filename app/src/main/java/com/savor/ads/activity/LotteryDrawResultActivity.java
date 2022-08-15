@@ -67,7 +67,7 @@ public class LotteryDrawResultActivity extends BaseActivity{
             for (PartakeLottery lottery:winPrizeUsers){
                 String openid = lottery.getOpenid();
                 for (PartakeUser user:lotteryUsers){
-                    if (openid.equals(user.getOpenid())){
+                    if (!TextUtils.isEmpty(openid)&&openid.equals(user.getOpenid())){
                         lottery.setAvatarUrl(user.getAvatarUrl());
                         lottery.setNickName(user.getNickName());
                     }
