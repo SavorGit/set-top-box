@@ -240,14 +240,18 @@ public class UpdateUtil{
             return false;
         }
         boolean isflag = false;
-        String[] args = {"pm",
+                String[] args = {"pm",
                         "install",
                         "-r",
-                        file.getAbsolutePath(),
-                        "am",
-                        "start",
-                        "-n",
-                        "com.savor.ads/.activity.MainActivity"};
+                        file.getAbsolutePath()};
+//        String[] args = {"pm",
+//                        "install",
+//                        "-r",
+//                        file.getAbsolutePath(),
+//                        "am",
+//                        "start",
+//                        "-n",
+//                        "com.savor.ads/.activity.MainActivity"};
         String result = "";
         // 创建一个操作系统进程并执行命令行操作
         ProcessBuilder processBuilder = new ProcessBuilder(args);

@@ -709,6 +709,9 @@ public class HandleMediaDataService extends Service{
                 }
             }
             Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+            if (GlobalValues.mIsGoneToTv){
+                return;
+            }
             if (activity instanceof AdsPlayerActivity){
                 AdsPlayerActivity adsPlayerActivity = (AdsPlayerActivity) activity;
                 if (AppUtils.isSVT()||AppUtils.isPhilips()){
@@ -2128,6 +2131,12 @@ public class HandleMediaDataService extends Service{
             GlobalValues.completionRate +=1;
             LogUtils.d("WLAN服务端----广告为空==="+GlobalValues.completionRate);
             AppUtils.deleteAllAdsData(context);
+
+            if(adsProgramBean!=null&&adsProgramBean.getVersion()!=null&&!TextUtils.isEmpty(adsProgramBean.getVersion().getVersion())){
+                String period = adsProgramBean.getVersion().getVersion();
+                session.setAdsDownloadPeriod(period);
+                session.setAdsPeriod(period);
+            }
             return;
         }
         String adsPeriod = adsProgramBean.getVersion().getVersion();

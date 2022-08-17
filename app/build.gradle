@@ -17,7 +17,7 @@ android {
         targetSdkVersion TARGET_SDK_VERSION as int
 
         //noinspection HighAppVersionCode
-        versionCode 2022081501
+        versionCode 2022081705
         versionName "2.5.6"
         multiDexEnabled true
     }
@@ -69,6 +69,7 @@ android {
                 abiFilters("armeabi")
             }
         }
+
     }
 
     flavorDimensions "savor"
