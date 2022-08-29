@@ -294,7 +294,8 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
         @Override
         public void run() {
             // 回调某个视频播放出错
-            if (!AppUtils.isSVT()&&!AppUtils.isPhilips()&&!AppUtils.isSMART_CLOUD_TV()){
+//            if (!AppUtils.isSVT()&&!AppUtils.isPhilips()&&!AppUtils.isSMART_CLOUD_TV()){
+            if (AppUtils.isGiec()){
                 mPlayStateCallback.onMediaError(mMediaTag);
             }
         }

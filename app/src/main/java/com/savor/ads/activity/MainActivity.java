@@ -344,7 +344,7 @@ public class MainActivity extends BaseActivity {
             e.printStackTrace();
         }
         if (mAudioManager != null) {
-            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 30, 0);
+            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 5, 0);
         }
 //        if (!AppUtils.isLeTV()&&!AppUtils.isSVT()){
 //            TimeCalibrateHelper timeCalibrateHelper = new TimeCalibrateHelper();

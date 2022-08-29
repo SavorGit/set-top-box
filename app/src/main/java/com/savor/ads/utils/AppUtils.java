@@ -1909,11 +1909,7 @@ public class AppUtils {
      */
     public static String getEthernetMacAddr() {
         String macAddr = "";
-        if (AppUtils.isGiec()||AppUtils.isWang()){
-            macAddr = MacAddressUtils.getEthernetMacAddr();
-        }else {
-            macAddr = MacAddressUtils.getEthernetMac();
-        }
+        macAddr = MacAddressUtils.getEthernetMacAddr();
         return macAddr;
     }
 
@@ -1924,7 +1920,7 @@ public class AppUtils {
      */
     public static String getEthernetIP() {
 
-        String result = IPAddressUtils.getLocalIPAddress();
+        String result = IPAddressUtils.getEthernetIP();
         return result;
     }
 
@@ -1935,7 +1931,7 @@ public class AppUtils {
      */
     public static String getWlanIP() {
 
-        return "";
+        return IPAddressUtils.getWlanIP();
     }
 
     //检查redian文件夹下是否有图有真相

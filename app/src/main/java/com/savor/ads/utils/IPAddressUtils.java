@@ -47,7 +47,6 @@ public class IPAddressUtils {
      *
      * @return
      */
-    @Deprecated
     public static String getEthernetIP() {
         String cmd = "busybox ifconfig eth0";
         Process process = null;
@@ -102,7 +101,6 @@ public class IPAddressUtils {
      *
      * @return
      */
-    @Deprecated
     public static String getWlanIP() {
         String cmd = "busybox ifconfig wlan0";
         Process process = null;

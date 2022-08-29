@@ -438,17 +438,7 @@ public class ScreenProjectionActivity extends BaseActivity{
         }
         if (!mHasInitializedVolume) {
             if (from_service==GlobalValues.FROM_SERVICE_MINIPROGRAM){
-                if (AppUtils.isSVT()||AppUtils.isPhilips()) {
-                    if (currentAction==4||currentAction==10){
-                        mCurrentVolume = mSession.getTvImgFroscreenVolume();
-                    }else if (currentAction==2||currentAction==42){
-                        mCurrentVolume = mSession.getTvVideoFroscreenVolume();
-                    }else if (currentAction==12){
-                        mCurrentVolume = mSession.getTvContentDemandVolume();
-                    }else {
-                        mCurrentVolume = mSession.getTvProDemandVolume();
-                    }
-                } else {
+                if(AppUtils.isGiec()){
                     if (currentAction==4||currentAction==10){
                         mCurrentVolume = mSession.getBoxImgFroscreenVolume();
                     }else if (currentAction==2||currentAction==23||currentAction==42){
@@ -458,23 +448,33 @@ public class ScreenProjectionActivity extends BaseActivity{
                     }else {
                         mCurrentVolume = mSession.getBoxProDemandVolume();
                     }
-                }
-            }else{
-                if (AppUtils.isSVT()||AppUtils.isPhilips()) {
-                    if (currentAction==5||currentAction==22){
+                }else {
+                    if (currentAction==4||currentAction==10){
                         mCurrentVolume = mSession.getTvImgFroscreenVolume();
-                    }else if (currentAction==2||currentAction==23){
+                    }else if (currentAction==2||currentAction==42){
                         mCurrentVolume = mSession.getTvVideoFroscreenVolume();
-                    }else if (currentAction==9){
+                    }else if (currentAction==12){
+                        mCurrentVolume = mSession.getTvContentDemandVolume();
+                    }else {
                         mCurrentVolume = mSession.getTvProDemandVolume();
                     }
-                } else {
+                }
+            }else{
+                if (AppUtils.isGiec()){
                     if (currentAction==5||currentAction==22){
                         mCurrentVolume = mSession.getBoxImgFroscreenVolume();
                     }else if (currentAction==2||currentAction==23){
                         mCurrentVolume = mSession.getBoxVideoFroscreenVolume();
                     }else if (currentAction==9){
                         mCurrentVolume = mSession.getBoxProDemandVolume();
+                    }
+                }else {
+                    if (currentAction==5||currentAction==22){
+                        mCurrentVolume = mSession.getTvImgFroscreenVolume();
+                    }else if (currentAction==2||currentAction==23){
+                        mCurrentVolume = mSession.getTvVideoFroscreenVolume();
+                    }else if (currentAction==9){
+                        mCurrentVolume = mSession.getTvProDemandVolume();
                     }
                 }
             }

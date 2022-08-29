@@ -297,6 +297,9 @@ public class HandleMediaDataService extends Service{
                             getPolyAdsFromSmallPlatform();
                             //上报下载状态
                             reportDownloadState();
+                            //Why call this method last？
+                            // Because the number of calls is too many, the database cannot bear it
+                            notifyToPlay();
                             // 异步获取电视节目信息
                             LogFileUtil.write("HandleMediaDataService will start getTVMatchDataFromSmallPlatform");
                             getTVMatchDataFromSmallPlatform();
@@ -435,79 +438,6 @@ public class HandleMediaDataService extends Service{
             return;
         }
         boxInitBean = boiteBean;
-
-        // 应后端统计要求，只要某个音量改变，就产生4条音量的记录
-//        if (!isProduceLog || boiteBean.getAds_volume() != session.getVolume() ||
-//                boiteBean.getProject_volume() != session.getProjectVolume() ||
-//                boiteBean.getDemand_volume() != session.getXiaxinVolume() ||
-//                boiteBean.getTv_volume() != session.getTvVolume()) {
-//            String volumeUUID = String.valueOf(System.currentTimeMillis());
-//            //生产电视播放音量日志
-//            LogReportUtil.get(context).sendAdsLog(volumeUUID,
-//                    session.getBoiteId(),
-//                    session.getRoomId(),
-//                    String.valueOf(System.currentTimeMillis()),
-//                    "player_volume",
-//                    "system",
-//                    "",
-//                    "",
-//                    session.getVersionName(),
-//                    session.getAdsPeriod(),
-//                    session.getBirthdayOndemandPeriod(),
-//                    String.valueOf(boiteBean.getAds_volume()));
-//            LogReportUtil.get(context).sendAdsLog(volumeUUID,
-//                    session.getBoiteId(),
-//                    session.getRoomId(),
-//                    String.valueOf(System.currentTimeMillis()),
-//                    "project_volume",
-//                    "system",
-//                    "",
-//                    "",
-//                    session.getVersionName(),
-//                    session.getAdsPeriod(),
-//                    session.getBirthdayOndemandPeriod(),
-//                    String.valueOf(boiteBean.getProject_volume()));
-//            LogReportUtil.get(context).sendAdsLog(volumeUUID,
-//                    session.getBoiteId(),
-//                    session.getRoomId(),
-//                    String.valueOf(System.currentTimeMillis()),
-//                    "vod_volume",
-//                    "system",
-//                    "",
-//                    "",
-//                    session.getVersionName(),
-//                    session.getAdsPeriod(),
-//                    session.getBirthdayOndemandPeriod(),
-//                    String.valueOf(boiteBean.getDemand_volume()));
-//            LogReportUtil.get(context).sendAdsLog(volumeUUID,
-//                    session.getBoiteId(),
-//                    session.getRoomId(),
-//                    String.valueOf(System.currentTimeMillis()),
-//                    "tv_volume",
-//                    "system",
-//                    "",
-//                    "",
-//                    session.getVersionName(),
-//                    session.getAdsPeriod(),
-//                    session.getBirthdayOndemandPeriod(),
-//                    String.valueOf(boiteBean.getTv_volume()));
-//
-//            if (boiteBean.getAds_volume() > 0) {
-//                session.setVolume(boiteBean.getAds_volume());
-//            }
-//            if (boiteBean.getProject_volume() > 0) {
-//                session.setProjectVolume(boiteBean.getProject_volume());
-//            }
-//            if (boiteBean.getDemand_volume() > 0) {
-//                session.setXiaxinVolume(boiteBean.getDemand_volume());
-//            }
-//            if (boiteBean.getForscreen_volume()>0){
-//                session.setXxProjectionVolume(boiteBean.getForscreen_volume());
-//            }
-//            if (boiteBean.getTv_volume() > 0) {
-//                session.setTvVolume(boiteBean.getTv_volume());
-//            }
-//        }
         if (!isProduceLog || boiteBean.getSwitch_time() != session.getSwitchTime()) {
             //生产电视切换时间日志
             LogReportUtil.get(context).sendAdsLog(String.valueOf(System.currentTimeMillis()),
@@ -666,7 +596,7 @@ public class HandleMediaDataService extends Service{
     }
 
     private void initSysVolume(List<SysVolume> volumeList){
-        if (volumeList==null||volumeList.isEmpty()){
+        if (!isFirstRun||volumeList==null||volumeList.isEmpty()){
             return;
         }
         try {
@@ -708,20 +638,17 @@ public class HandleMediaDataService extends Service{
                         break;
                 }
             }
-            Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
             if (GlobalValues.mIsGoneToTv){
                 return;
             }
+            Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
             if (activity instanceof AdsPlayerActivity){
                 AdsPlayerActivity adsPlayerActivity = (AdsPlayerActivity) activity;
-                if (AppUtils.isSVT()||AppUtils.isPhilips()){
-                    adsPlayerActivity.setVolume(session.getTvCarouselVolume());
-                }else if(AppUtils.isGiec()){
+                if(AppUtils.isGiec()){
                     adsPlayerActivity.setVolume(session.getBoxCarouselVolume());
+                }else {
+                    adsPlayerActivity.setVolume(session.getTvCarouselVolume());
                 }
-            }else if (activity instanceof TvPlayerGiecActivity){
-                TvPlayerGiecActivity giecActivity = (TvPlayerGiecActivity) activity;
-                giecActivity.setVolume(session.getBoxTvVolume());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -905,7 +832,7 @@ public class HandleMediaDataService extends Service{
             }
             if (result.getDatalist()==null||result.getDatalist().size()==0){
                 AppUtils.deleteActivityAdsMedia(context);
-                notifyToPlay();
+//                notifyToPlay();
                 return;
             }
             handleGoodsProgramListData(result);
@@ -982,7 +909,7 @@ public class HandleMediaDataService extends Service{
                         LogUtils.d("删除文件===================" + file.getName());
                     }
                 }
-                notifyToPlay();
+//                notifyToPlay();
             }
         }
     }
@@ -1010,7 +937,7 @@ public class HandleMediaDataService extends Service{
                 session.setShopGoodsAdsPeriod(result.getPeriod());
                 GlobalValues.completionRate +=1;
                 LogUtils.d("WLAN服务端----商城商品为空==="+GlobalValues.completionRate);
-                notifyToPlay();
+//                notifyToPlay();
                 return;
             }
             handleShopGoodsListData(result);
@@ -1080,7 +1007,7 @@ public class HandleMediaDataService extends Service{
                         LogUtils.d("删除文件===================" + file.getName());
                     }
                 }
-                notifyToPlay();
+//                notifyToPlay();
             }
         }
     }
@@ -1359,7 +1286,7 @@ public class HandleMediaDataService extends Service{
             if (result.getMedia_list()==null||result.getMedia_list().size()==0){
                 dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.LOCAL_LIFE_ADS,null,null);
                 AppUtils.deleteLocalLifeData(context);
-                notifyToPlay();
+//                notifyToPlay();
                 return;
             }
             handleLocalLifeAdsData(result);
@@ -1418,7 +1345,7 @@ public class HandleMediaDataService extends Service{
             //精选内容下载完成
             session.setLocalLifeAdsPeriod(result.getPeriod());
             AppUtils.deleteLocalLifeData(context);
-            notifyToPlay();
+//            notifyToPlay();
         }
     }
 
@@ -1440,7 +1367,7 @@ public class HandleMediaDataService extends Service{
             if (result.getMedia_list()==null||result.getMedia_list().size()==0){
                 dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.STORE_SALE_ADS,null,null);
                 AppUtils.deleteStoreSaleData(context);
-                notifyToPlay();
+//                notifyToPlay();
                 return;
             }
             handleStoreSaleAdsData(result);
@@ -1503,7 +1430,7 @@ public class HandleMediaDataService extends Service{
             //酒水平台广告下载完成
             session.setStoreSaleAdsPeriod(result.getPeriod());
             AppUtils.deleteStoreSaleData(context);
-            notifyToPlay();
+//            notifyToPlay();
         }
     }
 
@@ -2068,7 +1995,7 @@ public class HandleMediaDataService extends Service{
                 AppUtils.deleteOldMedia(context,true);
                 // 如果是填充当前期（立即播放）的话，通知ADSPlayer播放
                 if (fillCurrentBill) {
-                    notifyToPlay();
+//                    notifyToPlay();
                 }
             }
 
@@ -2243,7 +2170,7 @@ public class HandleMediaDataService extends Service{
                     "", Session.get(context).getVersionName(), adsProgramBean.getVersion().getVersion(),
                     Session.get(context).getBirthdayOndemandPeriod(), "");
 
-            notifyToPlay();
+//            notifyToPlay();
         } else {
             // 记录下载中止日志
             LogReportUtil.get(this).sendAdsLog(logUUID, session.getBoiteId(), session.getRoomId(),
@@ -2415,7 +2342,7 @@ public class HandleMediaDataService extends Service{
 
 
             deleteMediaFileNotInConfig(fileNames, AppUtils.StorageFile.poly_ads, DBHelper.MediaDBInfo.TableName.RTB_ADS);
-            notifyToPlay();
+//            notifyToPlay();
         } else {
             // 记录下载中止日志
             LogReportUtil.get(this).sendAdsLog(logUUID, session.getBoiteId(), session.getRoomId(),

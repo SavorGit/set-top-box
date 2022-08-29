@@ -22,11 +22,13 @@ import com.savor.ads.core.Session;
 import com.savor.ads.okhttp.coreProgress.download.FileDownloader;
 
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
@@ -240,64 +242,58 @@ public class UpdateUtil{
             return false;
         }
         boolean isflag = false;
-                String[] args = {"pm",
-                        "install",
-                        "-r",
-                        file.getAbsolutePath()};
-//        String[] args = {"pm",
-//                        "install",
-//                        "-r",
-//                        file.getAbsolutePath(),
-//                        "am",
-//                        "start",
-//                        "-n",
-//                        "com.savor.ads/.activity.MainActivity"};
-        String result = "";
+        String apkPath = file.getAbsolutePath();
+//        String[] args = {"pm","install", "-r",apkPath};
+        String[] args = {"pm","install","-r",apkPath,"am","start","-n","com.savor.ads/.activity.MainActivity"};
         // 创建一个操作系统进程并执行命令行操作
         ProcessBuilder processBuilder = new ProcessBuilder(args);
         Process process = null;
-        InputStream errIs = null;
-        InputStream inIs = null;
+        BufferedReader successResult = null;
+        BufferedReader errorResult = null;
+        StringBuilder successMsg = new StringBuilder();
+        StringBuilder errorMsg = new StringBuilder();
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            int read = -1;
             process = processBuilder.start();
-            errIs = process.getErrorStream();
-            while ((read = errIs.read()) != -1) {
-                baos.write(read);
+            successResult = new BufferedReader (new InputStreamReader(process.getInputStream ()));
+            errorResult = new BufferedReader (new InputStreamReader(process.getErrorStream ()));
+            String s ;
+            while ((s = successResult.readLine()) != null) {
+                successMsg.append(s);
             }
-            baos.write('\n');
-            inIs = process.getInputStream();
-            while ((read = inIs.read()) != -1) {
-                baos.write(read);
+            while ((s = errorResult.readLine()) != null) {
+                errorMsg.append(s);
             }
-            byte[] data = baos.toByteArray();
-            result = new String(data);
-            isflag = true;
-            Log.d("update", "result" + result);
-        } catch (IOException e) {
+            if (process.waitFor() == 0 || successMsg.toString().contains("Success")){
+                isflag = true;
+            }
+        }catch (IOException e){
             e.printStackTrace();
-        } catch (Exception e) {
+        }catch (InterruptedException e){
             e.printStackTrace();
-        } finally {
+        }finally {
             try {
-                if (errIs != null) {
-                    errIs.close();
+                if (successResult != null){
+                    successResult.close();
                 }
-                if (inIs != null) {
-                    inIs.close();
+                if (errorResult != null){
+                    errorResult.close();
                 }
-            } catch (IOException e) {
+            } catch ( IOException e){
                 e.printStackTrace();
             }
-            if (process != null) {
-                process.destroy();
+            if (process != null){
+                process. destroy();
             }
         }
         if (isflag) {
             GlobalValues.isUpdateApk = true;
             handler.post(()->ShowMessage.showToast(mContext,"新版本更新完成"));
 //            mContext.sendBroadcast(new Intent(ConstantValues.UPDATE_APK_ACTION));
+            try {
+                Runtime.getRuntime().exec("reboot");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return isflag;
     }

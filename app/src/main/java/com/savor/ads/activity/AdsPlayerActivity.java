@@ -866,15 +866,11 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         Log.d(TAG, "::onResume");
         judegeCurrentLotteryState();
         mActivityResumeTime = System.currentTimeMillis();
-        if (AppUtils.isSVT()||AppUtils.isPhilips()){
-            setVolume(mSession.getTvCarouselVolume());
-            if (mCurrentVolume==0){
-                mCurrentVolume = mSession.getTvCarouselVolume();
-            }
-        }else if(AppUtils.isGiec()){
-            setVolume(mSession.getBoxCarouselVolume());
-            if (mCurrentVolume==0) {
+        if (mCurrentVolume==0) {
+            if(AppUtils.isGiec()){
                 mCurrentVolume = mSession.getBoxCarouselVolume();
+            }else{
+                mCurrentVolume = mSession.getTvCarouselVolume();
             }
         }
         if (GlobalValues.mIsGoneToTv) {

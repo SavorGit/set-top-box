@@ -222,19 +222,19 @@ public class BoxInfoDialog extends Dialog {
                 mServerIpTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
             }
             mLastPowerOnTimeTv.setText(TextUtils.isEmpty(session.getLastStartTime()) ? "初次开机" : session.getLastStartTime());
-            if (AppUtils.isSVT()||AppUtils.isPhilips()){
-                mVolumeTv.setText(String.valueOf(session.getTvCarouselVolume()));
-                contentDemandVolumeTV.setText(String.valueOf(session.getTvContentDemandVolume()));
-                proDemandVolumeTV.setText(String.valueOf(session.getTvProDemandVolume()));
-                imgProjectionVolumeTV.setText(String.valueOf(session.getTvImgFroscreenVolume()));
-                videoProjectionVolumeTV.setText(String.valueOf(session.getTvVideoFroscreenVolume()));
-            }else {
+            if (AppUtils.isGiec()){
                 mVolumeTv.setText(String.valueOf(session.getBoxCarouselVolume()));
                 mTvVolumeTv.setText(String.valueOf(session.getBoxTvVolume()));
                 contentDemandVolumeTV.setText(String.valueOf(session.getBoxContentDemandVolume()));
                 proDemandVolumeTV.setText(String.valueOf(session.getBoxProDemandVolume()));
                 imgProjectionVolumeTV.setText(String.valueOf(session.getBoxImgFroscreenVolume()));
                 videoProjectionVolumeTV.setText(String.valueOf(session.getBoxVideoFroscreenVolume()));
+            }else {
+                mVolumeTv.setText(String.valueOf(session.getTvCarouselVolume()));
+                contentDemandVolumeTV.setText(String.valueOf(session.getTvContentDemandVolume()));
+                proDemandVolumeTV.setText(String.valueOf(session.getTvProDemandVolume()));
+                imgProjectionVolumeTV.setText(String.valueOf(session.getTvImgFroscreenVolume()));
+                videoProjectionVolumeTV.setText(String.valueOf(session.getTvVideoFroscreenVolume()));
             }
 
         }catch (Exception e){

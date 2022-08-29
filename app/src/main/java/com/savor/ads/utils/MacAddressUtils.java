@@ -152,7 +152,6 @@ public class MacAddressUtils {
      *
      * @return
      */
-    @Deprecated
     public static String getEthernetMacAddr() {
         String cmd = "busybox ifconfig eth0";
         Process process = null;
@@ -194,6 +193,9 @@ public class MacAddressUtils {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+        if (TextUtils.isEmpty(result)){
+            result = MacAddressUtils.getEthernetMac();
         }
         return result;
     }
