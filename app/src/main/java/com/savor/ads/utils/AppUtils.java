@@ -575,18 +575,18 @@ public class AppUtils {
 
     public static String getEasyMd5(File f) {
         InputStream in = null;
+        FileInputStream stream = null;
         byte[] frontb = null;
         byte[] backb = null;
         byte[] newb1 = null;
         byte[] newb2 = null;
         String endb = null;
         try {
-
-            FileInputStream stream = new java.io.FileInputStream(f);
+            stream = new FileInputStream(f);
 //            allTex.append(String.valueOf(showAvailableBytes(stream)));
             int pos = 0;// 从第几个字节开始读
             int len = 200;// 读几个字节
-            //			stream.skip(pos); // 跳过之前的字节数
+//            stream.skip(pos); // 跳过之前的字节数
             frontb = new byte[len];
             stream.read(frontb);
 
@@ -613,7 +613,15 @@ public class AppUtils {
             if (in != null) {
                 try {
                     in.close();
-                } catch (IOException e1) {
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (stream!= null){
+                try {
+                    stream.close();
+                }catch (IOException e){
+                    e.printStackTrace();
                 }
             }
         }

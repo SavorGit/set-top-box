@@ -873,6 +873,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 mCurrentVolume = mSession.getTvCarouselVolume();
             }
         }
+        setVolume(mCurrentVolume);
         if (GlobalValues.mIsGoneToTv) {
             GlobalValues.IS_BOX_BUSY = true;
             mSavorVideoView.onResume();

@@ -426,16 +426,24 @@ public class ScreenProjectionActivity extends BaseActivity{
 
     private void initVolume() {
         /**临时使用代码，播放酒水平台引导视频时音量设置为80*/
-        if (!TextUtils.isEmpty(mMediaPath)&&mMediaPath.contains("tBtFDitm8N.mp4")){
-            mCurrentVolume =80;
-            setVolume(mCurrentVolume);
-            return;
-        }
-        if (!TextUtils.isEmpty(mMediaUrl)&&mMediaUrl.contains("tBtFDitm8N.mp4")){
-            mCurrentVolume =80;
-            setVolume(mCurrentVolume);
-            return;
-        }
+//        if (!TextUtils.isEmpty(mMediaPath)&&mMediaPath.contains("tBtFDitm8N.mp4")){
+//            if (AppUtils.isGiec()){
+//                mCurrentVolume =mSession.getBoxCarouselVolume();
+//            }else{
+//                mCurrentVolume =mSession.getTvCarouselVolume();
+//            }
+//            setVolume(mCurrentVolume);
+//            return;
+//        }
+//        if (!TextUtils.isEmpty(mMediaUrl)&&mMediaUrl.contains("tBtFDitm8N.mp4")){
+//            if (AppUtils.isGiec()){
+//                mCurrentVolume =mSession.getBoxCarouselVolume();
+//            }else{
+//                mCurrentVolume =mSession.getTvCarouselVolume();
+//            }
+//            setVolume(mCurrentVolume);
+//            return;
+//        }
         if (!mHasInitializedVolume) {
             if (from_service==GlobalValues.FROM_SERVICE_MINIPROGRAM){
                 if(AppUtils.isGiec()){

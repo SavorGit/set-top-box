@@ -2544,7 +2544,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         String fontPath = null;
         String selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
         String[] selectionArgs = new String[]{img_id};
-        List<WelcomeResourceBean> imgList = dbHelper.findWelcomeResourceList(selection,selectionArgs);
+//        List<WelcomeResourceBean> imgList = dbHelper.findWelcomeResourceList(selection,selectionArgs);
 //        if (imgList!=null&&imgList.size()>0){
 //            WelcomeResourceBean bean = imgList.get(0);
 //            imgPath = basePath+bean.getName();
