@@ -91,7 +91,7 @@ public class FileUtils {
         } else if (assetsPath.endsWith(File.separator)) {
             assetsPath = assetsPath.substring(0, assetsPath.length() - 1);
         }
-
+        InputStream inputStream=null;
         try {
             AssetManager assetManager = context.getAssets();
             File file = new File(storagePath);
@@ -111,12 +111,12 @@ public class FileUtils {
                     if (!TextUtils.isEmpty(temp) && childFileNames.length > 0) {//判断是文件还是文件夹：如果是文件夹
                         copyFilesFromAssets(context, temp, storagePath + File.separator + fileName);
                     } else {//如果是文件
-                        InputStream inputStream = assetManager.open(temp);
+                        inputStream = assetManager.open(temp);
                         readInputStream(storagePath + File.separator + fileName, inputStream);
                     }
                 }
             } else {
-                InputStream inputStream = assetManager.open(assetsPath);
+                inputStream = assetManager.open(assetsPath);
                 if (assetsPath.contains(File.separator)) {
                     assetsPath = assetsPath.substring(assetsPath.lastIndexOf(File.separator), assetsPath.length());
                 }
@@ -124,6 +124,8 @@ public class FileUtils {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }finally {
+            CloseUtils.closeIO(inputStream);
         }
 
     }
@@ -157,11 +159,19 @@ public class FileUtils {
         }catch (Exception e){
             e.printStackTrace();
         }finally {
-            try {
-                is.close();
-                fos.close();
-            }catch (Exception e){
-                e.printStackTrace();
+            if (is!=null){
+                try {
+                    is.close();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
+            if (fos!=null){
+                try {
+                    fos.close();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -173,9 +183,10 @@ public class FileUtils {
      */
     public static void readInputStream(String storagePath, InputStream inputStream) {
         File file = new File(storagePath);
+        FileOutputStream fos=null;
         try {
             if (!file.exists()) {
-                FileOutputStream fos = new FileOutputStream(file);
+                fos = new FileOutputStream(file);
                 byte[] buffer = new byte[inputStream.available()];
                 int length = 0;
                 while ((length = inputStream.read(buffer)) != -1) {
@@ -183,11 +194,11 @@ public class FileUtils {
                     fos.flush();
                 }
                 fos.flush();
-                fos.close();
-                inputStream.close();
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }finally {
+            CloseUtils.closeIO(fos,inputStream);
         }
     }
 

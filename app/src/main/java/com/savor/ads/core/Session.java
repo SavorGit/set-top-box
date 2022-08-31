@@ -584,6 +584,7 @@ public class Session {
         Object obj = null;
         byte[] base64Bytes;
         ByteArrayInputStream bais = null;
+        ObjectInputStream ois = null;
         try {
             String productBase64 = str;
             if (null == productBase64
@@ -593,14 +594,20 @@ public class Session {
 
             base64Bytes = Base64.decode(productBase64, Base64.DEFAULT);
             bais = new ByteArrayInputStream(base64Bytes);
-            ObjectInputStream ois = new ObjectInputStream(bais);
+            ois = new ObjectInputStream(bais);
             obj = ois.readObject();
-            ois.close();
         } catch (Exception e) {
         } finally {
             if (bais != null) {
                 try {
                     bais.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (ois!=null){
+                try {
+                    ois.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

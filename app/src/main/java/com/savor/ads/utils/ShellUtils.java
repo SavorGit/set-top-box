@@ -105,72 +105,6 @@ public class ShellUtils {
 
     }
 
-    public static boolean resetNetwork() {
-
-        boolean result = false;
-        try {
-            Process process = Runtime.getRuntime().exec("su");
-            DataOutputStream dos = new DataOutputStream(process.getOutputStream());
-            try {
-                dos.writeBytes("ifconfig eth0 down\n");
-                dos.flush();
-                dos.writeBytes("ifconfig eth0 up\n");
-                dos.flush();
-                dos.writeBytes("ifconfig wlan0 down\n");
-                dos.flush();
-                dos.writeBytes("ifconfig wlan0 up\n");
-                dos.flush();
-                result = true;
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    dos.close();
-                    if (process != null) {
-                        process.waitFor();
-                        process.destroy();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
-
-    }
-
-    public static boolean unmountWlan1() {
-
-        boolean result = false;
-        try {
-            Process process = Runtime.getRuntime().exec("su");
-            DataOutputStream dos = new DataOutputStream(process.getOutputStream());
-            try {
-                dos.writeBytes("ifconfig wlan1 down\n");
-                dos.flush();
-                result = true;
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    dos.close();
-                    if (process != null) {
-                        process.waitFor();
-                        process.destroy();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
-
-    }
-
     public static void reboot() {
         try {
             Runtime.getRuntime().exec("su -c reboot");
@@ -218,70 +152,24 @@ public class ShellUtils {
         }
     }
 
-//    //更新启动图的位置
-//    public static boolean updateLogoPic(String arg) {
-//        try {
-//            if(AppUtils.isFileExist(GlobalValues.LOGO_FILE_PATH)){
-//                File file = new File(GlobalValues.LOGO_FILE_PATH);
-//                file.delete();
-//            }
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
-//
-//        boolean isflag = false;
-//        try {
-//            java.lang.Process proc = Runtime.getRuntime().exec("su");
-//            DataOutputStream dos = new DataOutputStream(proc.getOutputStream());
-//            if (dos != null) {
-//                try {
-//
-//                    dos.writeBytes("cat " + arg + " > " + GlobalValues.LOGO_FILE_PATH +"\n");
-//                    dos.flush();
-//                    dos.writeBytes("exit\n");
-//                    dos.flush();
-//                    isflag = true;
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                    LogUtils.d(e.toString());
-//                } finally {
-//                    if (dos!=null){
-//                        dos.close();
-//                    }
-//                }
-//            }
-//            try {
-//                proc.waitFor();
-//            } catch (InterruptedException e) {
-//                LogUtils.d(e.toString());
-//                e.printStackTrace();
-//            }
-//
-//            try {
-//                if (proc != null) {
-//                    proc.exitValue();
-//                }
-//            } catch (IllegalThreadStateException e) {
-//                proc.destroy();
-//            }
-//        } catch (IOException e) {
-//            LogUtils.d(e.toString());
-//            e.printStackTrace();
-//        }
-//        return isflag;
-//
-//    }
-
     public static void setAmvecmPcMode(){
+        DataOutputStream os =null;
         try {
             Process suProcess = Runtime.getRuntime().exec("su");
-            DataOutputStream os = new DataOutputStream(suProcess.getOutputStream());
+            os = new DataOutputStream(suProcess.getOutputStream());
             os.writeBytes("echo 0 > /sys/class/amvecm/pc_mode\n");
             os.flush();
 
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+        }finally {
+            if (os!=null){
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
     }
@@ -396,8 +284,9 @@ public class ShellUtils {
         String targetPath = ConstantValues.BOOT_VIDEO_STORAGE + ConstantValues.BOOT_VIDEO_NAME;
         try {
             proc = Runtime.getRuntime().exec("su");
+            DataOutputStream dos = null;
             try {
-                DataOutputStream dos = new DataOutputStream(proc.getOutputStream());
+                dos = new DataOutputStream(proc.getOutputStream());
                 dos.writeBytes("mount -o remount,rw /system\n");
                 dos.flush();
 
@@ -413,6 +302,8 @@ public class ShellUtils {
 
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
+            }finally {
+                CloseUtils.closeIO(dos);
             }
         } catch (IOException e) {
             e.printStackTrace();

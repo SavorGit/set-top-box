@@ -96,6 +96,7 @@ public class TimeCalibrateHelper {
      * @return true表示设置成功, false表示设置失败
      */
     public boolean setCurrentTimeMillis(long time) {
+        DataOutputStream os=null;
         try {
             if (ShellUtils.checkRootPermission()) {
                 TimeZone.setDefault(TimeZone.getTimeZone("GMT+8"));
@@ -103,7 +104,7 @@ public class TimeCalibrateHelper {
                 SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd.HHmmss");
                 String datetime = df.format(current);
                 Process process = Runtime.getRuntime().exec("su");
-                DataOutputStream os = new DataOutputStream(process.getOutputStream());
+                os = new DataOutputStream(process.getOutputStream());
                 //os.writeBytes("setprop persist.sys.timezone GMT\n");
                 os.writeBytes("/system/bin/date -s " + datetime + "\n");
                 os.writeBytes("clock -w\n");
@@ -115,6 +116,8 @@ public class TimeCalibrateHelper {
             }
         } catch (Exception e) {
             return false;
+        }finally {
+            CloseUtils.closeIO(os);
         }
     }
 
