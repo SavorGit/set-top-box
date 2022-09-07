@@ -104,7 +104,7 @@ import com.savor.ads.utils.TimeUtils;
 import com.savor.ads.utils.ZmengAdsResponseCode;
 import com.savor.tvlibrary.OutputResolution;
 import com.savor.tvlibrary.TVOperatorFactory;
-import com.tencent.bugly.crashreport.CrashReport;
+//import com.tencent.bugly.crashreport.CrashReport;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.json.JSONObject;
@@ -120,7 +120,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import pl.droidsonroids.gif.GifImageView;
 import tianshu.ui.api.TsUiApiV20171122;
 import tianshu.ui.api.ZmtAPI;
 import tianshu.ui.api.ZmtAdRequestUtil;
@@ -2415,7 +2414,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         GlideImageLoader.loadImageWithoutCache(mContext, imageUrl, imageView, new RequestListener() {
             @Override
             public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
-                CrashReport.postCatchedException(e);
+//                CrashReport.postCatchedException(e);
                 if (retryFrontCount<3){
                     mHandler.postDelayed(runnable,100);
                     retryFrontCount++;
@@ -2441,7 +2440,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         GlideImageLoader.loadImageWithoutCache(mContext, imageUrl, imageView, new RequestListener() {
             @Override
             public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
-                CrashReport.postCatchedException(e);
+//                CrashReport.postCatchedException(e);
                 if (retryBackCount<3){
                     mHandler.postDelayed(runnable,100);
                     retryBackCount++;

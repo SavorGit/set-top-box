@@ -7,15 +7,11 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
-import android.text.Html;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.savor.ads.BuildConfig;
@@ -26,10 +22,8 @@ import com.savor.ads.core.Session;
 import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
-import com.savor.ads.utils.DensityUtil;
 import com.savor.ads.utils.GlobalValues;
-import com.savor.ads.utils.StringUtils;
-import com.tencent.bugly.crashreport.CrashReport;
+//import com.tencent.bugly.crashreport.CrashReport;
 
 /**
  * Created by zhanghq on 2016/12/12.
@@ -239,7 +233,7 @@ public class BoxInfoDialog extends Dialog {
 
         }catch (Exception e){
             e.printStackTrace();
-            CrashReport.postCatchedException(e);
+//            CrashReport.postCatchedException(e);
         }
     }
 

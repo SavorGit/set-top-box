@@ -150,7 +150,6 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
         doHeartbeat();
         doInitConfig();
         getUploadLogFileType();
-        monitorDownloadSpeed();
 
         if (!Session.get(this).isUseVirtualSp()) {
             ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
@@ -233,30 +232,6 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
         params.put("req_id",System.currentTimeMillis()+"");
         AppApi.getNettyBalancingInfo(this,this,params);
     }
-
-    private void monitorDownloadSpeed(){
-        mHandler.postDelayed(mRunnable,0);
-
-    }
-
-
-
-    private Runnable mRunnable = new Runnable() {
-        @Override
-        public void run() {
-            mHandler.postDelayed(mRunnable,count*1000);
-            Message msg = mHandler.obtainMessage();
-            msg.what = 1;
-            msg.arg1 = getNetSpeed();
-            mHandler.sendMessage(msg);
-        }
-    };
-    private int getNetSpeed(){
-        long traffic_data = TrafficStats.getTotalRxBytes() - total_data;
-        total_data = TrafficStats.getTotalRxBytes();
-        return (int)traffic_data /count ;
-    }
-
 
     private void reportMediaDetail() {
         reportCurrent();
@@ -785,8 +760,6 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                 String fileName = null;
                 if (type==1){
                     fileName = LogFileUtil.LOG_FILE_NAME;
-                }else if (type==2){
-                    fileName = LogFileUtil.LOG_FILE_DOWNLOAD_NAME;
                 }else if (type==3){
                     fileName = LogFileUtil.EXCEPTION_FILE_NAME;
                 }else if (type==4){

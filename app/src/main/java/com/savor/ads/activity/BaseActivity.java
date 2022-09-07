@@ -210,7 +210,6 @@ public abstract class BaseActivity extends Activity implements InputBoiteIdDialo
         if (!TextUtils.isEmpty(AppUtils.getMainMediaPath())) {
             AppUtils.fillPlaylist(this, null, 1);
         } else {
-            LogFileUtil.writeKeyLogInfo("跳转轮播，未找到SD卡！");
             ShowMessage.showToast(mContext, "未发现SD卡");
         }
     }

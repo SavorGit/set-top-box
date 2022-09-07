@@ -13,20 +13,17 @@ import java.io.IOException;
 public class LogFileUtil {
 
     public static final String LOG_FILE_NAME = "savor_log.txt";
-    public static final String LOG_FILE_DOWNLOAD_NAME = "savor_download_log.txt";
     public static final String EXCEPTION_FILE_NAME = "savor_exception.txt";
     public static final String KEY_LOG_FILE_NAME = "savor_key_log.txt";
     public static final String BOOT_DIR_NAME = "savor_boot";
     private static final int BOOT_LOG_MAX_LENGTH = 1024 * 1024 * 2;
     private static String mLogFilePath;
-    private static String mLogFileDownloadPath;
     private static String mExceptionFilePath;
     private static String mKeyLogFilePath;
     private static String mBootDirPath;
 
     public static void init() {
         mLogFilePath = AppUtils.getSDCardPath() + File.separator + LOG_FILE_NAME;
-        mLogFileDownloadPath = AppUtils.getSDCardPath() + File.separator + LOG_FILE_DOWNLOAD_NAME;
         mExceptionFilePath = AppUtils.getSDCardPath() + File.separator + EXCEPTION_FILE_NAME;
         mKeyLogFilePath = AppUtils.getSDCardPath() + File.separator + KEY_LOG_FILE_NAME;
         mBootDirPath = AppUtils.getSDCardPath() + File.separator + BOOT_DIR_NAME;
@@ -38,15 +35,6 @@ public class LogFileUtil {
             file.createNewFile();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-
-        File downloadFile = new File(mLogFileDownloadPath);
-        if (!downloadFile.exists()){
-            try {
-                downloadFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
 
         File exceptionFile = new File(mExceptionFilePath);
@@ -74,69 +62,38 @@ public class LogFileUtil {
     }
 
     public static void write(String msg) {
-        try {
-            File file = new File(mLogFilePath);
-            if (file.exists() && file.length() > 1024 * 1024 * 10) {
-                file.delete();
-            }
-            file.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        FileWriter fileWriter = null;
-        try {
-            fileWriter = new FileWriter(mLogFilePath, true);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (fileWriter != null) {
-            try {
-                fileWriter.write(AppUtils.getCurTime() + " " + msg + "\r\n");
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    fileWriter.flush();
-                    fileWriter.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+//        try {
+//            File file = new File(mLogFilePath);
+//            if (file.exists() && file.length() > 1024 * 1024 * 10) {
+//                file.delete();
+//            }
+//            file.createNewFile();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        FileWriter fileWriter = null;
+//        try {
+//            fileWriter = new FileWriter(mLogFilePath, true);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        if (fileWriter != null) {
+//            try {
+//                fileWriter.write(AppUtils.getCurTime() + " " + msg + "\r\n");
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            } finally {
+//                try {
+//                    fileWriter.flush();
+//                    fileWriter.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
     }
-    public static void writeDownloadLog(String msg) {
-        try {
-            File file = new File(mLogFileDownloadPath);
-            if (file.exists() && file.length() > 1024 * 1024 * 10) {
-                file.delete();
-            }
-            file.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        FileWriter fileWriter = null;
-        try {
-            fileWriter = new FileWriter(mLogFileDownloadPath, true);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (fileWriter != null) {
-            try {
-                fileWriter.write(AppUtils.getCurTime() + " " + msg + "\r\n");
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    fileWriter.flush();
-                    fileWriter.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
     public static void writeException(Throwable ex) {
         try {
             File file = new File(mExceptionFilePath);

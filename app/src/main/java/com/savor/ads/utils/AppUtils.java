@@ -296,13 +296,16 @@ public class AppUtils {
                 sd_default = sd_default.substring(0, sd_default.length() - 1);
             }
             // 得到路径
+            InputStream is = null;
+            InputStreamReader isr = null;
+            BufferedReader br = null;
             try {
                 Runtime runtime = Runtime.getRuntime();
                 Process proc = runtime.exec("mount");
-                InputStream is = proc.getInputStream();
-                InputStreamReader isr = new InputStreamReader(is);
+                is = proc.getInputStream();
+                isr = new InputStreamReader(is);
                 String line;
-                BufferedReader br = new BufferedReader(isr);
+                br = new BufferedReader(isr);
                 while ((line = br.readLine()) != null) {
                     if (line.contains("secure"))
                         continue;
@@ -328,6 +331,8 @@ public class AppUtils {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+            }finally {
+                CloseUtils.closeIO(is,isr,br);
             }
             EXTERNAL_SDCARD_PATH = sdcard_path;
             return sdcard_path;
@@ -1678,7 +1683,6 @@ public class AppUtils {
         return s;
     }
 
-
     /**
      * 计算md5值
      */
@@ -1704,7 +1708,8 @@ public class AppUtils {
         StreamUtils su = new StreamUtils(true);
         try {
             su.copyStreamInner(new ByteArrayInputStream(bytes), null);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return su.getMD5();
     }
@@ -1757,10 +1762,11 @@ public class AppUtils {
             while ((len = in.read(buffer, 0, 1024)) != -1) {
                 digest.update(buffer, 0, len);
             }
-            in.close();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }finally {
+            CloseUtils.closeIO(in);
         }
         return StringUtils.toHexString(digest.digest(), true);
 
@@ -2853,10 +2859,8 @@ public class AppUtils {
             if (!TextUtils.isEmpty(md5) && md5.equals(realMd5)) {
                 return true;
             }
-            return false;
-        } else {
-            return false;
         }
+        return false;
     }
 
 
@@ -2929,7 +2933,7 @@ public class AppUtils {
 
         File file = new File(localPath);
 
-        FileOutputStream fos;
+        FileOutputStream fos=null;
         try {
             if (!file.exists()){
                 file.createNewFile();
@@ -2937,11 +2941,12 @@ public class AppUtils {
             fos = new FileOutputStream(file);
             bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
             fos.flush();
-            fos.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        }finally {
+            CloseUtils.closeIO(fos);
         }
         return file;
     }

@@ -17,7 +17,7 @@ android {
         targetSdkVersion TARGET_SDK_VERSION as int
 
         //noinspection HighAppVersionCode
-        versionCode 2022083101
+        versionCode 2022090605
         versionName "2.5.6"
         multiDexEnabled true
     }
@@ -137,5 +137,5 @@ dependencies {
     implementation project(path: ':gsyVideoPlayer-exo_player2')
     implementation project(path: ':carousel')
 //    implementation project(':pdflibrary')
-    implementation 'com.tencent.bugly:crashreport:latest.release'
+//    implementation 'com.tencent.bugly:crashreport:latest.release'
 }

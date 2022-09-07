@@ -136,7 +136,6 @@ public class WLANFileDownloader {
     }
 
     private boolean saveRangeFile(Response response,long startIndex,File cacheFile) throws IOException{
-        LogFileUtil.writeDownloadLog("下载文件--开始--fileName="+fileName+",fileLength="+startIndex);
         boolean flag;
         InputStream is = null;
         FileOutputStream fileOutputStream = null;

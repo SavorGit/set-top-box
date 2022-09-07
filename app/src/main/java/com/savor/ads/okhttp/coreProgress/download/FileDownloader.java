@@ -167,7 +167,6 @@ public class FileDownloader {
     }
 
     private boolean saveRangeFile(Response response,long startIndex,File cacheFile) throws IOException{
-        LogFileUtil.writeDownloadLog("下载文件--开始--fileName="+fileName+",fileLength="+startIndex);
         boolean flag;
         InputStream is = null;
         RandomAccessFile tmpAccessFile = new RandomAccessFile(cacheFile, "rw");// 获取前面已创建的文
@@ -200,7 +199,6 @@ public class FileDownloader {
         }
         if (flag){
             cacheFile.renameTo(new File(filePath+fileName));
-            LogFileUtil.writeDownloadLog("下载文件--完成--fileName="+fileName+",fileLength="+tmpAccessFile.length());
         }
         return flag;
     }

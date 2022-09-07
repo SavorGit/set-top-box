@@ -81,25 +81,6 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-
-    public static boolean isBootVideoFinished() {
-        String videoFinished = SystemProperties.get(KEY_BOOT_VIDEO_FINISH);
-        String bootAnifinished = SystemProperties.get(KEY_BOOT_ANIMATION_FINISH);
-        String strAdFinished = SystemProperties.get(KEY_BOOT_STR_AD_FINISH);
-        String isScreenOff = SystemProperties.get("soundbar.le.speaker");
-        if (!TextUtils.isEmpty(isScreenOff) && "1".equals(isScreenOff.trim())) {
-            if (!TextUtils.isEmpty(strAdFinished) && "3".equals(strAdFinished)) {
-                return true;
-            }
-        }
-        if (TextUtils.isEmpty(videoFinished) || VALUE_BOOT_VIDEO_FINISHED.equals(videoFinished.trim())) {
-            if (VALUE_BOOT_ANIMATION_FINISHED.equals(bootAnifinished)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private void gotoAdsActivity() {
         ArrayList<MediaLibBean> tempList = DBHelper.get(this).getTempProList();
         if (tempList != null && tempList.size() > 30) {
@@ -110,6 +91,16 @@ public class MainActivity extends BaseActivity {
             DBHelper.get(this).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.NEWPLAYLIST, selection, args);
         }
         GlobalValues.mIsGoneToTv = false;
+        //如果当前没有视频文件可播放，就把开机视频拉到media目录再跳转到播放器页面20220831
+        String path = AppUtils.getFilePath(AppUtils.StorageFile.media);
+        File[] listFiles = new File(path).listFiles();
+        if (listFiles == null || listFiles.length == 0) {
+            String mediaPath = AppUtils.getFilePath(AppUtils.StorageFile.media);
+            File initFile = new File(mediaPath,ConstantValues.INIT_VIDEO_NAME);
+            FileUtils.copyFileFormAssets(mContext,ConstantValues.ASSETS_VIDEO_NAME,initFile.getAbsolutePath());
+            DBHelper.get(mContext).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.PLAYLIST,null,null);
+            DBHelper.get(mContext).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.NEWPLAYLIST,null,null);
+        }
         fillPlayList();
         LogFileUtil.write("MainActivity:删除旧的视频逻辑");
         AppUtils.deleteOldMedia(mContext,false);

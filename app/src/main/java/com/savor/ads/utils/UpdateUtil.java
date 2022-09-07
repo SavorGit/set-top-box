@@ -23,11 +23,9 @@ import com.savor.ads.okhttp.coreProgress.download.FileDownloader;
 
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import org.apache.commons.io.FileUtils;

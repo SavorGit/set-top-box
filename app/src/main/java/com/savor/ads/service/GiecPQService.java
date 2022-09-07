@@ -3,6 +3,7 @@ package com.savor.ads.service;
 import android.app.IntentService;
 import android.content.Intent;
 
+import com.savor.ads.utils.CloseUtils;
 import com.savor.ads.utils.ShowMessage;
 
 import java.io.DataOutputStream;
@@ -29,16 +30,18 @@ public class GiecPQService extends IntentService {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
+        DataOutputStream os=null;
         try {
             Process process = Runtime.getRuntime().exec("su");
-            DataOutputStream os = new DataOutputStream(process.getOutputStream());
+            os = new DataOutputStream(process.getOutputStream());
             //os.writeBytes("mount -o remount,rw -t yaffs /system\n");
             //os.flush();
             os.writeBytes("echo 0 > /sys/class/amvecm/pc_mode\n");
             os.flush();
         } catch (IOException e) {
             e.printStackTrace();
+        }finally {
+            CloseUtils.closeIO(os);
         }
     }
 }

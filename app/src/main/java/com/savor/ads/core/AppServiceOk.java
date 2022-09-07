@@ -484,7 +484,6 @@ public class AppServiceOk {
      * @param targetFile
      */
     public void downLoad(String url, final String targetFile) {
-        LogFileUtil.writeDownloadLog("下载文件----fileName="+targetFile+",fileUrl="+url);
         Map<String, String> requestParams = new HashMap<>();
         Map<String, String> headers = new HashMap<>();
         int read = 0;

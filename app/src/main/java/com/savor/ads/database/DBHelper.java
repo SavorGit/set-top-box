@@ -205,7 +205,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        LogFileUtil.writeKeyLogInfo("-------Database onCreate-------");
         /**
          * 创建新一期的播放列表
          * */
@@ -257,7 +256,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        LogFileUtil.writeKeyLogInfo("-------Database onUpgrade-------oldVersion=" + oldVersion + ", newVersion=" + newVersion);
 
         if (oldVersion<20){
             //20版本加入生日歌/星座点播视频
@@ -475,7 +473,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        LogFileUtil.writeKeyLogInfo("-------Database onUpgrade-------oldVersion=" + oldVersion + ", newVersion=" + newVersion);
     }
 
     private void createTable_newplaylistTrace(SQLiteDatabase db) {

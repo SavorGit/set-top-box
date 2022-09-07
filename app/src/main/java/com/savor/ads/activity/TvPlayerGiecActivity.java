@@ -255,16 +255,25 @@ public class TvPlayerGiecActivity extends BaseActivity {
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
+                DataOutputStream os = null;
                 try {
 //                    ShowMessage.showToast(mContext, "页面将中执行echo 0");
                     Process process = Runtime.getRuntime().exec("su");
-                    DataOutputStream os = new DataOutputStream(process.getOutputStream());
+                    os = new DataOutputStream(process.getOutputStream());
                     //os.writeBytes("mount -o remount,rw -t yaffs /system\n");
                     //os.flush();
                     os.writeBytes("echo 0 > /sys/class/amvecm/pc_mode\n");
                     os.flush();
                 } catch (IOException e) {
                     e.printStackTrace();
+                }finally {
+                    if (os!=null){
+                        try {
+                            os.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
         }, 2500);

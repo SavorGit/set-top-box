@@ -241,13 +241,11 @@ public class WifiApUtil {
                 int cstate = intent.getIntExtra(EXTRA_WIFI_AP_STATE, -1);
                 if(cstate == WIFI_AP_STATE_ENABLED) {
                     LogUtils.e("BroadcastReceiver AP_STATE_ENABLED state=" + cstate);
-                    LogFileUtil.writeKeyLogInfo("WifiApUtil BroadcastReceiver AP_STATE_ENABLED state=" + cstate);
                     if(mHandler != null){
                         mHandler.sendEmptyMessage(MESSAGE_AP_STATE_ENABLED);
                     }
                 } else if(cstate == WIFI_AP_STATE_DISABLED  || cstate == WIFI_AP_STATE_FAILED) {
                     LogUtils.e("BroadcastReceiver AP_STATE_FAILED state=" + cstate);
-                    LogFileUtil.writeKeyLogInfo("WifiApUtil BroadcastReceiver AP_STATE_FAILED state=" + cstate);
                     if(mHandler != null)
                         mHandler.sendEmptyMessage(MESSAGE_AP_STATE_FAILED);
                 }

@@ -319,8 +319,7 @@
             android:scaleType="fitXY"
             android:layout_below="@+id/seckill_bg_header_line_front"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="5dp"
-            android:src="@mipmap/ic_egg_fail_face" />
+            android:layout_marginTop="5dp"/>
         <RelativeLayout
             android:id="@+id/jd_price_front_layout"
             android:layout_below="@+id/seckill_goods_front"
@@ -415,8 +414,7 @@
             android:scaleType="fitXY"
             android:layout_below="@+id/seckill_bg_header_line_back"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="5dp"
-            android:src="@mipmap/ic_egg_fail_face" />
+            android:layout_marginTop="5dp" />
         <RelativeLayout
             android:id="@+id/jd_price_back_layout"
             android:layout_below="@+id/seckill_goods_back"

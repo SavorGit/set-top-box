@@ -42,23 +42,28 @@ public class StreamUtils {
      * @param out
      * @throws IOException
      */
-    public void copyStreamInner(InputStream in, OutputStream out)
-            throws IOException {
-        byte[] buff = new byte[4096];
-        int length = 0;
-        while ((length = in.read(buff)) >= 0) {
-            if (out != null) {
-                out.write(buff, 0, length);
-                out.flush();
+    public void copyStreamInner(InputStream in, OutputStream out){
+        try{
+            byte[] buff = new byte[4096];
+            int length = 0;
+            while ((length = in.read(buff)) >= 0) {
+                if (out != null) {
+                    out.write(buff, 0, length);
+                    out.flush();
+                }
+                this.length += length;
+                if (withMd5) {
+                    md.update(buff, 0, length);
+                }
+                if (handler != null
+                        && !handler.onProcess(this.length, buff, 0, length)) {
+                    break;
+                }
             }
-            this.length += length;
-            if (withMd5) {
-                md.update(buff, 0, length);
-            }
-            if (handler != null
-                    && !handler.onProcess(this.length, buff, 0, length)) {
-                break;
-            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            CloseUtils.closeIO(in,out);
         }
     }
 
@@ -147,13 +152,15 @@ public class StreamUtils {
      */
     public static String getOSSValue(Context context,String key){
         Properties properties = new Properties();
+        InputStream in=null;
         try {
-            InputStream in=context.getAssets().open(OSSValues.osskey);
+            in=context.getAssets().open(OSSValues.osskey);
             properties.load(in);
-            in.close();
         }catch (IOException e){
             e.printStackTrace();
             return null;
+        }finally {
+            CloseUtils.closeIO(in);
         }
         String value = properties.getProperty(key);
         return value;
@@ -179,11 +186,7 @@ public class StreamUtils {
         }catch (Exception e){
             e.printStackTrace();
         }finally {
-            try {
-                output.close();
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+            CloseUtils.closeIO(output,input);
         }
         return null;
     }
