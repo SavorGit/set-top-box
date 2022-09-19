@@ -174,9 +174,6 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                 getUploadLogFileType();
                 try {
                     reportMediaDetail();
-                    if (!session.isJDmomediaReport()){
-                        AppApi.JDmomediaHeartbeat(context,this);
-                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

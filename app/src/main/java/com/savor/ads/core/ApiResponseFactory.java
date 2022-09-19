@@ -64,26 +64,7 @@ public class ApiResponseFactory {
     public static Object getResponse(Context context, AppApi.Action action,
                                      Response response, String key, String other_param) {
 
-        if (action == AppApi.Action.AD_BAIDU_ADS) {
-            // 百度聚屏是特殊的类型，需要使用protobuff解析
-            TsUiApiV20171122.TsApiResponse tsApiResponse = null;
-            try {
-                byte[] content = response.body().bytes();
-                tsApiResponse = TsUiApiV20171122.TsApiResponse.parseFrom(content);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return tsApiResponse;
-        }else if (action == AppApi.Action.AD_ZMENG_ADS){
-            ZmtAPI.ZmAdResponse zmAdResponse = null;
-            try {
-                byte[] content = response.body().bytes();
-                zmAdResponse = ZmtAPI.ZmAdResponse.parseFrom(content);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-            return zmAdResponse;
-        }else if (action == AppApi.Action.CP_GET_TEST_WECHAT_JSON){
+        if (action == AppApi.Action.CP_GET_TEST_WECHAT_JSON){
             return response.body().toString();
         }
 
@@ -273,25 +254,6 @@ public class ApiResponseFactory {
                     e.printStackTrace();
                 }
                 break;
-            case AD_MEI_VIDEO_ADS_JSON:
-            case AD_MEI_IMAGE_ADS_JSON:
-                try{
-                    List<AdsMeiSSPResult> adsMeiSSPResults = new ArrayList<>();
-                    if (ret.has("ad")){
-                        JSONArray jsonArray= ret.getJSONArray("ad");
-                        for (int i=0;i<jsonArray.length();i++){
-                            JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            String admnative = jsonObject.getString("admnative");
-                            AdsMeiSSPResult adsMeiSSPResult = gson.fromJson(admnative, new TypeToken<AdsMeiSSPResult>() {
-                            }.getType());
-                            adsMeiSSPResults.add(adsMeiSSPResult);
-                        }
-                        result = adsMeiSSPResults;
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-                break;
             case CP_GET_NETTY_BALANCING_FORM:
                 try {
                     if (!TextUtils.isEmpty(other_param)&&other_param.equals(ret.getString("req_id"))){
@@ -304,65 +266,6 @@ public class ApiResponseFactory {
                 break;
             case CP_GET_MINIPROGRAM_PROJECTION_RESOURCE_JSON:
                 result = info;
-                break;
-            case AD_POST_OOHLINK_ADS_JSON:
-                result = gson.fromJson(info, new TypeToken<AdInfo>() {
-                }.getType());
-                break;
-            case AD_POST_OOHLINK_REPORT_LOG_JSON:
-                break;
-            case AD_POST_JDMOMEDIA_ADS_PLAIN:
-                result = gson.fromJson(ret.toString(), new TypeToken<JDmomediaResult>() {
-                }.getType());
-                break;
-            case AD_POST_JDMOMEDIA_HEARTBEAT_PLAIN:
-                try {
-                    JSONObject jsonObject = ret;
-                    if (jsonObject.getInt("code")==AppApi.HTTP_RESPONSE_ADS_SUCCESS){
-                        Session.get(context).setJDmomediaReport(true);
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-                break;
-            case AD_POST_YISHOU_JSON:
-                try{
-                    JSONObject json = null;
-                    if (ret.getInt("code")>=0){
-                        JSONArray jsonArray = ret.getJSONArray("payload");
-                        if (jsonArray!=null&&jsonArray.length()>0)
-                            json = jsonArray.getJSONObject(0);
-                        if (json!=null){
-                            AdPayloadBean bean = new AdPayloadBean();
-                            bean.setShow_time(json.getInt("show-time"));
-                            bean.setSlot_id(json.getString("slot-id"));
-                            bean.setWidth(json.getInt("width"));
-                            bean.setHeight(json.getInt("height"));
-                            bean.setFile_size(json.getString("file-size"));
-                            bean.setSign(json.getString("sign"));
-                            bean.setTrack_url(json.getString("track-url"));
-                            bean.setExpire_time(json.getString("expire-time"));
-                            bean.setType(json.getString("type"));
-                            bean.setUrl(json.getString("url"));
-                            result = bean;
-                        }
-                    }else{
-                        ResponseErrorMessage error = new ResponseErrorMessage();
-                        error.setCode(ret.getInt("code"));
-                        result = error;
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-                break;
-            case CP_GET_BOX_TPMEDIAS_JSON:
-                try {
-                    JSONObject jsonObject = ret.getJSONObject("result");
-                    String tpmedia_id = jsonObject.getString("tpmedia_id");
-                    Session.get(context).setTpMedias(tpmedia_id);
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
                 break;
             case CP_POST_SIMPLE_MINIPROGRAM_FORSCREEN_LOG_JSON:
                 result = other_param;

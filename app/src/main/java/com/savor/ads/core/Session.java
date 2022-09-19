@@ -155,11 +155,6 @@ public class Session {
     private String hotContentPeriod;
     /**欢迎词内容期号*/
     private String welcomeResourcePeriod;
-    /**会议内容期号*/
-    private String meetingResourcePeriod;
-
-    /**本地生活广告期号*/
-    private String localLifeAdsPeriod;
     /**酒水平台广告期号*/
     private String storeSaleAdsPeriod;
 
@@ -254,9 +249,6 @@ public class Session {
     /**是否是安装4G卡的机顶盒**/
 	private boolean whether4gNetwork;
 
-	private boolean JDmomediaReport;
-	/**版位支持聚合广告平台**/
-	private String tpMedias;
 	/**底部二维码背景*/
 	private String qrcodeGifBgPath;
     /**是否展示引導嗎*/
@@ -359,8 +351,6 @@ public class Session {
         selectContentPeriod = mPreference.loadStringKey(P_APP_SELECT_CONTENT_PERIOD,"");
         hotContentPeriod = mPreference.loadStringKey(P_APP_HOT_CONTENT_PERIOD,"");
         welcomeResourcePeriod = mPreference.loadStringKey(P_APP_WELCOME_RESOURCE_PERIOD,"");
-        meetingResourcePeriod = mPreference.loadStringKey(P_APP_MEETING_RESOURCE_PERIOD,"");
-        localLifeAdsPeriod = mPreference.loadStringKey(P_APP_LOCAL_LIFE_ADS_PERIOD,"");
         storeSaleAdsPeriod = mPreference.loadStringKey(P_APP_STORE_SALE_ADS_PERIOD,"");
         startTime = mPreference.loadStringKey(P_APP_STARTTIME, null);
         lastStartTime = mPreference.loadStringKey(P_APP_LASTSTARTTIME, null);
@@ -397,7 +387,6 @@ public class Session {
         nettyUrl = mPreference.loadStringKey(P_APP_NETTY_URL,null);
         nettyPort = mPreference.loadIntKey(P_APP_NETTY_PORT,0);
         whether4gNetwork = mPreference.loadBooleanKey(P_APP_4G_NETWORK,false);
-        tpMedias = mPreference.loadStringKey(P_APP_BOX_TPMEDIAS,"");
         qrcodeGifBgPath = mPreference.loadStringKey(P_APP_QRCODE_GIFBG,"");
         qrcodeType = mPreference.loadIntKey(P_APP_BOX_QRCODETYPE,1);
         guideImg = (ProjectionGuideImg) getObj(P_APP_PROJECTION_GUIDE);
@@ -479,15 +468,12 @@ public class Session {
                 || P_APP_BIRTHDAY_ONDEMAND_DOWNLOAD_PERIOD.equals(key)
                 || P_APP_BIRTHDAY_ONDEMAND_PERIOD.equals(key)
                 || P_APP_FORSCREEN_ADS_PERIOD.equals(key)
-                || P_APP_BOX_TPMEDIAS.equals(key)
                 || P_APP_QRCODE_GIFBG.equals(key)
                 || P_APP_ACTIVITY_ADS_PERIOD.equals(key)
                 || P_APP_SELECT_CONTENT_PERIOD.equals(key)
                 || P_APP_HOT_CONTENT_PERIOD.equals(key)
                 || P_APP_WELCOME_RESOURCE_PERIOD.equals(key)
-                || P_APP_MEETING_RESOURCE_PERIOD.equals(key)
                 || P_APP_SHOP_GOODS_ADS_PERIOD.equals(key)
-                || P_APP_LOCAL_LIFE_ADS_PERIOD.equals(key)
                 || P_APP_STORE_SALE_ADS_PERIOD.equals(key)) {
 
             mPreference.saveStringKey(key, (String) updateItem.second);
@@ -1254,24 +1240,6 @@ public class Session {
         writePreference(new Pair<>(P_APP_WELCOME_RESOURCE_PERIOD,welcomeResourcePeriod));
     }
 
-    public String getMeetingResourcePeriod() {
-        return meetingResourcePeriod;
-    }
-
-    public void setMeetingResourcePeriod(String meetingResourcePeriod) {
-        this.meetingResourcePeriod = meetingResourcePeriod;
-        writePreference(new Pair<>(P_APP_MEETING_RESOURCE_PERIOD,meetingResourcePeriod));
-    }
-
-    public String getLocalLifeAdsPeriod() {
-        return localLifeAdsPeriod;
-    }
-
-    public void setLocalLifeAdsPeriod(String localLifeAdsPeriod) {
-        this.localLifeAdsPeriod = localLifeAdsPeriod;
-        writePreference(new Pair<>(P_APP_LOCAL_LIFE_ADS_PERIOD,localLifeAdsPeriod));
-    }
-
     public String getStoreSaleAdsPeriod() {
         return storeSaleAdsPeriod;
     }
@@ -1403,23 +1371,6 @@ public class Session {
     public void setWhether4gNetwork(boolean whether4gNetwork) {
         this.whether4gNetwork = whether4gNetwork;
         writePreference(new Pair<>(P_APP_4G_NETWORK,whether4gNetwork));
-    }
-
-    public boolean isJDmomediaReport() {
-        return JDmomediaReport;
-    }
-
-    public void setJDmomediaReport(boolean JDmomediaReport) {
-        this.JDmomediaReport = JDmomediaReport;
-    }
-
-    public String getTpMedias() {
-        return tpMedias;
-    }
-
-    public void setTpMedias(String tpMedias) {
-        this.tpMedias = tpMedias;
-        writePreference(new Pair<>(P_APP_BOX_TPMEDIAS,tpMedias));
     }
 
     public String getQrcodeGifBgPath() {
@@ -1559,10 +1510,6 @@ public class Session {
     public static final String P_APP_HOT_CONTENT_PERIOD = "com.savor.ads.hot_content_period";
     /**欢迎词内容期号KEY*/
     public static final String P_APP_WELCOME_RESOURCE_PERIOD = "com.savor.ads.welcome_resource_period";
-    /**年会会议内容期号KEY*/
-    public static final String P_APP_MEETING_RESOURCE_PERIOD = "com.savor.ads.meeting_resource_period";
-    /**本地生活广告期号KEY*/
-    public static final String P_APP_LOCAL_LIFE_ADS_PERIOD = "com.savor.ads.local_life_ads_period";
     /**酒水平台广告期号KEY*/
     public static final String P_APP_STORE_SALE_ADS_PERIOD = "com.savor.ads.store_sale_ads_period";
     //开机时间
@@ -1614,7 +1561,6 @@ public class Session {
 
     public static final String P_APP_4G_NETWORK = "com.savor.ads.4g.network";
 
-    public static final String P_APP_BOX_TPMEDIAS = "com.savor.ads.box.tm_medias";
     public static final String P_APP_BOX_QRCODETYPE = "com.savor.ads.box.qrcodeType";
     public static final String P_APP_SIMPLE_UPLOAD_SIZE = "com.savor.ads.simple.uploadSize";
     public static final String P_APP_SCENCEADV_SHOW_NUM = "com.savor.ads.simple.scenceadv_show_num";

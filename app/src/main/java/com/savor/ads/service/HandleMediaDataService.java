@@ -233,7 +233,6 @@ public class HandleMediaDataService extends Service{
                             e.printStackTrace();
                         }
 
-                        getBoxSupportPolyAdsTpmedias();
                         AppUtils.updateProjectionLog(context);
                         LogFileUtil.write("HandleMediaDataService will check space available");
                         // 检测剩余存储空间
@@ -285,24 +284,18 @@ public class HandleMediaDataService extends Service{
                             getHotContentFromCloudPlatform();
                             //同步获取欢迎词资源数据(含封面和mp3音乐)
                             getWelcomeResourceFromCloudPlatform();
-                            //同步获取年会会议资源数据
-                            getMeetingResourceFromCloudPlatform();
-                            //同步获取本地生活广告数据
-                            getLifeAdsDataFromCloudPlatform();
                             //同步获取酒水平台广告媒体数据
                             getStoreSaleAdsDataFromSmallPlatform();
                             isFirstRun = false;
-                            // 同步获取聚屏物料媒体数据
-                            LogFileUtil.write("HandleMediaDataService will start getPolyAdsFromSmallPlatform");
-                            getPolyAdsFromSmallPlatform();
                             //上报下载状态
                             reportDownloadState();
                             //Why call this method last？
                             // Because the number of calls is too many, the database cannot bear it
                             notifyToPlay();
                             // 异步获取电视节目信息
-                            LogFileUtil.write("HandleMediaDataService will start getTVMatchDataFromSmallPlatform");
-                            getTVMatchDataFromSmallPlatform();
+                            if (AppUtils.isGiec()){
+                                getTVMatchDataFromSmallPlatform();
+                            }
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -338,13 +331,6 @@ public class HandleMediaDataService extends Service{
 //        DBHelper.get(context).deleteDataByWhere(DBHelper.MediaDBInfo.TableName.MEDIA_ITEM,null,null);
         //清楚投屏记录数据
         AppUtils.deleteProjectionData(context);
-    }
-
-    /**
-     * 获取当前版位支持的poly广告平台
-     */
-    private void getBoxSupportPolyAdsTpmedias(){
-        AppApi.getBoxSupportPolyAdsTpmedias(context,apiRequestListener);
     }
 
     private void getWLANServerBox(){
@@ -1185,167 +1171,6 @@ public class HandleMediaDataService extends Service{
                 session.setWelcomeResourcePeriod(result.getPeriod());
                 AppUtils.deleteWelcomeResource(context);
             }
-        }
-    }
-
-    /**
-     * 获取年会会议资源数据
-     */
-    private void getMeetingResourceFromCloudPlatform(){
-        try{
-            JsonBean jsonBean = AppApi.getMeetingResourceFromCloudfrom(context,apiRequestListener,session.getEthernetMac());
-            JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
-            if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
-                return;
-            }
-            MeetingResourceResult result = gson.fromJson(jsonObject.get("result").toString(), new TypeToken<MeetingResourceResult>() {
-            }.getType());
-            if (!isFirstRun&&result.getPeriod().equals(session.getMeetingResourcePeriod())){
-                return;
-            }
-            if (result.getDatalist()==null||result.getDatalist().size()==0){
-                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.MEETING_RESOURCE, null, null);
-                AppUtils.deleteMeetingResource(context);
-            }
-            handleMeetingResourceData(result);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    private void handleMeetingResourceData(MeetingResourceResult result){
-        List<MeetingResourceBean> list = result.getDatalist();
-        if (list!=null&&list.size()>0){
-            List<String> fileNames = new ArrayList<>();
-            String selection = null;
-            String[] selectionArgs = null;
-            dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.MEETING_RESOURCE,selection,selectionArgs);
-            for (MeetingResourceBean bean:list){
-                boolean isDownloaded;
-                String basePath = AppUtils.getFilePath(AppUtils.StorageFile.meeting_resource);
-                String fileName = bean.getName();
-                String path = basePath + fileName;
-                int media_type = bean.getMedia_type();
-                if (media_type==1){
-                    isDownloaded = AppUtils.isDownloadEasyCompleted(path, bean.getMd5());
-                }else{
-                    isDownloaded = AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase());
-                }
-                if (!isDownloaded){
-                    String url = BuildConfig.OSS_ENDPOINT+bean.getOss_path();
-                    isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
-                    if (isDownloaded
-                            && (AppUtils.isDownloadEasyCompleted(path, bean.getMd5())
-                            ||AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase()))) {
-                        isDownloaded = true;
-                    }else{
-                        isDownloaded = false;
-                    }
-                }
-                if (isDownloaded){
-                    //下载成功以后将本地路径set到bean里，入库时使用
-                    bean.setMedia_path(path);
-                    if (dbHelper.insertMeetingResource(bean)){
-                        fileNames.add(bean.getName());
-                        postMeetingParamsReport(bean);
-                    }
-
-                }
-            }
-            if (fileNames.size()==list.size()){
-                //精选内容下载完成
-                session.setMeetingResourcePeriod(result.getPeriod());
-                 AppUtils.deleteMeetingResource(context);
-            }
-        }
-    }
-
-    private void postMeetingParamsReport(MeetingResourceBean bean){
-        final HashMap<String, Object> params = new HashMap<>();
-        params.put("box_mac",session.getEthernetMac());
-        params.put("mv_id",bean.getId());
-        params.put("status",3);
-        AppApi.postMeetingParamReport(context,apiRequestListener,params);
-    }
-
-    /**
-     * 获取本地生活广告数据
-     */
-    private void getLifeAdsDataFromCloudPlatform(){
-        try{
-            JsonBean jsonBean = AppApi.getLifeAdsListFromCloudfrom(context,apiRequestListener,session.getEthernetMac());
-            JSONObject jsonObject = new JSONObject(jsonBean.getConfigJson());
-            if (jsonObject.getInt("code")!=AppApi.HTTP_RESPONSE_STATE_SUCCESS){
-                return;
-            }
-            LocalLifeAdsResult result = gson.fromJson(jsonObject.get("result").toString(), new TypeToken<LocalLifeAdsResult>() {
-            }.getType());
-            if (!isFirstRun&&result.getPeriod().equals(session.getLocalLifeAdsPeriod())){
-                return;
-            }
-            if (result.getMedia_list()==null||result.getMedia_list().size()==0){
-                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.LOCAL_LIFE_ADS,null,null);
-                AppUtils.deleteLocalLifeData(context);
-//                notifyToPlay();
-                return;
-            }
-            handleLocalLifeAdsData(result);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    private void handleLocalLifeAdsData(LocalLifeAdsResult result) {
-        List<MediaLibBean> libBeans = result.getMedia_list();
-        // 清空life_ads下载表
-        dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.LOCAL_LIFE_ADS, null, null);
-        List<String> fileNames = new ArrayList<>();
-        for (MediaLibBean bean:libBeans){
-            boolean isDownloaded = false;
-            String basePath = AppUtils.getFilePath(AppUtils.StorageFile.local_life);
-            String fileName = bean.getName();
-            String path = basePath + fileName;
-            int media_type = bean.getMedia_type();
-            if (media_type==1){
-                isDownloaded = AppUtils.isDownloadEasyCompleted(path, bean.getMd5());
-            }else if (media_type==2){
-                isDownloaded = AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase());
-            }
-            if (!isDownloaded&&!AppUtils.isInProjection()){
-                String url = BuildConfig.OSS_ENDPOINT+bean.getOss_path();
-                isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
-                if (isDownloaded
-                        && (AppUtils.isDownloadEasyCompleted(path, bean.getMd5())
-                        ||AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase()))) {
-                    isDownloaded = true;
-                }else{
-                    isDownloaded = false;
-                }
-            }
-            if (isDownloaded){
-                //下载成功以后将本地路径set到bean里，入库时使用
-                String qrcodeUrl = bean.getQrcode_url();
-                String[] fileNameArray = fileName.split("\\.");
-                String qrcodeName = fileNameArray[0]+"_qrcode.png";
-                String qrcodePath = basePath + qrcodeName;
-                if (!new File(qrcodePath).exists()){
-                    new FileDownloader(context,qrcodeUrl,basePath,qrcodeName,true).downloadByRange();
-                }
-                bean.setQrcode_path(qrcodePath);
-                bean.setMediaPath(path);
-                bean.setPeriod(result.getPeriod());
-                bean.setCreateTime(System.currentTimeMillis()+"");
-                if (dbHelper.insertLocalLifeAds(bean)){
-                    fileNames.add(bean.getName());
-                }
-
-            }
-        }
-        if (fileNames.size()==libBeans.size()){
-            //精选内容下载完成
-            session.setLocalLifeAdsPeriod(result.getPeriod());
-            AppUtils.deleteLocalLifeData(context);
-//            notifyToPlay();
         }
     }
 
@@ -2203,158 +2028,6 @@ public class HandleMediaDataService extends Service{
             GlobalValues.isDownload = false;
         }else if (session.getType()==0){
             GlobalValues.isDownload = false;
-        }
-    }
-
-    /**
-     * 获取百度聚屏广告
-     * OSSsource true是从OSS下载，false是从实体小平台下载
-     */
-    private void getPolyAdsFromSmallPlatform(){
-        try {
-            JsonBean jsonBean = AppApi.getPolyAdsFromSmallPlatform(context,apiRequestListener,session.getEthernetMac());
-            Object result = gson.fromJson(jsonBean.getConfigJson(), new TypeToken<ProgramBeanResult>() {
-            }.getType());
-            ProgramBeanResult programBeanResult = (ProgramBeanResult) result;
-            if (programBeanResult.getCode() == AppApi.HTTP_RESPONSE_STATE_SUCCESS && programBeanResult.getResult() != null) {
-                polyAdsProgramBean = programBeanResult.getResult();
-                String smallType = jsonBean.getSmallType();
-                handlePolyAdsFromSmallPlatform(smallType);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    /**
-     * 处理小平台返回的百度聚屏广告内容
-     * 为了后期整合代码，故下载的聚屏广告并不单独创建表，统一放到rtb_ads下面
-     * @param
-     */
-    private void handlePolyAdsFromSmallPlatform(String smallType){
-        if (polyAdsProgramBean == null
-                || polyAdsProgramBean.getVersion() == null
-                || TextUtils.isEmpty(polyAdsProgramBean.getVersion().getVersion())) {
-            return;
-        }
-        String adsPeriod = polyAdsProgramBean.getVersion().getVersion();
-        if (!isPolyFirstRun&&session.getPolyAdsPeriod().equals(adsPeriod)) {
-            return;
-        }
-
-        String logUUID = String.valueOf(System.currentTimeMillis());
-        // 记录下载开始日志
-        int count = polyAdsProgramBean.getMedia_lib() == null ? 0 : polyAdsProgramBean.getMedia_lib().size();
-        LogReportUtil.get(this).sendAdsLog(logUUID, session.getBoiteId(), session.getRoomId(),
-                String.valueOf(System.currentTimeMillis()), "start", "poly_down", adsPeriod,
-                "", session.getVersionName(), session.getAdsPeriod(), session.getBirthdayOndemandPeriod(), String.valueOf(count));
-        session.setPolyAdsDownloadPeriod(adsPeriod);
-
-        boolean isAdsCompleted;
-        int adsDownloadedCount = 0;
-        ArrayList<String> fileNames = new ArrayList<>();    // 下载成功的文件名集合（后面删除老视频会用到）
-        String selection = DBHelper.MediaDBInfo.FieldName.MEDIATYPE + "=? ";
-        String[] selectionArgs = new String[]{ConstantValues.POLY_ADS};
-        dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.RTB_ADS,selection, selectionArgs);
-        if (polyAdsProgramBean.getMedia_lib() != null && polyAdsProgramBean.getMedia_lib().size() > 0) {
-            ServerInfo serverInfo = session.getServerInfo();
-            if (serverInfo == null) {
-                return;
-            }
-            String baseUrl = serverInfo.getDownloadUrl();
-            if (!TextUtils.isEmpty(baseUrl) && baseUrl.endsWith("/")) {
-                baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
-            }
-            LogUtils.d("---------poly广告视频开始下载---------");
-            for (MediaLibBean bean : polyAdsProgramBean.getMedia_lib()) {
-                String basePath = AppUtils.getFilePath(AppUtils.StorageFile.poly_ads);
-                String fileName = bean.getName();
-                String path = basePath + fileName;
-                fileNames.add(bean.getName());
-                boolean isChecked = false;
-                try {
-                    // 下载、校验
-                    if (AppUtils.isDownloadEasyCompleted(path, bean.getMd5())
-                            ||AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase())) {
-                        isChecked = true;
-                    } else {
-                        boolean isDownloaded = false;
-                        if (!AppUtils.isInProjection()){
-                            if (ConstantValues.VIRTUAL.equals(smallType)){
-                                String url = BuildConfig.OSS_ENDPOINT + bean.getOss_path();
-                                isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
-                            }else {
-                                String url = baseUrl + bean.getUrl();
-                                isDownloaded = new FileDownloader(context,url,basePath,fileName,false).downloadByRange();
-                            }
-                        }
-                        if (isDownloaded) {
-                            if (bean.getMedia_type()==1&&AppUtils.isDownloadEasyCompleted(path, bean.getMd5())){
-                                isChecked = true;
-                            }else if (bean.getMedia_type()==2&&AppUtils.isDownloadCompleted(path, bean.getMd5().toUpperCase())){
-                                isChecked = true;
-                            }
-
-                        }
-
-                    }
-                    if (isChecked) {
-                        bean.setMediaPath(path);
-                        // 入库
-                        boolean isInsertSuccess = dbHelper.insertOrUpdateRTBAdsList(bean, false);
-                        if (isInsertSuccess) {
-                            adsDownloadedCount++;
-                            if (!TextUtils.isEmpty(GlobalValues.NOT_FOUND_BAIDU_ADS_KEY) &&
-                                    GlobalValues.NOT_FOUND_BAIDU_ADS_KEY.equals(bean.getTp_md5())) {
-                                GlobalValues.NOT_FOUND_BAIDU_ADS_KEY = null;
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (adsDownloadedCount == polyAdsProgramBean.getMedia_lib().size()) {
-                isAdsCompleted = true;
-            } else {
-                isAdsCompleted = false;
-            }
-        } else {
-            isAdsCompleted = true;
-        }
-
-        if (isAdsCompleted) {
-            isPolyFirstRun = false;
-            LogUtils.d("---------poly广告视频下载完成---------");
-            session.setPolyAdsPeriod(adsPeriod);
-            // 记录日志
-            // 记录下载结束日志
-            LogReportUtil.get(this).sendAdsLog(logUUID, session.getBoiteId(), session.getRoomId(),
-                    String.valueOf(System.currentTimeMillis()), "end", "polyads_down", adsPeriod,
-                    "", session.getVersionName(), session.getAdsPeriod(), session.getBirthdayOndemandPeriod(), String.valueOf(adsDownloadedCount));
-            LogReportUtil.get(context).sendAdsLog(String.valueOf(System.currentTimeMillis()),
-                    Session.get(context).getBoiteId(), Session.get(context).getRoomId(),
-                    String.valueOf(System.currentTimeMillis()), "update", polyAdsProgramBean.getVersion().getType(), "",
-                    "", Session.get(context).getVersionName(), polyAdsProgramBean.getVersion().getVersion(),
-                    Session.get(context).getBirthdayOndemandPeriod(), "");
-
-
-            deleteMediaFileNotInConfig(fileNames, AppUtils.StorageFile.poly_ads, DBHelper.MediaDBInfo.TableName.RTB_ADS);
-//            notifyToPlay();
-        } else {
-            // 记录下载中止日志
-            LogReportUtil.get(this).sendAdsLog(logUUID, session.getBoiteId(), session.getRoomId(),
-                    String.valueOf(System.currentTimeMillis()), "suspend", "polyads_down", adsPeriod,
-                    "", session.getVersionName(), session.getAdsPeriod(), session.getBirthdayOndemandPeriod(), String.valueOf(adsDownloadedCount));
-            if(poly_timeout_count<5){
-                poly_timeout_count ++;
-                handlePolyAdsFromSmallPlatform(smallType);
-            }else {
-                poly_timeout_count = 0;
-            }
-
         }
     }
 

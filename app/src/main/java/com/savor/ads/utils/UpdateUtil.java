@@ -192,6 +192,7 @@ public class UpdateUtil{
 
         boolean isflag = false;
         Process proc = null;
+        String tempTargetPath = ConstantValues.APK_INSTALLED_PATH_GIEC + "tempSavormedia.apk";
         String targetPath = ConstantValues.APK_INSTALLED_PATH_GIEC + "savormedia.apk";
         try {
             proc = Runtime.getRuntime().exec("su");
@@ -200,15 +201,22 @@ public class UpdateUtil{
                 dos.writeBytes("mount -o remount,rw /system\n");
                 dos.flush();
 
-                String catCommand = "cat " + file.getPath() + " > " + targetPath + "\n";
+                String catCommand = "cat " + file.getPath() + " > " + tempTargetPath + "\n";
                 dos.writeBytes(catCommand);
                 dos.flush();
-                Thread.sleep(2000);
+                Thread.sleep(3000);
 
-                dos.writeBytes("chmod 755 " + targetPath + "\n");
+                dos.writeBytes("chmod 755 " + tempTargetPath + "\n");
                 dos.flush();
-                Thread.sleep(1000);
-                isflag = true;
+                Thread.sleep(3000);
+
+                File tempTargetFile = new File(tempTargetPath);
+                if (file.length()==tempTargetFile.length()){
+                    dos.writeBytes("mv " + tempTargetPath +" "+ targetPath + "\n");
+                    dos.flush();
+                    Thread.sleep(3000);
+                    isflag = true;
+                }
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }

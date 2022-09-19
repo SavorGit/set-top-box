@@ -111,7 +111,6 @@ public class AppApi {
         CP_GET_SHOP_GOODS_LIST_FROM_JSON,
         CP_GET_HOT_CONTENT_FROM_JSON,
         CP_GET_WELCOMERESOURCE_FROM_JSON,
-        CP_GET_MEETINGRESOURCE_FROM_JSON,
         CP_POST_MEETING_REPORT_FROM_JSON,
         SP_GET_PROGRAM_DATA_FROM_JSON,
         SP_GET_ADV_DATA_FROM_JSON,
@@ -132,23 +131,11 @@ public class AppApi {
         CP_REPORT_LOTTERY_JSON,
         PH_NOTIFY_STOP_JSON,
         CP_POST_DEVICE_TOKEN_JSON,
-        SP_GET_POLY_ADS_JSON,
-        CP_POST_POLY_PLAY_RECORD_JSON,
         SP_POST_NETSTAT_JSON,
         CP_POST_PLAY_LIST_JSON,
         CP_POST_DOWNLOAD_LIST_JSON,
         CP_POST_SDCARD_STATE_JSON,
         CP_POST_SHELL_COMMAND_RESULT_JSON,
-        AD_BAIDU_ADS,
-        AD_ZMENG_ADS,
-        AD_MEI_VIDEO_ADS_JSON,
-        AD_MEI_IMAGE_ADS_JSON,
-        AD_POST_OOHLINK_ADS_JSON,
-        AD_POST_OOHLINK_REPORT_LOG_JSON,
-        AD_POST_JDMOMEDIA_ADS_PLAIN,
-        AD_POST_JDMOMEDIA_HEARTBEAT_PLAIN,
-        AD_POST_YISHOU_JSON,
-        CP_GET_NOTICE_ADS_MONITOR_JSON,
         CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON,
         CP_SIMPLE_MINIPROGRAM_DOWNLOAD_QRCODE_JSON,
         CP_POST_FORSCREEN_GETCONFIG_JSON,
@@ -169,7 +156,6 @@ public class AppApi {
         SP_GET_QR_NETWORK_JSON,
         CP_GET_NETTY_BALANCING_FORM,
         CP_POST_LOGOUT_GAME_H5_JSON,
-        CP_GET_BOX_TPMEDIAS_JSON,
         CP_GET_ADDPLAYLOG_JSON,
         CP_GET_GOODSCOUNTDOWN_JSON,
         CP_POST_FORSCREEN_ADSLOG_JSON,
@@ -198,13 +184,10 @@ public class AppApi {
             put(Action.CP_GET_SHOP_GOODS_LIST_FROM_JSON,BuildConfig.BASE_URL+"box/program/getShopgoodsProgramList");
             put(Action.CP_GET_HOT_CONTENT_FROM_JSON,BuildConfig.BASE_URL+"box/program/getHotPlayProgramList");
             put(Action.CP_GET_WELCOMERESOURCE_FROM_JSON,BuildConfig.BASE_URL+"box/program/getWelcomeResource");
-            put(Action.CP_GET_MEETINGRESOURCE_FROM_JSON,BuildConfig.BASE_URL+"box/program/getAnnualmeetingResource");
-            put(Action.CP_POST_MEETING_REPORT_FROM_JSON,BuildConfig.BASE_URL+"box/boxLog/annualmeetingResource");
             put(Action.SP_GET_PROGRAM_DATA_FROM_JSON,SP_BASE_URL+"small/api/download/vod/config/v2");
             put(Action.SP_GET_ADV_DATA_FROM_JSON,SP_BASE_URL+"small/api/download/adv/config");
             put(Action.SP_GET_ADS_DATA_FROM_JSON,SP_BASE_URL+"small/api/download/ads/config");
             put(Action.SP_GET_STORESALE_ADS_DATA_FROM_JSON,BuildConfig.BASE_URL + "box/storesaleAds/getAdsList");
-            put(Action.CP_GET_LIFE_ADS_DATA_FROM_JSON,BuildConfig.BASE_URL+"box/lifeAds/getAdsList");
             put(Action.SP_GET_TV_MATCH_DATA_FROM_JSON,SP_BASE_URL+"small/tvList/api/stb/tv_getCommands");
             put(Action.SP_GET_TV_MATCH_DATA_FROM_GIEC_JSON,SP_BASE_URL+"small/tvListNew/api/stb/tv_getCommands");
             put(Action.SP_GET_UPGRADE_INFO_JSON,SP_BASE_URL+"small/api/download/apk/config");
@@ -218,23 +201,11 @@ public class AppApi {
             put(Action.CP_REPORT_LOTTERY_JSON, BuildConfig.BASE_URL + "Award/Award/recordAwardLog");
             put(Action.PH_NOTIFY_STOP_JSON, PHONE_BASE_URL + "stopProjection");
             put(Action.CP_POST_DEVICE_TOKEN_JSON, BuildConfig.BASE_URL + "Basedata/Box/reportDeviceToken");
-            put(Action.SP_GET_POLY_ADS_JSON, SP_BASE_URL + "small/api/download/poly/config");
-            put(Action.CP_POST_POLY_PLAY_RECORD_JSON,BuildConfig.BASE_URL +"Box/BaiduPoly/recordPlay");
             put(Action.SP_POST_NETSTAT_JSON, BuildConfig.BASE_URL + "Small/NetReport/reportInfo");
             put(Action.CP_POST_PLAY_LIST_JSON, BuildConfig.BASE_URL + "box/Program/reportPlayInfo");
             put(Action.CP_POST_DOWNLOAD_LIST_JSON, BuildConfig.BASE_URL + "box/Program/reportDownloadInfo");
             put(Action.CP_POST_SDCARD_STATE_JSON, BuildConfig.BASE_URL + "Opclient20/BoxMem/boxMemoryInfo");
             put(Action.CP_POST_SHELL_COMMAND_RESULT_JSON,BuildConfig.BASE_URL+"Box/ShellCallback/pushResult");
-            put(Action.AD_BAIDU_ADS, BuildConfig.BAIDU_AD_BASE_URL);
-            put(Action.AD_ZMENG_ADS, BuildConfig.ZMENG_AD_BASE_URL);
-            put(Action.AD_MEI_VIDEO_ADS_JSON,MEI_SSP_ADS_URL);
-            put(Action.AD_MEI_IMAGE_ADS_JSON,MEI_SSP_ADS_URL);
-            put(Action.AD_POST_OOHLINK_ADS_JSON,OOHLING_GET_ADS_URL);
-            put(Action.AD_POST_OOHLINK_REPORT_LOG_JSON,OOHLING_REPORT_LOG_URL);
-            put(Action.AD_POST_JDMOMEDIA_ADS_PLAIN, BuildConfig.JDMOMEDIA_AD_BASE_URL+"ad/request?version=v1");
-            put(Action.AD_POST_JDMOMEDIA_HEARTBEAT_PLAIN, BuildConfig.JDMOMEDIA_AD_BASE_URL+"screen/heartbeat");
-            put(Action.CP_GET_NOTICE_ADS_MONITOR_JSON,"");
-            put(Action.AD_POST_YISHOU_JSON,BuildConfig.YISHOU_AD_BASE_URL);
             put(Action.CP_MINIPROGRAM_DOWNLOAD_QRCODE_JSON,BuildConfig.BASE_URL+"Smallapp21/index/getBoxQr");
             put(Action.CP_SIMPLE_MINIPROGRAM_DOWNLOAD_QRCODE_JSON,BuildConfig.BASE_URL+"Smallappsimple/index/getBoxQr");
             put(Action.CP_POST_FORSCREEN_GETCONFIG_JSON,BuildConfig.BASE_URL+"Box/Forscreen/getConfig");
@@ -248,7 +219,6 @@ public class AppApi {
             put(Action.CP_POST_UPDATE_SIMPLE_FORSCREEN_LOG_JSON,BuildConfig.BASE_URL+"Smallappsimple/ForscreenLog/updateForscreen");
             put(Action.CP_GET_NETTY_BALANCING_FORM,BuildConfig.BALANCING_NETTY_BASE+"/netty/balancing");
             put(Action.CP_POST_LOGOUT_GAME_H5_JSON,BuildConfig.BASE_URL+"Games/ClimbTree/logoutGameH5");
-            put(Action.CP_GET_BOX_TPMEDIAS_JSON,BuildConfig.BASE_URL+"/Box/BaiduPoly/getBoxTpmedias");
             put(Action.CP_GET_ADDPLAYLOG_JSON,BuildConfig.BASE_URL+"box/forscreen/addPlaylog");
             put(Action.CP_GET_GOODSCOUNTDOWN_JSON,BuildConfig.BASE_URL+"box/program/getGoodsCountdown");
             put(Action.CP_POST_FORSCREEN_ADSLOG_JSON,BuildConfig.BASE_URL+"box/boxLog/adsPlaylog");
@@ -386,30 +356,6 @@ public class AppApi {
     }
 
     /**
-     * 获取年会会议需要播放的资源
-     * @param context
-     * @param handler
-     * @param boxMac
-     * @return
-     * @throws IOException
-     */
-    public static JsonBean getMeetingResourceFromCloudfrom(Context context,ApiRequestListener handler,String boxMac) throws IOException{
-        final HashMap<String, Object> params = new HashMap<>();
-        params.put("box_mac",boxMac);
-        return new AppServiceOk(context,Action.CP_GET_MEETINGRESOURCE_FROM_JSON,handler,params).syncGet();
-    }
-
-    /**
-     * 上报年会会议资源下载情况上报
-     * @param context
-     * @param handler
-     * @param params
-     */
-    public static void postMeetingParamReport(Context context,ApiRequestListener handler,HashMap<String, Object> params){
-       new AppServiceOk(context,Action.CP_POST_MEETING_REPORT_FROM_JSON,handler,params).get();
-    }
-
-    /**
      * 处理小平台返回的节目数据
      * @param context
      * @param handler
@@ -465,56 +411,6 @@ public class AppApi {
         final HashMap<String, Object> params = new HashMap<>();
         params.put("box_mac",boxMac);
         return new AppServiceOk(context, Action.SP_GET_STORESALE_ADS_DATA_FROM_JSON, handler, params).syncGet();
-    }
-
-    /**
-     * 获取本地生活广告数据
-     * @param context
-     * @param handler
-     * @param boxMac
-     * @return
-     * @throws IOException
-     */
-    public static JsonBean getLifeAdsListFromCloudfrom(Context context,ApiRequestListener handler,String boxMac) throws IOException{
-        final HashMap<String, Object> params = new HashMap<>();
-        params.put("box_mac",boxMac);
-        return new AppServiceOk(context,Action.CP_GET_LIFE_ADS_DATA_FROM_JSON,handler,params).syncGet();
-    }
-
-    /**
-     * 获取百度聚屏广告资源
-     * @param context
-     * @param handler
-     * @param boxMac
-     * @return
-     * @throws IOException
-     */
-    public static JsonBean getPolyAdsFromSmallPlatform(Context context, ApiRequestListener handler,String boxMac) throws IOException {
-        final HashMap<String, Object> params = new HashMap<String, Object>();
-        params.put("boxMac",boxMac);
-        return new AppServiceOk(context, Action.SP_GET_POLY_ADS_JSON, handler, params).syncGet();
-    }
-
-    /**
-     * dsp广告平台数据统计
-     * @param context
-     * @param handler
-     * @param media_id
-     * @param media_md5
-     * @param media_name
-     * @param tpmedia_id
-     */
-
-    public static void postPolyPlayRecord(Context context, ApiRequestListener handler,String media_id,String media_md5,String media_name,String chinese_name,String tpmedia_id){
-        final HashMap<String, Object> params = new HashMap<>();
-        params.put("box_mac",Session.get(context).getEthernetMac());
-        params.put("media_id",media_id);
-        params.put("media_md5",media_md5);
-        params.put("media_name",media_name);
-        params.put("chinese_name",chinese_name);
-        params.put("tpmedia_id",tpmedia_id);
-
-        new AppServiceOk(context, Action.CP_POST_POLY_PLAY_RECORD_JSON, handler, params).post();
     }
 
     /**
@@ -854,48 +750,6 @@ public class AppApi {
         new AppServiceOk(context,Action.CP_POST_SHELL_COMMAND_RESULT_JSON,handler,params).post();
 
     }
-
-    /**
-     * 请求百度聚屏广告
-     * @param context
-     * @param handler
-     * @param requestBean
-     */
-    public static void requestBaiduAds(Context context, ApiRequestListener handler, TsUiApiV20171122.TsApiRequest requestBean) {
-//        new AppServiceOk(context, Action.AD_BAIDU_ADS, handler).postProto(requestBean);
-    }
-
-    /**
-     * 请求taimei视频广告
-     * @param context
-     * @param handler
-     * @param params
-     */
-    public static void requestMeiVideoAds(Context context,ApiRequestListener handler,HashMap<String,Object> params){
-
-        new AppServiceOk(context,Action.AD_MEI_VIDEO_ADS_JSON,handler,params).post();
-    }
-
-    /**
-     * 请求taimei图片广告
-     * @param context
-     * @param handler
-     * @param params
-     */
-    public static void requestMeiImageAds(Context context,ApiRequestListener handler,HashMap<String,Object> params){
-
-        new AppServiceOk(context,Action.AD_MEI_IMAGE_ADS_JSON,handler,params).post();
-    }
-
-    /**
-     * 调用Mei平台聚屏广告曝光地址
-     * @param context
-     * @param handler
-     */
-    public static void getNoticeAdsMonitor(Context context,ApiRequestListener handler,String url){
-        API_URLS.put(Action.CP_GET_NOTICE_ADS_MONITOR_JSON,url);
-        new AppServiceOk(context,Action.CP_GET_NOTICE_ADS_MONITOR_JSON,handler).get();
-    }
     /**
      * 请求初始化接口返回结果含:
      * 1.是否展示小程序码
@@ -1031,12 +885,12 @@ public class AppApi {
      * @param handler
      * @param rtbRequest
      */
-    public static void requestOOHLinkAds(Context context,ApiRequestListener handler,RtbRequest rtbRequest){
-        final Gson gson = new Gson();
-        final HashMap<String,String> params = new HashMap<>();
-        params.put("rtbRequest",gson.toJson(rtbRequest));
-        new AppServiceOk(context,Action.AD_POST_OOHLINK_ADS_JSON,handler,params).requestPostByAsynWithForm(params);
-    }
+//    public static void requestOOHLinkAds(Context context,ApiRequestListener handler,RtbRequest rtbRequest){
+//        final Gson gson = new Gson();
+//        final HashMap<String,String> params = new HashMap<>();
+//        params.put("rtbRequest",gson.toJson(rtbRequest));
+//        new AppServiceOk(context,Action.AD_POST_OOHLINK_ADS_JSON,handler,params).requestPostByAsynWithForm(params);
+//    }
 
     /**
      * 上报奥凌广告日志
@@ -1044,9 +898,9 @@ public class AppApi {
      * @param handler
      * @param params
      */
-    public static void reportOOHLinkAdsLog(Context context,ApiRequestListener handler,HashMap<String,String> params){
-        new AppServiceOk(context,Action.AD_POST_OOHLINK_REPORT_LOG_JSON,handler,params).requestPostByAsynWithForm(params);
-    }
+//    public static void reportOOHLinkAdsLog(Context context,ApiRequestListener handler,HashMap<String,String> params){
+//        new AppServiceOk(context,Action.AD_POST_OOHLINK_REPORT_LOG_JSON,handler,params).requestPostByAsynWithForm(params);
+//    }
 
     /**
      * 请求众盟广告
@@ -1054,9 +908,9 @@ public class AppApi {
      * @param handler
      * @param requestBean
      */
-    public static void requestZmengAds(Context context, ApiRequestListener handler, ZmtAPI.ZmAdRequest requestBean){
-        new AppServiceOk(context, Action.AD_ZMENG_ADS, handler).postProto(requestBean);
-    }
+//    public static void requestZmengAds(Context context, ApiRequestListener handler, ZmtAPI.ZmAdRequest requestBean){
+//        new AppServiceOk(context, Action.AD_ZMENG_ADS, handler).postProto(requestBean);
+//    }
 
     /**
      *请求京东钼媒广告
@@ -1064,33 +918,33 @@ public class AppApi {
      * @param handler
      * @param params
      */
-    public static void requestJDmomediaAds(Context context, ApiRequestListener handler, JSONObject params){
-        new AppServiceOk(context,Action.AD_POST_JDMOMEDIA_ADS_PLAIN,handler,params).post();
-    }
+//    public static void requestJDmomediaAds(Context context, ApiRequestListener handler, JSONObject params){
+//        new AppServiceOk(context,Action.AD_POST_JDMOMEDIA_ADS_PLAIN,handler,params).post();
+//    }
 
     /**
      * 京东钼媒心跳上报(一天一次)
      * @param context
      * @param handler
      */
-    public static void JDmomediaHeartbeat(Context context,ApiRequestListener handler){
-        try {
-            String timestamp = String.valueOf(System.currentTimeMillis()/1000);
-
-//            String timestamp = date.getTime()+"";
-            String sign = AppUtils.getMD5(AppUtils.getMD5(ConstantValues.JDMOMEDIA_APPID+ConstantValues.JDMOMEDIA_APPKEY)+timestamp);
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.accumulate("appid",ConstantValues.JDMOMEDIA_APPID);
-            jsonObject.accumulate("timestamp",timestamp);
-            jsonObject.accumulate("sign",sign);
-            jsonObject.accumulate("udid",AppUtils.getEthernetMacAddr());
-            jsonObject.accumulate("time",timestamp);
-            new AppServiceOk(context,Action.AD_POST_JDMOMEDIA_HEARTBEAT_PLAIN,handler,jsonObject).post();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-    }
+//    public static void JDmomediaHeartbeat(Context context,ApiRequestListener handler){
+//        try {
+//            String timestamp = String.valueOf(System.currentTimeMillis()/1000);
+//
+////            String timestamp = date.getTime()+"";
+//            String sign = AppUtils.getMD5(AppUtils.getMD5(ConstantValues.JDMOMEDIA_APPID+ConstantValues.JDMOMEDIA_APPKEY)+timestamp);
+//            JSONObject jsonObject = new JSONObject();
+//            jsonObject.accumulate("appid",ConstantValues.JDMOMEDIA_APPID);
+//            jsonObject.accumulate("timestamp",timestamp);
+//            jsonObject.accumulate("sign",sign);
+//            jsonObject.accumulate("udid",AppUtils.getEthernetMacAddr());
+//            jsonObject.accumulate("time",timestamp);
+//            new AppServiceOk(context,Action.AD_POST_JDMOMEDIA_HEARTBEAT_PLAIN,handler,jsonObject).post();
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//
+//    }
 
     /**
      * 请求易售广告
@@ -1098,32 +952,32 @@ public class AppApi {
      * @param handler
      * @param param
      */
-    public static void requestYishouAds(Context context,ApiRequestListener handler,HashMap<String,String> param){
-
-        String requestUrl = BuildConfig.YISHOU_AD_BASE_URL;
-        long timeStamp = System.currentTimeMillis();
-        HashMap<String,Object> hashMap = new HashMap<>();
-        hashMap.put("appid",ConstantValues.YISHOU_APPPID);
-        hashMap.put("appkey",ConstantValues.YISHOU_APPPKEY);
-        hashMap.put("sequence",timeStamp);
-        hashMap.put("timestamp",timeStamp);
-        hashMap.put("version",ConstantValues.YISHOU_API);
-        hashMap.put("sign",ApiRequestFactory.getYishouSign(param,timeStamp));
-        requestUrl = ApiRequestFactory.getUrlRequest(requestUrl,Action.AD_POST_YISHOU_JSON,hashMap,Session.get(context));
-        API_URLS.put(Action.AD_POST_YISHOU_JSON,requestUrl);
-        new AppServiceOk(context,Action.AD_POST_YISHOU_JSON,handler,param).requestPostByAsynWithForm(param);
-    }
+//    public static void requestYishouAds(Context context,ApiRequestListener handler,HashMap<String,String> param){
+//
+//        String requestUrl = BuildConfig.YISHOU_AD_BASE_URL;
+//        long timeStamp = System.currentTimeMillis();
+//        HashMap<String,Object> hashMap = new HashMap<>();
+//        hashMap.put("appid",ConstantValues.YISHOU_APPPID);
+//        hashMap.put("appkey",ConstantValues.YISHOU_APPPKEY);
+//        hashMap.put("sequence",timeStamp);
+//        hashMap.put("timestamp",timeStamp);
+//        hashMap.put("version",ConstantValues.YISHOU_API);
+//        hashMap.put("sign",ApiRequestFactory.getYishouSign(param,timeStamp));
+//        requestUrl = ApiRequestFactory.getUrlRequest(requestUrl,Action.AD_POST_YISHOU_JSON,hashMap,Session.get(context));
+//        API_URLS.put(Action.AD_POST_YISHOU_JSON,requestUrl);
+//        new AppServiceOk(context,Action.AD_POST_YISHOU_JSON,handler,param).requestPostByAsynWithForm(param);
+//    }
 
     /**
      *获取机顶盒当前支持的第三方聚屏媒体
      * @param context
      * @param handler
      */
-    public static void getBoxSupportPolyAdsTpmedias(Context context,ApiRequestListener handler){
-        final HashMap<String,String> params = new HashMap<>();
-        params.put("box_mac",Session.get(context).getEthernetMac());
-        new AppServiceOk(context,Action.CP_GET_BOX_TPMEDIAS_JSON,handler,params).get();
-    }
+//    public static void getBoxSupportPolyAdsTpmedias(Context context,ApiRequestListener handler){
+//        final HashMap<String,String> params = new HashMap<>();
+//        params.put("box_mac",Session.get(context).getEthernetMac());
+//        new AppServiceOk(context,Action.CP_GET_BOX_TPMEDIAS_JSON,handler,params).get();
+//    }
 
     /**
      * 上报精选内容播放日志

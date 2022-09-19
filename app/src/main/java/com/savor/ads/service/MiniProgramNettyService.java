@@ -1637,6 +1637,10 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         if (TextUtils.isEmpty(fileName)||TextUtils.isEmpty(url)){
             return;
         }
+        //目前测试中发现如果播放器直接播放http而非https的地址就会报错
+        if (!url.startsWith("http")){
+            url = BuildConfig.OSS_ENDPOINT+url;
+        }
         String forscreen_id = miniProgramProjection.getForscreen_id();
         updateProjectionState(forscreen_id);
         resetConstant();
@@ -1654,7 +1658,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             listPlayList =  dbHelper.findAdsByWhere(selection, selectionArgs);
         }
         List<MediaLibBean> listActivityAds = dbHelper.findActivityAdsByWhere(selection, selectionArgs);
-        List<MeetingResourceBean> meetingBeanList = dbHelper.findMeetingResourceList(selection,selectionArgs);
         List<MediaLibBean> listStoreSale = dbHelper.findStoreSaleAdsByWhere(selection,selectionArgs);
         if (listPlayList != null && listPlayList.size() > 0) {
             String path = AppUtils.getFilePath(AppUtils.StorageFile.media) + fileName;
@@ -1662,6 +1665,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             if (file.exists()) {
                 params.put("is_exist",1);
                 ProjectOperationListener.getInstance(context).showVod(fileName, "", 0, false, true,currentAction,FROM_SERVICE_MINIPROGRAM);
+            }else{
+                ProjectOperationListener.getInstance(context).showVideo("",url, true,currentAction,FROM_SERVICE_MINIPROGRAM);
             }
         } else if (listActivityAds != null &&listActivityAds.size()>0){
             String path = AppUtils.getFilePath(AppUtils.StorageFile.activity_ads) + fileName;
@@ -1669,13 +1674,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             if (file.exists()) {
                 params.put("is_exist",1);
                 ProjectOperationListener.getInstance(context).showVideo(path,"", true,currentAction,FROM_SERVICE_MINIPROGRAM);
-            }
-        } else if (meetingBeanList!=null&&meetingBeanList.size()>0){
-            String path = AppUtils.getFilePath(AppUtils.StorageFile.meeting_resource) + fileName;
-            File file = new File(path);
-            if (file.exists()) {
-                params.put("is_exist",1);
-                ProjectOperationListener.getInstance(context).showVideo(path,"", true,currentAction,FROM_SERVICE_MINIPROGRAM);
+            }else{
+                ProjectOperationListener.getInstance(context).showVideo("",url, true,currentAction,FROM_SERVICE_MINIPROGRAM);
             }
         } else if (listStoreSale != null && listStoreSale.size()>0){
             MediaLibBean libBean = listStoreSale.get(0);
@@ -1690,12 +1690,11 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             if (file.exists()) {
                 params.put("is_exist",1);
                 ProjectOperationListener.getInstance(context).showRestVideo(path,true,price,imgPath,currentAction,FROM_SERVICE_MINIPROGRAM);
+            }else{
+                ProjectOperationListener.getInstance(context).showVideo("",url, true,currentAction,FROM_SERVICE_MINIPROGRAM);
             }
         }else {
             params.put("is_exist",0);
-            if (!url.startsWith("http")){
-                url = BuildConfig.OSS_ENDPOINT+url;
-            }
             ProjectOperationListener.getInstance(context).showVideo("",url, true,currentAction,FROM_SERVICE_MINIPROGRAM);
         }
         postProjectionResourceLog(params);

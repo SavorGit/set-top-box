@@ -245,11 +245,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         createTable_welcomeResource(db);
 
-        createTable_meetingResource(db);
-
         createTable_shopgoodsAds(db);
-
-        createTable_localLifeAds(db);
 
         createTableStoreSaleAds(db);
     }
@@ -398,13 +394,6 @@ public class DBHelper extends SQLiteOpenHelper {
                 e.printStackTrace();
             }
         }
-        if (oldVersion<36){
-            try{
-                createTable_localLifeAds(sqLiteDatabase);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }
         if (oldVersion<37){
             //versionName 2.2.8
             try{
@@ -441,13 +430,6 @@ public class DBHelper extends SQLiteOpenHelper {
                 sqLiteDatabase.execSQL(alterNewPlaylist);
                 String alterPlaylist = "ALTER TABLE " + TableName.PLAYLIST + " ADD " + NEW_RESOURCE + " INTEGER DEFAULT 0;";
                 sqLiteDatabase.execSQL(alterPlaylist);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-        if (oldVersion<41){
-            try{
-                createTable_meetingResource(sqLiteDatabase);
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -752,25 +734,6 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(DATABASE_CREATE);
     }
 
-    /**
-     * 创建年会会议相关资源表
-     * @param db
-     */
-    private void createTable_meetingResource(SQLiteDatabase db){
-        String DATABASE_CREATE = "create table "
-                + TableName.MEETING_RESOURCE
-                + " (" + FieldName.ID + " INTEGER, "
-                + MEDIANAME + " TEXT, "
-                + MEDIA_PATH + " TEXT, "
-                + MD5 + " TEXT, "
-                + TYPE + " INTEGER, "
-                + MEDIATYPE + " INTEGER, "
-                + START_DATE + " TEXT, "
-                + END_DATE + " TEXT "
-                + ");";
-        db.execSQL(DATABASE_CREATE);
-    }
-
     private void createTable_shopgoodsAds(SQLiteDatabase db){
         String DATABASE_CREATE = "create table "
                 + TableName.SHOP_GOODS_ADS
@@ -791,34 +754,6 @@ public class DBHelper extends SQLiteOpenHelper {
                 + CREATETIME + " TEXT " + ");";
         db.execSQL(DATABASE_CREATE);
 
-    }
-
-    /**
-     * 创建本地生活广告数据表
-     * @param db
-     */
-    private void createTable_localLifeAds(SQLiteDatabase db){
-        String DATABASE_CREATE = "create table "
-                + TableName.LOCAL_LIFE_ADS
-                + " (" + FieldName.ID + " INTEGER PRIMARY KEY, "
-                + VID + " TEXT, "
-                + ADS_ID + " TEXT, "
-                + MD5 + " TEXT, "
-                + CHINESE_NAME + " TEXT, "
-                + MEDIA_PATH + " TEXT, "
-                + DURATION + " TEXT, "
-                + SURFIX + " TEXT, "
-                + START_DATE + " TEXT, "
-                + END_DATE + " TEXT, "
-                + RESOURCE_TYPE + " INTEGER, "
-                + TYPE + " INTEGER, "
-                + LOCATION_ID + " TEXT, "
-                + MEDIANAME + " TEXT, "
-                + QRCODE_PATH + " TEXT, "
-                + QRCODE_URL + " TEXT, "
-                + PERIOD + " TEXT, "
-                + CREATETIME + " TEXT " + ");";
-        db.execSQL(DATABASE_CREATE);
     }
 
     /**
@@ -1207,55 +1142,6 @@ public class DBHelper extends SQLiteOpenHelper {
             e.printStackTrace();
         } finally {
 
-        }
-        return false;
-    }
-
-    /**
-     * RTB广告数据单独入库
-     *
-     * @param playList
-     * @param isUpdate
-     * @return
-     */
-    public boolean insertOrUpdateRTBAdsList(MediaLibBean playList, boolean isUpdate) {
-        if (playList == null) {
-            return false;
-        }
-        long in = 0;
-        try {
-//            open();
-            ContentValues initialValues = new ContentValues();
-            initialValues.put(FieldName.VID, playList.getVid());
-            initialValues.put(FieldName.LOCATION_ID, playList.getLocation_id());
-            initialValues.put(MEDIANAME, playList.getName());
-            initialValues.put(CHINESE_NAME, playList.getChinese_name());
-            initialValues.put(MEDIATYPE, playList.getType());
-            initialValues.put(MD5, playList.getMd5());
-            initialValues.put(FieldName.PERIOD, playList.getPeriod());
-            initialValues.put(FieldName.ADS_ORDER, playList.getOrder());
-            initialValues.put(FieldName.CREATETIME, AppUtils.getCurTime("yyyyMMddHHmmss"));
-            initialValues.put(SURFIX, playList.getSuffix());
-            initialValues.put(FieldName.DURATION, playList.getDuration());
-            initialValues.put(MEDIA_PATH, playList.getMediaPath());
-            initialValues.put(FieldName.ADMASTER_SIN, playList.getAdmaster_sin());
-            initialValues.put(FieldName.IS_SAPP_QRCODE,playList.getIs_sapp_qrcode());
-            initialValues.put(FieldName.TPMEDIA_ID,playList.getTpmedia_id());
-            initialValues.put(FieldName.TP_MD5,playList.getTp_md5());
-            long successCount = 0;
-            if (isUpdate) {
-                successCount = db.update(TableName.RTB_ADS,
-                        initialValues, FieldName.VID + "=? ",
-                        new String[]{playList.getVid()});
-            } else {
-                successCount = db.insert(TableName.RTB_ADS,
-                        null,
-                        initialValues);
-            }
-
-            return successCount > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         return false;
     }

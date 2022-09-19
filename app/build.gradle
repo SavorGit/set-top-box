@@ -17,8 +17,8 @@ android {
         targetSdkVersion TARGET_SDK_VERSION as int
 
         //noinspection HighAppVersionCode
-        versionCode 2022090605
-        versionName "2.5.6"
+        versionCode 2022091601
+        versionName "2.5.7"
         multiDexEnabled true
     }
     compileOptions {
@@ -79,10 +79,6 @@ android {
             buildConfigField("String", "BASE_URL", "\"http://dev-mobile.littlehotspot.com/\"")
             buildConfigField("String", "VIRTUAL_SP_HOST", "\"devp-vsmall.littlehotspot.com\"")
             buildConfigField("String", "BALANCING_NETTY_BASE", "\"http://dev-api-nzb.littlehotspot.com\"")
-            buildConfigField("String", "BAIDU_AD_BASE_URL", "\"http://jpaccess.baidu.com/api_6\"")
-            buildConfigField("String", "ZMENG_AD_BASE_URL", "\"http://123.56.176.83:8082/erasmus/zmt/api/ad/getAd.do\"")
-            buildConfigField("String", "JDMOMEDIA_AD_BASE_URL", "\"http://testapi.jdmomedia.com/\"")
-            buildConfigField("String", "YISHOU_AD_BASE_URL", "\"http://dev-api6.pingxiaobao.com/rtb/subscribe.shtml\"")
             buildConfigField("String", "OSS_BUCKET_NAME", "\"redian-development\"")
             buildConfigField("String", "OSS_ENDPOINT", "\"http://dev-oss.littlehotspot.com/\"")
             buildConfigField("String", "OSS_NATIVE_ENDPOINT", "\"http://oss-cn-beijing.aliyuncs.com/\"")
@@ -92,10 +88,6 @@ android {
             buildConfigField("String", "BASE_URL", "\"http://mobile.littlehotspot.com/\"")
             buildConfigField("String", "VIRTUAL_SP_HOST", "\"vsmall.littlehotspot.com\"")
             buildConfigField("String", "BALANCING_NETTY_BASE", "\"http://39.105.217.203\"")
-            buildConfigField("String", "BAIDU_AD_BASE_URL", "\"https://jpad.baidu.com/api_6\"")
-            buildConfigField("String", "ZMENG_AD_BASE_URL", "\"http://ssp.zmeng123.com/zmt/api/ad/getAd.do\"")
-            buildConfigField("String", "JDMOMEDIA_AD_BASE_URL", "\"https://api.jdmomedia.com/\"")
-            buildConfigField("String", "YISHOU_AD_BASE_URL", "\"http://api6.pingxiaobao.com/rtb/subscribe.shtml\"")
             buildConfigField("String", "OSS_BUCKET_NAME", "\"redian-produce\"")
             buildConfigField("String", "OSS_ENDPOINT", "\"https://oss.littlehotspot.com/\"")
             buildConfigField("String", "OSS_NATIVE_ENDPOINT", "\"http://oss-cn-beijing.aliyuncs.com/\"")

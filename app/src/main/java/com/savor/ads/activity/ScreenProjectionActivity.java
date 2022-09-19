@@ -855,7 +855,7 @@ public class ScreenProjectionActivity extends BaseActivity{
                     if (mImageView.getDrawable()!=null&&!AppUtils.isPhilips()){
                         GlideImageLoader.loadImageWithDrawable(mContext,mImagePath,mImageView,mImageView.getDrawable());
                     }else{
-                        if (mImagePath.contains("http:")){
+                        if (mImagePath.contains("http:")||mImagePath.contains("https:")){
                             GlideImageLoader.loadImageWithoutCache(mContext,mImagePath,mImageView,0,0);
                         }else {
                             File file = new File(mImagePath);

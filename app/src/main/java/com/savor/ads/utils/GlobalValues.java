@@ -39,12 +39,12 @@ public class GlobalValues <T extends MediaLibBean> {
     public ArrayList<T> PLAY_LIST;
 
     /** 请求到的百度聚屏广告集合，填充节目单时会用到*/
-    public static ArrayList<BaiduAdLocalBean> POLY_BAIDU_ADS_PLAY_LIST;
-    public static ArrayList<MeiAdLocalBean> POLY_MEI_ADS_PLAY_LIST;
-    public static ArrayList<OOHLinkAdLocalBean> DSP_OOHLINK_ADS_PLAY_LIST;
-    public static ArrayList<ZmengAdLocalBean> DSP_ZMENG_ADS_PLAY_LIST;
-    public static ArrayList<JDmomediaLocalBean> DSP_JDMOMEDIA_ADS_PLAY_LIST;
-    public static ArrayList<YishouAdLocalBean> DSP_YISHOU_ADS_PLAY_LIST;
+//    public static ArrayList<BaiduAdLocalBean> POLY_BAIDU_ADS_PLAY_LIST;
+//    public static ArrayList<MeiAdLocalBean> POLY_MEI_ADS_PLAY_LIST;
+//    public static ArrayList<OOHLinkAdLocalBean> DSP_OOHLINK_ADS_PLAY_LIST;
+//    public static ArrayList<ZmengAdLocalBean> DSP_ZMENG_ADS_PLAY_LIST;
+//    public static ArrayList<JDmomediaLocalBean> DSP_JDMOMEDIA_ADS_PLAY_LIST;
+//    public static ArrayList<YishouAdLocalBean> DSP_YISHOU_ADS_PLAY_LIST;
     /** 拿到聚屏广告后此刻的节目order，填充节目单时会用到*/
     public static int CURRENT_MEDIA_ORDER = 0;
 
