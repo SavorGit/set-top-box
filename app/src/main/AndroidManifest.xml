@@ -109,15 +109,6 @@
                 <action android:name="com.giec.action.need_close_pq"/>
             </intent-filter>
         </receiver>
-<!--        <receiver android:name=".receiver.BootBroadcastReceiver">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.PACKAGE_ADDED" />-->
-<!--                <action android:name="android.intent.action.PACKAGE_REPLACED" />-->
-<!--                <action android:name="android.intent.action.PACKAGE_REMOVED" />-->
-
-<!--                <data android:scheme="package" />-->
-<!--            </intent-filter>-->
-<!--        </receiver>-->
         <activity
             android:name=".activity.MainActivity"
             android:theme="@style/SplashTheme">

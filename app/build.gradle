@@ -17,8 +17,8 @@ android {
         targetSdkVersion TARGET_SDK_VERSION as int
 
         //noinspection HighAppVersionCode
-        versionCode 2022092103
-        versionName "2.5.7"
+        versionCode VERSION_CODE
+        versionName VERSION_NAME
         multiDexEnabled true
     }
     compileOptions {
@@ -105,6 +105,7 @@ android {
     }
 }
 android{useLibrary 'org.apache.http.legacy'}
+def localSourceEnabled = true
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     compileOnly fileTree(include: ['*.jar'], dir: 'provided')
@@ -116,7 +117,6 @@ dependencies {
     implementation 'androidx.multidex:multidex:2.0.0'
     implementation project(':tvlibrary')
     implementation project(':Pushlib')
-//    implementation 'com.tom-roush:pdfbox-android:1.8.10.3'
     implementation 'com.google.protobuf:protobuf-java:3.2.0'
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.1'
     implementation 'com.github.bumptech.glide:glide:4.11.0'
@@ -128,6 +128,9 @@ dependencies {
     implementation project(path: ':gsyVideoPlayer-java')
     implementation project(path: ':gsyVideoPlayer-exo_player2')
     implementation project(path: ':carousel')
-//    implementation project(':pdflibrary')
-//    implementation 'com.tencent.bugly:crashreport:latest.release'
+    if (localSourceEnabled) {
+        implementation project(':marqueeview')
+    } else {
+        implementation 'com.sunfusheng:MarqueeView:' + VERSION_NAME
+    }
 }

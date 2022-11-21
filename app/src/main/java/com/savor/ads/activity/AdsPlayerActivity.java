@@ -104,6 +104,7 @@ import com.savor.ads.utils.TimeUtils;
 import com.savor.ads.utils.ZmengAdsResponseCode;
 import com.savor.tvlibrary.OutputResolution;
 import com.savor.tvlibrary.TVOperatorFactory;
+import com.sunfusheng.marqueeview.MarqueeView;
 //import com.tencent.bugly.crashreport.CrashReport;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -127,6 +128,7 @@ import tianshu.ui.api.ZmtAdRequestUtil;
 import static com.savor.ads.utils.ConstantValues.DSP_DOWNLOADING_FILES;
 
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 
 /**
  * 广告播放页面
@@ -157,6 +159,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     //跑马灯效果展示
     private RelativeLayout captionLayout;
     private TextView captionTipTV;
+    private MarqueeView captionMarqueeTV;
     //秒杀布局
     private RelativeLayout seckillFrontLayout;
     private TextView seckillCountdownFrontTV;
@@ -279,6 +282,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 
         captionLayout = findViewById(R.id.caption_layout);
         captionTipTV = findViewById(R.id.caption_tip);
+        captionMarqueeTV = findViewById(R.id.marqueeView);
         seckillFrontLayout = findViewById(R.id.seckill_front_layout);
         seckillCountdownFrontTV = findViewById(R.id.seckill_countdown_front);
         hotelNameFrontTV = findViewById(R.id.hotel_name_front);
@@ -1329,6 +1333,8 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                     List<String> rollContent = Arrays.asList(goodsResult.getRoll_content());
                     handleCaptionTip(rollContent);
                 }else{
+                    captionMarqueeTV.removeAllViews();
+                    captionMarqueeTV.clearAnimation();
                     captionLayout.setVisibility(View.GONE);
                 }
             }
@@ -1443,12 +1449,30 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 
     private void handleCaptionTip(List<String> rollContent){
         captionLayout.setVisibility(View.VISIBLE);
-        String captionText = "";
-        for (String content:rollContent){
-            captionText = captionText+" "+content;
+//        String captionText = "";
+//        for (String content:rollContent){
+//            captionText = captionText+" "+content;
+//        }
+        List<CharSequence> list;
+        if (rollContent!=null&&rollContent.size()>1){
+            String tip = rollContent.get(0);
+             if (!TextUtils.isEmpty(tip)){
+                captionTipTV.setText(tip);
+                captionTipTV.setTypeface(ResourcesCompat.getFont(mContext, R.font.huawenxinwei));
+             }
+            String content = rollContent.get(1);
+             if (!TextUtils.isEmpty(content)){
+                 String[] info = content.split("、");
+                 if (info.length>0){
+                     list = Arrays.asList(info);
+                     captionMarqueeTV.removeAllViews();
+                     captionMarqueeTV.clearAnimation();
+//                     captionMarqueeTV.setTypeface(ResourcesCompat.getFont(mContext, R.font.huawenxinwei));
+                     captionMarqueeTV.startWithList(list);
+                 }
+             }
         }
-        captionTipTV.setText(captionText);
-        setTextMarquee(captionTipTV);
+//        setTextMarquee(handleCaptionTip);
 
     }
 

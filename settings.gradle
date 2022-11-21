@@ -2,7 +2,9 @@ include ':app',
         ':carousel',
         ':tvlibrary',
         ':Pushlib',
+        'marqueeview',
         ':gsyVideoPlayer-base',
         ':gsyVideoPlayer-java',
         ':gsyVideoPlayer-proxy_cache',
         'gsyVideoPlayer-exo_player2'
+
