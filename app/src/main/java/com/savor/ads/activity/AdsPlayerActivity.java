@@ -1453,7 +1453,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 //        for (String content:rollContent){
 //            captionText = captionText+" "+content;
 //        }
-        List<CharSequence> list;
         if (rollContent!=null&&rollContent.size()>1){
             String tip = rollContent.get(0);
              if (!TextUtils.isEmpty(tip)){
@@ -1462,18 +1461,23 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
              }
             String content = rollContent.get(1);
              if (!TextUtils.isEmpty(content)){
-                 String[] info = content.split("、");
-                 if (info.length>0){
-                     list = Arrays.asList(info);
-                     captionMarqueeTV.removeAllViews();
-                     captionMarqueeTV.clearAnimation();
-//                     captionMarqueeTV.setTypeface(ResourcesCompat.getFont(mContext, R.font.huawenxinwei));
-                     captionMarqueeTV.startWithList(list);
+                 List<CharSequence> list = null;
+                 if(content.contains("、")){
+                     String[] info = content.split("、");
+                     if (info.length>0){
+                         list = Arrays.asList(info);
+                     }
+                 }else{
+                     list = new ArrayList<>();
+                     list.add(content.trim());
                  }
+                 captionMarqueeTV.removeAllViews();
+                 captionMarqueeTV.clearAnimation();
+//                     captionMarqueeTV.setTypeface(ResourcesCompat.getFont(mContext, R.font.huawenxinwei));
+                 captionMarqueeTV.startWithList(list);
              }
         }
 //        setTextMarquee(handleCaptionTip);
-
     }
 
     public static void setTextMarquee(TextView textView) {
