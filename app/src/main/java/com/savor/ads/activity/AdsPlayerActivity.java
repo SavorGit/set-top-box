@@ -1456,40 +1456,59 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         if (rollContent!=null&&rollContent.size()>1){
             String tip = rollContent.get(0);
              if (!TextUtils.isEmpty(tip)){
+                 captionTipTV.setVisibility(View.VISIBLE);
                 captionTipTV.setText(tip);
                 captionTipTV.setTypeface(ResourcesCompat.getFont(mContext, R.font.huawenxinwei));
+             }else{
+                 captionTipTV.setVisibility(View.GONE);
+                 captionTipTV.setText("");
+                 captionTipTV.clearAnimation();
              }
             String content = rollContent.get(1);
-             if (!TextUtils.isEmpty(content)){
-                 List<CharSequence> list = null;
-                 if(content.contains("、")){
-                     String[] info = content.split("、");
-                     if (info.length>0){
-                         list = Arrays.asList(info);
-                     }
-                 }else{
-                     list = new ArrayList<>();
-                     list.add(content.trim());
-                 }
-                 captionMarqueeTV.removeAllViews();
-                 captionMarqueeTV.clearAnimation();
-//                     captionMarqueeTV.setTypeface(ResourcesCompat.getFont(mContext, R.font.huawenxinwei));
-                 captionMarqueeTV.startWithList(list);
-             }
+            setTextMarquee(content);
+        }else if (rollContent!=null&&rollContent.size()==1){
+            String content = rollContent.get(0);
+            setTextMarquee(content);
         }
-//        setTextMarquee(handleCaptionTip);
+
+
     }
 
-    public static void setTextMarquee(TextView textView) {
-        if (textView != null) {
-            textView.setEllipsize(TextUtils.TruncateAt.MARQUEE);
-            textView.setSingleLine(true);
-            textView.setSelected(true);
-            textView.setFocusable(true);
-            textView.setFocusableInTouchMode(true);
-            textView.setHorizontallyScrolling(true);
-            textView.setMarqueeRepeatLimit(-1);
+    public void setTextMarquee(String content) {
+        if (TextUtils.isEmpty(content)){
+            return;
         }
+        List<CharSequence> list = null;
+        if(content.contains("、")){
+            String[] info = content.split("、");
+            if (info.length>0){
+                List<CharSequence> infoList = Arrays.asList(info);
+                infoList = new ArrayList<>(infoList);
+                int remainder = infoList.size()%2;
+                //如果有余数，那么将集合第一个数据补到最后一位上，保证能除尽
+                if (remainder>0){
+                    infoList.add(infoList.get(0));
+                }
+                int count = infoList.size()/2;
+                int j=0;
+                list = new ArrayList<>();
+                for (int i =0;i<count;i++){
+                    CharSequence info1 =infoList.get(j);
+                    j = j + 1;
+                    CharSequence info2 =infoList.get(j);
+                    String eachInfo = info1+" "+info2;
+                    list.add(eachInfo);
+                    j=j+1;
+                }
+            }
+        }else{
+            list = new ArrayList<>();
+            list.add(content.trim());
+        }
+        captionMarqueeTV.removeAllViews();
+        captionMarqueeTV.clearAnimation();
+        captionMarqueeTV.startWithList(list);
+
     }
 
     //关闭灯笼窗口
