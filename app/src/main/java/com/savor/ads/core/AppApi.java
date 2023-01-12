@@ -364,7 +364,7 @@ public class AppApi {
      * @throws IOException
      */
     public static JsonBean getProgramDataFromSmallPlatform(Context context, ApiRequestListener handler, String boxMac) throws IOException {
-        final HashMap<String, Object> params = new HashMap<String, Object>();
+        final HashMap<String, Object> params = new HashMap<>();
         params.put("boxMac",boxMac);
         return new AppServiceOk(context, Action.SP_GET_PROGRAM_DATA_FROM_JSON, handler, params).syncGet();
 

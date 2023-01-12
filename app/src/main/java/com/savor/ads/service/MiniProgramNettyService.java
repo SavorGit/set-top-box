@@ -32,6 +32,9 @@ import com.savor.ads.bean.MediaFileBean;
 import com.savor.ads.bean.MeetingLoopPlayBean;
 import com.savor.ads.bean.MeetingResourceBean;
 import com.savor.ads.bean.MeetingWelcomeBean;
+import com.savor.ads.bean.ProgramBean;
+import com.savor.ads.bean.SetBoxTopResult;
+import com.savor.ads.bean.SetTopBoxBean;
 import com.savor.ads.dialog.BusinessCardDialog;
 import com.savor.ads.activity.MonkeyGameActivity;
 import com.savor.ads.activity.PartakeDishDrawActivity;
@@ -72,6 +75,7 @@ import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.Base64Utils;
 import com.savor.ads.utils.ConstantValues;
+import com.savor.ads.utils.FileUtils;
 import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
@@ -2811,11 +2815,33 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         int type = mpProjection.getType();
         switch (type){
             case 1:
-                String selection = DBHelper.MediaDBInfo.FieldName.PERIOD + " =? OR " + DBHelper.MediaDBInfo.FieldName.PERIOD + "=? ";
+                String selection = DBHelper.MediaDBInfo.FieldName.MEDIATYPE
+                        + " =? AND "
+                        + DBHelper.MediaDBInfo.FieldName.MEDIANAME
+                        + " != ?";
                 String[] selectionArgs;
-                selectionArgs = new String[]{session.getProDownloadPeriod(),session.getAdvDownloadPeriod()};
-                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.NEWPLAYLIST, selection, selectionArgs);
-                AppUtils.deleteOldMedia(this,true);
+                selectionArgs = new String[]{ConstantValues.ADV,""};
+                List<MediaLibBean> libBeans = dbHelper.findPlayListByWhere(selection,selectionArgs);
+                List<String> advNameList = new ArrayList<>();
+                if (libBeans!=null&&libBeans.size()>0){
+                    for (MediaLibBean libBean:libBeans){
+                        advNameList.add(libBean.getName());
+                    }
+                }
+                List<String> newProgramNameList = getNewProgramGuidesNames();
+                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.NEWPLAYLIST, null, null);
+                dbHelper.deleteDataByWhere(DBHelper.MediaDBInfo.TableName.PLAYLIST, null, null);
+                delOldProgramGuidesResources(advNameList,newProgramNameList);
+                session.setProPeriod("");
+                if (advNameList.isEmpty()){
+                    String path = AppUtils.getFilePath(AppUtils.StorageFile.media);
+                    File[] listFiles = new File(path).listFiles();
+                    if (listFiles == null || listFiles.length == 0) {
+                        String mediaPath = AppUtils.getFilePath(AppUtils.StorageFile.media);
+                        File initFile = new File(mediaPath,ConstantValues.INIT_VIDEO_NAME);
+                        FileUtils.copyFileFormAssets(context,ConstantValues.ASSETS_VIDEO_NAME,initFile.getAbsolutePath());
+                    }
+                }
                 break;
             case 2:
                 AppUtils.deleteAllAdsData(context);
@@ -2825,6 +2851,58 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                 break;
         }
         notifyToPlay();
+    }
+    GsonBuilder builder = new GsonBuilder();
+    Gson gson = builder.create();
+    //获取最新节目单中节目名称集合
+    private List<String> getNewProgramGuidesNames(){
+        List<String> newNameList = new ArrayList<>();
+        List<MediaLibBean> mediaLibBeanList = new ArrayList<>();
+        try{
+            JsonBean jsonBean = AppApi.getProgramDataFromSmallPlatform(context, apiRequestListener, session.getEthernetMac());
+            SetBoxTopResult setBoxTopResult = gson.fromJson(jsonBean.getConfigJson(), new TypeToken<SetBoxTopResult>() {
+            }.getType());
+            if (setBoxTopResult.getCode() == AppApi.HTTP_RESPONSE_STATE_SUCCESS) {
+                if (setBoxTopResult.getResult() != null) {
+                    SetTopBoxBean setTopBoxBean = setBoxTopResult.getResult();
+                    if (setTopBoxBean != null
+                            && setTopBoxBean.getPlaybill_list() != null
+                            && setTopBoxBean.getPlaybill_list().size()>0) {
+                        List<ProgramBean> programBeanList = setTopBoxBean.getPlaybill_list();
+                        for (ProgramBean typeBean:programBeanList){
+                            if (typeBean.getVersion()!=null
+                                    &&!TextUtils.isEmpty(typeBean.getVersion().getType())
+                                    &&ConstantValues.PRO.equals(typeBean.getVersion().getType())){
+                                mediaLibBeanList = typeBean.getMedia_lib();
+                                break;
+                            }
+                        }
+                    }
+                    if (mediaLibBeanList!=null&&mediaLibBeanList.size()>0){
+                        for (MediaLibBean libBean:mediaLibBeanList){
+                            newNameList.add(libBean.getName());
+                        }
+                    }
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return newNameList;
+    }
+    //删除当前正在播放的就节目单，不包含已经下载的新节目单中的节目还有宣传片
+    private void delOldProgramGuidesResources(List<String> advNameList,List<String> newProgramNameList){
+        String path = AppUtils.getFilePath(AppUtils.StorageFile.media);
+        File[] listFiles = new File(path).listFiles();
+        if (listFiles != null && listFiles.length > 0) {
+            for (File file:listFiles){
+                String name = file.getName();
+                if (!advNameList.contains(name)&&!newProgramNameList.contains(name)){
+                    file.delete();
+                }
+            }
+
+        }
     }
 
     private void notifyToPlay() {

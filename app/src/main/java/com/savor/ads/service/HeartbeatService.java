@@ -99,15 +99,13 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if (msg.what ==1){
-                int real_data = (int)msg.arg1;
+                int real_data = msg.arg1;
                 if(real_data>1024){
-//                    listSpeed.add(real_data/1024+"kb/s");
                     session.setNetSpeed(real_data/1024+"kb/s");
-                    Log.d("speed",real_data/1024+"kb/s");
+//                    Log.d("speed",real_data/1024+"kb/s");
                 }else{
-                    Log.d("speed",real_data+"b/s");
+//                    Log.d("speed",real_data+"b/s");
                     session.setNetSpeed(real_data+"b/s");
-//                    listSpeed.add(real_data+"b/s");
                 }
             }
         }
@@ -150,6 +148,7 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
         doHeartbeat();
         doInitConfig();
         getUploadLogFileType();
+        monitorDownloadSpeed();
 
         if (!Session.get(this).isUseVirtualSp()) {
             ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
@@ -228,6 +227,28 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
         params.put("box_mac",session.getEthernetMac());
         params.put("req_id",System.currentTimeMillis()+"");
         AppApi.getNettyBalancingInfo(this,this,params);
+    }
+
+    private void monitorDownloadSpeed(){
+        mHandler.postDelayed(mRunnable,0);
+
+    }
+
+    private Runnable mRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mHandler.postDelayed(mRunnable,count*1000);
+            Message msg = mHandler.obtainMessage();
+            msg.what = 1;
+            msg.arg1 = getNetSpeed();
+            mHandler.sendMessage(msg);
+        }
+    };
+
+    private int getNetSpeed(){
+        long traffic_data = TrafficStats.getTotalRxBytes() - total_data;
+        total_data = TrafficStats.getTotalRxBytes();
+        return (int)traffic_data /count ;
     }
 
     private void reportMediaDetail() {
