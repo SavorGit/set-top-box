@@ -33,6 +33,7 @@ import com.savor.ads.bean.MeetingLoopPlayBean;
 import com.savor.ads.bean.MeetingResourceBean;
 import com.savor.ads.bean.MeetingWelcomeBean;
 import com.savor.ads.bean.ProgramBean;
+import com.savor.ads.bean.SellWineActivityBean;
 import com.savor.ads.bean.SetBoxTopResult;
 import com.savor.ads.bean.SetTopBoxBean;
 import com.savor.ads.dialog.BusinessCardDialog;
@@ -88,6 +89,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -128,6 +130,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private PartakeDishBean partakeDishBean;
     private LotteryResult lotteryResult;
     private MeetingLoopPlayBean loopPlayBean;
+    private SellWineActivityBean sellWineActBean;
     private String headPic;
     private String nickName;
     private String openid;
@@ -316,6 +319,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 160:商务宴请-個人名片推送
          * 161:年会会议-签到页面
          * 162:企业年会会议循环播放企业视频
+         * 163:售酒现金奖励活动
          * 170:商务宴请-文件分享
          * 171:预下载投屏资源（含图片，视频，文件）
          * 998:根据类型删除目录下的视频文件,处理机顶盒满的情况
@@ -359,6 +363,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     }else if (action==162){
                         MeetingLoopPlayBean playBean = gson.fromJson(content,new TypeToken<MeetingLoopPlayBean>() {}.getType());
                         this.loopPlayBean = playBean;
+                    }else if (action==163){
+                        SellWineActivityBean sellBean = gson.fromJson(content,new TypeToken<SellWineActivityBean>() {}.getType());
+                        this.sellWineActBean = sellBean;
                     }else{
                         MiniProgramProjection mpProjection = gson.fromJson(content, new TypeToken<MiniProgramProjection>() {}.getType());
                         if (mpProjection!=null&&action!=3&&action!=133){
@@ -684,6 +691,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             break;
                         case 162:
                             new Thread(()->showMeetingResourceLoopPlay()).start();
+                            break;
+                        case 163:
+                            new Thread(()->showSellWineActivity()).start();
                             break;
                         case 170:
                             activity = ActivitiesManager.getInstance().getCurrentActivity();
@@ -3022,6 +3032,32 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             e.printStackTrace();
         }
     }
+
+    private void showSellWineActivity(){
+        if (sellWineActBean==null){
+            return;
+        }
+        try{
+            String filename = sellWineActBean.getFilename();
+            String basePath = AppUtils.getSDCardPath()+AppUtils.Download;
+            String videoPath = basePath+filename;
+            String videoUrl = BuildConfig.OSS_ENDPOINT+sellWineActBean.getVideo_path();
+            File file = new File(videoPath);
+            if (file.exists()) {
+                ProjectOperationListener.getInstance(context).showVideo(videoPath,"", true,currentAction,FROM_SERVICE_MINIPROGRAM);
+            }else{
+                ProjectOperationListener.getInstance(context).showVideo("",videoUrl, true,currentAction,FROM_SERVICE_MINIPROGRAM);
+            }
+            if (sellWineActBean.getCountdown()==0){
+                session.setSellWineBean(null);
+            }else{
+                session.setSellWineBean(sellWineActBean);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
 
     public void startProjection(int action,String forscreen_id){
         try {

@@ -599,6 +599,9 @@ public class ScreenProjectionActivity extends BaseActivity{
             showProjectionPlayState(1);
         }
         MiniProgramProjection mpProjection = projection;
+        if (mpProjection==null){
+            return;
+        }
         proProjection = new MiniProgramProjection();
         if (!TextUtils.isEmpty(mpProjection.getFilename())){
             proProjection.setFilename(mpProjection.getFilename());

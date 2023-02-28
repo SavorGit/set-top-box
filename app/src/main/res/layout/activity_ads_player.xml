@@ -233,7 +233,7 @@
         </LinearLayout>
     </RelativeLayout>
     <!--大屏右侧展示是否本店有售和显示价格浮层-->
-    <include layout="@layout/layout_wine_sell"/>
+    <include layout="@layout/layout_wine_sell" />
     <!--底部字幕跑马灯展示-->
     <RelativeLayout
         android:id="@+id/caption_layout"
@@ -273,7 +273,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        android:layout_marginLeft="15dp"
+        android:layout_marginLeft="20dp"
         android:layout_marginTop="80sp"
         android:background="@mipmap/large_screen_seckill_bg">
         <LinearLayout
@@ -328,9 +328,11 @@
             android:id="@+id/jd_price_front_layout"
             android:layout_below="@+id/seckill_goods_front"
             android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <View
+                android:id="@+id/goods_jd_line_front"
                 android:background="#999999"
                 android:layout_centerInParent="true"
                 android:layout_width="120sp"
@@ -343,22 +345,62 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </RelativeLayout>
-        <pl.droidsonroids.gif.GifImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/jd_price_front_layout"
-            android:layout_marginTop="17dp"
-            android:layout_marginLeft="18sp"
-            android:src="@mipmap/promotion_price" />
-        <TextView
-            android:id="@+id/goods_seckill_price_front"
+        <LinearLayout
+            android:id="@+id/goods_reduction_front_layout"
             android:layout_below="@+id/jd_price_front_layout"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="27dp"
-            android:text=""
-            android:textStyle="bold"
-            android:textSize="30sp"
-            android:textColor="@color/color_white"
+            android:layout_marginTop="15dp"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/goods_reduction_name_front"
+                android:text=""
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/color_white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/goods_reduction_price_front"
+                android:text=""
+                android:textStyle="bold"
+                android:textSize="22sp"
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/color_white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <RelativeLayout
+            android:id="@+id/goods_price_front_layout"
+            android:layout_below="@+id/jd_price_front_layout"
+            android:layout_marginTop="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <pl.droidsonroids.gif.GifImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10sp"
+                android:src="@mipmap/promotion_price" />
+            <TextView
+                android:id="@+id/goods_seckill_price_front"
+                android:text=""
+                android:textStyle="bold"
+                android:textSize="30sp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="50sp"
+                android:textColor="@color/color_white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+        <TextView
+            android:id="@+id/goods_buy_tip_front"
+            android:layout_below="@+id/goods_price_front_layout"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"
+            android:text="联系服务员即可购买"
+            android:textColor="@color/color_black"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
     </RelativeLayout>
@@ -368,7 +410,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        android:layout_marginLeft="15dp"
+        android:layout_marginLeft="20dp"
         android:layout_marginTop="80sp"
         android:background="@mipmap/large_screen_seckill_bg">
         <LinearLayout
@@ -423,9 +465,11 @@
             android:id="@+id/jd_price_back_layout"
             android:layout_below="@+id/seckill_goods_back"
             android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <View
+                android:id="@+id/goods_jd_line_back"
                 android:background="#999999"
                 android:layout_centerInParent="true"
                 android:layout_width="120sp"
@@ -439,23 +483,63 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </RelativeLayout>
-
-        <pl.droidsonroids.gif.GifImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/jd_price_back_layout"
-            android:layout_marginTop="17dp"
-            android:layout_marginLeft="18sp"
-            android:src="@mipmap/promotion_price" />
-        <TextView
-            android:id="@+id/goods_seckill_price_back"
+        <LinearLayout
+            android:id="@+id/goods_reduction_back_layout"
             android:layout_below="@+id/jd_price_back_layout"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="27dp"
-            android:text=""
-            android:textStyle="bold"
-            android:textSize="30sp"
-            android:textColor="@color/color_white"
+            android:layout_marginTop="15dp"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/goods_reduction_name_back"
+                android:text=""
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/color_white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/goods_reduction_price_back"
+                android:text=""
+                android:textStyle="bold"
+                android:textSize="22sp"
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/color_white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <RelativeLayout
+            android:id="@+id/goods_price_back_layout"
+            android:layout_below="@+id/jd_price_back_layout"
+            android:layout_marginTop="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <pl.droidsonroids.gif.GifImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10sp"
+                android:src="@mipmap/promotion_price" />
+            <TextView
+                android:id="@+id/goods_seckill_price_back"
+                android:text=""
+                android:textStyle="bold"
+                android:textSize="30sp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="50sp"
+                android:textColor="@color/color_white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/goods_buy_tip_back"
+            android:layout_below="@+id/goods_price_back_layout"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"
+            android:text="联系服务员即可购买"
+            android:textColor="@color/color_black"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
     </RelativeLayout>

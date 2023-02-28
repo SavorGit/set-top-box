@@ -45,6 +45,7 @@ import com.savor.ads.BuildConfig;
 import com.savor.ads.bean.SeckillGoodsBean;
 
 import com.savor.ads.bean.SeckillGoodsResult;
+import com.savor.ads.bean.SellWineActivityBean;
 import com.savor.ads.service.RemoteService;
 import com.savor.ads.R;
 import com.savor.ads.SavorApplication;
@@ -160,21 +161,40 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     private RelativeLayout captionLayout;
     private TextView captionTipTV;
     private MarqueeView captionMarqueeTV;
-    //秒杀布局
+    //秒杀布局正反面定义开始开始lalala
     private RelativeLayout seckillFrontLayout;
     private TextView seckillCountdownFrontTV;
     private TextView hotelNameFrontTV;
     private ImageView seckillGifFrontIV;
     private ImageView seckillGoodsFrontIV;
+    private RelativeLayout JDPriceFrontLayout;
     private TextView goodsJDPriceFrontTV;
+    private View goodsJDLineFrontView;
+    //商品优惠多少钱描述布局
+    private LinearLayout goodsReductionFrontLayout;
+    private TextView goodsReductionNameFrontTV;
+    private TextView goodsReductionPriceFrontTV;
+    //商品秒杀价格显示布局
+    private RelativeLayout goodsPriceFrontLayout;
     private TextView goodsSeckillPriceFrontTV;
+    private TextView goodsBuyTipFrontTV;
+
     private RelativeLayout seckillBackLayout;
     private TextView seckillCountdownBackTV;
     private TextView hotelNameBackTV;
     private ImageView seckillGifBackIV;
     private ImageView seckillGoodsBackIV;
+    private RelativeLayout JDPriceBackLayout;
     private TextView goodsJDPriceBackTV;
+    private View goodsJDLineBackView;
+    //商品优惠多少钱描述布局
+    private LinearLayout goodsReductionBackLayout;
+    private TextView goodsReductionNameBackTV;
+    private TextView goodsReductionPriceBackTV;
+    //商品秒杀价格显示布局
+    private RelativeLayout goodsPriceBackLayout;
     private TextView goodsSeckillPriceBackTV;
+    private TextView goodsBuyTipBackTV;
 
     //酒水售卖广告浮层
     private RelativeLayout haveWineBgLayout;
@@ -183,7 +203,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 
     WindowManager.LayoutParams wmParams = new WindowManager.LayoutParams();
     private int layerWidth;
-    private int seckillTime=5400;
+    private int seckillTime=0;
     //-1:秒杀倒计时结束,0:当前版位无秒杀，1：秒杀倒计时进行中
     private int seckillState = 0;
     //秒杀活动是一个集合，当前序号
@@ -192,6 +212,8 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     private List<SeckillGoodsBean> seckillGoodsBeanList;
     //当前秒杀活动
     private SeckillGoodsBean seckillGoodsBean;
+    //售酒现金奖励活动
+    private boolean isSellWineActivityWinShow = false;
 
     private int mCurrentVolume = 0;
     private int delayTime;
@@ -288,15 +310,30 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         hotelNameFrontTV = findViewById(R.id.hotel_name_front);
         seckillGifFrontIV = findViewById(R.id.seckill_gif_front);
         seckillGoodsFrontIV = findViewById(R.id.seckill_goods_front);
+        JDPriceFrontLayout = findViewById(R.id.jd_price_front_layout);
         goodsJDPriceFrontTV = findViewById(R.id.goods_jd_price_front);
+        goodsJDLineFrontView = findViewById(R.id.goods_jd_line_front);
+        goodsReductionFrontLayout = findViewById(R.id.goods_reduction_front_layout);
+        goodsReductionNameFrontTV = findViewById(R.id.goods_reduction_name_front);
+        goodsReductionPriceFrontTV = findViewById(R.id.goods_reduction_price_front);
+
+        goodsPriceFrontLayout = findViewById(R.id.goods_price_front_layout);
         goodsSeckillPriceFrontTV = findViewById(R.id.goods_seckill_price_front);
+        goodsBuyTipFrontTV = findViewById(R.id.goods_buy_tip_front);
         seckillBackLayout = findViewById(R.id.seckill_back_layout);
         seckillGifBackIV = findViewById(R.id.seckill_gif_back);
         seckillCountdownBackTV = findViewById(R.id.seckill_countdown_back);
         hotelNameBackTV = findViewById(R.id.hotel_name_back);
         seckillGoodsBackIV = findViewById(R.id.seckill_goods_back);
+        JDPriceBackLayout = findViewById(R.id.jd_price_back_layout);
         goodsJDPriceBackTV = findViewById(R.id.goods_jd_price_back);
+        goodsJDLineBackView = findViewById(R.id.goods_jd_line_back);
+        goodsReductionBackLayout = findViewById(R.id.goods_reduction_back_layout);
+        goodsReductionNameBackTV = findViewById(R.id.goods_reduction_name_back);
+        goodsReductionPriceBackTV = findViewById(R.id.goods_reduction_price_back);
+        goodsPriceBackLayout = findViewById(R.id.goods_price_back_layout);
         goodsSeckillPriceBackTV = findViewById(R.id.goods_seckill_price_back);
+        goodsBuyTipBackTV = findViewById(R.id.goods_buy_tip_back);
 
         haveWineBgLayout = findViewById(R.id.have_wine_bg_layout);
         wineImgIV = findViewById(R.id.wine_img);
@@ -588,6 +625,11 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 seckillGoodsBeanList.remove(seckillGoodsBean);
                 mHandler.removeCallbacks(switchSeckillRunnable);
                 mHandler.post(switchSeckillRunnable);
+            }
+            if (isSellWineActivityWinShow){
+                mSession.setSellWineBean(null);
+                isSellWineActivityWinShow = false;
+                lanternCloseWin();
             }
         }else{
             mHandler.postDelayed(seckillCountdownRunnable,1000*60);
@@ -954,6 +996,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 action = "resume";
             }
             getSeckillGoodsInfo();
+            showSellWineActivityWin();
             LogReportUtil.get(this).sendAdsLog(mUUID, mSession.getBoiteId(), mSession.getRoomId(),
                     String.valueOf(System.currentTimeMillis()), action, libBean.getType(), libBean.getVid(),
                     "", mSession.getVersionName(), mListPeriod, mSession.getBirthdayOndemandPeriod(), "");
@@ -1134,6 +1177,9 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
      */
     private void getSeckillGoodsInfo(){
         try{
+            if (mSession.getSellWineBean()!=null){
+                return;
+            }
             String boxMac = mSession.getEthernetMac();
             AppApi.getSeckillGoodsFromCloudfrom(mContext,this,boxMac);
         }catch (Exception e){
@@ -1382,6 +1428,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         goodsJDPriceFrontTV.setText("京东价"+jdPrice+"/瓶");
         goodsJDPriceBackTV.setText("京东价"+jdPrice+"/瓶");
         goodsSeckillPriceFrontTV.setText(price+"/瓶");
+        goodsPriceFrontLayout.setVisibility(View.INVISIBLE);
         goodsSeckillPriceBackTV.setText(price+"/瓶");
         setAnimators(); // 设置动画
         setCameraDistance(); // 设置镜头距离
@@ -1522,10 +1569,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             mHandler.removeCallbacks(switchSeckillRunnable);
         }
     }
-    //秒杀商品显示15分钟，关闭15分钟
-//    private void goodsShowCountdown(){
-//        seckillState=0;
-//    }
+
 
     private void switchSeckillGoods(){
         currentSeckillIndex ++;
@@ -1536,6 +1580,66 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
     }
 
     private Runnable switchSeckillRunnable = ()->switchSeckillGoods();
+
+    private void showSellWineActivityWin(){
+        SellWineActivityBean sellWineActBean = mSession.getSellWineBean();
+        //当前展示活动商品窗口正常显示并且活动数据有效存在
+        if (seckillFrontLayout.getVisibility()==View.VISIBLE&&sellWineActBean!=null){
+            return;
+        }
+        isSellWineActivityWinShow = true;
+        if (sellWineActBean==null){
+            seckillTime=0;
+            return;
+        }
+        retryFrontCount = 0;
+        retryBackCount = 0;
+
+        String imgUrl = BuildConfig.OSS_ENDPOINT+sellWineActBean.getImg_path();
+        if (seckillTime<=0){
+            seckillTime = sellWineActBean.getCountdown();
+        }
+        String name = sellWineActBean.getName();
+        String content = sellWineActBean.getContent();
+        hotelNameFrontTV.setVisibility(View.GONE);
+        hotelNameBackTV.setVisibility(View.GONE);
+        LinearLayout.LayoutParams paramf = (LinearLayout.LayoutParams) seckillGifFrontIV.getLayoutParams();
+        paramf.setMargins(0,20,0,0);
+        seckillGifFrontIV.setLayoutParams(paramf);
+        LinearLayout.LayoutParams paramb = (LinearLayout.LayoutParams) seckillGifBackIV.getLayoutParams();
+        paramb.setMargins(0,20,0,0);
+        seckillGifBackIV.setLayoutParams(paramb);
+        if (!TextUtils.isEmpty(imgUrl)){
+            //加入重试机制，如果图片加载失败，则重试加载三次，如果还是失败，则关闭灯笼窗口20220608
+            GlideImageLoader.loadImage(mContext,imgUrl,seckillGoodsFrontIV);
+            GlideImageLoader.loadImage(mContext,imgUrl,seckillGoodsBackIV);
+        }
+        if (!TextUtils.isEmpty(name)){
+            goodsPriceFrontLayout.setVisibility(View.INVISIBLE);
+            goodsPriceBackLayout.setVisibility(View.INVISIBLE);
+            JDPriceFrontLayout.setVisibility(View.INVISIBLE);
+            JDPriceBackLayout.setVisibility(View.INVISIBLE);
+            goodsReductionFrontLayout.setVisibility(View.VISIBLE);
+            goodsReductionBackLayout.setVisibility(View.VISIBLE);
+            goodsReductionNameFrontTV.setText(name);
+            goodsReductionPriceFrontTV.setText(content);
+            goodsReductionNameBackTV.setText(name);
+            goodsReductionPriceBackTV.setText(content);
+        }
+        goodsBuyTipFrontTV.setText("微信扫码即可购买");
+        goodsBuyTipBackTV.setText("微信扫码即可购买");
+        setAnimators(); // 设置动画
+        setCameraDistance(); // 设置镜头距离
+        //翻转秒杀背景动画
+        mHandler.removeCallbacks(flipCardRunnable);
+        mHandler.postDelayed(flipCardRunnable,1000*30);
+        seckillFrontLayout.setVisibility(View.VISIBLE);
+        seckillBackLayout.setVisibility(View.VISIBLE);
+        mHandler.removeCallbacks(seckillCountdownRunnable);
+        mHandler.post(seckillCountdownRunnable);
+
+    }
+
 
     @Override
     public void onError(AppApi.Action method, Object obj) {

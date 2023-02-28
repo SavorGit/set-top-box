@@ -338,7 +338,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/mini_program_tip1"
+            android:text="@string/mini_program_tip9"
             android:textColor="#e61f18"
             android:textSize="15dp"/>
         <RelativeLayout

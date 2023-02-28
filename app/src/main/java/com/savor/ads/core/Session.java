@@ -31,6 +31,7 @@ import android.util.Base64;
 
 import com.savor.ads.bean.ProjectionGuideImg;
 import com.savor.ads.bean.PushRTBItem;
+import com.savor.ads.bean.SellWineActivityBean;
 import com.savor.ads.bean.ServerInfo;
 import com.savor.ads.bean.VersionInfo;
 import com.savor.ads.utils.AppUtils;
@@ -279,6 +280,9 @@ public class Session {
     private int type;
     private String lan_ip;
     private String lan_mac;
+    //售酒现金奖励活动
+    private SellWineActivityBean sellWineBean;
+
 
     private Session(Context context) {
 
@@ -368,10 +372,6 @@ public class Session {
         mLoadingVersion = mPreference.loadStringKey(P_APP_LOADING_VERSION, "");
         mSPVersionInfo = (ArrayList<VersionInfo>) StringToObject(mPreference.loadStringKey(P_APP_SP_VERSION_INFO, ""));
         tvSize = mPreference.loadIntKey(P_APP_TV_SIZE,0);
-        // 以下三个方法目前作为新老期号存储方式过渡使用
-//        setPlayListVersion((ArrayList<VersionInfo>)StringToObject(mPreference.loadStringKey(P_APP_PLAY_LIST_VERSION, "")));
-//        setDownloadingPlayListVersion((ArrayList<VersionInfo>) StringToObject(mPreference.loadStringKey(P_APP_DOWNLOADING_PLAY_LIST_VERSION, "")));
-//        setNextPlayListVersion((ArrayList<VersionInfo>) StringToObject(mPreference.loadStringKey(P_APP_NEXT_PLAY_LIST_VERSION, "")));
 
         mUseVirtualSp = mPreference.loadBooleanKey(P_APP_USE_VIRTUAL_SP, false);
         lastUDiskUpdateTime = mPreference.loadStringKey(P_APP_LAST_UDISK_UPDATE_TIME, "");
@@ -1440,6 +1440,14 @@ public class Session {
 
     public void setNormalUseWechat(int normalUseWechat) {
         this.normalUseWechat = normalUseWechat;
+    }
+
+    public SellWineActivityBean getSellWineBean() {
+        return sellWineBean;
+    }
+
+    public void setSellWineBean(SellWineActivityBean sellWineBean) {
+        this.sellWineBean = sellWineBean;
     }
 
     //机顶盒轮播音量

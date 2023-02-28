@@ -568,6 +568,11 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                             }
                             session.setQrcodeTipList(list);
                         }
+                        //是否展示售酒返现金活动
+                        if (jsonObject.has("sellwine_activity")){
+                            JSONObject sellWineObject = jsonObject.getJSONObject("sellwine_activity");
+                            downloadSellWineActivityVideo(sellWineObject);
+                        }
                         if (is_open_netty==1 && is_sapp_forscreen==1){
                             LogFileUtil.write("开始立刻调用小程序码接口返回成功，启动小程序NETTY服务");
                             Log.d("HeartbeatService","showMiniProgramIcon(true)");
@@ -747,6 +752,30 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
             boolean isExit = AppUtils.isDownloadEasyCompleted(filePath,md5.toLowerCase());
             if (!isExit){
                 new Thread(() -> new FileDownloader(context,url,basePath, filename,false).downloadByRange()).start();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void downloadSellWineActivityVideo(JSONObject jsonObject){
+        try{
+            int isOffline = jsonObject.getInt("is_offline");
+            String filename = jsonObject.getString("filename");
+            String md5 = jsonObject.getString("md5");
+            String url = jsonObject.getString("url");
+            String basePath = AppUtils.getSDCardPath()+AppUtils.Download;
+            String filePath = basePath+filename;
+            if (isOffline==1){
+                File file = new File(filePath);
+                if (file.exists()){
+                    file.delete();
+                }
+            }else{
+                boolean isExit = AppUtils.isDownloadEasyCompleted(filePath,md5.toLowerCase());
+                if (!isExit){
+                    new Thread(() -> new FileDownloader(context,url,basePath, filename,false).downloadByRange()).start();
+                }
             }
         }catch (Exception e){
             e.printStackTrace();
