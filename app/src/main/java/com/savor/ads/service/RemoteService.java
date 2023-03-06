@@ -13,10 +13,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
 import com.jar.savor.box.interfaces.OnRemoteOperationListener;
 import com.jar.savor.box.vo.BaseResponse;
 import com.jar.savor.box.vo.PlayResponseVo;
@@ -29,17 +26,12 @@ import com.jar.savor.box.vo.SeekResponseVo;
 import com.jar.savor.box.vo.StopResponseVo;
 import com.jar.savor.box.vo.VolumeResponseVo;
 import com.savor.ads.BuildConfig;
-import com.savor.ads.activity.LoopPlayActivity;
 import com.savor.ads.activity.LotteryDrawResultActivity;
 import com.savor.ads.activity.LotteryDrawingActivity;
-import com.savor.ads.activity.MeetingSignInActivity;
-import com.savor.ads.bean.AdsMeiSSPResult;
 import com.savor.ads.bean.BigImgBean;
 import com.savor.ads.bean.BirthdayOndemandBean;
-import com.savor.ads.bean.ContentInfo;
 import com.savor.ads.bean.FileQueueParam;
 import com.savor.ads.bean.ImgQueueParam;
-import com.savor.ads.bean.MediaItemBean;
 import com.savor.ads.bean.MediaLibBean;
 import com.savor.ads.bean.MiniProgramProjection;
 import com.savor.ads.bean.ProgramBean;
@@ -63,7 +55,6 @@ import com.savor.ads.database.DBHelper;
 import com.savor.ads.dialog.ProjectionImgListDialog;
 import com.savor.ads.log.LogParamValues;
 import com.savor.ads.log.LogReportUtil;
-import com.savor.ads.okhttp.coreProgress.download.ProjectionDownloader;
 import com.savor.ads.projection.ProjectionManager;
 import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
@@ -84,8 +75,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -93,7 +82,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.servlet.MultipartConfigElement;
@@ -455,12 +443,8 @@ public class RemoteService extends Service {
 
         private boolean currentMeetingAction(){
             Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
-            if (activity instanceof LoopPlayActivity){
-                return true;
-            }else if (activity instanceof LotteryDrawingActivity
+            if (activity instanceof LotteryDrawingActivity
                     ||activity instanceof LotteryDrawResultActivity){
-                return true;
-            }else  if (activity instanceof MeetingSignInActivity){
                 return true;
             }
             return false;

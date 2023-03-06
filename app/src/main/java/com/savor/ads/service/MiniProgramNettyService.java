@@ -5,13 +5,11 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 
-import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -22,16 +20,10 @@ import com.savor.ads.BuildConfig;
 import com.savor.ads.R;
 import com.savor.ads.SavorApplication;
 import com.savor.ads.activity.AdsPlayerActivity;
-import com.savor.ads.activity.BaseActivity;
-import com.savor.ads.activity.LoopPlayActivity;
 import com.savor.ads.activity.LotteryDrawResultActivity;
 import com.savor.ads.activity.LotteryDrawingActivity;
-import com.savor.ads.activity.MeetingSignInActivity;
 import com.savor.ads.bean.LotteryResult;
 import com.savor.ads.bean.MediaFileBean;
-import com.savor.ads.bean.MeetingLoopPlayBean;
-import com.savor.ads.bean.MeetingResourceBean;
-import com.savor.ads.bean.MeetingWelcomeBean;
 import com.savor.ads.bean.ProgramBean;
 import com.savor.ads.bean.SellWineActivityBean;
 import com.savor.ads.bean.SetBoxTopResult;
@@ -88,11 +80,7 @@ import com.umeng.analytics.MobclickAgent;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.Serializable;
-import java.lang.reflect.Type;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -129,7 +117,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     public static MiniProgramProjection mpProjection;
     private PartakeDishBean partakeDishBean;
     private LotteryResult lotteryResult;
-    private MeetingLoopPlayBean loopPlayBean;
     private SellWineActivityBean sellWineActBean;
     private String headPic;
     private String nickName;
@@ -317,8 +304,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 157:抽奖人数不足，将左下角二维码变为正常码
          * 158:定时抽奖，用户扫码，最后抽奖结果会在大屏展示，展示抽奖过程以及中奖信息，可分为1,2,3等奖
          * 160:商务宴请-個人名片推送
-         * 161:年会会议-签到页面
-         * 162:企业年会会议循环播放企业视频
+         * 161:年会会议-签到页面（---废弃---）
+         * 162:企业年会会议循环播放企业视频(---废弃---)
          * 163:售酒现金奖励活动
          * 170:商务宴请-文件分享
          * 171:预下载投屏资源（含图片，视频，文件）
@@ -360,9 +347,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     }else if (action==156){
                         LotteryResult lotteryResult = gson.fromJson(content, new TypeToken<LotteryResult>() {}.getType());
                         this.lotteryResult = lotteryResult;
-                    }else if (action==162){
-                        MeetingLoopPlayBean playBean = gson.fromJson(content,new TypeToken<MeetingLoopPlayBean>() {}.getType());
-                        this.loopPlayBean = playBean;
                     }else if (action==163){
                         SellWineActivityBean sellBean = gson.fromJson(content,new TypeToken<SellWineActivityBean>() {}.getType());
                         this.sellWineActBean = sellBean;
@@ -687,10 +671,10 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             showBusinessCard();
                             break;
                         case 161:
-                            new Thread(()->showMeetingSignIn()).start();
+
                             break;
                         case 162:
-                            new Thread(()->showMeetingResourceLoopPlay()).start();
+
                             break;
                         case 163:
                             new Thread(()->showSellWineActivity()).start();
@@ -770,12 +754,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     }
 
     private boolean handleMeetingAction(int action,Activity activity){
-        if (activity instanceof LoopPlayActivity&&action!=3&&action!=156&&action!=162&&action!=31){
-            return true;
-        }else if (activity instanceof LotteryDrawingActivity
+        if (activity instanceof LotteryDrawingActivity
                 ||activity instanceof LotteryDrawResultActivity){
-            return true;
-        }else  if (activity instanceof MeetingSignInActivity&&action!=161&&action!=162&&action!=3&&action!=156){
             return true;
         }else if (activityDialog!=null&&activityDialog.isShowing()&&action!=156&&action!=158&&action!=136){
             return true;
@@ -1890,12 +1870,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         GlobalValues.isPrize = false;
         Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
         handler.post(()->{
-            if (activity instanceof MeetingSignInActivity
-                    ||activity instanceof LotteryDrawingActivity
+            if (activity instanceof LotteryDrawingActivity
                     ||activity instanceof LotteryDrawResultActivity){
                 activity.finish();
-            }else if (activity instanceof LoopPlayActivity){
-                ((LoopPlayActivity) activity).stop();
             }
             if (activity instanceof AdsPlayerActivity){
                 ((AdsPlayerActivity<?>) activity).isClosePrizeHeadLayout(true);
@@ -2922,116 +2899,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         }
     }
 
-    private void showMeetingSignIn(){
-        String partake_img = mpProjection.getPartake_img();
-        String oss_url = BuildConfig.OSS_ENDPOINT+partake_img;
-        String file_name = mpProjection.getPartake_filename();
-        String basePath = AppUtils.getFilePath(AppUtils.StorageFile.projection);
-        File file = new File(basePath+file_name);
-        if (!file.exists()){
-            ProjectionDownloader downloader = new ProjectionDownloader(context,oss_url, basePath,file_name,true,serial_number);
-            downloader.downloadByRange();
-        }
-        Intent intent = new Intent(context, MeetingSignInActivity.class);
-        if (!TextUtils.isEmpty(partake_img)&&file.exists()){
-            intent.putExtra("bgImgPath",file.getAbsolutePath());
-        }
-        intent.putExtra("countdown",mpProjection.getCountdown());
-        intent.putExtra("company_name",mpProjection.getActivity_name());
-        intent.putExtra("codeUrl",mpProjection.getCodeUrl());
-        if (mpProjection.getPartake_user()!=null&&mpProjection.getPartake_user().size()>0){
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("users", (Serializable) mpProjection.getPartake_user());
-            intent.putExtras(bundle);
-        }
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
-        if (activity instanceof MeetingSignInActivity){
-            handler.post(()-> ((MeetingSignInActivity) activity).setSignInUsersData(mpProjection.getPartake_user()));
-        }else{
-            startActivity(intent);
-        }
-    }
-
-    private void showMeetingResourceLoopPlay(){
-        if (loopPlayBean==null){
-            return;
-        }
-        try{
-            String selection;
-            String[] selectionArgs;
-            Integer[] resourceIds = loopPlayBean.getResource_ids();
-            if (resourceIds!=null&&resourceIds.length>0){
-                List<String> videoPaths = new ArrayList<>();
-                for (Integer id:resourceIds){
-                    selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
-                    selectionArgs = new String[]{String.valueOf(id)};
-                    List<MeetingResourceBean> resourceBeans = dbHelper.findMeetingResourceList(selection,selectionArgs);
-                    if (resourceBeans!=null&&resourceBeans.size()>0){
-                        MeetingResourceBean resourceBean = resourceBeans.get(0);
-                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        if (!TextUtils.isEmpty(resourceBean.getEnd_date())){
-                            Date end_date = format.parse(resourceBean.getEnd_date());
-                            Date now = new Date();
-                            if (end_date != null && end_date.after(now)) {
-                                videoPaths.add(resourceBean.getMedia_path());
-                            }
-                        }
-                    }
-                }
-                loopPlayBean.setVideoPaths(videoPaths);
-            }
-            MeetingWelcomeBean welcome = loopPlayBean.getWelcome();
-            if (welcome!=null){
-                if (welcome.getImg_list()!=null&&welcome.getImg_list().size()>0){
-                    String basePath = AppUtils.getFilePath(AppUtils.StorageFile.meeting_resource);
-                    for (ProjectionImg img:welcome.getImg_list()){
-                        String fileName = img.getFilename();
-                        File file = new File(basePath+fileName);
-                        if (file.exists()){
-                            img.setFilePath(file.getAbsolutePath());
-                        }else{
-                            String url = BuildConfig.OSS_ENDPOINT+img.getUrl();
-                            boolean isDownloaded = new FileDownloader(context,url,basePath,fileName,true).downloadByRange();
-                            if (isDownloaded){
-                                file = new File(basePath+fileName);
-                                img.setFilePath(file.getAbsolutePath());
-                            }
-                        }
-                    }
-                }
-                selection = DBHelper.MediaDBInfo.FieldName.ID + "=? ";
-                selectionArgs = new String[]{String.valueOf(welcome.getFont_id())};
-                List<WelcomeResourceBean> typefaceList = dbHelper.findWelcomeResourceList(selection,selectionArgs);
-                String basePath = AppUtils.getFilePath(AppUtils.StorageFile.welcome_resource);
-                if (typefaceList!=null&&typefaceList.size()>0){
-                    WelcomeResourceBean bean = typefaceList.get(0);
-                    File file = new File(basePath+bean.getName());
-                    if (file.exists()){
-                        welcome.setFontPath(file.getAbsolutePath());
-                    }
-                }
-                getMusicPathMethod(basePath,welcome.getMusic_id());
-                if (!TextUtils.isEmpty(musicPath)){
-                    welcome.setMusicPath(musicPath);
-                }
-            }
-
-            List<String> videoPaths = loopPlayBean.getVideoPaths();
-            MeetingWelcomeBean welcomeBean = loopPlayBean.getWelcome();
-            if ((videoPaths!=null&&videoPaths.size()>0)
-                    ||(welcomeBean!=null&&welcomeBean.getImg_list()!=null&&welcomeBean.getImg_list().size()>0)){
-                Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
-                if (activity instanceof LoopPlayActivity){
-                    ((LoopPlayActivity) activity).stop();
-                }
-                ProjectOperationListener.getInstance(context).stop(GlobalValues.CURRENT_PROJECT_ID);
-                ProjectOperationListener.getInstance(context).showLoopPlayResource(loopPlayBean);
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
 
     private void showSellWineActivity(){
         if (sellWineActBean==null){

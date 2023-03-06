@@ -12,7 +12,6 @@ import com.savor.ads.bean.ActivityGoodsBean;
 import com.savor.ads.bean.BirthdayOndemandBean;
 import com.savor.ads.bean.MediaItemBean;
 import com.savor.ads.bean.MediaLibBean;
-import com.savor.ads.bean.MeetingResourceBean;
 import com.savor.ads.bean.ProjectionLogBean;
 import com.savor.ads.bean.ProjectionLogDetail;
 import com.savor.ads.bean.ProjectionLogHistory;
@@ -22,7 +21,6 @@ import com.savor.ads.bean.WelcomeResourceBean;
 import com.savor.ads.core.Session;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
-import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
 
 import org.json.JSONException;
@@ -180,7 +178,7 @@ public class DBHelper extends SQLiteOpenHelper {
             public static final String SELECT_CONTENT = "select_content_table";
             public static final String MEDIA_ITEM = "media_item_table";
             public static final String WELCOME_RESOURCE = "welcome_resource_table";
-            public static final String MEETING_RESOURCE = "meeting_resource_table";
+            public static final String MEETING_RESOURCE = "meeting_resource_table";//已删除
             public static final String LOCAL_LIFE_ADS = "local_life_ads_table";
             public static final String STORE_SALE_ADS = "store_sale_ads_table";
         }
@@ -192,7 +190,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "dbsavor.db";
 
 
-    private static final int DB_VERSION = 43;
+    private static final int DB_VERSION = 44;
 
     private Context mContext;
 
@@ -450,6 +448,12 @@ public class DBHelper extends SQLiteOpenHelper {
             }catch (Exception e){
                 e.printStackTrace();
             }
+        }
+        if (oldVersion<44){
+            //删除会议资源表，已经废弃 2023030601
+            //versioncode 2.6.1
+            String dropMeetingResourceTable = "DROP TABLE IF EXISTS " +TableName.MEETING_RESOURCE;
+            sqLiteDatabase.execSQL(dropMeetingResourceTable);
         }
     }
 
@@ -2093,68 +2097,6 @@ public class DBHelper extends SQLiteOpenHelper {
             }
         }
 
-        return list;
-    }
-
-    public boolean insertMeetingResource(MeetingResourceBean bean){
-        if (bean == null) {
-            return false;
-        }
-        boolean flag = false;
-        try {
-            ContentValues initialValues = new ContentValues();
-            initialValues.put(ID, bean.getId());
-            initialValues.put(MEDIANAME,bean.getName());
-            initialValues.put(MEDIA_PATH,bean.getMedia_path());
-            initialValues.put(MD5,bean.getMd5());
-            initialValues.put(TYPE,bean.getType());
-            initialValues.put(MEDIATYPE,bean.getMedia_type());
-            initialValues.put(START_DATE,bean.getStart_date());
-            initialValues.put(END_DATE,bean.getEnd_date());
-            long success = db.insert(TableName.MEETING_RESOURCE,null,initialValues);
-            if (success>0){
-                flag = true;
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return flag;
-    }
-
-    public List<MeetingResourceBean> findMeetingResourceList(String selection, String[] selectionArgs){
-        Cursor cursor = null;
-        List<MeetingResourceBean> list = null;
-        synchronized (dbHelper) {
-            try {
-                cursor = db.query(TableName.MEETING_RESOURCE, null,
-                        selection, selectionArgs, null, null, null, null);
-                if (cursor != null && cursor.moveToFirst()) {
-                    list = new ArrayList<>();
-                    do {
-                        MeetingResourceBean bean = new MeetingResourceBean();
-                        bean.setId(cursor.getInt(cursor.getColumnIndex(ID)));
-                        bean.setName(cursor.getString(cursor.getColumnIndex(MEDIANAME)));
-                        bean.setMedia_path(cursor.getString(cursor.getColumnIndex(MEDIA_PATH)));
-                        bean.setMd5(cursor.getString(cursor.getColumnIndex(MD5)));
-                        bean.setType(cursor.getInt(cursor.getColumnIndex(TYPE)));
-                        bean.setMedia_type(cursor.getInt(cursor.getColumnIndex(MEDIATYPE)));
-                        bean.setStart_date(cursor.getString(cursor.getColumnIndex(START_DATE)));
-                        bean.setEnd_date(cursor.getString(cursor.getColumnIndex(END_DATE)));
-                        list.add(bean);
-                    } while (cursor.moveToNext());
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (cursor != null && !cursor.isClosed()) {
-                        cursor.close();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
         return list;
     }
 

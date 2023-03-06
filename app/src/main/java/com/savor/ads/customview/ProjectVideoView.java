@@ -1,80 +1,37 @@
 package com.savor.ads.customview;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.ActivityInfo;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.graphics.drawable.RoundedBitmapDrawable;
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.viewpager.widget.ViewPager;
 
 import android.os.Message;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
-import android.text.style.BackgroundColorSpan;
-import android.text.style.ImageSpan;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
-import com.mstar.android.media.MstMediaMetadataRetriever;
 import com.savor.ads.R;
 import com.savor.ads.adapter.StringPagerAdapter;
 import com.savor.ads.bean.MediaFileBean;
-import com.savor.ads.bean.MediaPlayerError;
-import com.savor.ads.bean.MediaPlayerState;
-import com.savor.ads.bean.MeetingLoopPlayBean;
-import com.savor.ads.bean.MeetingWelcomeBean;
 import com.savor.ads.bean.ProjectionImg;
 import com.savor.ads.player.GGVideoPlayer;
 import com.savor.ads.player.IVideoPlayer;
 import com.savor.ads.player.PlayStateCallback;
 import com.savor.ads.player.PlayerType;
 import com.savor.ads.player.SavorPlayerFactory;
-import com.savor.ads.utils.AcFunDanmakuParser;
-import com.savor.ads.utils.AppUtils;
-import com.savor.ads.utils.GlideImageLoader;
 import com.savor.ads.utils.LogFileUtil;
 import com.savor.ads.utils.LogUtils;
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-
-import master.flame.danmaku.controller.IDanmakuView;
-import master.flame.danmaku.danmaku.model.BaseDanmaku;
-import master.flame.danmaku.danmaku.model.DanmakuTimer;
-import master.flame.danmaku.danmaku.model.IDanmakus;
-import master.flame.danmaku.danmaku.model.IDisplayer;
-import master.flame.danmaku.danmaku.model.android.BaseCacheStuffer;
-import master.flame.danmaku.danmaku.model.android.DanmakuContext;
-import master.flame.danmaku.danmaku.model.android.SpannedCacheStuffer;
-import master.flame.danmaku.ui.widget.DanmakuView;
 
 
 /**
@@ -287,39 +244,6 @@ public class ProjectVideoView extends RelativeLayout implements PlayStateCallbac
                 mVideoPlayer.setSource(url, String.valueOf(mCurrentFileIndex),0,false);
             }
             orientationUtils = new OrientationUtils((Activity) mContext,(GGVideoPlayer)mVideoPlayer);
-        }else if (objBean instanceof MeetingWelcomeBean){
-            MeetingWelcomeBean welcomeBean = (MeetingWelcomeBean) objBean;
-            currentVideo = false;
-            boolean isExpire = false;
-            if (mPlayStateCallback != null) {
-                isExpire = mPlayStateCallback.onMediaPrepared(mCurrentFileIndex);
-            }
-            if (!isExpire){
-                mCurrentIndex = 0;
-                mDataSource = new ArrayList<>();
-                if (welcomeBean!=null&&welcomeBean.getImg_list()!=null&&welcomeBean.getImg_list().size()>0){
-                    atlasViewPager.setVisibility(VISIBLE);
-                    List<ProjectionImg> imgList = welcomeBean.getImg_list();
-                    for (ProjectionImg img:imgList){
-                        if (!TextUtils.isEmpty(img.getFilePath())){
-                            mDataSource.add(img.getFilePath());
-                        }
-                    }
-                }
-                if (mDataSource.size()>0){
-                    imageAdapter = new StringPagerAdapter(mContext, mDataSource);
-                    atlasViewPager.setAdapter(imageAdapter);
-                    if (mDataSource != null && mDataSource.size() == 1) {
-                        mHandler.removeCallbacks(mPlayCompletionRunnable);
-                        mHandler.postDelayed(mPlayCompletionRunnable, duration > 0 ? duration * 1000 : 5 * 1000);
-                    } else if (mDataSource != null && mDataSource.size() > 1) {
-                        mHandler.removeCallbacksAndMessages(null);
-                        mHandler.sendEmptyMessageDelayed(0, duration > 0 ? duration * 1000 : 5 * 1000);
-                    }
-                }else{
-                    mHandler.post(mPlayCompletionRunnable);
-                }
-            }
         }
         return true;
     }

@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 
 import com.jar.savor.box.interfaces.OnRemoteOperationListener;
@@ -19,13 +17,10 @@ import com.jar.savor.box.vo.RotateResponseVo;
 import com.jar.savor.box.vo.SeekResponseVo;
 import com.jar.savor.box.vo.StopResponseVo;
 import com.jar.savor.box.vo.VolumeResponseVo;
-import com.savor.ads.SavorApplication;
 import com.savor.ads.activity.AdsPlayerActivity;
-import com.savor.ads.activity.LoopPlayActivity;
 import com.savor.ads.activity.ScreenProjectionActivity;
 import com.savor.ads.bean.BirthdayOndemandBean;
 import com.savor.ads.bean.MediaLibBean;
-import com.savor.ads.bean.MeetingLoopPlayBean;
 import com.savor.ads.core.AppApi;
 import com.savor.ads.core.Session;
 import com.savor.ads.database.DBHelper;
@@ -48,11 +43,8 @@ import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.IPAddressUtils;
-import com.savor.ads.utils.MiniProgramQrCodeWindowManager;
-import com.savor.ads.utils.QrCodeWindowManager;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -765,16 +757,5 @@ public class ProjectOperationListener implements OnRemoteOperationListener {
             responseT.setMsg("输入有误，请重新输入");
         }
         return responseT;
-    }
-
-    @Override
-    public void showLoopPlayResource(MeetingLoopPlayBean loopPlayBean) {
-        GlobalValues.CURRENT_PROJECT_ID = UUID.randomUUID().toString();
-        Intent intent = new Intent(mContext, LoopPlayActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("loopBean",loopPlayBean);
-        intent.putExtras(bundle);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        mContext.startActivity(intent);
     }
 }

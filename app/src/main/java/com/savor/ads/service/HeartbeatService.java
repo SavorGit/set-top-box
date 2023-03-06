@@ -764,9 +764,20 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
             String filename = jsonObject.getString("filename");
             String md5 = jsonObject.getString("md5");
             String url = jsonObject.getString("url");
+            /**
+             * 20230306 10:28
+             * 因为活动不能同时存在，所以当一个活动上线，之前活动就会自动下线
+             * offline_filename字段存在的意义就是当新活动把旧活动替换的时候，返回旧活动的资源名称，方便删除操作
+             */
+            String offlineFilename = jsonObject.getString("offline_filename");
             String basePath = AppUtils.getSDCardPath()+AppUtils.Download;
             String filePath = basePath+filename;
-            if (isOffline==1){
+            if (!TextUtils.isEmpty(offlineFilename)){
+                File file = new File(offlineFilename);
+                if (file.exists()){
+                    file.delete();
+                }
+            }if (isOffline==1){
                 File file = new File(filePath);
                 if (file.exists()){
                     file.delete();

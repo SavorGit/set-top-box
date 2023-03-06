@@ -4,11 +4,9 @@ import android.app.Activity;
 import android.text.TextUtils;
 
 import com.savor.ads.activity.AdsPlayerActivity;
-import com.savor.ads.activity.LoopPlayActivity;
 import com.savor.ads.activity.ScreenProjectionActivity;
 import com.savor.ads.projection.ProjectPriority;
 import com.savor.ads.utils.ActivitiesManager;
-import com.savor.ads.utils.GlobalValues;
 
 /**
  * Created by zhang.haiqiang on 2017/5/22.
@@ -39,10 +37,6 @@ public class VolumeAction extends ProjectionActionBase {
         if (activity instanceof ScreenProjectionActivity) {
             if (!TextUtils.isEmpty(projectId)) {
                 ((ScreenProjectionActivity) activity).volume(action);
-            }
-        }else if (activity instanceof LoopPlayActivity){
-            if (!TextUtils.isEmpty(projectId)) {
-                ((LoopPlayActivity) activity).volume(action);
             }
         }else if (activity instanceof AdsPlayerActivity){
             ((AdsPlayerActivity)activity).volume(action);

@@ -20,7 +20,6 @@ import android.net.ConnectivityManager;
 import android.net.DhcpInfo;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -29,7 +28,6 @@ import android.os.StatFs;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -38,18 +36,10 @@ import com.google.protobuf.ByteString;
 import com.savor.ads.BuildConfig;
 import com.savor.ads.activity.MainActivity;
 import com.savor.ads.activity.ScreenProjectionActivity;
-import com.savor.ads.bean.BaiduAdLocalBean;
-import com.savor.ads.bean.JDmomediaLocalBean;
-import com.savor.ads.bean.MediaItemBean;
 import com.savor.ads.bean.MediaLibBean;
-import com.savor.ads.bean.MeetingResourceBean;
-import com.savor.ads.bean.MeiAdLocalBean;
-import com.savor.ads.bean.OOHLinkAdLocalBean;
 import com.savor.ads.bean.ProjectionLogBean;
 import com.savor.ads.bean.VersionInfo;
 import com.savor.ads.bean.WelcomeResourceBean;
-import com.savor.ads.bean.YishouAdLocalBean;
-import com.savor.ads.bean.ZmengAdLocalBean;
 import com.savor.ads.core.ApiRequestListener;
 import com.savor.ads.core.AppApi;
 import com.savor.ads.core.Session;
@@ -75,12 +65,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -92,9 +77,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -136,7 +119,7 @@ public class AppUtils {
     public static final String BoxSelectContentDir = "select_content";//已删除
     public static final String cacheDir = "cache";
     public static final String welcomeResourceDir = "welcome_resource";
-    public static final String meetingResourceDir = "meeting_resource";
+    public static final String meetingResourceDir = "meeting_resource";//已删除
     public static final String HotContentDir = "hot_content";
     public static final String localLifeDir = "LocalLife";
     public static final String StoreSaleDir = "StoreSale";
@@ -408,10 +391,6 @@ public class AppUtils {
         if (!welcomeResourceFile.exists()){
             welcomeResourceFile.mkdir();
         }
-        File meetingResourceFile = new File(path+File.separator,meetingResourceDir);
-        if (!meetingResourceFile.exists()){
-            meetingResourceFile.mkdir();
-        }
         File hotContentFile = new File(path+File.separator,HotContentDir);
         if (!hotContentFile.exists()){
             hotContentFile.mkdir();
@@ -454,8 +433,6 @@ public class AppUtils {
             path = projectionFile.getAbsolutePath()+File.separator;
         } else if (mode == StorageFile.welcome_resource){
             path = welcomeResourceFile.getAbsolutePath()+File.separator;
-        }  else if (mode == StorageFile.meeting_resource){
-            path = meetingResourceFile.getAbsolutePath()+File.separator;
         }else if (mode == StorageFile.hot_content){
             path = hotContentFile.getAbsolutePath()+File.separator;
         } else if (mode==StorageFile.local_life){
@@ -508,6 +485,13 @@ public class AppUtils {
                         com.savor.ads.utils.FileUtils.deleteFile(selectContentFile);
                     }
                     selectContentFile.delete();
+                }
+                File meetingResourceFile = new File(path+File.separator,meetingResourceDir);
+                if (meetingResourceFile.exists()){
+                    if (meetingResourceFile.isDirectory()&&meetingResourceFile.listFiles().length>0){
+                        com.savor.ads.utils.FileUtils.deleteFile(meetingResourceFile);
+                    }
+                    meetingResourceFile.delete();
                 }
             }
         }).start();
@@ -1127,46 +1111,6 @@ public class AppUtils {
                             String selection = DBHelper.MediaDBInfo.FieldName.MEDIANAME + "=? ";
                             String[] selectionArgs = new String[]{fileName};
                             List<WelcomeResourceBean> listBean = DBHelper.get(context).findWelcomeResourceList(selection,selectionArgs);
-                            if (listBean==null){
-                                file.delete();
-                            }
-                        }
-
-                    }
-
-
-                }catch (Exception e){
-                    LogUtils.e("删除视频失败",e);
-                }
-
-            }
-        }).start();
-    }
-
-    public static void deleteMeetingResource(final Context context) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    LogUtils.d("删除年会会议资源");
-                    List<MeetingResourceBean> meetingResourceBeanList = DBHelper.get(context).findMeetingResourceList(null,null);
-                    String meeting = AppUtils.getFilePath(StorageFile.meeting_resource);
-                    File[] meetingFiles = new File(meeting).listFiles();
-                    if (meetingResourceBeanList==null){
-                        for (File file : meetingFiles) {
-                            if (file.isFile()) {
-                                file.delete();
-                                LogUtils.d("删除文件===================" + file.getName());
-                            } else {
-                                com.savor.ads.utils.FileUtils.deleteFile(file);
-                            }
-                        }
-                    }else{
-                        for (File file:meetingFiles){
-                            String fileName = file.getName();
-                            String selection = DBHelper.MediaDBInfo.FieldName.MEDIANAME + "=? ";
-                            String[] selectionArgs = new String[]{fileName};
-                            List<MeetingResourceBean> listBean = DBHelper.get(context).findMeetingResourceList(selection,selectionArgs);
                             if (listBean==null){
                                 file.delete();
                             }
