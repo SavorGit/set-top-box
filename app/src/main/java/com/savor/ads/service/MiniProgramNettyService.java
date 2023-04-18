@@ -42,8 +42,6 @@ import com.savor.ads.dialog.OperationalActivityDialog;
 import com.savor.ads.dialog.PrizeQrcodeDialog;
 import com.savor.ads.dialog.TastingWineQrcodeDialog;
 import com.savor.ads.dialog.TastingWineReceivedDialog;
-import com.savor.ads.dialog.JuhuasuanResultDialog;
-import com.savor.ads.dialog.JuhuasuanShowDialog;
 import com.savor.ads.dialog.LuckyDrawDialog;
 import com.savor.ads.dialog.OpRedEnvelopeQrCodeDialog;
 import com.savor.ads.dialog.PartakeDishDialog;
@@ -161,9 +159,9 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     /**商务宴请-商业文件分享*/
     private BusinessFileDialog fileDialog = null;
     /**展示聚划算窗口*/
-    private JuhuasuanShowDialog juhuasuanShowDialog = null;
+//    private JuhuasuanShowDialog juhuasuanShowDialog = null;
     /**聚划算活动结果窗口*/
-    private JuhuasuanResultDialog juhuasuanResultDialog = null;
+//    private JuhuasuanResultDialog juhuasuanResultDialog = null;
     /**领取品鉴酒弹窗*/
     private TastingWineReceivedDialog wineReceivedDialog = null;
     /**销售端发起的品鉴酒活动*/
@@ -191,8 +189,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         luckyDrawDialog = new LuckyDrawDialog(context);
         cardDialog = new BusinessCardDialog(context);
         fileDialog = new BusinessFileDialog(context);
-        juhuasuanShowDialog = new JuhuasuanShowDialog(context);
-        juhuasuanResultDialog = new JuhuasuanResultDialog(context);
         wineReceivedDialog = new TastingWineReceivedDialog(context);
         wineQrcodeDialog = new TastingWineQrcodeDialog(context);
         prizeQrcodeDialog = new PrizeQrcodeDialog(context);
@@ -296,7 +292,8 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
          * 141:推送用户审核通过的视频内容，走2的逻辑
          * 142:推送用户审核通过的图片内容,走10的逻辑
          * 150:小程序连接机顶盒成功后推送引导投屏图
-         * 151:开始聚划算活动
+         * 151:开始聚划算活动(废弃)
+         * 152:聚划算活动展示结果(废弃)
          * 153:领取品鉴酒成功展示窗口
          * 154:销售人员发起弹窗展示可以领取品鉴酒的二维码
          * 155:推送任务参加抽奖
@@ -624,12 +621,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                             }
                             guideImage();
                             break;
-                        case 151:
-                            juhuasuanShow();
-                            break;
-                        case 152:
-                            juhuasuanResult();
-                            break;
                         case 153:
                             showReceiveBaijiuDialog();
                             break;
@@ -728,12 +719,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
         }
         if (activityDialog!=null&&activityDialog.isShowing()){
             activityDialog.dismiss();
-        }
-        if (juhuasuanShowDialog!=null&&juhuasuanShowDialog.isShowing()){
-            juhuasuanShowDialog.dismiss();
-        }
-        if (juhuasuanResultDialog!=null&&juhuasuanResultDialog.isShowing()){
-            juhuasuanResultDialog.dismiss();
         }
         if (wineReceivedDialog!=null&&wineReceivedDialog.isShowing()){
             wineReceivedDialog.dismiss();
@@ -2588,46 +2573,6 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
             }
         }
     }
-
-    private void juhuasuanShow(){
-        if (juhuasuanShowDialog==null){
-            juhuasuanShowDialog = new JuhuasuanShowDialog(context);
-        }
-        if (juhuasuanShowDialog.isShowing()){
-            juhuasuanShowDialog.dismiss();
-        }
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                juhuasuanShowDialog.show();
-                String codeUrl = mpProjection.getCodeUrl();
-                int countdown = mpProjection.getCountdown();
-                juhuasuanShowDialog.showJuhuasuanWindow(context,headPic,nickName,codeUrl,countdown);
-            }
-        });
-
-    }
-
-    private void juhuasuanResult(){
-        if (juhuasuanResultDialog==null){
-            juhuasuanResultDialog = new JuhuasuanResultDialog(context);
-        }
-        if (juhuasuanResultDialog.isShowing()){
-            juhuasuanResultDialog.dismiss();
-        }
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                juhuasuanResultDialog.show();
-                String activityPrice = mpProjection.getPrice();
-                String jdPrice = mpProjection.getJd_price();
-                int countdown = mpProjection.getCountdown();
-                List<String> activityContents = mpProjection.getPrize_list();
-                juhuasuanResultDialog.juhuasuanResultWindow(activityPrice,jdPrice,activityContents,countdown);
-            }
-        });
-    }
-
 
     /**分享展示名片*/
     private void showBusinessCard(){

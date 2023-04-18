@@ -922,33 +922,6 @@ public class Session {
         writePreference(new Pair<>(P_APP_PRO_NEXT_MEDIA_PUBTIME,proNextMediaPubTime));
     }
 
-//    public void setPlayListVersion(ArrayList<VersionInfo> playListVersion) {
-//        if (playListVersion != null) {
-//            setAdsPeriod(AppUtils.findSpecifiedPeriodByType(playListVersion, "ads"));
-//            setAdvPeriod(AppUtils.findSpecifiedPeriodByType(playListVersion, "adv"));
-//            setProPeriod(AppUtils.findSpecifiedPeriodByType(playListVersion, "pro"));
-//            mPreference.removeKey(P_APP_PLAY_LIST_VERSION);
-//        }
-//    }
-
-//    public void setNextPlayListVersion(ArrayList<VersionInfo> nextPlayListVersion) {
-//        if (nextPlayListVersion != null) {
-//            setAdsNextPeriod(AppUtils.findSpecifiedPeriodByType(nextPlayListVersion, "ads"));
-//            setAdvNextPeriod(AppUtils.findSpecifiedPeriodByType(nextPlayListVersion, "adv"));
-//            setProNextPeriod(AppUtils.findSpecifiedPeriodByType(nextPlayListVersion, "pro"));
-//            mPreference.removeKey(P_APP_NEXT_PLAY_LIST_VERSION);
-//        }
-//    }
-
-//   public void setDownloadingPlayListVersion(ArrayList<VersionInfo> downloadingPlayListVersion) {
-//       if (downloadingPlayListVersion != null) {
-//           setAdsDownloadPeriod(AppUtils.findSpecifiedPeriodByType(downloadingPlayListVersion, "ads"));
-//           setAdvDownloadPeriod(AppUtils.findSpecifiedPeriodByType(downloadingPlayListVersion, "adv"));
-//           setProDownloadPeriod(AppUtils.findSpecifiedPeriodByType(downloadingPlayListVersion, "pro"));
-//           mPreference.removeKey(P_APP_DOWNLOADING_PLAY_LIST_VERSION);
-//       }
-//   }
-
     public void setProPeriod(String proPeriod) {
         this.proPeriod = proPeriod;
         writePreference(new Pair<>(P_APP_PRO_MEDIA_PERIOD,proPeriod));
@@ -1553,10 +1526,6 @@ public class Session {
     public static final String P_APP_USE_VIRTUAL_SP = "com.savor.ads.use_virtual_sp";
     //上次U盘动作时间
     public static final String P_APP_LAST_UDISK_UPDATE_TIME = "com.savor.ads.last_udisk_update_time";
-
-    public static final String P_APP_PLAY_LIST_VERSION = "com.savor.ads.play_list_version";
-    public static final String P_APP_DOWNLOADING_PLAY_LIST_VERSION = "com.savor.ads.downloading_play_list_version";
-    public static final String P_APP_NEXT_PLAY_LIST_VERSION = "com.savor.ads.next_play_list_version";
 
     public static final String P_APP_DOWNLOAD_NET_SPEED = "com.savor.download.net_speed";
 
