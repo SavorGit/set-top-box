@@ -995,7 +995,16 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 }
                 action = "resume";
             }
-            getSeckillGoodsInfo();
+            int leftPopWind = mSession.getLeftPopWind();
+            int marquee = mSession.getMarquee();
+            String type = libBean.getType();
+            if ((leftPopWind==1||marquee==1)
+                    &&!type.equals(ConstantValues.ADV)&&!type.equals(ConstantValues.ADS)){
+                getSeckillGoodsInfo();
+            }else{
+                lanternCloseWin();
+                closeMarqueeTip();
+            }
             showSellWineActivityWin();
             LogReportUtil.get(this).sendAdsLog(mUUID, mSession.getBoiteId(), mSession.getRoomId(),
                     String.valueOf(System.currentTimeMillis()), action, libBean.getType(), libBean.getVid(),
@@ -1351,10 +1360,9 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         try {
             if (goodsResult!=null){
                 MediaLibBean libBean = mPlayList.get(mCurrentPlayingIndex);
-                String mediaType = libBean.getType();
                 String chineseName = libBean.getChinese_name();
-                int leftPopWind = goodsResult.getLeft_pop_wind();
-                if (leftPopWind==1&&mediaType.equals(ConstantValues.ADV)){
+                int leftPopWind = mSession.getLeftPopWind();
+                if (leftPopWind==1){
                     //秒杀商品业务
                     if (goodsResult.getDatalist()!=null&&goodsResult.getDatalist().size()>0&&seckillState==0){
                         seckillGoodsBeanList = goodsResult.getDatalist();
@@ -1370,18 +1378,15 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                 }
 
                 //处理跑马灯相关逻辑
-                int marquee = goodsResult.getMarquee();
+                int marquee = mSession.getMarquee();
                 if (marquee==1
-                        &&(mediaType.equals(ConstantValues.PRO)||mediaType.equals(ConstantValues.ADV))
                         &&!chineseName.startsWith(ConstantValues.DINNER_TOPIC)
                         &&goodsResult.getRoll_content()!=null
                         &&goodsResult.getRoll_content().length>0){
                     List<String> rollContent = Arrays.asList(goodsResult.getRoll_content());
                     handleCaptionTip(rollContent);
                 }else{
-                    captionMarqueeTV.removeAllViews();
-                    captionMarqueeTV.clearAnimation();
-                    captionLayout.setVisibility(View.GONE);
+                    closeMarqueeTip();
                 }
             }
         }catch (Exception e){
@@ -1428,7 +1433,6 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
         goodsJDPriceFrontTV.setText("京东价"+jdPrice+"/瓶");
         goodsJDPriceBackTV.setText("京东价"+jdPrice+"/瓶");
         goodsSeckillPriceFrontTV.setText(price+"/瓶");
-        goodsPriceFrontLayout.setVisibility(View.INVISIBLE);
         goodsSeckillPriceBackTV.setText(price+"/瓶");
         setAnimators(); // 设置动画
         setCameraDistance(); // 设置镜头距离
@@ -1558,6 +1562,12 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
 
     }
 
+    //关闭底部跑马灯效果
+    private void closeMarqueeTip(){
+        captionMarqueeTV.removeAllViews();
+        captionMarqueeTV.clearAnimation();
+        captionLayout.setVisibility(View.GONE);
+    }
     //关闭灯笼窗口
     private void lanternCloseWin(){
         seckillState = 0;

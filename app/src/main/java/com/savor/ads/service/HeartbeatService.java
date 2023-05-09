@@ -622,6 +622,16 @@ public class HeartbeatService extends IntentService implements ApiRequestListene
                             String test_wechat = jsonObject.getString("test_wechat");
                             GlobalValues.testWechatUrl = test_wechat;
                         }
+                        if(jsonObject.has("left_pop_wind")){
+                            //是否展示灯笼窗口||0:不展示 1:展示
+                            int leftPopWind = jsonObject.getInt("left_pop_wind");
+                            session.setLeftPopWind(leftPopWind);
+                        }
+                        if (jsonObject.has("marquee")){
+                            //是否展示跑马灯窗口||0:不展示 1:展示
+                            int marquee = jsonObject.getInt("marquee");
+                            session.setMarquee(marquee);
+                        }
                     }catch (Exception e){
                         e.printStackTrace();
                     }

@@ -282,7 +282,10 @@ public class Session {
     private String lan_mac;
     //售酒现金奖励活动
     private SellWineActivityBean sellWineBean;
-
+    //是否展示灯笼窗口||0:不展示 1:展示
+    private int leftPopWind;
+    //是否展示跑马灯窗口||0:不展示 1:展示
+    private int marquee;
 
     private Session(Context context) {
 
@@ -392,6 +395,8 @@ public class Session {
         guideImg = (ProjectionGuideImg) getObj(P_APP_PROJECTION_GUIDE);
         isShowAnimQRcode = mPreference.loadBooleanKey(P_APP_SHOW_ANIM,false);
         isWifiHotel = mPreference.loadBooleanKey(P_APP_WIFI_HOTEL,false);
+        leftPopWind = mPreference.loadIntKey(P_APP_LEFT_POP_WIND,0);
+        marquee = mPreference.loadIntKey(P_APP_MARQUEE,0);
     }
 
     /*
@@ -497,7 +502,9 @@ public class Session {
                 P_APP_QRCODE_SHOW_TIME.equals(key)||
                 P_APP_QRCODE_TAKT_TIME.equals(key)||
                 P_APP_BOX_QRCODETYPE.equals(key)||
-                P_APP_SCENCEADV_SHOW_NUM.equals(key)) {
+                P_APP_SCENCEADV_SHOW_NUM.equals(key)||
+                P_APP_LEFT_POP_WIND.equals(key)||
+                P_APP_MARQUEE.equals(key)) {
             mPreference.saveIntKey(key, (int) updateItem.second);
         } else if (P_APP_SIMPLE_UPLOAD_SIZE.equals(key)){
             mPreference.saveLongKey(key, (long) updateItem.second);
@@ -1423,6 +1430,24 @@ public class Session {
         this.sellWineBean = sellWineBean;
     }
 
+    public int getLeftPopWind() {
+        return leftPopWind;
+    }
+
+    public void setLeftPopWind(int leftPopWind) {
+        this.leftPopWind = leftPopWind;
+        writePreference(new Pair<>(P_APP_LEFT_POP_WIND,leftPopWind));
+    }
+
+    public int getMarquee() {
+        return marquee;
+    }
+
+    public void setMarquee(int marquee) {
+        this.marquee = marquee;
+        writePreference(new Pair<>(P_APP_MARQUEE,marquee));
+    }
+
     //机顶盒轮播音量
     public static final String P_APP_BOX_CAROUSEL_VOLUME = "com.savor.box.carousel.volume";
     //机顶盒用户内容点播音量
@@ -1547,6 +1572,8 @@ public class Session {
     public static final String P_APP_PROJECTION_GUIDE = "com.savor.ads.projection.guide";
     public static final String P_APP_SHOW_ANIM = "com.savor.ads.show.anim";
     public static final String P_APP_WIFI_HOTEL = "com.savor.ads.wifi.hotel";
+    public static final String P_APP_LEFT_POP_WIND = "com.savor.ads.left_pop_window";
+    public static final String P_APP_MARQUEE = "com.savor.ads.marquee";
 
     public String getAdsPeriod() {
         return adsPeriod == null ? "" : adsPeriod;
