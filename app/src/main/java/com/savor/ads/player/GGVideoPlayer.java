@@ -265,7 +265,7 @@ public class GGVideoPlayer extends StandardGSYVideoPlayer implements IVideoPlaye
     @Override
     protected void addTextureView() {
         Log.d("StackTrack", "GGVideoPlayer::addTextureView");
-        if (AppUtils.isPhilips()||AppUtils.isSMART_CLOUD_TV()){
+        if (AppUtils.isPhilips()||AppUtils.isSMART_CLOUD_TV()||AppUtils.isAmv()){
             mTextureView = new GSYRenderView();
         }else{
             mTextureView = new MediaCodecRenderView();

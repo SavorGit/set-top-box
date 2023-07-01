@@ -40,36 +40,12 @@ android {
             keyAlias "savor-box"
             keyPassword "savor123456"
         }
-    }
-
-    buildTypes {
-        debug {
-            // 是否混淆
-            minifyEnabled false
-            zipAlignEnabled false
-            // 移除无用的resource文件
-            shrinkResources false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-//            signingConfig signingConfigs.debug
-
-            ndk {
-                abiFilters("armeabi")
-            }
+        mtk {
+            storeFile file("/mt9255.jks")
+            storePassword "123456"
+            keyAlias "mt9255"
+            keyPassword "123456"
         }
-        release {
-            // 是否混淆
-            minifyEnabled true
-            zipAlignEnabled true
-            // 移除无用的resource文件
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
-
-            ndk {
-                abiFilters("armeabi")
-            }
-        }
-
     }
 
     flavorDimensions "savor"
@@ -91,6 +67,48 @@ android {
             buildConfigField("String", "OSS_BUCKET_NAME", "\"redian-produce\"")
             buildConfigField("String", "OSS_ENDPOINT", "\"https://oss.littlehotspot.com/\"")
             buildConfigField("String", "OSS_NATIVE_ENDPOINT", "\"http://oss-cn-beijing.aliyuncs.com/\"")
+        }
+        mtk {
+            dimension "savor"
+            buildConfigField("String", "BASE_URL", "\"http://mobile.littlehotspot.com/\"")
+            buildConfigField("String", "VIRTUAL_SP_HOST", "\"vsmall.littlehotspot.com\"")
+            buildConfigField("String", "BALANCING_NETTY_BASE", "\"http://39.105.217.203\"")
+            buildConfigField("String", "OSS_BUCKET_NAME", "\"redian-produce\"")
+            buildConfigField("String", "OSS_ENDPOINT", "\"https://oss.littlehotspot.com/\"")
+            buildConfigField("String", "OSS_NATIVE_ENDPOINT", "\"http://oss-cn-beijing.aliyuncs.com/\"")
+        }
+    }
+
+    buildTypes {
+        debug {
+            // 是否混淆
+            minifyEnabled false
+            zipAlignEnabled false
+            // 移除无用的resource文件
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.mtk
+            ndk {
+                abiFilters("armeabi")
+            }
+        }
+        release {
+            // 是否混淆
+            minifyEnabled true
+            zipAlignEnabled true
+            // 移除无用的resource文件
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+            ndk {
+                abiFilters("armeabi")
+            }
+        }
+    }
+
+    sourceSets {
+        mtk{
+            manifest.srcFile 'src/mtk/AndroidManifest.xml'
         }
     }
 

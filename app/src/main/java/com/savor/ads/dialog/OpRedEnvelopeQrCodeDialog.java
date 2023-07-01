@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.view.Gravity;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -26,18 +25,11 @@ import com.bumptech.glide.request.target.Target;
 import com.mstar.tv.service.skin.AudioSkin;
 import com.savor.ads.R;
 import com.savor.ads.SavorApplication;
-import com.savor.ads.bean.ProjectionGuideImg;
-import com.savor.ads.callback.ProjectOperationListener;
-import com.savor.ads.core.Session;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.DensityUtil;
 import com.savor.ads.utils.GlideImageLoader;
 import com.savor.ads.utils.GlobalValues;
 import com.savor.ads.utils.ShowMessage;
-
-import java.io.File;
-
-import static com.savor.ads.utils.GlobalValues.FROM_SERVICE_MINIPROGRAM;
 
 /**
  * Created by zhanghq on 2016/12/10.

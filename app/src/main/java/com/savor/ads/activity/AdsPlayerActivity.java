@@ -1455,11 +1455,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                     mHandler.postDelayed(runnable,100);
                     retryFrontCount++;
                 }else{
-                    mHandler.removeCallbacks(seckillCountdownRunnable);
-                    mHandler.removeCallbacks(flipCardRunnable);
-                    mHandler.removeCallbacks(switchSeckillRunnable);
-                    seckillFrontLayout.setVisibility(View.GONE);
-                    seckillBackLayout.setVisibility(View.GONE);
+                    lanternCloseWin();
                 }
                 return false;
             }
@@ -1481,11 +1477,7 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
                     mHandler.postDelayed(runnable,100);
                     retryBackCount++;
                 }else{
-                    mHandler.removeCallbacks(seckillCountdownRunnable);
-                    mHandler.removeCallbacks(flipCardRunnable);
-                    mHandler.removeCallbacks(switchSeckillRunnable);
-                    seckillFrontLayout.setVisibility(View.GONE);
-                    seckillBackLayout.setVisibility(View.GONE);
+                    lanternCloseWin();
                 }
                 return false;
             }

@@ -1,19 +1,14 @@
 package com.savor.ads.adapter;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.savor.ads.R;
-import com.savor.ads.bean.MediaLibBean;
 import com.savor.ads.bean.PartakeUser;
-import com.savor.ads.core.Session;
 import com.savor.ads.utils.Base64Utils;
-import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.GlideImageLoader;
 
 import java.util.ArrayList;

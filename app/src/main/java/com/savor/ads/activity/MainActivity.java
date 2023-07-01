@@ -3,6 +3,7 @@ package com.savor.ads.activity;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageInstaller;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,8 +13,10 @@ import android.os.Handler;
 import android.os.SystemProperties;
 import androidx.core.app.ActivityCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.savor.ads.BuildConfig;
 import com.savor.ads.R;
@@ -47,13 +50,11 @@ import java.util.ArrayList;
  */
 
 public class MainActivity extends BaseActivity {
+    private static final String TAG = "MainActivity";
+    private static final String PACKAGE_INSTALLED_ACTION = "com.xxx.install";
+    private static final String PACKAGE_UNINSTALLED_ACTION = "com.xxx.uninstall";
     Handler mHandler = new Handler();
     private ImageView main_imgIv;
-    private static final String KEY_BOOT_VIDEO_FINISH = "boot.video.finish";
-    private static final String KEY_BOOT_ANIMATION_FINISH = "boot.animation.finish";
-    private static final String KEY_BOOT_STR_AD_FINISH = "sys.play.resumead";
-    private static final String VALUE_BOOT_VIDEO_FINISHED = "1";
-    private static final String VALUE_BOOT_ANIMATION_FINISHED = "1";
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
@@ -345,6 +346,77 @@ public class MainActivity extends BaseActivity {
 
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        Bundle extras = intent.getExtras();
+        Log.e(TAG, intent.toString());
+        if (PACKAGE_INSTALLED_ACTION.equals(intent.getAction())) {
+            Log.e(TAG, intent.getAction());
+            int status = extras.getInt(PackageInstaller.EXTRA_STATUS);
+            String message = extras.getString(PackageInstaller.EXTRA_STATUS_MESSAGE);
+
+            switch (status) {
+                case PackageInstaller.STATUS_PENDING_USER_ACTION:
+                    // This test app isn't privileged, so the user has to confirm the install.
+                    Intent confirmIntent = (Intent) extras.get(Intent.EXTRA_INTENT);
+                    startActivity(confirmIntent);
+                    break;
+
+                case PackageInstaller.STATUS_SUCCESS:
+                    Toast.makeText(this, "Install succeeded!", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG,"Install succeeded!");
+                    break;
+
+                case PackageInstaller.STATUS_FAILURE:
+                case PackageInstaller.STATUS_FAILURE_ABORTED:
+                case PackageInstaller.STATUS_FAILURE_BLOCKED:
+                case PackageInstaller.STATUS_FAILURE_CONFLICT:
+                case PackageInstaller.STATUS_FAILURE_INCOMPATIBLE:
+                case PackageInstaller.STATUS_FAILURE_INVALID:
+                case PackageInstaller.STATUS_FAILURE_STORAGE:
+                    Toast.makeText(this, "Install failed! " + status + ", " + message,
+                            Toast.LENGTH_SHORT).show();
+                    Log.e(TAG,"Install failed! " + status + ", " + message);
+                    break;
+                default:
+                    Toast.makeText(this, "Unrecognized status received from installer: " + status,
+                            Toast.LENGTH_SHORT).show();
+                    Log.e(TAG,"Unrecognized status received from installer: " + status);
+            }
+        }
+        else if(PACKAGE_UNINSTALLED_ACTION.equals(intent.getAction())){
+            Log.e(TAG, intent.getAction());
+            int status = extras.getInt(PackageInstaller.EXTRA_STATUS);
+            String message = extras.getString(PackageInstaller.EXTRA_STATUS_MESSAGE);
+
+            switch (status) {
+                case PackageInstaller.STATUS_PENDING_USER_ACTION:
+                    // This test app isn't privileged, so the user has to confirm the install.
+                    Intent confirmIntent = (Intent) extras.get(Intent.EXTRA_INTENT);
+                    startActivity(confirmIntent);
+                    break;
+
+                case PackageInstaller.STATUS_SUCCESS:
+                    Toast.makeText(this, "Uninstall succeeded!", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG,"Uninstall succeeded!");
+                    break;
+
+                case PackageInstaller.STATUS_FAILURE:
+                case PackageInstaller.STATUS_FAILURE_ABORTED:
+                case PackageInstaller.STATUS_FAILURE_BLOCKED:
+                case PackageInstaller.STATUS_FAILURE_CONFLICT:
+                case PackageInstaller.STATUS_FAILURE_INCOMPATIBLE:
+                case PackageInstaller.STATUS_FAILURE_INVALID:
+                case PackageInstaller.STATUS_FAILURE_STORAGE:
+                    Toast.makeText(this, "Install failed! " + status + ", " + message,Toast.LENGTH_SHORT).show();
+                    Log.e(TAG,"Uninstall failed! " + status + ", " + message);
+                    break;
+                default:
+                    Toast.makeText(this, "Unrecognized status received from installer: " + status,Toast.LENGTH_SHORT).show();
+                    Log.e(TAG,"Unrecognized status received from installer: " + status);
+            }
+        }
+    }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {

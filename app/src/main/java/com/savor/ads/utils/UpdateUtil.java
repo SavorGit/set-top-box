@@ -1,16 +1,33 @@
 package com.savor.ads.utils;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.IIntentReceiver;
+import android.content.IIntentSender;
 import android.content.Intent;
+import android.content.IntentSender;
+import android.content.pm.PackageInstaller;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
+import android.os.RemoteException;
 import android.util.Log;
 
+
+import androidx.annotation.RequiresApi;
+import androidx.core.content.FileProvider;
 
 import com.amlogic.update.OtaUpgradeUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.savor.ads.BuildConfig;
 import com.savor.ads.activity.AdsPlayerActivity;
 import com.savor.ads.activity.MainActivity;
 import com.savor.ads.activity.PartakeDishDrawActivity;
@@ -25,14 +42,20 @@ import com.savor.ads.okhttp.coreProgress.download.FileDownloader;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 
 public class UpdateUtil{
-
+    private static final String PACKAGE_INSTALLED_ACTION = "com.savor.ads.install";
+    private static final String TAG = UpdateUtil.class.getName();
     private static Context mContext;
     private Session session;
     private static Handler handler = new Handler(Looper.getMainLooper());
@@ -89,7 +112,8 @@ public class UpdateUtil{
     }
 
     //处理升级结果
-    public void handleUpdateResult(File file,String md5){
+    @SuppressLint("NewApi")
+    public void handleUpdateResult(File file, String md5){
         byte[] fRead;
         String md5Value = null;
         try {
@@ -100,26 +124,23 @@ public class UpdateUtil{
         }
         //比较本地文件MD5是否与服务器文件一致，如果一致则启动安装
         String fileName = file.getName();
-        if (ConstantValues.ROM_DOWNLOAD_FILENAME.equals(fileName)) {
-            if (md5Value != null && md5Value.equals(md5)) {
-                //升级ROM
-                if (!AppUtils.isMstar()) {
-                    updateRom(file);
-                }
-            }
-        } else if (ConstantValues.APK_DOWNLOAD_FILENAME.equals(fileName)) {
+        if (ConstantValues.APK_DOWNLOAD_FILENAME.equals(fileName)) {
             if (md5Value != null && md5Value.equals(md5)) {
                 //升级APK
                 if (AppUtils.isMstar()) {
                     updateApk(file);
                 } else if(AppUtils.isGiec()){
                     updateApk4Giec(file);
-                }else if (AppUtils.isSMART_CLOUD_TV()||AppUtils.isWang()){
-                    updateApk4SMART_CLOUD(file);
+                }else if (AppUtils.isWang()){
+                    updateApk4Trump4k(file);
+                }else if (AppUtils.isSMART_CLOUD_TV()||AppUtils.isAmv()){
+                    updateApk4SmartTV(file);
                 }else if (AppUtils.isSVT()){
                     updateApk4SVT(file);
                 }else if (AppUtils.isPhilips()){
                     updateApk4Philips(file);
+                }else{
+                    updateApk4SmartTV(file);
                 }
             }
         }
@@ -237,8 +258,8 @@ public class UpdateUtil{
         }
         return isflag;
     }
-
-    public static boolean updateApk4SMART_CLOUD(File file) {
+    //王牌4K
+    public static boolean updateApk4Trump4k(File file) {
         if (GlobalValues.isUpdateApk){
             return false;
         }
@@ -303,6 +324,128 @@ public class UpdateUtil{
         }
         return isflag;
     }
+    //多视彩，智慧云
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public static void updateApk4SmartTV(File file) {
+        installPackage(file.getAbsoluteFile());
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public static void installPackage(File apkFilePath) {
+
+        Log.w(TAG, "installPackage pkg: " + apkFilePath);
+        PackageInstaller.SessionParams params = new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
+        PackageInstaller.Session session = null;
+        // 创建一个Session
+        try {
+            int sessionId = getPi().createSession(params);
+            // 建立和PackageManager的socket通道，Android中的通信不仅仅有Binder还有很多其它的
+            session = getPi().openSession(sessionId);
+        } catch (IOException e) {
+            e.printStackTrace();
+//            return PackageManager.INSTALL_FAILED_INVALID_APK;
+        }
+        addApkToInstallSession(apkFilePath, session);
+        // Create an install status receiver.
+//        Context context = InstallApkSessionApi.this;
+        Intent intent = new Intent(mContext, UpdateUtil.class);
+        intent.setAction(PACKAGE_INSTALLED_ACTION);
+        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, intent, 0);
+        IntentSender statusReceiver = pendingIntent.getIntentSender();
+        // Commit the session (this will start the installation workflow).
+        session.commit(statusReceiver);
+//        final LocalIntentReceiver localReceiver = new LocalIntentReceiver();
+//        session.commit(localReceiver.getIntentSender());
+//        final Intent result = localReceiver.getResult();
+//        synchronized (localReceiver) {
+//            final int status = result.getIntExtra(PackageInstaller.EXTRA_STATUS,PackageInstaller.STATUS_FAILURE);
+//            if (session != null) {
+//                session.close();
+//            }
+//            if (status != PackageInstaller.STATUS_SUCCESS) {
+//                Log.e(TAG, "Installation should have succeeded, but got code "+ status);
+//                return status;
+//            } else {
+//                Log.e(TAG, "Installation  have succeeded");
+//                return status;
+//            }
+//        }
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private static boolean addApkToInstallSession(File apkFilePath, PackageInstaller.Session session) {
+        InputStream in = null;
+        OutputStream out = null;
+        boolean success = false;
+        try {
+            out = session.openWrite("updateapksamples.apk", 0, apkFilePath.length());
+            in = new FileInputStream(apkFilePath);
+            int total = 0, c;
+            byte[] buffer = new byte[1024 * 1024];
+            while ((c = in.read(buffer)) != -1) {
+                total += c;
+                out.write(buffer, 0, c);
+            }
+            session.fsync(out);
+            Log.d(TAG, "streamed " + total + " bytes");
+            success = true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (null != session) {
+                session.close();
+            }
+            try {
+                if (null != out) {
+                    out.close();
+                }
+                if (null != in) {
+                    in.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return success;
+    }
+
+//    private static class LocalIntentReceiver {
+//        private final SynchronousQueue<Intent> mResult = new SynchronousQueue<>();
+//
+//        private IIntentSender.Stub mLocalSender = new IIntentSender.Stub() {
+//            @Override
+//            public int send(int code, Intent intent, String resolvedType, IIntentReceiver iIntentReceiver, String s1) {
+//                try {
+//                    mResult.offer(intent, 5, TimeUnit.SECONDS);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//                return code;
+//            }
+//        };
+//
+//        public IntentSender getIntentSender() {
+//            return new IntentSender((IIntentSender) mLocalSender);
+//        }
+//
+//        public Intent getResult() {
+//            try {
+//                return mResult.take();
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
+//    }
+
+    private static PackageManager getPm() {
+        return mContext.getPackageManager();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private static PackageInstaller getPi() {
+        return getPm().getPackageInstaller();
+    }
 
     public static boolean updateApk4SVT(File file) {
         if (file.length() <= 0) {
@@ -313,7 +456,7 @@ public class UpdateUtil{
 
         boolean isflag = false;
         Process proc = null;
-        String targetPath = ConstantValues.APK_INSTALLED_PATH_SVT + "savormedia.apk";
+        String targetPath = ConstantValues.APK_INSTALLED_PATH_APP + "savormedia.apk";
         try {
             proc = Runtime.getRuntime().exec("su");
             try {
@@ -362,27 +505,6 @@ public class UpdateUtil{
         intent.putExtra("packageName", "com.savor.ads");
         intent.putExtra("activityName", "com.savor.ads.activity.MainActivity");
         mContext.sendBroadcast(intent);
-    }
-
-
-    private void updateRom(final File file) {
-        if (file == null || !file.exists()) {
-            return;
-        }
-        final GiecUpdateSystem giecUpdateSystem = new GiecUpdateSystem(mContext);
-        final OtaUpgradeUtils otaUpgradeUtils = new OtaUpgradeUtils(mContext);
-        final int updateMode = giecUpdateSystem.createAmlScript(file.getAbsolutePath(), false, false);
-        if (giecUpdateSystem != null) {
-            giecUpdateSystem.write2File();
-        }
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                giecUpdateSystem.copyBKFile();
-                otaUpgradeUtils.setDeleteSource(false);
-                otaUpgradeUtils.upgrade(file, progressListener, updateMode);
-            }
-        }).start();
     }
 
     ApiRequestListener apiRequestListener = new ApiRequestListener() {

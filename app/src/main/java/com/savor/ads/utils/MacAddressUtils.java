@@ -3,6 +3,8 @@ package com.savor.ads.utils;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -88,7 +90,7 @@ public class MacAddressUtils {
     /**
      * 获取有线网卡模块的mac地址
      */
-    public static String getEthernetMac() {
+    public static String getEthernetMacByJavaMethod() {
         return getNetworkInterfaceMac("eth0");
     }
 
@@ -161,8 +163,7 @@ public class MacAddressUtils {
         try {
             process = Runtime.getRuntime().exec(cmd);
             is = process.getInputStream();
-            reader = new BufferedReader(
-                    new InputStreamReader(is));
+            reader = new BufferedReader(new InputStreamReader(is));
             String line = reader.readLine();
             if (!TextUtils.isEmpty(line)) {
                 result = line.substring(line.indexOf("HWaddr") + 6).trim();
@@ -195,7 +196,67 @@ public class MacAddressUtils {
             }
         }
         if (TextUtils.isEmpty(result)){
-            result = MacAddressUtils.getEthernetMac();
+            if (AppUtils.isSMART_CLOUD_TV()||AppUtils.isAmv()){
+                result = getEthernetMacByIpCommand();
+            }else {
+                result = getEthernetMacByJavaMethod();
+            }
+        }
+        return result;
+    }
+
+    /*
+     * Load file content to String
+     */
+    public static String getEthernetMacByIpCommand(){
+        String command = "ip a show eth0";
+        Process process = null;
+        InputStream is = null;
+        BufferedReader reader = null;
+        String result = "";
+        try {
+            process = Runtime.getRuntime().exec(command);
+            is = process.getInputStream();
+            reader = new BufferedReader(new InputStreamReader(is));
+            //保存读取一行的变量
+            String str;
+            while ((str=reader.readLine())!=null){
+                if (str.contains("ether")&&str.contains("brd")){
+                    break;
+                }
+            }
+            if (!TextUtils.isEmpty(str)) {
+                result = StringUtils.substringBetween(str,"ether","brd").trim();
+            }
+            if (!TextUtils.isEmpty(result)){
+                result = result.replace(":","").toUpperCase();
+            }
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                if (process != null) {
+                    process.destroy();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return result;
     }

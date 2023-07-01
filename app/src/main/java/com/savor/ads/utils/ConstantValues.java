@@ -224,7 +224,7 @@ public class ConstantValues {
 
 
     public static final String APK_INSTALLED_PATH_GIEC = "/system/priv-app/savormedia/";
-    public static final String APK_INSTALLED_PATH_SVT = "/system/app/savormedia/";
+    public static final String APK_INSTALLED_PATH_APP = "/system/app/savormedia/";
 
     /**节目数据文件位置*/
     public static final String PRO_DATA_PATH = "/sdcard/server_data/pro_data";

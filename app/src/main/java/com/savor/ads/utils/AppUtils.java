@@ -2088,7 +2088,11 @@ public class AppUtils {
     }
 
     public static boolean isSMART_CLOUD_TV(){
-        return Build.MODEL.contains("AOSP");
+        return Build.MODEL.contains("mt9632l");
+    }
+
+    public static boolean isAmv(){
+        return Build.MODEL.contains("SMART_TV");
     }
 
     public static boolean isPhilips(){
