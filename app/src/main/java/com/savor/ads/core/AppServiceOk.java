@@ -463,6 +463,7 @@ public class AppServiceOk {
                 .addHeader("boxMac", appSession.getEthernetMac())
                 .addHeader("hotelId", appSession.getBoiteId())
                 .addHeader("X-VERSION",appSession.getVersionCode()+"")
+                .addHeader("MODEL",appSession.getDeviceModel()+"")
                 .build();
 
         Response response = okHttpUtils.getOkHttpClient().newCall(request).execute();

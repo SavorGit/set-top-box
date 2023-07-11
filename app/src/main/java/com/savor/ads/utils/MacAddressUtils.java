@@ -196,7 +196,7 @@ public class MacAddressUtils {
             }
         }
         if (TextUtils.isEmpty(result)){
-            if (AppUtils.isSMART_CLOUD_TV()||AppUtils.isAmv()){
+            if (AppUtils.isSMART_CLOUD_TV()){
                 result = getEthernetMacByIpCommand();
             }else {
                 result = getEthernetMacByJavaMethod();

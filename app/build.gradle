@@ -67,6 +67,7 @@ android {
             buildConfigField("String", "OSS_BUCKET_NAME", "\"redian-produce\"")
             buildConfigField("String", "OSS_ENDPOINT", "\"https://oss.littlehotspot.com/\"")
             buildConfigField("String", "OSS_NATIVE_ENDPOINT", "\"http://oss-cn-beijing.aliyuncs.com/\"")
+            signingConfig signingConfigs.release
         }
         mtk {
             dimension "savor"
@@ -76,6 +77,7 @@ android {
             buildConfigField("String", "OSS_BUCKET_NAME", "\"redian-produce\"")
             buildConfigField("String", "OSS_ENDPOINT", "\"https://oss.littlehotspot.com/\"")
             buildConfigField("String", "OSS_NATIVE_ENDPOINT", "\"http://oss-cn-beijing.aliyuncs.com/\"")
+            signingConfig signingConfigs.mtk
         }
     }
 
@@ -87,7 +89,8 @@ android {
             // 移除无用的resource文件
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.mtk
+            //签名配置需要设置为null 不然指定具体签名文件后，就不会根据product的变化选择不同的签名文件了
+            signingConfig null
             ndk {
                 abiFilters("armeabi")
             }
@@ -99,7 +102,7 @@ android {
             // 移除无用的resource文件
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            signingConfig null
             ndk {
                 abiFilters("armeabi")
             }
@@ -109,6 +112,7 @@ android {
     sourceSets {
         mtk{
             manifest.srcFile 'src/mtk/AndroidManifest.xml'
+//            res.srcDirs =['src/mtk/res']
         }
     }
 

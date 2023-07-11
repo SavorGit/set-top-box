@@ -286,6 +286,11 @@ public class Session {
     private int leftPopWind;
     //是否展示跑马灯窗口||0:不展示 1:展示
     private int marquee;
+    /**
+     * 0：非系统签名类设备 (机顶盒，视为通，飞利浦，王牌4K)
+     * 1：多视彩电视(htk主板)
+     */
+    private int deviceModel;
 
     private Session(Context context) {
 
@@ -1446,6 +1451,14 @@ public class Session {
     public void setMarquee(int marquee) {
         this.marquee = marquee;
         writePreference(new Pair<>(P_APP_MARQUEE,marquee));
+    }
+
+    public int getDeviceModel() {
+        return deviceModel;
+    }
+
+    public void setDeviceModel(int deviceModel) {
+        this.deviceModel = deviceModel;
     }
 
     //机顶盒轮播音量

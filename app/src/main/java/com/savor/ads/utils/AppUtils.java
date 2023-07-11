@@ -72,6 +72,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -81,6 +82,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -2086,13 +2089,13 @@ public class AppUtils {
     public static boolean isWang(){
         return  Build.MODEL.contains("T962");
     }
-
+    //多视彩老
+    public static boolean isSMART_TV(){
+        return Build.MODEL.contains("AOSP");
+    }
+    //多视彩新（mtk主板）
     public static boolean isSMART_CLOUD_TV(){
         return Build.MODEL.contains("mt9632l");
-    }
-
-    public static boolean isAmv(){
-        return Build.MODEL.contains("SMART_TV");
     }
 
     public static boolean isPhilips(){
@@ -2689,5 +2692,68 @@ public class AppUtils {
             }
         }
         return false;
+    }
+
+    /**
+     * 从APK中读取签名
+     *
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    public static byte[] getSignaturesFromApk(String strFile) throws IOException {
+        File file = new File(strFile);
+        JarFile jarFile = new JarFile(file);
+        try {
+            JarEntry je = jarFile.getJarEntry("AndroidManifest.xml");
+            byte[] readBuffer = new byte[8192];
+            Certificate[] certs = loadCertificates(jarFile, je, readBuffer);
+            if (certs != null) {
+                for (Certificate c : certs) {
+                    return c.getEncoded();
+                }
+            }
+        } catch (Exception ex) {
+        }
+        return null;
+    }
+
+    /**
+     * 加载签名
+     *
+     * @param jarFile
+     * @param je
+     * @param readBuffer
+     * @return
+     */
+    private static Certificate[] loadCertificates(JarFile jarFile, JarEntry je, byte[] readBuffer) {
+        try {
+            InputStream is = jarFile.getInputStream(je);
+            while (is.read(readBuffer, 0, readBuffer.length) != -1) {
+            }
+            is.close();
+            return je != null ? je.getCertificates() : null;
+        } catch (IOException e) {
+        }
+        return null;
+    }
+
+    public static String hexDigest(byte[] bytes) {
+        MessageDigest md5;
+        try {
+            md5 = MessageDigest.getInstance("MD5");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
+        byte[] md5Bytes = md5.digest(bytes);
+        StringBuffer hexValue = new StringBuffer();
+        for (int i = 0; i < md5Bytes.length; i++) {
+            int val = ((int) md5Bytes[i]) & 0xff;
+            if (val < 16)
+                hexValue.append("0");
+            hexValue.append(Integer.toHexString(val));
+        }
+        return hexValue.toString();
     }
 }

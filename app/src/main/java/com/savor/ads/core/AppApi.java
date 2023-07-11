@@ -190,7 +190,8 @@ public class AppApi {
             put(Action.SP_GET_STORESALE_ADS_DATA_FROM_JSON,BuildConfig.BASE_URL + "box/storesaleAds/getAdsList");
             put(Action.SP_GET_TV_MATCH_DATA_FROM_JSON,SP_BASE_URL+"small/tvList/api/stb/tv_getCommands");
             put(Action.SP_GET_TV_MATCH_DATA_FROM_GIEC_JSON,SP_BASE_URL+"small/tvListNew/api/stb/tv_getCommands");
-            put(Action.SP_GET_UPGRADE_INFO_JSON,SP_BASE_URL+"small/api/download/apk/config");
+            put(Action.SP_GET_UPGRADE_INFO_JSON,"http://"+BuildConfig.VIRTUAL_SP_HOST+":8080/small/api/download/apk/config");
+//            put(Action.SP_GET_UPGRADE_INFO_JSON,"http://"+BuildConfig.VIRTUAL_SP_HOST+":8080/small/Upgrade/stbupgrade");
             put(Action.CP_GET_HEARTBEAT_PLAIN, BuildConfig.BASE_URL + "Heartbeat/Report/index");
             put(Action.SP_POST_UPLOAD_PROGRAM_JSON, SP_BASE_URL + "small/tvList/api/stb/tv_commands");
             put(Action.SP_POST_UPLOAD_PROGRAM_GIEC_JSON, SP_BASE_URL + "small/tvListNew/api/stb/tv_commands");

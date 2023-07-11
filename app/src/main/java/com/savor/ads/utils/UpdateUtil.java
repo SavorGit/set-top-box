@@ -131,9 +131,9 @@ public class UpdateUtil{
                     updateApk(file);
                 } else if(AppUtils.isGiec()){
                     updateApk4Giec(file);
-                }else if (AppUtils.isWang()){
+                }else if (AppUtils.isWang()||AppUtils.isSMART_TV()){
                     updateApk4Trump4k(file);
-                }else if (AppUtils.isSMART_CLOUD_TV()||AppUtils.isAmv()){
+                }else if (AppUtils.isSMART_CLOUD_TV()){
                     updateApk4SmartTV(file);
                 }else if (AppUtils.isSVT()){
                     updateApk4SVT(file);
@@ -315,6 +315,7 @@ public class UpdateUtil{
         if (isflag) {
             GlobalValues.isUpdateApk = true;
             handler.post(()->ShowMessage.showToast(mContext,"新版本更新完成"));
+            Log.w(TAG, "----------安装完成----------");
 //            mContext.sendBroadcast(new Intent(ConstantValues.UPDATE_APK_ACTION));
             try {
                 Runtime.getRuntime().exec("reboot");
@@ -524,30 +525,5 @@ public class UpdateUtil{
         }
     };
 
-    OtaUpgradeUtils.ProgressListener progressListener = new OtaUpgradeUtils.ProgressListener() {
-        @Override
-        public void onProgress(int i) {
 
-        }
-
-        @Override
-        public void onVerifyFailed(int i, Object o) {
-
-        }
-
-        @Override
-        public void onCopyProgress(int i) {
-
-        }
-
-        @Override
-        public void onCopyFailed(int i, Object o) {
-
-        }
-
-        @Override
-        public void onStopProgress(int i) {
-
-        }
-    };
 }
