@@ -2085,13 +2085,13 @@ public class AppUtils {
     public static boolean isGiec(){
         return  Build.MODEL.contains("t962e");
     }
-
+    //王牌电视(购20台，已终止合作)
     public static boolean isWang(){
         return  Build.MODEL.contains("T962");
     }
-    //多视彩老
-    public static boolean isSMART_TV(){
-        return Build.MODEL.contains("AOSP");
+    //小米
+    public static boolean isMiTV(){
+        return Build.MODEL.contains("MiTV-ASTP0");
     }
     //多视彩新（mtk主板）
     public static boolean isSMART_CLOUD_TV(){
@@ -2697,7 +2697,7 @@ public class AppUtils {
     /**
      * 从APK中读取签名
      *
-     * @param file
+     * @param
      * @return
      * @throws IOException
      */

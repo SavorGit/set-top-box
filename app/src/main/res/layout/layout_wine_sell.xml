@@ -8,19 +8,19 @@
     android:layout_alignParentRight="true">
     <ImageView
         android:id="@+id/wine_img"
-        android:layout_width="200sp"
-        android:layout_height="250sp"
-        android:layout_marginLeft="200dp"
-        android:layout_marginTop="160dp"
+        android:layout_width="@dimen/layout_wine_sell_width200"
+        android:layout_height="@dimen/layout_wine_sell_height250"
+        android:layout_marginLeft="@dimen/layout_wine_sell_magrin200"
+        android:layout_marginTop="@dimen/layout_wine_sell_magrin160"
         android:src="@mipmap/drink" />
 
     <TextView
         android:id="@+id/wine_price"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="410sp"
-        android:layout_marginTop="350dp"
+        android:layout_marginLeft="@dimen/layout_wine_sell_magrin410"
+        android:layout_marginTop="@dimen/layout_wine_sell_magrin350"
         android:text="488元/瓶"
         android:textColor="@color/color_yellow2"
-        android:textSize="30sp" />
+        android:textSize="@dimen/layout_seckill_text_size30" />
 </RelativeLayout>

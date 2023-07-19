@@ -82,7 +82,7 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
 
         GSYVideoType.enableMediaCodec();
         GSYVideoType.enableMediaCodecTexture();
-        if (AppUtils.isPhilips()||AppUtils.isSMART_CLOUD_TV()||AppUtils.isSMART_TV()){
+        if (AppUtils.isPhilips()||AppUtils.isSMART_CLOUD_TV()||AppUtils.isMiTV()){
             GSYVideoType.setRenderType(GSYVideoType.SUFRACE);
         }
         if (AppUtils.isSMART_CLOUD_TV()){

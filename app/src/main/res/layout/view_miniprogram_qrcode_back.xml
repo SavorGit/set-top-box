@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/mini_program_tip1"
-            android:textSize="25dp"/>
+            android:textSize="@dimen/win_scan_tip_text_size"/>
     </LinearLayout>
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -37,8 +37,8 @@
         android:layout_gravity="center">
         <ImageView
             android:id="@+id/iv_mini_program_qrcode_back"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
+            android:layout_width="@dimen/win_qrcode_size"
+            android:layout_height="@dimen/win_qrcode_size"
             android:scaleType="fitCenter"
             android:layout_gravity="center"/>
     </RelativeLayout>

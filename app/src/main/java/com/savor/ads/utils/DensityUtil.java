@@ -2,8 +2,10 @@ package com.savor.ads.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
@@ -25,7 +27,12 @@ public class DensityUtil {
      * @return
      */
     public static int dip2px(Context context, float dpValue) {
-        final float scale = context.getResources().getDisplayMetrics().density;
+//        Configuration config = context.getResources().getConfiguration();
+//        int smallestScreenWidth = config.smallestScreenWidthDp;
+         float scale = context.getResources().getDisplayMetrics().density;
+        if (scale>1.5){
+            scale = 1.5f;
+        }
         return (int) (dpValue * scale + 0.5f);
     }
 

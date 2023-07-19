@@ -240,15 +240,15 @@
         android:layout_alignParentBottom="true"
         android:visibility="gone"
         android:orientation="horizontal"
-        android:layout_marginLeft="205sp"
-        android:layout_marginRight="25sp"
-        android:layout_marginBottom="25dp"
+        android:layout_marginLeft="@dimen/activity_marquee_margin_left"
+        android:layout_marginRight="@dimen/activity_marquee_margin_right"
+        android:layout_marginBottom="@dimen/activity_marquee_margin_bottom"
         android:background="@mipmap/bottom_caption_bg">
         <TextView
             android:id="@+id/caption_tip"
-            android:textSize="25sp"
-            android:paddingLeft="70dp"
-            android:paddingTop="38sp"
+            android:textSize="@dimen/activity_marquee_text_size"
+            android:paddingLeft="@dimen/activity_marquee_padding_left1"
+            android:paddingTop="@dimen/activity_marquee_padding_top1"
             android:textColor="@color/color_black"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
@@ -257,8 +257,8 @@
             android:layout_toRightOf="@id/caption_tip"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="30dp"
-            app:mvTextSize="25sp"
+            android:paddingTop="@dimen/activity_marquee_padding_top2"
+            app:mvTextSize="@dimen/activity_marquee_text_size"
             app:mvAnimDuration="1000"
             app:mvDirection="bottom_to_top"
             app:mvInterval="5000"
@@ -271,12 +271,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="80sp"
+        android:layout_marginLeft="@dimen/layout_seckill_margin10"
+        android:layout_marginTop="@dimen/layout_seckill_margin2"
         android:background="@mipmap/large_screen_seckill_bg">
         <LinearLayout
             android:orientation="vertical"
-            android:layout_marginTop="20sp"
+            android:layout_marginTop="@dimen/layout_seckill_margin1"
             android:gravity="center"
             android:layout_centerHorizontal="true"
             android:layout_width="wrap_content"
@@ -285,7 +285,7 @@
                 android:id="@+id/seckill_countdown_front"
                 android:text=""
                 android:layout_centerHorizontal="true"
-                android:textSize="10sp"
+                android:textSize="@dimen/layout_seckill_text_size1"
                 android:textColor="@color/color_red"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
@@ -294,8 +294,8 @@
                 android:text=""
                 android:maxLength="8"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="2sp"
-                android:textSize="15sp"
+                android:layout_marginTop="@dimen/layout_seckill_margin8"
+                android:textSize="@dimen/layout_seckill_text_size2"
                 android:textColor="@color/color_black"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
@@ -303,38 +303,38 @@
                 android:id="@+id/seckill_gif_front"
                 android:layout_below="@+id/seckill_countdown_front"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="@dimen/layout_seckill_margin3"
                 android:src="@mipmap/promotion_head"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
         <View
             android:id="@+id/seckill_bg_header_line_front"
-            android:layout_marginTop="85sp"
+            android:layout_marginTop="@dimen/layout_seckill_margin4"
             android:layout_centerHorizontal="true"
-            android:layout_width="80sp"
-            android:layout_height="1sp"/>
+            android:layout_width="@dimen/layout_seckill_margin2"
+            android:layout_height="@dimen/layout_seckill_margin5"/>
         <ImageView
             android:id="@+id/seckill_goods_front"
-            android:layout_width="130sp"
-            android:layout_height="150sp"
+            android:layout_width="@dimen/layout_seckill_width1"
+            android:layout_height="@dimen/layout_seckill_height1"
             android:scaleType="fitXY"
             android:layout_below="@+id/seckill_bg_header_line_front"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="5dp"/>
+            android:layout_marginTop="@dimen/layout_seckill_margin3"/>
         <RelativeLayout
             android:id="@+id/jd_price_front_layout"
             android:layout_below="@+id/seckill_goods_front"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/layout_seckill_margin9"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <View
                 android:id="@+id/goods_jd_line_front"
                 android:background="#999999"
                 android:layout_centerInParent="true"
-                android:layout_width="120sp"
-                android:layout_height="1sp"/>
+                android:layout_width="@dimen/layout_seckill_width2"
+                android:layout_height="@dimen/layout_seckill_margin5"/>
             <TextView
                 android:id="@+id/goods_jd_price_front"
                 android:text=""
@@ -347,7 +347,7 @@
             android:id="@+id/goods_reduction_front_layout"
             android:layout_below="@+id/jd_price_front_layout"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="@dimen/layout_seckill_margin7"
             android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
@@ -355,7 +355,7 @@
                 android:id="@+id/goods_reduction_name_front"
                 android:text=""
                 android:textStyle="bold"
-                android:textSize="18sp"
+                android:textSize="@dimen/layout_seckill_text_size3"
                 android:layout_gravity="center_horizontal"
                 android:textColor="@color/color_white"
                 android:layout_width="wrap_content"
@@ -364,7 +364,7 @@
                 android:id="@+id/goods_reduction_price_front"
                 android:text=""
                 android:textStyle="bold"
-                android:textSize="22sp"
+                android:textSize="@dimen/layout_seckill_text_size4"
                 android:layout_gravity="center_horizontal"
                 android:textColor="@color/color_white"
                 android:layout_width="wrap_content"
@@ -373,21 +373,21 @@
         <RelativeLayout
             android:id="@+id/goods_price_front_layout"
             android:layout_below="@+id/jd_price_front_layout"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="@dimen/layout_seckill_margin30"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <pl.droidsonroids.gif.GifImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10sp"
+                android:layout_marginLeft="@dimen/layout_seckill_margin7"
                 android:src="@mipmap/promotion_price" />
             <TextView
                 android:id="@+id/goods_seckill_price_front"
                 android:text=""
                 android:textStyle="bold"
-                android:textSize="30sp"
+                android:textSize="@dimen/layout_seckill_text_size30"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="50sp"
+                android:layout_marginLeft="@dimen/layout_seckill_margin55"
                 android:textColor="@color/color_white"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
@@ -396,8 +396,9 @@
             android:id="@+id/goods_buy_tip_front"
             android:layout_below="@+id/goods_price_front_layout"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="@dimen/layout_seckill_margin20"
             android:text="联系服务员即可购买"
+            android:textSize="@dimen/layout_seckill_text_size2"
             android:textColor="@color/color_black"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
@@ -408,12 +409,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="80sp"
+        android:layout_marginLeft="@dimen/layout_seckill_margin10"
+        android:layout_marginTop="@dimen/layout_seckill_margin2"
         android:background="@mipmap/large_screen_seckill_bg">
         <LinearLayout
             android:orientation="vertical"
-            android:layout_marginTop="20sp"
+            android:layout_marginTop="@dimen/layout_seckill_margin1"
             android:gravity="center"
             android:layout_centerHorizontal="true"
             android:layout_width="wrap_content"
@@ -422,7 +423,7 @@
                 android:id="@+id/seckill_countdown_back"
                 android:text=""
                 android:layout_centerHorizontal="true"
-                android:textSize="10sp"
+                android:textSize="@dimen/layout_seckill_text_size1"
                 android:textColor="@color/color_red"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
@@ -431,8 +432,8 @@
                 android:text=""
                 android:maxLength="8"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="2sp"
-                android:textSize="15sp"
+                android:layout_marginTop="@dimen/layout_seckill_margin8"
+                android:textSize="@dimen/layout_seckill_text_size2"
                 android:textColor="@color/color_black"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
@@ -440,38 +441,38 @@
                 android:id="@+id/seckill_gif_back"
                 android:layout_below="@+id/seckill_countdown_back"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="@dimen/layout_seckill_margin3"
                 android:src="@mipmap/promotion_head"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
         <View
             android:id="@+id/seckill_bg_header_line_back"
-            android:layout_marginTop="85sp"
+            android:layout_marginTop="@dimen/layout_seckill_margin4"
             android:layout_centerHorizontal="true"
-            android:layout_width="80sp"
-            android:layout_height="1sp"/>
+            android:layout_width="@dimen/layout_seckill_margin2"
+            android:layout_height="@dimen/layout_seckill_margin5"/>
         <ImageView
             android:id="@+id/seckill_goods_back"
-            android:layout_width="130sp"
-            android:layout_height="150sp"
+            android:layout_width="@dimen/layout_seckill_width1"
+            android:layout_height="@dimen/layout_seckill_height1"
             android:scaleType="fitXY"
             android:layout_below="@+id/seckill_bg_header_line_back"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="5dp" />
+            android:layout_marginTop="@dimen/layout_seckill_margin3" />
         <RelativeLayout
             android:id="@+id/jd_price_back_layout"
             android:layout_below="@+id/seckill_goods_back"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/layout_seckill_margin9"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <View
                 android:id="@+id/goods_jd_line_back"
                 android:background="#999999"
                 android:layout_centerInParent="true"
-                android:layout_width="120sp"
-                android:layout_height="1sp"/>
+                android:layout_width="@dimen/layout_seckill_width2"
+                android:layout_height="@dimen/layout_seckill_margin5"/>
             <TextView
                 android:id="@+id/goods_jd_price_back"
                 android:text="京东价"
@@ -484,7 +485,7 @@
             android:id="@+id/goods_reduction_back_layout"
             android:layout_below="@+id/jd_price_back_layout"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="@dimen/layout_seckill_margin7"
             android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
@@ -492,7 +493,7 @@
                 android:id="@+id/goods_reduction_name_back"
                 android:text=""
                 android:textStyle="bold"
-                android:textSize="18sp"
+                android:textSize="@dimen/layout_seckill_text_size3"
                 android:layout_gravity="center_horizontal"
                 android:textColor="@color/color_white"
                 android:layout_width="wrap_content"
@@ -501,7 +502,7 @@
                 android:id="@+id/goods_reduction_price_back"
                 android:text=""
                 android:textStyle="bold"
-                android:textSize="22sp"
+                android:textSize="@dimen/layout_seckill_text_size4"
                 android:layout_gravity="center_horizontal"
                 android:textColor="@color/color_white"
                 android:layout_width="wrap_content"
@@ -510,21 +511,21 @@
         <RelativeLayout
             android:id="@+id/goods_price_back_layout"
             android:layout_below="@+id/jd_price_back_layout"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="@dimen/layout_seckill_margin30"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <pl.droidsonroids.gif.GifImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10sp"
+                android:layout_marginLeft="@dimen/layout_seckill_margin7"
                 android:src="@mipmap/promotion_price" />
             <TextView
                 android:id="@+id/goods_seckill_price_back"
                 android:text=""
                 android:textStyle="bold"
-                android:textSize="30sp"
+                android:textSize="@dimen/layout_seckill_text_size30"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="50sp"
+                android:layout_marginLeft="@dimen/layout_seckill_margin55"
                 android:textColor="@color/color_white"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
@@ -534,8 +535,9 @@
             android:id="@+id/goods_buy_tip_back"
             android:layout_below="@+id/goods_price_back_layout"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="@dimen/layout_seckill_margin20"
             android:text="联系服务员即可购买"
+            android:textSize="@dimen/layout_seckill_text_size2"
             android:textColor="@color/color_black"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>

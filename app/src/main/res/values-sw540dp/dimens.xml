@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--适配屏幕密度320dpi-->
+<resources>
+    <dimen name="base_dp">540dp</dimen>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <!--跑马灯相关页-->
+    <dimen name="activity_marquee_text_size">18.75dp</dimen>
+    <dimen name="activity_marquee_margin_left">153.75dp</dimen>
+    <dimen name="activity_marquee_margin_right">18.75dp</dimen>
+    <dimen name="activity_marquee_margin_bottom">18.75dp</dimen>
+    <dimen name="activity_marquee_padding_left1">52.5dp</dimen>
+    <dimen name="activity_marquee_padding_top1">29.5dp</dimen>
+    <dimen name="activity_marquee_padding_top2">21.5dp</dimen>
+    <!--扫码投屏窗口相关-->
+    <dimen name="win_scan_tip_text_size">18.75dp</dimen>
+    <dimen name="win_qrcode_logo_size">18.75dp</dimen>
+    <dimen name="win_qrcode_size">112.5dp</dimen>
+    <!--大屏左侧灯笼秒杀窗口相关-->
+    <dimen name="layout_seckill_margin1">15dp</dimen>
+    <dimen name="layout_seckill_margin2">60dp</dimen>
+    <dimen name="layout_seckill_margin3">3.75dp</dimen>
+    <dimen name="layout_seckill_margin4">63.75dp</dimen>
+    <dimen name="layout_seckill_margin5">0.75dp</dimen>
+    <dimen name="layout_seckill_margin6">7.5dp</dimen>
+    <dimen name="layout_seckill_margin7">11.25dp</dimen>
+    <dimen name="layout_seckill_margin8">1.5dp</dimen>
+    <dimen name="layout_seckill_margin9">4.5dp</dimen>
+    <dimen name="layout_seckill_margin10">13.5dp</dimen>
+    <dimen name="layout_seckill_margin20">15dp</dimen>
+    <dimen name="layout_seckill_margin30">22.5dp</dimen>
+    <dimen name="layout_seckill_margin55">41.25dp</dimen>
+    <dimen name="layout_seckill_width1">97.5dp</dimen>
+    <dimen name="layout_seckill_width2">90dp</dimen>
+    <dimen name="layout_seckill_height1">112.5dp</dimen>
+    <dimen name="layout_seckill_text_size1">7.5dp</dimen>
+    <dimen name="layout_seckill_text_size2">11.25dp</dimen>
+    <dimen name="layout_seckill_text_size3">13.5dp</dimen>
+    <dimen name="layout_seckill_text_size4">16.5dp</dimen>
+    <dimen name="layout_seckill_text_size30">22.5dp</dimen>
+    <!--大屏右侧本店有售和浮层-->
+    <dimen name="layout_wine_sell_magrin200">150dp</dimen>
+    <dimen name="layout_wine_sell_magrin160">120dp</dimen>
+    <dimen name="layout_wine_sell_magrin410">307.5dp</dimen>
+    <dimen name="layout_wine_sell_magrin350">262.5dp</dimen>
+    <dimen name="layout_wine_sell_width200">150dp</dimen>
+    <dimen name="layout_wine_sell_height250">187.5dp</dimen>
+    <!--信息预览窗口-->
+    <dimen name="dialog_box_info_size18">13.5dp</dimen>
+    <!--播放列表窗口-->
+    <dimen name="dialog_play_list_size26">19.5dp</dimen>
+    <dimen name="dialog_play_list_size24">18dp</dimen>
+    <dimen name="dialog_play_list_size22">16.5dp</dimen>
+</resources>

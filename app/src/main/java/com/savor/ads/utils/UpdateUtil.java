@@ -131,16 +131,18 @@ public class UpdateUtil{
                     updateApk(file);
                 } else if(AppUtils.isGiec()){
                     updateApk4Giec(file);
-                }else if (AppUtils.isWang()||AppUtils.isSMART_TV()){
+                }else if (AppUtils.isWang()){
                     updateApk4Trump4k(file);
                 }else if (AppUtils.isSMART_CLOUD_TV()){
-                    updateApk4SmartTV(file);
+                    updateSystemSignApk(file);
                 }else if (AppUtils.isSVT()){
                     updateApk4SVT(file);
                 }else if (AppUtils.isPhilips()){
                     updateApk4Philips(file);
+                }else if (AppUtils.isMiTV()){
+                    updateApk4Mi(file);
                 }else{
-                    updateApk4SmartTV(file);
+                    updateSystemSignApk(file);
                 }
             }
         }
@@ -327,7 +329,7 @@ public class UpdateUtil{
     }
     //多视彩，智慧云
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public static void updateApk4SmartTV(File file) {
+    public static void updateSystemSignApk(File file) {
         installPackage(file.getAbsoluteFile());
     }
 
@@ -506,6 +508,18 @@ public class UpdateUtil{
         intent.putExtra("packageName", "com.savor.ads");
         intent.putExtra("activityName", "com.savor.ads.activity.MainActivity");
         mContext.sendBroadcast(intent);
+    }
+
+    public void updateApk4Mi(File file){
+        try {
+            Bundle extras = new Bundle();
+            extras.putString("packageURI", file.getAbsolutePath());
+            extras.putBoolean("customDevice", true);
+            mContext.getContentResolver().call(Uri.parse("content://com.mitv.security.permission"),
+                    "installPackage", "com.savor.ads", extras);
+        } catch (Exception e) {
+            Log.e(TAG, "fail to call method installPackage", e);
+        }
     }
 
     ApiRequestListener apiRequestListener = new ApiRequestListener() {
