@@ -9,14 +9,14 @@
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="10dp">
+        android:layout_marginLeft="@dimen/dialog_redenvelope_margin1"
+        android:layout_marginRight="@dimen/dialog_redenvelope_margin1"
+        android:layout_marginTop="@dimen/dialog_redenvelope_margin2">
 
         <ImageView
             android:id="@+id/iv_scan_wx_avatar_icon"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
+            android:layout_width="@dimen/dialog_redenvelope_width1"
+            android:layout_height="@dimen/dialog_redenvelope_height1"
             android:layout_centerVertical="true"
             android:src="@mipmap/wxavatar"
             android:scaleType="fitXY"/>
@@ -30,29 +30,29 @@
             android:ellipsize="end"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@id/iv_scan_wx_avatar_icon"
-            android:layout_marginLeft="5dp"
+            android:layout_marginLeft="@dimen/dialog_redenvelope_margin3"
             android:textColor="@color/color_white"
-            android:textSize="20sp"/>
+            android:textSize="@dimen/dialog_redenvelope_textsize1"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="发了一个电视红包"
             android:layout_toRightOf="@id/tv_scan_wx_nickname"
-            android:layout_marginLeft="5dp"
+            android:layout_marginLeft="@dimen/dialog_redenvelope_margin3"
             android:layout_centerVertical="true"
             android:textColor="@color/color_white"
-            android:textSize="20sp"/>
+            android:textSize="@dimen/dialog_redenvelope_textsize1"/>
         <TextView
             android:id="@+id/tv_scan_wx_countdown"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:text="70"
             android:gravity="center"
-            android:textSize="20dp"
+            android:textSize="@dimen/dialog_redenvelope_textsize1"
             android:textColor="@color/color_white"
             android:textStyle="bold"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="@dimen/dialog_redenvelope_width2"
+            android:layout_height="@dimen/dialog_redenvelope_height2"
             android:background="@drawable/bg_shape_white_line"/>
     </RelativeLayout>
 
@@ -61,21 +61,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="8sp"
+        android:layout_marginTop="@dimen/dialog_redenvelope_margin5"
         android:lines="1"
         android:text="红包来啦"
         android:typeface="serif"
         android:textColor="#f6edc4"
-        android:textSize="45sp" />
+        android:textSize="@dimen/dialog_redenvelope_textsize2" />
 
     <ImageView
         android:id="@+id/iv_scan_qrcode"
         android:layout_gravity="center"
-        android:layout_marginTop="15dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginTop="@dimen/dialog_redenvelope_margin4"
+        android:layout_marginBottom="@dimen/dialog_redenvelope_margin2"
         android:background="@color/color_white"
-        android:layout_width="300dp"
-        android:layout_height="300dp" />
+        android:layout_width="@dimen/dialog_redenvelope_img_side1"
+        android:layout_height="@dimen/dialog_redenvelope_img_side1" />
     <TextView
         android:id="@+id/red_envelope_tip"
         android:layout_width="wrap_content"
@@ -85,7 +85,7 @@
         android:text="靓照上电视 大屏分享更快乐"
         android:typeface="serif"
         android:layout_gravity="center"
-        android:paddingBottom="10dp"
+        android:paddingBottom="@dimen/dialog_redenvelope_margin2"
         android:textColor="#f6edc4"
-        android:textSize="35sp"/>
+        android:textSize="@dimen/dialog_redenvelope_textsize3"/>
 </LinearLayout>

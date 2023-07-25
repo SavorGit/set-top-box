@@ -1,8 +1,8 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval">
     <size
-        android:width="97dp"
-        android:height="97dp" />
-    <stroke android:width="2dp"
+        android:width="@dimen/activity_projection_img_side8"
+        android:height="@dimen/activity_projection_img_side8" />
+    <stroke android:width="@dimen/activity_projection_margin6"
         android:color="#EDEDED"/>
 </shape>

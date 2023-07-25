@@ -51,4 +51,56 @@
     <dimen name="dialog_play_list_size26">19.5dp</dimen>
     <dimen name="dialog_play_list_size24">18dp</dimen>
     <dimen name="dialog_play_list_size22">16.5dp</dimen>
+    <!--该谁喝酒游戏-->
+    <dimen name="activity_drink_play_margin1">45dp</dimen>
+    <dimen name="activity_drink_play_width1">187.5dp</dimen>
+    <dimen name="activity_drink_play_height1">187.5dp</dimen>
+    <dimen name="activity_drink_play_width2">61.5dp</dimen>
+    <dimen name="activity_drink_play_height2">61.5dp</dimen>
+    <dimen name="activity_drink_play_textsize1">30dp</dimen>
+    <dimen name="activity_drink_play_textsize2">25.5dp</dimen>
+    <!--该谁喝酒自定义布局-->
+    <dimen name="layout_panel_padding1">60dp</dimen>
+    <dimen name="layout_panel_margin1">18.75dp</dimen>
+    <dimen name="layout_panel_width1">93dp</dimen>
+    <dimen name="layout_panel_height1">93dp</dimen>
+    <dimen name="layout_panel_margin2">22.5dp</dimen>
+    <!--用户发红包窗口-->
+    <dimen name="dialog_redenvelope_margin1">15dp</dimen>
+    <dimen name="dialog_redenvelope_margin2">7.5dp</dimen>
+    <dimen name="dialog_redenvelope_width1">52.5dp</dimen>
+    <dimen name="dialog_redenvelope_height1">52.5dp</dimen>
+    <dimen name="dialog_redenvelope_margin3">3.75dp</dimen>
+    <dimen name="dialog_redenvelope_textsize1">15dp</dimen>
+    <dimen name="dialog_redenvelope_width2">45dp</dimen>
+    <dimen name="dialog_redenvelope_height2">45dp</dimen>
+    <dimen name="dialog_redenvelope_textsize2">33.75dp</dimen>
+    <dimen name="dialog_redenvelope_img_side1">225dp</dimen>
+    <dimen name="dialog_redenvelope_margin4">11.25dp</dimen>
+    <dimen name="dialog_redenvelope_textsize3">26.25dp</dimen>
+    <dimen name="dialog_redenvelope_margin5">6dp</dimen>
+    <!--投屏页面相关-->
+    <dimen name="activity_projection_margin1">15dp</dimen>
+    <dimen name="activity_projection_padding1">7.5dp</dimen>
+    <dimen name="activity_projection_textsize1">18dp</dimen>
+    <dimen name="activity_projection_img_side1">27.75dp</dimen>
+    <dimen name="activity_projection_margin2">22.5dp</dimen>
+    <dimen name="activity_projection_textsize2">30dp</dimen>
+    <dimen name="activity_projection_img_side2">60dp</dimen>
+    <dimen name="activity_projection_img_side3">37.50dp</dimen>
+    <dimen name="activity_projection_width1">210dp</dimen>
+    <dimen name="activity_projection_height1">82.5dp</dimen>
+    <dimen name="activity_projection_margin3">6dp</dimen>
+    <dimen name="activity_projection_img_side4">135dp</dimen>
+    <dimen name="activity_projection_margin4">37.5dp</dimen>
+    <dimen name="activity_projection_margin5">18.75dp</dimen>
+    <dimen name="activity_projection_img_side5">112.5dp</dimen>
+    <dimen name="activity_projection_textsize3">11.25dp</dimen>
+    <dimen name="activity_projection_margin6">1.5dp</dimen>
+    <dimen name="activity_projection_img_side6">75dp</dimen>
+    <dimen name="activity_projection_img_side7">71.25dp</dimen>
+    <dimen name="activity_projection_img_side8">72.75dp</dimen>
+    <dimen name="activity_projection_img_side9">90dp</dimen>
+    <dimen name="activity_projection_textsize4">31.5dp</dimen>
+    <dimen name="activity_projection_margin7">3.75dp</dimen>
 </resources>

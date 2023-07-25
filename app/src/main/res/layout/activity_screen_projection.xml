@@ -37,21 +37,21 @@
             android:id="@+id/waiter_welcome_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="@dimen/activity_projection_margin1"
             android:background="@mipmap/waiter_bg"
             android:orientation="horizontal">
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="30dp"
+                android:layout_marginLeft="@dimen/activity_projection_margin2"
                 android:background="@drawable/bg_shape_welcome_head">
                 <ImageView
                     android:id="@+id/waiter_icon_welcome_tip"
                     android:src="@mipmap/wxavatar"
                     android:layout_centerInParent="true"
-                    android:layout_width="95dp"
-                    android:layout_height="95dp" />
+                    android:layout_width="@dimen/activity_projection_img_side7"
+                    android:layout_height="@dimen/activity_projection_img_side7" />
             </RelativeLayout>
 
             <TextView
@@ -60,9 +60,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="刘斌为您服务"
-                android:layout_marginLeft="10dp"
+                android:layout_marginLeft="@dimen/activity_projection_padding1"
                 android:textColor="@color/color_white"
-                android:textSize="37dp"/>
+                android:textSize="@dimen/activity_projection_img_side1"/>
         </LinearLayout>
         <LinearLayout
             android:id="@+id/waiter_layout"
@@ -70,7 +70,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="100dp"
+            android:layout_marginTop="@dimen/activity_projection_img_side6"
             android:orientation="vertical">
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -82,8 +82,8 @@
                     android:id="@+id/waiter_icon_tip"
                     android:src="@mipmap/wxavatar"
                     android:layout_gravity="center"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp" />
+                    android:layout_width="@dimen/activity_projection_img_side9"
+                    android:layout_height="@dimen/activity_projection_img_side9" />
             </RelativeLayout>
 
             <TextView
@@ -92,25 +92,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="老六"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="@dimen/activity_projection_padding1"
                 android:textColor="#EC7A76"
-                android:textSize="37dp"/>
+                android:textSize="@dimen/activity_projection_img_side1"/>
         </LinearLayout>
         <TextView
             android:id="@+id/project_words"
-            android:textSize="42dp"
+            android:textSize="@dimen/activity_projection_textsize4"
             android:textColor="@color/color_light"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="40sp"
+            android:layout_marginBottom="@dimen/activity_projection_textsize2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <TextView
             android:id="@+id/welcome_words"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
+            android:paddingLeft="@dimen/activity_projection_margin7"
+            android:paddingRight="@dimen/activity_projection_margin7"
             android:gravity="center"
             android:shadowRadius="1"
             android:shadowDx="5"
@@ -166,12 +166,12 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_margin="20dp"
+        android:layout_margin="@dimen/activity_projection_margin1"
         android:background="@drawable/bg_round_translucence"
-        android:padding="10dp"
+        android:padding="@dimen/activity_projection_padding1"
         android:visibility="gone"
         android:textColor="@android:color/white"
-        android:textSize="24sp"/>
+        android:textSize="@dimen/activity_projection_textsize1"/>
     <LinearLayout
         android:id="@+id/wx_projection_tip_layout"
         android:layout_alignParentRight="true"
@@ -184,45 +184,45 @@
             android:id="@+id/wx_projection_icon_tip"
             android:src="@mipmap/wxavatar"
             android:layout_gravity="center_vertical"
-            android:layout_width="37dp"
-            android:layout_height="37dp" />
+            android:layout_width="@dimen/activity_projection_img_side1"
+            android:layout_height="@dimen/activity_projection_img_side1" />
         <TextView
             android:id="@+id/wx_projection_txt_tip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="游客"
-            android:layout_marginTop="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginBottom="20dp"
-            android:layout_marginLeft="10dp"
+            android:layout_marginTop="@dimen/activity_projection_margin1"
+            android:layout_marginRight="@dimen/activity_projection_margin1"
+            android:layout_marginBottom="@dimen/activity_projection_margin1"
+            android:layout_marginLeft="@dimen/activity_projection_padding1"
             android:textColor="@color/color_white"
-            android:textSize="37dp"/>
+            android:textSize="@dimen/activity_projection_img_side1"/>
     </LinearLayout>
     <TextView
         android:id="@+id/tv_project_countdow_tip"
         android:visibility="gone"
         android:layout_alignParentTop="true"
-        android:layout_margin="30dp"
+        android:layout_margin="@dimen/activity_projection_margin2"
         android:gravity="center"
-        android:textSize="40dp"
+        android:textSize="@dimen/activity_projection_textsize2"
         android:textColor="@color/color_white"
         android:textStyle="bold"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="@dimen/activity_projection_img_side2"
+        android:layout_height="@dimen/activity_projection_img_side2"
         android:background="@drawable/bg_shape_white_line"/>
     <ImageView
         android:id="@+id/iv_mute"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="20dp"
+        android:layout_width="@dimen/activity_projection_img_side3"
+        android:layout_height="@dimen/activity_projection_img_side3"
+        android:layout_marginLeft="@dimen/activity_projection_margin1"
+        android:layout_marginTop="@dimen/activity_projection_margin1"
         android:src="@mipmap/ic_mute"
         android:visibility="gone"/>
 
     <RelativeLayout
         android:id="@+id/rl_volume_view"
-        android:layout_width="280dp"
-        android:layout_height="110dp"
+        android:layout_width="@dimen/activity_projection_width1"
+        android:layout_height="@dimen/activity_projection_height1"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:background="@mipmap/bg_volume_big"
@@ -230,12 +230,12 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="@dimen/activity_projection_textsize2"
             android:layout_centerVertical="true"
             android:background="@mipmap/bg_volume_center"
             android:orientation="horizontal"
-            android:paddingLeft="20dp"
-            android:paddingRight="10dp">
+            android:paddingLeft="@dimen/activity_projection_margin1"
+            android:paddingRight="@dimen/activity_projection_padding1">
 
             <RelativeLayout
                 android:layout_width="0dp"
@@ -257,7 +257,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginRight="8dp"
+                    android:layout_marginRight="@dimen/activity_projection_margin3"
                     android:text="50"
                     android:textColor="@android:color/white"/>
             </RelativeLayout>
@@ -276,11 +276,11 @@
     </RelativeLayout>
     <RelativeLayout
         android:id="@+id/price_layout"
-        android:layout_width="180dp"
-        android:layout_height="180dp"
+        android:layout_width="@dimen/activity_projection_img_side4"
+        android:layout_height="@dimen/activity_projection_img_side4"
         android:layout_alignParentBottom="true"
-        android:layout_marginLeft="20dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="@dimen/activity_projection_margin1"
+        android:layout_marginBottom="@dimen/activity_projection_margin1"
         android:visibility="gone"
         android:background="@mipmap/price_bg">
         <TextView
@@ -289,23 +289,23 @@
             android:layout_height="wrap_content"
             android:text=""
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="@dimen/activity_projection_margin4"
             android:textColor="@color/color_white"
-            android:textSize="40dp"
+            android:textSize="@dimen/activity_projection_textsize2"
             android:visibility="visible"/>
 
     </RelativeLayout>
     <RelativeLayout
         android:id="@+id/store_sale_layout"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="30dp"
-        android:layout_marginRight="25dp"
+        android:layout_marginTop="@dimen/activity_projection_margin2"
+        android:layout_marginRight="@dimen/activity_projection_margin5"
         android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
         <ImageView
-            android:layout_width="150dp"
-            android:layout_height="150dp"
+            android:layout_width="@dimen/activity_projection_img_side5"
+            android:layout_height="@dimen/activity_projection_img_side5"
             android:src="@mipmap/store_sale"/>
     </RelativeLayout>
     <RelativeLayout
@@ -318,19 +318,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="分享 | 热点投屏精选"
-            android:layout_marginLeft="50dp"
-            android:layout_marginTop="30dp"
+            android:layout_marginLeft="@dimen/activity_projection_margin4"
+            android:layout_marginTop="@dimen/activity_projection_margin2"
             android:textStyle="bold"
             android:textColor="@color/color_white"
-            android:textSize="30dp"/>
+            android:textSize="@dimen/activity_projection_margin2"/>
     </RelativeLayout>
     <LinearLayout
         android:id="@+id/projection_qrcode_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginLeft="30dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="@dimen/activity_projection_margin2"
+        android:layout_marginBottom="@dimen/activity_projection_margin1"
         android:visibility="gone"
         android:background="@mipmap/bg_qrcode"
         android:orientation="vertical">
@@ -340,17 +340,17 @@
             android:layout_gravity="center"
             android:text="@string/mini_program_tip9"
             android:textColor="#e61f18"
-            android:textSize="15dp"/>
+            android:textSize="@dimen/activity_projection_textsize3"/>
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="@dimen/activity_projection_margin6"
             android:gravity="center"
             android:layout_gravity="center">
             <ImageView
                 android:id="@+id/projection_qrcode"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="@dimen/activity_projection_img_side6"
+                android:layout_height="@dimen/activity_projection_img_side6"
                 android:scaleType="fitCenter"
                 android:layout_gravity="center"/>
         </RelativeLayout>
