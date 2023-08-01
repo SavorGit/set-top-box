@@ -2,6 +2,8 @@ package com.savor.ads.utils;
 
 import android.text.TextUtils;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -93,9 +95,65 @@ public class IPAddressUtils {
                 e.printStackTrace();
             }
         }
+        if (TextUtils.isEmpty(result)){
+            result = getEthernetIpByIpCommand();
+        }
         return result;
     }
 
+    public static String getEthernetIpByIpCommand(){
+        String command = "ip a show eth0";
+        Process process = null;
+        InputStream is = null;
+        BufferedReader reader = null;
+        String result = "";
+        try {
+            process = Runtime.getRuntime().exec(command);
+            is = process.getInputStream();
+            reader = new BufferedReader(new InputStreamReader(is));
+            //保存读取一行的变量
+            String str;
+            while ((str=reader.readLine())!=null){
+                if (str.contains("inet")&&str.contains("brd")){
+                    break;
+                }
+            }
+            if (!TextUtils.isEmpty(str)) {
+                result = StringUtils.substringBetween(str,"inet","brd").trim();
+            }
+            if (!TextUtils.isEmpty(result)&&result.contains("/")){
+                String[] ipArray = result.split("/");
+                result = ipArray[0];
+            }
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                if (process != null) {
+                    process.destroy();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
     /**
      * 获取Wlan IP
      *
@@ -122,6 +180,63 @@ public class IPAddressUtils {
                 line = reader.readLine();
             }
         } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                if (process != null) {
+                    process.destroy();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (TextUtils.isEmpty(result)){
+            result = getWlanIpByIpCommand();
+        }
+        return result;
+    }
+
+    public static String getWlanIpByIpCommand(){
+        String command = "ip a show wlan0";
+        Process process = null;
+        InputStream is = null;
+        BufferedReader reader = null;
+        String result = "";
+        try {
+            process = Runtime.getRuntime().exec(command);
+            is = process.getInputStream();
+            reader = new BufferedReader(new InputStreamReader(is));
+            //保存读取一行的变量
+            String str;
+            while ((str=reader.readLine())!=null){
+                if (str.contains("inet")&&str.contains("brd")){
+                    break;
+                }
+            }
+            if (!TextUtils.isEmpty(str)) {
+                result = StringUtils.substringBetween(str,"inet","brd").trim();
+            }
+            if (!TextUtils.isEmpty(result)&&result.contains("/")){
+                String[] ipArray = result.split("/");
+                result = ipArray[0];
+            }
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             if (reader != null) {
