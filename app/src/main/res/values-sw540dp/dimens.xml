@@ -103,4 +103,10 @@
     <dimen name="activity_projection_img_side9">90dp</dimen>
     <dimen name="activity_projection_textsize4">31.5dp</dimen>
     <dimen name="activity_projection_margin7">3.75dp</dimen>
+    <!--投屏浮窗列表-->
+    <dimen name="dialog_thumbnail_padding1">7.5dp</dimen>
+    <dimen name="dialog_thumbnail_margin1">1.5dp</dimen>
+    <dimen name="dialog_thumbnail_side1">45dp</dimen>
+    <dimen name="dialog_thumbnail_size1">11.25dp</dimen>
+    <dimen name="dialog_thumbnail_height1">0.37dp</dimen>
 </resources>
