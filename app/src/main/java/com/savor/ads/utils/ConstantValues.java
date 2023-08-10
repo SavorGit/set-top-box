@@ -199,7 +199,7 @@ public class ConstantValues {
 
     /**节目单-本地生活*/
     public static final String LOCAL_LIFE= "life";
-    /**节目单-酒水平台广告*/
+    /**节目单-酒水平台广告-本店有售*/
     public static final String STORE_SALE= "storesale";
 
     /**百度广告类型**/

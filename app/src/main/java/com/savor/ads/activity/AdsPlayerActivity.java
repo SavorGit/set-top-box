@@ -999,7 +999,9 @@ public class AdsPlayerActivity<T extends MediaLibBean> extends BaseActivity impl
             int marquee = mSession.getMarquee();
             String type = libBean.getType();
             if ((leftPopWind==1||marquee==1)
-                    &&!type.equals(ConstantValues.ADV)&&!type.equals(ConstantValues.ADS)){
+                    &&!type.equals(ConstantValues.ADV)
+                    &&!type.equals(ConstantValues.ADS)
+                    &&!type.equals(ConstantValues.STORE_SALE)){
                 getSeckillGoodsInfo();
             }else{
                 lanternCloseWin();

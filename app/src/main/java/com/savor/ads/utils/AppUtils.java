@@ -2095,7 +2095,7 @@ public class AppUtils {
     }
     //多视彩新（mtk主板）
     public static boolean isSMART_CLOUD_TV(){
-        return Build.MODEL.contains("mt9632l");
+        return Build.MODEL.contains("mt9632");
     }
 
     public static boolean isPhilips(){
