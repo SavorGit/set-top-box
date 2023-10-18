@@ -514,7 +514,7 @@ public abstract class BaseActivity extends Activity implements InputBoiteIdDialo
                     volume = 0;
                 if (AppUtils.isGiec()){
                     audioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, volume * maxVolume / 100, 0);
-                }else if (AppUtils.isPhilips()){
+                }else if (AppUtils.isPhilips()||AppUtils.isSMART_CLOUD_TV()||AppUtils.isMiTV()){
                     audioManager.setStreamVolume(AudioManager.STREAM_MUSIC,volume,AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
                 }else{
                     audioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, volume, 0);
