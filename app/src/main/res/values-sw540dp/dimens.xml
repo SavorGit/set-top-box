@@ -109,4 +109,45 @@
     <dimen name="dialog_thumbnail_side1">45dp</dimen>
     <dimen name="dialog_thumbnail_size1">11.25dp</dimen>
     <dimen name="dialog_thumbnail_height1">0.37dp</dimen>
+    <!--酒水抽奖运营活动-->
+    <dimen name="dialog_operational_padding1">1.5dp</dimen>
+    <dimen name="dialog_operational_margin1">217.5dp</dimen>
+    <dimen name="dialog_operational_margin2">67.5dp</dimen>
+    <dimen name="dialog_operational_margin3">17.25dp</dimen>
+    <dimen name="dialog_operational_side1">127.5dp</dimen>
+    <dimen name="dialog_operational_side2">150dp</dimen>
+    <dimen name="dialog_operational_side3">112.5dp</dimen>
+    <dimen name="dialog_operational_margin4">22.5dp</dimen>
+    <dimen name="dialog_operational_margin5">30dp</dimen>
+    <dimen name="dialog_operational_size1">60dp</dimen>
+    <dimen name="dialog_operational_size2">15dp</dimen>
+    <!--酒水抽奖页面-->
+    <dimen name="activity_lottery_margin1">22.5dp</dimen>
+    <dimen name="activity_lottery_margin2">15dp</dimen>
+    <dimen name="activity_lottery_padding1">7.5dp</dimen>
+    <dimen name="activity_lottery_textsize1">18.75dp</dimen>
+    <dimen name="activity_lottery_height1">195dp</dimen>
+    <dimen name="activity_lottery_margin3">135dp</dimen>
+    <dimen name="activity_lottery_side1">187.5dp</dimen>
+    <dimen name="activity_lottery_padding2">1.5dp</dimen>
+    <dimen name="activity_lottery_textsize2">22.5dp</dimen>
+    <dimen name="activity_lottery_margin4">157.5dp</dimen>
+    <dimen name="activity_lottery_width1">187.5dp</dimen>
+    <dimen name="activity_lottery_textsize3">45dp</dimen>
+    <dimen name="activity_lottery_height2">0.75dp</dimen>
+    <dimen name="activity_lottery_margin5">174.75dp</dimen>
+    <!--酒水奖品栏目布局-->
+    <dimen name="item_prize_margin1">106.5dp</dimen>
+    <dimen name="item_prize_side1">102dp</dimen>
+    <dimen name="item_prize_margin2">75dp</dimen>
+    <dimen name="item_prize_padding1">1.5dp</dimen>
+    <dimen name="item_prize_margin3">7.5dp</dimen>
+    <dimen name="item_prize_textsize1">15dp</dimen>
+    <dimen name="item_prize_margin4">2.25dp</dimen>
+    <dimen name="item_prize_margin5">270dp</dimen>
+    <dimen name="item_prize_side2">120dp</dimen>
+    <!--酒水抽奖展示adapter-->
+    <dimen name="item_partake_dish_side1">187.5dp</dimen>
+    <dimen name="item_partake_dish_padding1">2.25dp</dimen>
+    <dimen name="item_partake_dish_textsize1">15dp</dimen>
 </resources>

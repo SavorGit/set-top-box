@@ -8,12 +8,12 @@
         android:id="@+id/lucky_user_content_layout"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="@dimen/activity_lottery_margin1"
+        android:layout_marginTop="@dimen/activity_lottery_margin2"
+        android:layout_marginBottom="@dimen/activity_lottery_margin2"
         android:background="@drawable/bg_round_white_translucent"
         android:orientation="vertical"
-        android:padding="10dp">
+        android:padding="@dimen/activity_lottery_padding1">
 
         <TextView
             android:layout_width="wrap_content"
@@ -21,7 +21,7 @@
             android:layout_gravity="center"
             android:text="幸运用户"
             android:textColor="@color/color_red"
-            android:textSize="25dp"
+            android:textSize="@dimen/activity_lottery_textsize1"
             android:textStyle="bold" />
 
         <LinearLayout
@@ -35,10 +35,10 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_horizontal"
         android:layout_width="match_parent"
-        android:layout_height="260dp"
+        android:layout_height="@dimen/activity_lottery_height1"
         android:overScrollMode="never"
-        android:layout_marginRight="180dp"
-        android:layout_marginLeft="180dp"
+        android:layout_marginRight="@dimen/activity_lottery_margin3"
+        android:layout_marginLeft="@dimen/activity_lottery_margin3"
         android:scrollbars="none"
         android:layout_centerInParent="true"/>
     <!--//////////////////////////////////////-->
@@ -56,34 +56,34 @@
 
             <ImageView
                 android:id="@+id/lottery_person_img"
-                android:layout_width="250dp"
-                android:layout_height="250dp"
+                android:layout_width="@dimen/activity_lottery_side1"
+                android:layout_height="@dimen/activity_lottery_side1"
                 android:layout_centerHorizontal="true"
-                android:padding="2dp"
+                android:padding="@dimen/activity_lottery_padding2"
                 android:src="@mipmap/xiaolian_redian" />
         </RelativeLayout>
         <TextView
             android:id="@+id/lottery_personname"
             android:text="真奥术大师多"
-            android:textSize="30dp"
+            android:textSize="@dimen/activity_lottery_textsize2"
             android:gravity="center"
             android:lines="1"
-            android:layout_marginTop="210dp"
+            android:layout_marginTop="@dimen/activity_lottery_margin4"
             android:background="@color/translucent"
             android:textColor="@color/color_white"
-            android:layout_width="250dp"
+            android:layout_width="@dimen/activity_lottery_side1"
             android:layout_height="wrap_content"/>
     </RelativeLayout>
     <!--字体描边加粗-->
     <com.savor.ads.customview.StrokeTextView
         android:id="@+id/lottery_desc"
         android:visibility="gone"
-        android:textSize="30dp"
+        android:textSize="@dimen/activity_lottery_textsize2"
         android:textStyle="bold"
         android:textColor="@color/color_black"
         android:layout_centerHorizontal="true"
         android:layout_below="@id/lottery_person_layout"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="@dimen/activity_lottery_margin2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
     <ImageView
@@ -91,14 +91,14 @@
         android:src="@mipmap/crown"
         android:visibility="gone"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="180dp"
+        android:layout_marginTop="@dimen/activity_lottery_margin3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
     <!--//////////////////////////////////////-->
     <com.savor.ads.customview.StrokeTextView
         android:id="@+id/lottery_tip"
         android:visibility="gone"
-        android:textSize="60dp"
+        android:textSize="@dimen/activity_lottery_textsize3"
         android:textStyle="bold"
         android:textColor="@color/color_black"
         android:layout_centerInParent="true"

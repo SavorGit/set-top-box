@@ -9,19 +9,19 @@
         android:background="@color/color_white">
         <ImageView
             android:id="@+id/user_img"
-            android:layout_width="250dp"
-            android:layout_height="250dp"
+            android:layout_width="@dimen/item_partake_dish_side1"
+            android:layout_height="@dimen/item_partake_dish_side1"
             android:src="@mipmap/xiaolian_redian"
-            android:padding="3dp"
+            android:padding="@dimen/item_partake_dish_padding1"
             android:scaleType="fitXY"/>
         <TextView
             android:id="@+id/user_nickname"
             android:textColor="@color/color_white"
-            android:textSize="20dp"
+            android:textSize="@dimen/item_partake_dish_textsize1"
             android:text="打仗丫哦不得"
             android:lines="1"
             android:layout_centerInParent="true"
-            android:paddingBottom="3dp"
+            android:paddingBottom="@dimen/item_partake_dish_padding1"
             android:gravity="bottom|center"
             android:layout_alignParentBottom="true"
             android:background="@color/bgNormal"
