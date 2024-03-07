@@ -28,6 +28,7 @@ import android.os.StatFs;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -1729,9 +1730,15 @@ public class AppUtils {
         List<ActivityManager.RunningAppProcessInfo> appProcessInfos = activityManager.getRunningAppProcesses();
         // 枚举进程
         for (ActivityManager.RunningAppProcessInfo appProcessInfo : appProcessInfos) {
-            if (appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+            if (AppUtils.isMiTV()){
                 if (appProcessInfo.processName.equals(context.getApplicationInfo().processName)) {
                     return true;
+                }
+            }else{
+                if (appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+                    if (appProcessInfo.processName.equals(context.getApplicationInfo().processName)) {
+                        return true;
+                    }
                 }
             }
         }
@@ -1739,6 +1746,7 @@ public class AppUtils {
     }
 
     public static void appToFront(Context context){
+//        Log.i("SavorApplication123", "isRunningForeground==="+isRunningForeground(context));
         if (isRunningForeground(context)) {
 //        if (!getTopPackageName().equals("com.savor.ads")) {
             //获取ActivityManager
@@ -1749,9 +1757,11 @@ public class AppUtils {
                 //找到当前应用的task，并启动task的栈顶activity，达到程序切换到前台
                 if (rti.topActivity.getPackageName().equals(context.getPackageName())) {
                     mAm.moveTaskToFront(rti.id, 0);
+//                    Log.i("SavorApplication123", "PackageName==="+rti.topActivity.getPackageName());
                     return;
                 }
             }
+//            Log.i("SavorApplication123", "没有运行task，重新启动");
             //若没有找到运行的task，用户结束了task或被系统释放，则重新启动mainactivity
             Intent resultIntent = new Intent(context, MainActivity.class);
             resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);

@@ -58,6 +58,7 @@ android {
             buildConfigField("String", "OSS_BUCKET_NAME", "\"redian-development\"")
             buildConfigField("String", "OSS_ENDPOINT", "\"http://dev-oss.littlehotspot.com/\"")
             buildConfigField("String", "OSS_NATIVE_ENDPOINT", "\"http://oss-cn-beijing.aliyuncs.com/\"")
+            signingConfig signingConfigs.debug
         }
         production {
             dimension "savor"

@@ -7,8 +7,9 @@
     <!--跑马灯相关页-->
     <dimen name="activity_marquee_text_size">18.75dp</dimen>
     <dimen name="activity_marquee_margin_left">153.75dp</dimen>
+    <dimen name="activity_marquee_margin_left2">112.5dp</dimen>
     <dimen name="activity_marquee_margin_right">18.75dp</dimen>
-    <dimen name="activity_marquee_margin_bottom">18.75dp</dimen>
+    <dimen name="activity_marquee_margin_bottom">22.5dp</dimen>
     <dimen name="activity_marquee_padding_left1">52.5dp</dimen>
     <dimen name="activity_marquee_padding_top1">29.5dp</dimen>
     <dimen name="activity_marquee_padding_top2">21.5dp</dimen>

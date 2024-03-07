@@ -521,9 +521,10 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
                 },1000*3);
 //                mHandler.postDelayed(mBackToAdsPlayerRunnable, 60 * 1000);
                 int switchTime = session.getSwitchTime();
+                Log.i("SavorApplication123", "switchTime==="+switchTime);
                 if (switchTime > 0 && switchTime != 999){
                     // 添加延时切换到广告播放的Runnable, 999被定义为不切换
-//                    mHandler.postDelayed(mBackToAdsPlayerRunnable, 60 * 1000 * 2);
+//                    mHandler.postDelayed(mBackToAdsPlayerRunnable, 60 * 1000 * 5);
                     mHandler.postDelayed(mBackToAdsPlayerRunnable, 60 * 1000 * switchTime);
                 }
             }
@@ -538,6 +539,7 @@ public class SavorApplication extends MultiDexApplication implements ApiRequestL
         }
 
         if (GlobalValues.getInstance().PLAY_LIST != null && !GlobalValues.getInstance().PLAY_LIST.isEmpty()) {
+//            Log.i("SavorApplication123", "执行appToFront");
             AppUtils.appToFront(context);
         } else {
             ShowMessage.showToast(context, "未发现可播放轮播内容，无法跳转");

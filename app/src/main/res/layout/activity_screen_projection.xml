@@ -8,15 +8,17 @@
     android:layout_height="match_parent"
     android:background="@android:color/black"
     tools:context="com.savor.ads.activity.ScreenProjectionActivity">
-
+    <!--投屏视频展示-->
     <com.savor.ads.customview.ProjectVideoView
         android:id="@+id/video_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+    <!--投屏图片展示-->
     <RelativeLayout
         android:id="@+id/rl_image"
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:visibility="visible">
         <ImageView
             android:id="@+id/welcome_view"
@@ -357,4 +359,36 @@
     </LinearLayout>
     <!--大屏右侧展示是否本店有售和显示价格浮层-->
     <include layout="@layout/layout_wine_sell"/>
+    <!--底部字幕跑马灯展示-->
+    <RelativeLayout
+        android:id="@+id/layout_dynamic_subtitle"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:visibility="invisible"
+        android:orientation="horizontal"
+        android:layout_marginLeft="@dimen/activity_marquee_margin_left2"
+        android:layout_marginRight="@dimen/activity_marquee_margin_right"
+        android:layout_marginBottom="@dimen/activity_marquee_margin_bottom"
+        android:background="@mipmap/bottom_caption_bg">
+        <TextView
+            android:id="@+id/dynamic_tip"
+            android:textSize="@dimen/activity_marquee_text_size"
+            android:paddingLeft="@dimen/activity_marquee_padding_left1"
+            android:paddingTop="@dimen/activity_marquee_padding_top1"
+            android:textColor="@color/color_black"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <com.sunfusheng.marqueeview.MarqueeView
+            android:id="@+id/marqueeView"
+            android:layout_toRightOf="@id/dynamic_tip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/activity_marquee_padding_top2"
+            app:mvTextSize="@dimen/activity_marquee_text_size"
+            app:mvAnimDuration="1000"
+            app:mvDirection="bottom_to_top"
+            app:mvInterval="5000"
+            app:mvSingleLine="true" />
+    </RelativeLayout>
 </RelativeLayout>

@@ -30,8 +30,8 @@ allprojects {
 
         MIN_SDK_VERSION = 19
         TARGET_SDK_VERSION = 19
-        VERSION_CODE = 2023110301
-        VERSION_NAME = '2.6.5'
+        VERSION_CODE = 2024030601
+        VERSION_NAME = '2.6.7'
     }
 }
 

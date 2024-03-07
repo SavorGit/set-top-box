@@ -1,8 +1,10 @@
 package com.savor.ads.activity;
 
+import static com.savor.ads.core.AppApi.Action.CP_GET_SECKILL_GOODS_FROM_JSON;
 import static com.savor.ads.utils.ConstantValues.MINI_PROGRAM_QRCODE_SMALL_TYPE;
 import static com.savor.ads.utils.ConstantValues.MINI_PROGRAM_SQRCODE_SMALL_TYPE;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -32,6 +34,10 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.core.content.res.ResourcesCompat;
+
+import com.savor.ads.bean.MediaLibBean;
+import com.savor.ads.bean.SeckillGoodsResult;
 import com.savor.ads.core.Session;
 import com.savor.ads.service.RemoteService;
 import com.jar.savor.box.vo.PlayResponseVo;
@@ -52,6 +58,7 @@ import com.savor.ads.log.LogReportUtil;
 import com.savor.ads.projection.action.ProjectionActionBase;
 import com.savor.ads.projection.action.StopAction;
 import com.savor.ads.service.MiniProgramNettyService;
+import com.savor.ads.utils.ActivitiesManager;
 import com.savor.ads.utils.AppUtils;
 import com.savor.ads.utils.ConstantValues;
 import com.savor.ads.utils.DensityUtil;
@@ -63,10 +70,13 @@ import com.savor.ads.utils.LogUtils;
 import com.savor.ads.utils.MiniProgramQrCodeWindowManager;
 import com.savor.ads.utils.QrCodeWindowManager;
 import com.savor.ads.utils.ShowMessage;
+import com.sunfusheng.marqueeview.MarqueeView;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import pl.droidsonroids.gif.GifImageView;
 
@@ -105,7 +115,7 @@ public class ScreenProjectionActivity extends BaseActivity{
      * 投屏静止状态持续时间，超时自动退出投屏
      */
     //标准版投屏轮播时间
-    private static final int PROJECT_DURATION = 1000 * 10+2000;
+    private static final int PROJECT_DURATION = 1000 * 30+2000;
     //投屏图片单张滑动时间
     private static final int PROJECT_SLIDE_DURATION = 1000 * 30;
     //餐厅版投屏轮播时间
@@ -152,6 +162,10 @@ public class ScreenProjectionActivity extends BaseActivity{
      * 10:插播广告
      */
     private int mImageType;
+    /***
+     *  是否在展示跑马灯的过程中，包含每隔3分钟展示15s
+     */
+    private boolean marqueeing;
     //是否是前置后置广告广告视频
     private boolean isAds;
     private String mImagePath;
@@ -248,13 +262,20 @@ public class ScreenProjectionActivity extends BaseActivity{
     private LinearLayout proQrcodeLayout;
     private ImageView proQrcodeIV;
 
-    //酒水售卖广告浮层
+    /**
+     * 酒水售卖广告浮层
+     */
     private RelativeLayout haveWineBgLayout;
     private ImageView wineImgIV;
     private TextView winePriceTV;
-
     WindowManager.LayoutParams wmParams = new WindowManager.LayoutParams();
     private int layerWidth;
+    /**
+     * 底部字幕跑马灯展示
+     */
+    private RelativeLayout dynamicSubtitleLayout;
+    private TextView dynamicTipTV;
+    private MarqueeView marqueeView;
     /**
      * 图片旋转角度
      */
@@ -305,54 +326,6 @@ public class ScreenProjectionActivity extends BaseActivity{
         bindMiniprogramJettyService();
     }
 
-
-    /**
-     * 绑定netty服务
-     */
-    private void bindMiniprogramNettyService(){
-        mNettyConnection = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder binder) {
-                adsBinder = (MiniProgramNettyService.AdsBinder) binder;
-                if (adsBinder!=null){
-                    miniProgramNettyService = adsBinder.getService();
-                    LogUtils.d(miniProgramNettyService+"123");
-                }
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-
-            }
-        };
-
-        Intent intent = new Intent(mContext, MiniProgramNettyService.class);
-        bindService(intent,mNettyConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    /**
-     * 绑定netty服务
-     */
-    private void bindMiniprogramJettyService(){
-        mJettyConnection = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder binder) {
-                remoteBinder = (RemoteService.OperationBinder) binder;
-                if (remoteBinder!=null){
-                    remoteJettyService = remoteBinder.getController();
-                    LogUtils.d(remoteJettyService+"456");
-                }
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-
-            }
-        };
-
-        Intent intent = new Intent(mContext, RemoteService.class);
-        bindService(intent,mJettyConnection, Context.BIND_AUTO_CREATE);
-    }
     private void findView() {
         mSavorVideoView = findViewById(R.id.video_view);
         mImageArea = findViewById(R.id.rl_image);
@@ -392,6 +365,10 @@ public class ScreenProjectionActivity extends BaseActivity{
         haveWineBgLayout = findViewById(R.id.have_wine_bg_layout);
         wineImgIV = findViewById(R.id.wine_img);
         winePriceTV = findViewById(R.id.wine_price);
+
+        dynamicSubtitleLayout = findViewById(R.id.layout_dynamic_subtitle);
+        dynamicTipTV = findViewById(R.id.dynamic_tip);
+        marqueeView = findViewById(R.id.marqueeView);
     }
 
     private void setView() {
@@ -503,7 +480,48 @@ public class ScreenProjectionActivity extends BaseActivity{
             handleProjectRequest();
         }
     }
+    /**绑定netty服务*/
+    private void bindMiniprogramNettyService(){
+        mNettyConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder binder) {
+                adsBinder = (MiniProgramNettyService.AdsBinder) binder;
+                if (adsBinder!=null){
+                    miniProgramNettyService = adsBinder.getService();
+                    LogUtils.d(miniProgramNettyService+"123");
+                }
+            }
 
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+
+            }
+        };
+
+        Intent intent = new Intent(mContext, MiniProgramNettyService.class);
+        bindService(intent,mNettyConnection, Context.BIND_AUTO_CREATE);
+    }
+    /**绑定netty服务*/
+    private void bindMiniprogramJettyService(){
+        mJettyConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder binder) {
+                remoteBinder = (RemoteService.OperationBinder) binder;
+                if (remoteBinder!=null){
+                    remoteJettyService = remoteBinder.getController();
+                    LogUtils.d(remoteJettyService+"456");
+                }
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+
+            }
+        };
+
+        Intent intent = new Intent(mContext, RemoteService.class);
+        bindService(intent,mJettyConnection, Context.BIND_AUTO_CREATE);
+    }
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -642,6 +660,7 @@ public class ScreenProjectionActivity extends BaseActivity{
         }
         mHandler.removeCallbacks(layerToLeftRunnable);
         mHandler.removeCallbacks(layerToRightRunnable);
+        isShowMarqueeView();
         //有新的投屏进来，如果有正在轮播的欢迎词，就打断播放,并且停止背景音乐 20191212
         GlobalValues.mpprojection = null;
         if ((!ConstantValues.PROJECT_TYPE_BUSINESS_WELCOME.equals(mProjectType)
@@ -1214,6 +1233,55 @@ public class ScreenProjectionActivity extends BaseActivity{
         translateAnimation.startNow();//动画开始执行 放在最后即可
 
     }
+    /**是否展示跑马灯信息*/
+    private void isShowMarqueeView(){
+        if (ConstantValues.PROJECT_TYPE_PICTURE.equals(mProjectType)
+                &&(mImageType==1||mImageType==11||mImageType==2)){
+            if (!marqueeing){
+                mHandler.postDelayed(showMarqueeRunnable,1000*60*2);
+                marqueeing=true;
+            }
+        }else{
+            marqueeing=false;
+            mHandler.removeCallbacks(showMarqueeRunnable);
+            mHandler.removeCallbacks(waitForStartMarqueeRunnable);
+            dynamicSubtitleLayout.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private Runnable showMarqueeRunnable = () -> showMarqueeView();
+    /**展示跑马灯信息*/
+    private void showMarqueeView(){
+        Activity activity = ActivitiesManager.getInstance().getCurrentActivity();
+        if (dynamicSubtitleLayout.getVisibility()==View.INVISIBLE&&activity instanceof ScreenProjectionActivity){
+            String boxMac = mSession.getEthernetMac();
+            AppApi.getSeckillGoodsFromCloudfrom(mContext,apiRequestListener,boxMac);
+        }
+        ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) dynamicSubtitleLayout.getLayoutParams();
+        int leftMargin;
+        int rightMargin;
+        int topMargin = 0;
+        int bottomMargin = getResources().getDimensionPixelSize(R.dimen.activity_marquee_margin_bottom);
+        if (mImageType==2){
+            leftMargin = getResources().getDimensionPixelSize(R.dimen.activity_marquee_margin_right);
+            rightMargin = leftMargin;
+        }else{
+            leftMargin = getResources().getDimensionPixelSize(R.dimen.activity_marquee_margin_left2);
+            rightMargin = getResources().getDimensionPixelSize(R.dimen.activity_marquee_margin_right);;
+        }
+        layoutParams.setMargins(leftMargin,topMargin,rightMargin,bottomMargin);
+        dynamicSubtitleLayout.setLayoutParams(layoutParams);
+    }
+
+    private Runnable waitForStartMarqueeRunnable = ()->waitForStartMarqueeView();
+    private void waitForStartMarqueeView(){
+        closeMarqueeTip();
+        if(ConstantValues.PROJECT_TYPE_PICTURE.equals(mProjectType)
+                &&(mImageType==1||mImageType==11||mImageType==2)
+                &&marqueeing){
+            mHandler.postDelayed(showMarqueeRunnable,1000*60*3);
+        }
+    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -1597,7 +1665,8 @@ public class ScreenProjectionActivity extends BaseActivity{
         if (mMusicPlayer!=null){
             mMusicPlayer.setLooping(false);
         }
-
+        mHandler.removeCallbacks(showMarqueeRunnable);
+        mHandler.removeCallbacks(waitForStartMarqueeRunnable);
         mIsBeenStopped = true;
         finish();
         mHandler.postDelayed(new Runnable() {
@@ -1886,7 +1955,14 @@ public class ScreenProjectionActivity extends BaseActivity{
     ApiRequestListener apiRequestListener = new ApiRequestListener() {
         @Override
         public void onSuccess(AppApi.Action method, Object obj) {
-
+            switch (method){
+                case CP_GET_SECKILL_GOODS_FROM_JSON:
+                    if (obj instanceof SeckillGoodsResult){
+                        SeckillGoodsResult goodsResult = (SeckillGoodsResult)obj;
+                        handleSeckillGoodsInfo(goodsResult);
+                    }
+                    break;
+            }
         }
 
         @Override
@@ -1899,4 +1975,90 @@ public class ScreenProjectionActivity extends BaseActivity{
 
         }
     };
+
+    private void handleSeckillGoodsInfo(SeckillGoodsResult goodsResult){
+        try {
+            if (goodsResult!=null){
+                //处理跑马灯相关逻辑
+                int marquee = mSession.getMarquee();
+                if (marquee==1
+                        &&goodsResult.getRoll_content()!=null
+                        &&goodsResult.getRoll_content().length>0){
+                    List<String> rollContent = Arrays.asList(goodsResult.getRoll_content());
+                    handleCaptionTip(rollContent);
+                }else{
+                    closeMarqueeTip();
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void handleCaptionTip(List<String> rollContent){
+        dynamicSubtitleLayout.setVisibility(View.VISIBLE);
+        if (rollContent!=null&&rollContent.size()>1){
+            String tip = rollContent.get(0);
+            if (!TextUtils.isEmpty(tip)){
+                dynamicTipTV.setVisibility(View.VISIBLE);
+                dynamicTipTV.setText(tip);
+                dynamicTipTV.setTypeface(ResourcesCompat.getFont(mContext, R.font.huawenxinwei));
+            }else{
+                dynamicTipTV.setVisibility(View.GONE);
+                dynamicTipTV.setText("");
+                dynamicTipTV.clearAnimation();
+            }
+            String content = rollContent.get(1);
+            setTextMarquee(content);
+        }else if (rollContent!=null&&rollContent.size()==1){
+            String content = rollContent.get(0);
+            setTextMarquee(content);
+        }
+
+
+    }
+
+    public void setTextMarquee(String content) {
+        if (TextUtils.isEmpty(content)){
+            return;
+        }
+        List<CharSequence> list = null;
+        if(content.contains("、")){
+            String[] info = content.split("、");
+            if (info.length>0){
+                List<CharSequence> infoList = Arrays.asList(info);
+                infoList = new ArrayList<>(infoList);
+                int remainder = infoList.size()%2;
+                //如果有余数，那么将集合第一个数据补到最后一位上，保证能除尽
+                if (remainder>0){
+                    infoList.add(infoList.get(0));
+                }
+                int count = infoList.size()/2;
+                int j=0;
+                list = new ArrayList<>();
+                for (int i =0;i<count;i++){
+                    CharSequence info1 =infoList.get(j);
+                    j = j + 1;
+                    CharSequence info2 =infoList.get(j);
+                    String eachInfo = info1+" "+info2;
+                    list.add(eachInfo);
+                    j=j+1;
+                }
+            }
+        }else{
+            list = new ArrayList<>();
+            list.add(content.trim());
+        }
+        marqueeView.removeAllViews();
+        marqueeView.clearAnimation();
+        marqueeView.startWithList(list);
+        mHandler.postDelayed(waitForStartMarqueeRunnable,1000*15);
+    }
+
+    //关闭底部跑马灯效果
+    private void closeMarqueeTip(){
+        marqueeView.removeAllViews();
+        marqueeView.clearAnimation();
+        dynamicSubtitleLayout.setVisibility(View.INVISIBLE);
+    }
 }

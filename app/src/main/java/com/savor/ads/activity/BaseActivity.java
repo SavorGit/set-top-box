@@ -379,6 +379,9 @@ public abstract class BaseActivity extends Activity implements InputBoiteIdDialo
         } else if (keyCode == KeyCode.KEY_CODE_UDISK_COPY) {
             handleUsbCopy();
             handled = true;
+        }else if(keyCode == KeyCode.KEY_CODE_UP&&AppUtils.isMiTV()){
+            gotoAppBrowser();
+            handled = true;
         }
         return handled || super.onKeyDown(keyCode, event);
     }

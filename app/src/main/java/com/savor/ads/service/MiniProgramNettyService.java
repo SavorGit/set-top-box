@@ -105,7 +105,7 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
     private String box_downstime;
     ProjectionImgListDialog pImgListDialog = null;
     //标准版轮播图片时长
-    private int INTERVAL_TIME=1000*10;
+    private int INTERVAL_TIME=1000*30;
     //销售端轮播图片时长
     private int REST_INTERVAL_TIME=1000*30;
     //如果网络比较慢，则等待，超2分钟退出
@@ -2937,9 +2937,10 @@ public class MiniProgramNettyService extends Service implements MiniNettyMsgCall
                     }
                     break;
                 case 7:
-                    if (action!=0) {
-                        new Thread(()->handleFileProjection(0)).start();
-                    }
+                    //莫名其妙
+//                    if (action!=0) {
+//                        new Thread(()->handleFileProjection(0)).start();
+//                    }
                     break;
                 case 9:
                     callBigQrCodeVideo(mpProjection);

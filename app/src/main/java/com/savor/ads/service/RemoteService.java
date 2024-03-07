@@ -103,7 +103,7 @@ public class RemoteService extends Service {
     private Server server = new Server(ConstantValues.SERVER_REQUEST_PORT);
     private static OnRemoteOperationListener listener;
     private RemoteService.ServerThread mServerAsyncTask;
-    private int INTERVAL_TIME=1000*10;
+    private int INTERVAL_TIME=1000*30;
     private int REST_INTERVAL_TIME=1000*30;
     Handler handler=new Handler(Looper.getMainLooper());
     private Context context;

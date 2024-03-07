@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.savor.ads.R;
 import com.savor.ads.bean.AppBean;
+import com.savor.ads.utils.AppUtils;
 
 import java.util.ArrayList;
 
@@ -73,10 +74,12 @@ public class AppBrowserAdapter extends BaseAdapter {
                 Intent i = new Intent();
                 i.setComponent(component);
                 mContext.startActivity(i);
-                if (pkg.equals("com.dianshijia.newlive")){
-                    Activity activity = (Activity)mContext;
-                    activity.finish();
-                }
+                Activity activity = (Activity)mContext;
+                activity.finish();
+//                if (pkg.equals("com.dianshijia.newlive")|| AppUtils.isMiTV()){
+//                    Activity activity = (Activity)mContext;
+//                    activity.finish();
+//                }
 
             }
         });
