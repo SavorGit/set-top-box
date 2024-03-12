@@ -334,7 +334,14 @@ public class AppUtils {
      */
     public static String getFilePath(StorageFile mode) {
         String path = getMainMediaPath();
-
+        File targetPicturesFile = new File(path + File.separator, PICTURES);
+        if (!targetPicturesFile.exists()) {
+            targetPicturesFile.mkdir();
+        }
+        File targetDownloadFile = new File(path + File.separator, Download);
+        if (!targetDownloadFile.exists()) {
+            targetDownloadFile.mkdir();
+        }
         File targetLogFile = new File(path + File.separator, BoxLogDir);
         if (!targetLogFile.exists()) {
             targetLogFile.mkdir();
